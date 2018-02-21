@@ -1,0 +1,1189 @@
+/**
+ * @author    RocketTheme http://www.rockettheme.com
+ * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
+ * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only
+ */
+.clearfix {
+  *zoom: 1;
+}
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+}
+.clearfix:after {
+  clear: both;
+}
+.hide-text {
+  font: 0/0 a;
+  color: transparent;
+  text-shadow: none;
+  background-color: transparent;
+  border: 0;
+}
+.input-block-level {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.rok-left {
+  float: left;
+}
+.rok-right {
+  float: right;
+}
+.rok-dropdown-group,
+.rok-dropdown {
+  position: relative;
+}
+.rok-dropdown-open .rok-dropdown {
+  display: block;
+}
+.rok-popover-group,
+.rok-popover {
+  position: relative;
+}
+.rok-popover-open .rok-popover {
+  display: block;
+}
+.rokpad-editor-wrapper .rokpad-shortcodes ul,
+.rokpad-editor-wrapper .rokpad-toolbar ul,
+.rokpad-editor-wrapper .rokpad-statusbar ul {
+  margin: 0;
+  padding: 0;
+}
+.rokpad-editor-wrapper .rokpad-shortcodes ul li,
+.rokpad-editor-wrapper .rokpad-toolbar ul li,
+.rokpad-editor-wrapper .rokpad-statusbar ul li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: inline-block;
+}
+.rokpad-editor-wrapper .rokpad-editor-container {
+  position: relative;
+  min-height: 250px;
+  height: 250px;
+  background: white;
+}
+.rokpad-editor-wrapper .rokpad-editor-container .rokpad-editor-original {
+  display: none;
+}
+.rokpad-editor {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.rokpad-editor-wrapper ul.rok-dropdown a {
+  font-size: 12px;
+}
+.rokpad-editor-wrapper input:focus {
+  background: #fff !important;
+}
+.repeatable-content {
+  width: 100%;
+}
+.repeatable-content .rokpad-editor-wrapper .rok-popover .input input,
+.repeatable-content .rokpad-editor-wrapper .rok-popover .input select {
+  width: auto !important;
+}
+.repeatable-content .rokpad-editor-wrapper .rok-popover .input input[type="text"],
+.repeatable-content .rokpad-editor-wrapper .rok-popover .input select[type="text"] {
+  width: 30px !important;
+}
+.ace_gutter.horscroll {
+  -webkit-box-shadow: 0px -6px 10px 0px rgba(0,0,0,0.6) !important;
+  -moz-box-shadow: 0px -6px 10px 0px rgba(0,0,0,0.6) !important;
+  box-shadow: 0px -6px 10px 0px rgba(0,0,0,0.6) !important;
+  border-right: 1px solid #f0f0f0;
+}
+.ace_content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.ace_content,
+.rokpad-shortcodes {
+  text-align: left;
+}
+body #main a,
+body #main a:hover {
+  text-decoration: none;
+}
+body #main ul {
+  margin: 0;
+  padding: 0;
+}
+body #main .rok-popover-keyboard ul.keyboard li {
+  line-height: 25px;
+  margin: 5px 0;
+  padding-bottom: 5px;
+}
+.rokpad-editor-wrapper {
+  border: 1px solid #c9c9c9;
+}
+.rokpad-editor-wrapper,
+.rokpad-editor-wrapper .rokpad-statusbar {
+  -webkit-border-radius: 0 0 3px 3px;
+  -moz-border-radius: 0 0 3px 3px;
+  border-radius: 0 0 3px 3px;
+}
+.rokpad-editor-wrapper .rokpad-toolbar {
+  padding: 8px;
+  background-color: #ededed;
+  background-image: -moz-linear-gradient(top,#f5f5f5,#e0e0e0);
+  background-image: -ms-linear-gradient(top,#f5f5f5,#e0e0e0);
+  background-image: -webkit-gradient(linear,0 0,0 100%,from(#f5f5f5),to(#e0e0e0));
+  background-image: -webkit-linear-gradient(top,#f5f5f5,#e0e0e0);
+  background-image: -o-linear-gradient(top,#f5f5f5,#e0e0e0);
+  background-image: linear-gradient(top,#f5f5f5,#e0e0e0);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f5f5f5', endColorstr='#e0e0e0', GradientType=0);
+  -webkit-box-shadow: 0px 8px 8px -7px #d9d9d9 inset;
+  -moz-box-shadow: 0px 8px 8px -7px #d9d9d9 inset;
+  box-shadow: 0px 8px 8px -7px #d9d9d9 inset;
+  border-bottom: 1px solid #b8b8b8;
+  *zoom: 1;
+}
+.rokpad-editor-wrapper .rokpad-toolbar:before,
+.rokpad-editor-wrapper .rokpad-toolbar:after {
+  display: table;
+  content: "";
+}
+.rokpad-editor-wrapper .rokpad-toolbar:after {
+  clear: both;
+}
+.rokpad-editor-wrapper .rokpad-shortcodes {
+  padding: 6px 3px;
+  background-color: #ededed;
+  border-bottom: 1px solid #b3b3b3;
+  -webkit-box-shadow: 0px 6px 6px -5px #cccccc inset;
+  -moz-box-shadow: 0px 6px 6px -5px #cccccc inset;
+  box-shadow: 0px 6px 6px -5px #cccccc inset;
+}
+.rokpad-editor-wrapper .rokpad-shortcodes li {
+  cursor: pointer;
+}
+.rokpad-editor-wrapper .rokpad-shortcodes li i {
+  margin: 0 3px;
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+}
+.rokpad-editor-wrapper .rokpad-shortcodes li:hover i {
+  opacity: 1;
+  filter: alpha(opacity=100);
+}
+.rokpad-editor-wrapper .rokpad-editor-container {
+  border: 1px solid #fff;
+}
+.rokpad-editor-wrapper .rokpad-actionbar {
+  padding: 6px;
+  background-color: #efefef;
+  background-image: -moz-linear-gradient(top,#f5f5f5,#e6e6e6);
+  background-image: -ms-linear-gradient(top,#f5f5f5,#e6e6e6);
+  background-image: -webkit-gradient(linear,0 0,0 100%,from(#f5f5f5),to(#e6e6e6));
+  background-image: -webkit-linear-gradient(top,#f5f5f5,#e6e6e6);
+  background-image: -o-linear-gradient(top,#f5f5f5,#e6e6e6);
+  background-image: linear-gradient(top,#f5f5f5,#e6e6e6);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f5f5f5', endColorstr='#e6e6e6', GradientType=0);
+  border-top: 1px solid #c9c9c9;
+}
+.rokpad-editor-wrapper .rokpad-actionbar ul {
+  margin: 0;
+  padding: 0;
+  display: table;
+  width: 100%;
+}
+.rokpad-editor-wrapper .rokpad-actionbar ul > * {
+  display: table-cell;
+  vertical-align: middle;
+  padding: 0;
+}
+.rokpad-editor-wrapper .rokpad-actionbar ul > * .rok-buttons-group:last-child .rok-button:last-child {
+  margin-right: 0;
+}
+.rokpad-editor-wrapper .rokpad-actionbar ul .rok-buttons-group {
+  display: inline-block;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rokpad-column-1 {
+  width: 1%;
+  white-space: nowrap;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rokpad-column-1 i {
+  opacity: 1;
+  filter: alpha(opacity=100);
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rokpad-column-3 {
+  width: 1%;
+  white-space: nowrap;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-input-row-2 {
+  display: none;
+  margin-top: 5px;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-input-wrapper {
+  background: #fff;
+  margin: 0 10px;
+  padding: 6px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  border: 1px solid #b6b6b6;
+  -webkit-box-shadow: 0 6px 6px -6px rgba(0,0,0,0.2) inset;
+  -moz-box-shadow: 0 6px 6px -6px rgba(0,0,0,0.2) inset;
+  box-shadow: 0 6px 6px -6px rgba(0,0,0,0.2) inset;
+  cursor: text;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-input-wrapper.rok-input-row-2 {
+  display: none;
+  margin-top: 5px;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-input-wrapper input {
+  color: #777;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  float: none !important;
+  width: 100%;
+  outline: 0;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-input-wrapper input,
+.rokpad-editor-wrapper .rokpad-actionbar .rok-input-wrapper input:focus {
+  background: #fff;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-button {
+  display: inline-block;
+  padding: 4px;
+  line-height: 16px;
+  margin-top: 0;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-button:active,
+.rokpad-editor-wrapper .rokpad-actionbar .rok-button.rok-button-active,
+.rokpad-editor-wrapper .rokpad-actionbar .rok-button.rok-button-disabled {
+  padding: 5px;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-button.rok-button-noicon {
+  padding: 4px 12px;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-button.rok-button-noicon:active,
+.rokpad-editor-wrapper .rokpad-actionbar .rok-button.rok-button-noicon.rok-button-active,
+.rokpad-editor-wrapper .rokpad-actionbar .rok-button.rok-button-noicon.rok-button-disabled {
+  padding: 5px 13px;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-button.rok-button-unchecked i {
+  background-position-y: -48px;
+}
+.rokpad-editor-wrapper .rokpad-statusbar {
+  *zoom: 1;
+  padding: 4px 5px;
+  color: #505050;
+  text-shadow: 0 1px 0 #ededed;
+  font-size: 12px;
+  background-color: #d1d1d1;
+  background-image: -moz-linear-gradient(top,#d4d4d4,#cccccc);
+  background-image: -ms-linear-gradient(top,#d4d4d4,#cccccc);
+  background-image: -webkit-gradient(linear,0 0,0 100%,from(#d4d4d4),to(#cccccc));
+  background-image: -webkit-linear-gradient(top,#d4d4d4,#cccccc);
+  background-image: -o-linear-gradient(top,#d4d4d4,#cccccc);
+  background-image: linear-gradient(top,#d4d4d4,#cccccc);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d4d4d4', endColorstr='#cccccc', GradientType=0);
+  -webkit-box-shadow: 0 2px 0px -1px rgba(255,255,255,0.3) inset;
+  -moz-box-shadow: 0 2px 0px -1px rgba(255,255,255,0.3) inset;
+  box-shadow: 0 2px 0px -1px rgba(255,255,255,0.3) inset;
+  border: 1px solid #a6a6a6;
+  margin: 0 -1px -1px;
+  cursor: ns-resize;
+}
+.rokpad-editor-wrapper .rokpad-statusbar:before,
+.rokpad-editor-wrapper .rokpad-statusbar:after {
+  display: table;
+  content: "";
+}
+.rokpad-editor-wrapper .rokpad-statusbar:after {
+  clear: both;
+}
+.rokpad-editor-wrapper .rokpad-statusbar ul,
+.rokpad-editor-wrapper .rokpad-statusbar li {
+  cursor: default;
+}
+.rokpad-editor-wrapper .rokpad-statusbar .rokpad-checked a:before {
+  content: "✓";
+  margin-left: -14px;
+  margin-right: 5px;
+}
+.rokpad-editor-wrapper .rokpad-statusbar .divider {
+  width: 15px;
+  content: "";
+}
+.rokpad-editor-wrapper.rokpad-cantresize .rokpad-statusbar {
+  cursor: default;
+}
+@media only screen and (max-device-width: 1024px) {
+  .rokpad-editor-wrapper .rokpad-editor-container .rokpad-editor,
+  .rokpad-editor-wrapper .rokpad-actionbar,
+  .rokpad-editor-wrapper .rokpad-toolbar ul li,
+  .rokpad-editor-wrapper .rokpad-statusbar .rok-right {
+    display: none !important;
+  }
+  .rokpad-editor-wrapper .rokpad-toolbar ul.rok-left li:first-child {
+    display: block !important;
+  }
+  .rokpad-editor-wrapper .rokpad-editor-container .rokpad-editor-original {
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    outline: 0;
+    border: 0;
+  }
+}
+.rokpad-ie8.rokpad-editor-wrapper .rokpad-editor-container .rokpad-editor,
+.rokpad-ie8.rokpad-editor-wrapper .rokpad-actionbar,
+.rokpad-ie8.rokpad-editor-wrapper .rokpad-toolbar ul li,
+.rokpad-ie8.rokpad-editor-wrapper .rokpad-statusbar .rok-right {
+  display: none !important;
+}
+.rokpad-ie8.rokpad-editor-wrapper .rokpad-toolbar ul.rok-left li:first-child {
+  display: block !important;
+}
+.rokpad-ie8.rokpad-editor-wrapper .rokpad-editor-container .rokpad-editor-original {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  outline: 0;
+  border: 0;
+}
+.btn-toolbar.rokpad-fullscreen {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  width: 100%;
+  background: white;
+  margin: 0;
+  padding: 5px 10px;
+}
+.btn-toolbar {
+  font-size: inherit !important;
+}
+.button2-left {
+  display: inline-block;
+}
+.rokpad-clearfix:after {
+  content: ".";
+  display: block;
+  clear: both;
+  visibility: hidden;
+  line-height: 0;
+  height: 0;
+}
+.rokpad-clearfix {
+  display: inline-block;
+}
+html[xmlns] .rokpad-clearfix {
+  display: block;
+}
+* html .rokpad-clearfix {
+  height: 1%;
+}
+.rokpad-editor-wrapper .rok-dropdown-open ul.rok-dropdown {
+  display: block;
+}
+.rokpad-editor-wrapper ul.rok-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  display: none;
+  float: left;
+  list-style: none;
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
+  z-index: 5;
+  background-color: #eee;
+  min-width: 160px;
+  padding: 4px 0;
+  border: 1px solid #fff;
+  *border-right-width: 2px;
+  *border-bottom-width: 2px;
+  -webkit-border-radius: 0 2px 4px 4px;
+  -moz-border-radius: 0 2px 4px 4px;
+  border-radius: 0 2px 4px 4px;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, .1), 0 0 0 1px rgba(0, 0, 0, 0.20);
+  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, .1), 0 0 0 1px rgba(0, 0, 0, 0.20);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, .1), 0 0 0 1px rgba(0, 0, 0, 0.20);
+}
+.rokpad-editor-wrapper ul.rok-dropdown .divider {
+  *width: 100%;
+  height: 1px;
+  margin: 5.5px 1px;
+  *margin: -5px 0 5px;
+  overflow: hidden;
+  background-color: #e5e5e5;
+  border-bottom: 1px solid #fff;
+}
+.rokpad-editor-wrapper ul.rok-dropdown > li {
+  display: block;
+}
+.rokpad-editor-wrapper ul.rok-dropdown a {
+  display: block;
+  clear: both;
+  font-weight: normal;
+  white-space: nowrap;
+}
+.rokpad-editor-wrapper ul.rok-dropdown > li > a:hover,
+.rokpad-editor-wrapper ul.rok-dropdown .active > a,
+.rokpad-editor-wrapper ul.rok-dropdown .active > a:hover {
+  text-decoration: none;
+}
+.rokpad-editor-wrapper ul.rok-dropdown li {
+  text-align: left;
+}
+.rokpad-editor-wrapper ul.rok-dropdown .divider {
+  background-color: #d5d5d5;
+  border-bottom: 1px solid #ffffff;
+  margin: 5px 1px;
+}
+.rokpad-editor-wrapper ul.rok-dropdown a {
+  margin: 0 -1px;
+  padding: 3px 15px;
+  line-height: 24px;
+  color: #333;
+  text-shadow: 0 1px 0 #fff;
+  text-decoration: none;
+}
+.rokpad-editor-wrapper ul.rok-dropdown > li > a:hover,
+.rokpad-editor-wrapper ul.rok-dropdown .active > a,
+.rokpad-editor-wrapper ul.rok-dropdown .active > a:hover {
+  background-color: #258fd2;
+  background-image: -moz-linear-gradient(top,#2a9de6,#1d79b5);
+  background-image: -ms-linear-gradient(top,#2a9de6,#1d79b5);
+  background-image: -webkit-gradient(linear,0 0,0 100%,from(#2a9de6),to(#1d79b5));
+  background-image: -webkit-linear-gradient(top,#2a9de6,#1d79b5);
+  background-image: -o-linear-gradient(top,#2a9de6,#1d79b5);
+  background-image: linear-gradient(top,#2a9de6,#1d79b5);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#2a9de6', endColorstr='#1d79b5', GradientType=0);
+  color: #fff;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.5);
+}
+.rokpad-statusbar {
+  position: relative;
+}
+.rokpad-statusbar ul.rok-dropdown {
+  position: absolute;
+  top: inherit;
+  left: inherit;
+  bottom: 23px;
+  right: 0;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+.rokpad-statusbar ul.rok-dropdown a {
+  padding: 1px 20px;
+}
+.rokpad-statusbar ul.rok-dropdown .divider {
+  width: 100%;
+}
+.rokpad-editor-wrapper .rok-popover-open .rok-popover {
+  display: block;
+}
+.rokpad-editor-wrapper .rok-popover {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  display: none;
+  -webkit-background-clip: padding-box;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
+  z-index: 5;
+  background-color: #f8f8f8;
+  left: inherit;
+  right: 50px;
+  min-width: 250px;
+  padding: 10px;
+  border: 1px solid #fff;
+  *border-right-width: 2px;
+  *border-bottom-width: 2px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, .1), 0 0 0 1px rgba(0, 0, 0, 0.20);
+  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, .1), 0 0 0 1px rgba(0, 0, 0, 0.20);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, .1), 0 0 0 1px rgba(0, 0, 0, 0.20);
+  font-size: 11px;
+}
+.rokpad-editor-wrapper .rok-popover ul.options li {
+  width: 100%;
+  text-align: left;
+}
+.rokpad-editor-wrapper .rok-popover ul.options li .title {
+  font-size: inherit;
+  padding: 0;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  border-bottom: 0;
+  color: inherit;
+  text-shadow: transparent;
+}
+.rokpad-editor-wrapper .rok-popover span.title,
+.rokpad-editor-wrapper .rok-popover span.title-checkbox {
+  display: inline-block;
+  text-align: right;
+  margin: 0 10px 0 0;
+  width: 70px;
+}
+.rokpad-editor-wrapper .rok-popover span.title.title-checkbox,
+.rokpad-editor-wrapper .rok-popover span.title-checkbox.title-checkbox {
+  width: 130px;
+}
+.rokpad-editor-wrapper .rok-popover .input select,
+.rokpad-editor-wrapper .rok-popover .input input {
+  float: none;
+  margin: 5px 5px 5px 0;
+  width: auto;
+  font-size: inherit;
+  padding: inherit;
+}
+.rokpad-editor-wrapper .rok-popover .input select[type=text],
+.rokpad-editor-wrapper .rok-popover .input input[type=text] {
+  width: 30px;
+}
+.rokpad-editor-wrapper .rok-popover .input select {
+  height: auto;
+}
+.rokpad-editor-wrapper .rok-popover .rok-popover-arrow {
+  position: absolute;
+  top: 15px;
+  right: -6px;
+  margin-top: -5px;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid #777;
+}
+.rokpad-editor-wrapper .rok-popover .rokpad-key {
+  border: 1px solid #ABABAB;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  color: #999;
+  font-size: 10px;
+  padding: 2px 3px;
+}
+.rok-popover-keyboard {
+  padding-right: 0 !important;
+  min-width: 300px !important;
+}
+.rok-popover-keyboard ul.keyboard {
+  max-height: 320px;
+  overflow: auto;
+}
+.rok-popover-keyboard ul.keyboard li {
+  line-height: 25px;
+  border-bottom: 1px solid #CCCCCC;
+  margin: 5px 0;
+  padding-bottom: 5px;
+  text-align: left;
+}
+.rok-popover-keyboard .rokpad-keyboard-win,
+.rok-popover-keyboard rokpad-keyboard-mac,
+.rok-popover-keyboard .rokpad-kbd-win,
+.rok-popover-keyboard .rokpad-kbd-mac {
+  display: none;
+}
+.rok-popover-keyboard .rokpad-kbd-win,
+.rok-popover-keyboard .rokpad-kbd-mac {
+  min-width: 160px;
+}
+.rok-popover-keyboard .rokpad-kbd-desc {
+  vertical-align: top;
+}
+button {
+  margin: 0;
+  font-size: 100%;
+  vertical-align: middle;
+}
+button {
+  *overflow: visible;
+  line-height: normal;
+}
+button::-moz-focus-inner {
+  padding: 0;
+  border: 0;
+}
+button {
+  cursor: pointer;
+  -webkit-appearance: button;
+}
+.rok-button {
+  font-size: 13px;
+  line-height: 1em;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  margin-right: 4px;
+  padding: 6px 10px;
+  color: #65646A;
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba(255,255,255,0.85) rgba(255,255,255,0.85) #e6e6e6;
+  text-shadow: 0 1px 0 #ffffff;
+  -webkit-box-shadow: 0 0 0 1px #b5b5b5, 0 3px 5px #c6c6c6;
+  -moz-box-shadow: 0 0 0 1px #b5b5b5, 0 3px 5px #c6c6c6;
+  box-shadow: 0 0 0 1px #b5b5b5, 0 3px 5px #c6c6c6;
+  vertical-align: middle;
+  text-align: center;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  *margin-left: .3em;
+  background-color: #eeeeee;
+  background-image: -moz-linear-gradient(top,#f0f0f0,#ebebeb);
+  background-image: -ms-linear-gradient(top,#f0f0f0,#ebebeb);
+  background-image: -webkit-gradient(linear,0 0,0 100%,from(#f0f0f0),to(#ebebeb));
+  background-image: -webkit-linear-gradient(top,#f0f0f0,#ebebeb);
+  background-image: -o-linear-gradient(top,#f0f0f0,#ebebeb);
+  background-image: linear-gradient(top,#f0f0f0,#ebebeb);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f0f0f0', endColorstr='#ebebeb', GradientType=0);
+}
+.rok-button .caret {
+  margin: 6px 0 0 6px;
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+}
+.rok-button:first-child {
+  *margin-left: 0;
+}
+.rok-button .caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  vertical-align: top;
+  border-top: 4px solid #65646A;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  content: "";
+}
+.rok-button:hover,
+.rok-button.rok-button-hover {
+  color: #484848;
+  background-color: #f8f8f8;
+  background-image: -moz-linear-gradient(top,#fafafa,#f5f5f5);
+  background-image: -ms-linear-gradient(top,#fafafa,#f5f5f5);
+  background-image: -webkit-gradient(linear,0 0,0 100%,from(#fafafa),to(#f5f5f5));
+  background-image: -webkit-linear-gradient(top,#fafafa,#f5f5f5);
+  background-image: -o-linear-gradient(top,#fafafa,#f5f5f5);
+  background-image: linear-gradient(top,#fafafa,#f5f5f5);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fafafa', endColorstr='#f5f5f5', GradientType=0);
+}
+.rok-button:hover .caret,
+.rok-button.rok-button-hover .caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  vertical-align: top;
+  border-top: 4px solid #484848;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  content: "";
+}
+.rok-button:active,
+.rok-button.rok-button-active {
+  color: #464646;
+  border: 0;
+  -webkit-box-shadow: 0 0 0 1px #a1a1a1, 0 1px 1px #fff;
+  -moz-box-shadow: 0 0 0 1px #a1a1a1, 0 1px 1px #fff;
+  box-shadow: 0 0 0 1px #a1a1a1, 0 1px 1px #fff;
+  background-color: #ebebeb;
+  background-image: -moz-linear-gradient(top,#ededed,#e8e8e8);
+  background-image: -ms-linear-gradient(top,#ededed,#e8e8e8);
+  background-image: -webkit-gradient(linear,0 0,0 100%,from(#ededed),to(#e8e8e8));
+  background-image: -webkit-linear-gradient(top,#ededed,#e8e8e8);
+  background-image: -o-linear-gradient(top,#ededed,#e8e8e8);
+  background-image: linear-gradient(top,#ededed,#e8e8e8);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#e8e8e8', GradientType=0);
+}
+.rok-button:active .caret,
+.rok-button.rok-button-active .caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  vertical-align: top;
+  border-top: 4px solid #464646;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  content: "";
+}
+.rok-button.rok-button-disabled,
+.rok-button.rok-button-disabled:hover,
+.rok-button.rok-button-disabled:active {
+  cursor: default;
+  color: #929292;
+  border: 0;
+  -webkit-box-shadow: 0 0 0 1px #bbbbbb, 0 1px 1px #fff;
+  -moz-box-shadow: 0 0 0 1px #bbbbbb, 0 1px 1px #fff;
+  box-shadow: 0 0 0 1px #bbbbbb, 0 1px 1px #fff;
+  background-color: #ebebeb;
+  background-image: -moz-linear-gradient(top,#ededed,#e8e8e8);
+  background-image: -ms-linear-gradient(top,#ededed,#e8e8e8);
+  background-image: -webkit-gradient(linear,0 0,0 100%,from(#ededed),to(#e8e8e8));
+  background-image: -webkit-linear-gradient(top,#ededed,#e8e8e8);
+  background-image: -o-linear-gradient(top,#ededed,#e8e8e8);
+  background-image: linear-gradient(top,#ededed,#e8e8e8);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#e8e8e8', GradientType=0);
+}
+.rok-button.rok-button-disabled .caret,
+.rok-button.rok-button-disabled:hover .caret,
+.rok-button.rok-button-disabled:active .caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  vertical-align: top;
+  border-top: 4px solid #464646;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  content: "";
+}
+.rok-button.rok-button-disabled i,
+.rok-button.rok-button-disabled:hover i,
+.rok-button.rok-button-disabled:active i {
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+}
+.rok-button:active,
+.rok-button.rok-button-active {
+  padding: 7px 11px;
+}
+.rok-button.rok-button-disabled,
+.rok-button.rok-button-disabled:hover,
+.rok-button.rok-button-disabled:active {
+  padding: 7px 11px;
+}
+.rok-button.rok-button-primary {
+  padding: 6px 10px 6px 8px;
+}
+.rok-button.rok-button-primary:active,
+.rok-button.rok-button-primary.rok-button-active {
+  padding: 7px 11px 7px 9px;
+}
+.rok-button.rok-button-primary i {
+  opacity: 1;
+  filter: alpha(opacity=100);
+}
+.rok-button-primary {
+  font-size: 13px;
+  line-height: 1em;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  margin-right: 4px;
+  padding: 6px 10px;
+  color: #65646A;
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba(255,255,255,0.85) rgba(255,255,255,0.85) #e6e6e6;
+  text-shadow: 0 1px 0 #ffffff;
+  -webkit-box-shadow: 0 0 0 1px #b5b5b5, 0 3px 5px #c6c6c6;
+  -moz-box-shadow: 0 0 0 1px #b5b5b5, 0 3px 5px #c6c6c6;
+  box-shadow: 0 0 0 1px #b5b5b5, 0 3px 5px #c6c6c6;
+  vertical-align: middle;
+  text-align: center;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  *margin-left: .3em;
+  background-color: #eeeeee;
+  background-image: -moz-linear-gradient(top,#f0f0f0,#ebebeb);
+  background-image: -ms-linear-gradient(top,#f0f0f0,#ebebeb);
+  background-image: -webkit-gradient(linear,0 0,0 100%,from(#f0f0f0),to(#ebebeb));
+  background-image: -webkit-linear-gradient(top,#f0f0f0,#ebebeb);
+  background-image: -o-linear-gradient(top,#f0f0f0,#ebebeb);
+  background-image: linear-gradient(top,#f0f0f0,#ebebeb);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f0f0f0', endColorstr='#ebebeb', GradientType=0);
+  color: #fff;
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba(255,255,255,0.45) rgba(255,255,255,0.15) #1c73ac;
+  box-shadow: 0 0 0 1px #1573af, 0 3px 5px #c6c6c6;
+  text-shadow: 0 -1px 0 #186496;
+  vertical-align: middle;
+  text-align: center;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  *margin-left: .3em;
+  background-color: #258fd2;
+  background-image: -moz-linear-gradient(top,#2a9de6,#1d79b5);
+  background-image: -ms-linear-gradient(top,#2a9de6,#1d79b5);
+  background-image: -webkit-gradient(linear,0 0,0 100%,from(#2a9de6),to(#1d79b5));
+  background-image: -webkit-linear-gradient(top,#2a9de6,#1d79b5);
+  background-image: -o-linear-gradient(top,#2a9de6,#1d79b5);
+  background-image: linear-gradient(top,#2a9de6,#1d79b5);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#2a9de6', endColorstr='#1d79b5', GradientType=0);
+}
+.rok-button-primary .caret {
+  margin: 6px 0 0 6px;
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+}
+.rok-button-primary:first-child {
+  *margin-left: 0;
+}
+.rok-button-primary .caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  vertical-align: top;
+  border-top: 4px solid #65646A;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  content: "";
+}
+.rok-button-primary:hover,
+.rok-button-primary.rok-button-hover {
+  color: #484848;
+  background-color: #f8f8f8;
+  background-image: -moz-linear-gradient(top,#fafafa,#f5f5f5);
+  background-image: -ms-linear-gradient(top,#fafafa,#f5f5f5);
+  background-image: -webkit-gradient(linear,0 0,0 100%,from(#fafafa),to(#f5f5f5));
+  background-image: -webkit-linear-gradient(top,#fafafa,#f5f5f5);
+  background-image: -o-linear-gradient(top,#fafafa,#f5f5f5);
+  background-image: linear-gradient(top,#fafafa,#f5f5f5);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fafafa', endColorstr='#f5f5f5', GradientType=0);
+}
+.rok-button-primary:hover .caret,
+.rok-button-primary.rok-button-hover .caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  vertical-align: top;
+  border-top: 4px solid #484848;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  content: "";
+}
+.rok-button-primary:active,
+.rok-button-primary.rok-button-active {
+  color: #464646;
+  border: 0;
+  -webkit-box-shadow: 0 0 0 1px #a1a1a1, 0 1px 1px #fff;
+  -moz-box-shadow: 0 0 0 1px #a1a1a1, 0 1px 1px #fff;
+  box-shadow: 0 0 0 1px #a1a1a1, 0 1px 1px #fff;
+  background-color: #ebebeb;
+  background-image: -moz-linear-gradient(top,#ededed,#e8e8e8);
+  background-image: -ms-linear-gradient(top,#ededed,#e8e8e8);
+  background-image: -webkit-gradient(linear,0 0,0 100%,from(#ededed),to(#e8e8e8));
+  background-image: -webkit-linear-gradient(top,#ededed,#e8e8e8);
+  background-image: -o-linear-gradient(top,#ededed,#e8e8e8);
+  background-image: linear-gradient(top,#ededed,#e8e8e8);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#e8e8e8', GradientType=0);
+}
+.rok-button-primary:active .caret,
+.rok-button-primary.rok-button-active .caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  vertical-align: top;
+  border-top: 4px solid #464646;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  content: "";
+}
+.rok-button-primary.rok-button-disabled,
+.rok-button-primary.rok-button-disabled:hover,
+.rok-button-primary.rok-button-disabled:active {
+  cursor: default;
+  color: #929292;
+  border: 0;
+  -webkit-box-shadow: 0 0 0 1px #bbbbbb, 0 1px 1px #fff;
+  -moz-box-shadow: 0 0 0 1px #bbbbbb, 0 1px 1px #fff;
+  box-shadow: 0 0 0 1px #bbbbbb, 0 1px 1px #fff;
+  background-color: #ebebeb;
+  background-image: -moz-linear-gradient(top,#ededed,#e8e8e8);
+  background-image: -ms-linear-gradient(top,#ededed,#e8e8e8);
+  background-image: -webkit-gradient(linear,0 0,0 100%,from(#ededed),to(#e8e8e8));
+  background-image: -webkit-linear-gradient(top,#ededed,#e8e8e8);
+  background-image: -o-linear-gradient(top,#ededed,#e8e8e8);
+  background-image: linear-gradient(top,#ededed,#e8e8e8);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#e8e8e8', GradientType=0);
+}
+.rok-button-primary.rok-button-disabled .caret,
+.rok-button-primary.rok-button-disabled:hover .caret,
+.rok-button-primary.rok-button-disabled:active .caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  vertical-align: top;
+  border-top: 4px solid #464646;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  content: "";
+}
+.rok-button-primary.rok-button-disabled i,
+.rok-button-primary.rok-button-disabled:hover i,
+.rok-button-primary.rok-button-disabled:active i {
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+}
+.rok-button-primary:active,
+.rok-button-primary.rok-button-active {
+  padding: 7px 11px;
+}
+.rok-button-primary.rok-button-disabled,
+.rok-button-primary.rok-button-disabled:hover,
+.rok-button-primary.rok-button-disabled:active {
+  padding: 7px 11px;
+}
+.rok-button-primary.rok-button-primary {
+  padding: 6px 10px 6px 8px;
+}
+.rok-button-primary.rok-button-primary:active,
+.rok-button-primary.rok-button-primary.rok-button-active {
+  padding: 7px 11px 7px 9px;
+}
+.rok-button-primary.rok-button-primary i {
+  opacity: 1;
+  filter: alpha(opacity=100);
+}
+.rok-button-primary:first-child {
+  *margin-left: 0;
+}
+.rok-button-primary .caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  vertical-align: top;
+  border-top: 4px solid #fff;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  content: "";
+}
+.rok-button-primary:hover,
+.rok-button-primary.rok-button-hover {
+  color: #fff;
+  background-color: #3697d6;
+  background-image: -moz-linear-gradient(top,#45aae9,#1e7cb9);
+  background-image: -ms-linear-gradient(top,#45aae9,#1e7cb9);
+  background-image: -webkit-gradient(linear,0 0,0 100%,from(#45aae9),to(#1e7cb9));
+  background-image: -webkit-linear-gradient(top,#45aae9,#1e7cb9);
+  background-image: -o-linear-gradient(top,#45aae9,#1e7cb9);
+  background-image: linear-gradient(top,#45aae9,#1e7cb9);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#45aae9', endColorstr='#1e7cb9', GradientType=0);
+}
+.rok-button-primary:active,
+.rok-button-primary.rok-button-active {
+  color: #fff;
+  border: 0;
+  -webkit-box-shadow: 0 0 0 1px #196a9f, 0 1px 1px #fff;
+  -moz-box-shadow: 0 0 0 1px #196a9f, 0 1px 1px #fff;
+  box-shadow: 0 0 0 1px #196a9f, 0 1px 1px #fff;
+  background-color: #228cd0;
+  background-image: -moz-linear-gradient(top,#259be5,#1c76b1);
+  background-image: -ms-linear-gradient(top,#259be5,#1c76b1);
+  background-image: -webkit-gradient(linear,0 0,0 100%,from(#259be5),to(#1c76b1));
+  background-image: -webkit-linear-gradient(top,#259be5,#1c76b1);
+  background-image: -o-linear-gradient(top,#259be5,#1c76b1);
+  background-image: linear-gradient(top,#259be5,#1c76b1);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#259be5', endColorstr='#1c76b1', GradientType=0);
+}
+.rok-buttons-group > * {
+  display: inline-block;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  margin-right: 0;
+  margin-left: -3px;
+  margin-top: -2px;
+}
+.rok-buttons-group > *:first-child {
+  margin-left: 0;
+  -webkit-border-radius: 3px 0 0 3px;
+  -moz-border-radius: 3px 0 0 3px;
+  border-radius: 3px 0 0 3px;
+}
+.rok-buttons-group > *:last-child {
+  -webkit-border-radius: 0 3px 3px 0;
+  -moz-border-radius: 0 3px 3px 0;
+  border-radius: 0 3px 3px 0;
+  margin-right: 4px;
+}
+.rok-button:hover i {
+  opacity: 1;
+  filter: alpha(opacity=100);
+}
+.rokpad-editor-wrapper i {
+  background-image: url("../images/icons.png") !important;
+  background-repeat: no-repeat;
+  background-position: 16px 16px;
+  vertical-align: text-top;
+  font-style: normal;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  *margin-right: .3em;
+  opacity: 0.8;
+  filter: alpha(opacity=80);
+}
+.rokpad-editor-wrapper i:last-child {
+  *margin-left: 0;
+}
+.rokpad-editor-wrapper i.rokpad-icon-save {
+  background-position: 0 -16px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-undo {
+  background-position: -16px 0;
+}
+.rokpad-editor-wrapper i.rokpad-icon-redo {
+  background-position: -32px 0;
+}
+.rokpad-editor-wrapper i.rokpad-icon-search {
+  background-position: -48px 0;
+}
+.rokpad-editor-wrapper i.rokpad-icon-more {
+  background-position: -64px 0;
+}
+.rokpad-editor-wrapper i.rokpad-icon-settings {
+  background-position: -80px 0;
+}
+.rokpad-editor-wrapper i.rokpad-icon-fullscreen {
+  background-position: -96px 0;
+}
+.rokpad-editor-wrapper i.rokpad-icon-windowed {
+  background-position: -112px 0;
+}
+.rokpad-editor-wrapper i.rokpad-icon-keyboard {
+  background-position: -128px 0;
+}
+.rokpad-editor-wrapper i.rokpad-icon-h1 {
+  background-position: 0 -64px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-h2 {
+  background-position: -16px -64px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-h3 {
+  background-position: -32px -64px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-bold {
+  background-position: -48px -64px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-italic {
+  background-position: -64px -64px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-underline {
+  background-position: -80px -64px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-olist {
+  background-position: -96px -64px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-ulist {
+  background-position: -112px -64px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-image {
+  background-position: -128px -64px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-paragraph {
+  background-position: -144px -64px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-link {
+  background-position: -160px -64px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-universal {
+  background-position: -176px -64px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-hr {
+  background-position: -192px -64px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-regexp {
+  background-position: 0 -32px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-casesensi {
+  background-position: -16px -32px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-wholeword {
+  background-position: -32px -32px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-reversedir {
+  background-position: -48px -32px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-wrap {
+  background-position: -64px -32px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-inselection {
+  background-position: -80px -32px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-prev {
+  background-position: -96px -32px;
+}
+.rokpad-editor-wrapper i.rokpad-icon-next {
+  background-position: -112px -32px;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-button.rok-button-unchecked i.rokpad-icon-regexp {
+  background-position: 0 -48px;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-button.rok-button-unchecked i.rokpad-icon-casesensi {
+  background-position: -16px -48px;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-button.rok-button-unchecked i.rokpad-icon-wholeword {
+  background-position: -32px -48px;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-button.rok-button-unchecked i.rokpad-icon-reversedir {
+  background-position: -48px -48px;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-button.rok-button-unchecked i.rokpad-icon-wrap {
+  background-position: -64px -48px;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-button.rok-button-unchecked i.rokpad-icon-inselection {
+  background-position: -80px -48px;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-button.rok-button-unchecked i.rokpad-icon-prev {
+  background-position: -96px -48px;
+}
+.rokpad-editor-wrapper .rokpad-actionbar .rok-button.rok-button-unchecked i.rokpad-icon-next {
+  background-position: -112px -48px;
+}
+.rokpad-editor-wrapper i.spinner {
+  background-image: url(../images/spinner.gif) !important;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+}

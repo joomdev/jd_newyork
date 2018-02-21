@@ -1,0 +1,315 @@
+/**
+ * @author JoomDev https://www.joomdev.com/
+ * @copyright Copyright (C) 2008 - 2017 Joomdev.com. All rights reserved.
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later
+*/
+
+a.purchase {
+    background: #3b7f66;
+    border-radius: 30px;
+    color: #ffffff;
+    display: inline-block;
+    font-size: 16px;
+    font-weight: normal;
+    margin-top: 30px;
+    padding: 20px 40px;
+    text-decoration: none;
+    text-transform: uppercase;
+	&:hover,&:focus{
+		color:#fff;
+		background:#419678;
+	}
+	i{
+		padding:0 10px;
+	}
+	
+}
+.btn{
+    color: #fff;
+    height: auto;
+    font-size: 16px;
+    border-radius: 0;
+    box-shadow: none;
+    line-height: 19px;
+    text-shadow: none;
+    padding: 12px 28px;
+    font-weight: normal;
+	background: @major_color;
+    text-transform: uppercase;
+    border: 2px solid rgba(0, 0, 0, 0);
+	&:hover,&:focus{
+		color: #fff;
+		background: darken(@major_color, 10%);
+		border: 2px solid rgba(0, 0, 0, 0);
+	}
+}
+.btn3{
+	font-size:16px;
+	background:none;
+	color:@major_color;
+	font-weight:normal;
+	line-height:19px;
+	padding:12px 30px;
+	display:inline-block;
+	text-decoration:none;
+	border:2px solid @major_color;
+	text-transform:uppercase;
+	-webkit-user-select:none;
+	-moz-user-select:none;
+	-ms-user-select:none;
+	user-select:none;
+	vertical-align:middle;
+	&:hover,&:focus{
+		color: darken(@major_color, 10%);
+		border-color: darken(@major_color, 10%);
+		text-decoration:none;
+	}
+}
+.sprocket-mosaic-container{
+	.sprocket-mosaic-text{
+		p{
+			text-align:left;
+		}
+		h4{
+			text-align:left;
+			font-weight:600;
+		}
+	}
+	.grow{ 
+		overflow:hidden;
+	}
+
+	.grow img{
+		-moz-transform:scale(1,1);
+		-webkit-transform:scale(1,1);
+		-o-transform:scale(1,1);
+		-ms-transform:scale(1,1);
+		transform:scale(1,1);
+		-webkit-transition: all 0.2s ease-in;
+		-moz-transition: all 0.2s ease-in;
+		-o-transition: all 0.2s ease-in;
+		-ms-transition: all 0.2s ease-in;
+		transition: all 0.2s ease-in;
+	}
+
+	.grow img:hover {
+		opacity:0.7;
+	   -moz-transform:scale(2,2);
+	   -webkit-transform:scale(2,2);
+	   -o-transform:scale(2,2);
+	   -ms-transform:scale(2,2);
+	   transform:scale(2,2);
+	}
+}
+
+.btn4 {
+    -moz-user-select: none;
+    background: @major_color;
+    border-radius: 25px;
+    color: #fff;
+    display: inline-block;
+    font-size: 15px;
+    font-weight: normal;
+    line-height: 19px;
+    margin: 5px 0;
+    padding: 12px 30px;
+    text-decoration: none;
+    text-transform: uppercase;
+    vertical-align: middle;
+	&:hover, &:focus{
+		color: #fff;
+		background: darken(@major_color, 10%);
+	}
+}
+
+.btn5 {
+    -moz-user-select: none;
+    background: #b5b5b5;
+    border-radius: 25px;
+    color: #fff;
+    display: inline-block;
+    font-size: 15px;
+    font-weight: normal;
+    line-height: 19px;
+    margin: 5px 0;
+    padding: 12px 30px;
+    text-decoration: none;
+    text-transform: uppercase;
+    vertical-align: middle;
+	&:hover,&:focus{
+		background: #c2c2c2;
+		color: #fff;
+	}
+}
+
+.btn2{
+	color:#fff;
+	font-size:15px;
+	background:none;
+	font-weight:normal;
+	line-height:19px;
+	text-indent:unset;
+	padding:12px 30px;
+	display:inline-block;
+	text-decoration:none;
+	border:2px solid #fff;
+	text-transform:uppercase;
+	-webkit-user-select:none;
+	-moz-user-select:none;
+	-ms-user-select:none;
+	user-select:none;
+	vertical-align:middle;
+	&:hover,&:focus{
+		color:#F2EEE5;
+		border-color:#F2EEE5;
+		text-decoration:none;
+	}
+}
+
+/* Page Suffix -----*/
+
+ul.fa-ul{
+	li{
+		border: none;
+		margin:10px 0;
+		a{ color:#737373; }
+		.fa{
+			margin-right: 10px;
+			color: @major_color;
+		}
+	}
+}
+
+/*----- Place Holder */
+.gbs3 .form-control{
+	&::-moz-placeholder{color:#999; opacity:1; font-weight:bold; }
+	&:-ms-input-placeholder{color: #999; font-weight:bold; }
+	&::-webkit-input-placeholder{color:#999; font-weight:bold; }
+	.validate{
+		&::-moz-placeholder{ color:#999; opacity:1; font-weight:bold; }
+		&:-ms-input-placeholder{ color: #999; font-weight:bold; }
+		&::-webkit-input-placeholder{ color:#999; font-weight:bold; }
+	}
+}
+
+/* Place Holder -----*/
+
+/* Social icon and Address */
+ul.address{
+	li{ display:inline-block; width:100%; border:none; }
+	i.fa{
+		top:5px;
+		float:left;
+		min-width:25px;
+		color: @major_color;
+		font-size:20px;
+		position:relative;
+	}
+	span{ float:left; line-height:25px; text-align:left; }
+}
+
+.address-box{
+	color:#24272c;
+	li{ border-bottom:1px dashed #aeaeae; margin:5px 0; padding:10px 0; border:none; }
+	i.fa{ color:#24272c; width:35px; }
+	span{ color:@major_color; }
+}
+.address-title{
+	h2.title{
+		margin:0;
+		padding:0;
+		color:@major_color;
+		font-size:20px;
+		font-weight:bold;
+		text-transform:uppercase;
+	}
+}
+
+h1.flow-title{
+	margin:0 0 20px;
+	padding:0;
+	color:#24272c;
+	font-size:15px;
+	font-weight:bold;
+	text-transform:uppercase;
+}
+
+/* ----------- */
+
+div.follow{
+	top:0px;
+	position:relative;
+	ul{
+		margin:0;
+		list-style:none;
+		
+		li{
+			float:left;
+			margin:0 5px;
+			border:none;
+			a{
+				display:inline-block;
+				width:40px;
+				height:40px;
+				color:#fff;
+				line-height:35px;
+				text-align:center;
+				text-decoration:none;
+				border-radius:50%;
+				-webkit-transition:background-color .3s;
+				transition:background-color .3s;
+				background: @major_color;
+				&:hover{
+					color:#fff;
+					background: darken(@major_color, 10%);
+					i{
+						transform:scale(1.5);
+						-o-transform:scale(1.5);
+						-ms-transform:scale(1.5);
+						-webkit-transform:scale(1.5);
+					}
+				}
+				&:before{
+					content:none;
+				}
+			}
+		}
+		li:first-child{ margin-left:0; }
+		i{
+			transition:all .25s;
+			backface-visibility:hidden;
+			-webkit-transition:all .25s;
+			-moz-backface-visibility:hidden;
+			-webkit-backface-visibility:hidden;
+		}
+		[href*="facebook.com"]:hover{
+			background:#3b5998;
+		}
+		[href*="instagram.com"]:hover{
+			background: #f38628;
+		}
+		[href*="twitter.com"]:hover{
+			background:#55acee;
+		}
+		[href*="linkedin.com"]:hover{
+			background:#0976b4; 
+		}
+		[href*="plus.google.com"]:hover{
+			background:#dd4b39;
+		}
+		[href*="youtube.com"]:hover{
+			background: #FF0000;
+		}
+		[href*="behance.net"]:hover{
+			background: #1478ff;
+		}
+		[href*="dribbble.com"]:hover{
+			background: #f16396;
+		}
+		[href*="flickr.com"]:hover{
+			background: #fe0084;
+		}
+	}
+}
+
+/* End */

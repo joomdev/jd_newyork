@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<extension group="editors" method="upgrade" type="plugin" version="2.5">
+	<name>Editor - RokPad</name>
+	<author>RocketTheme, LLC</author>
+	<creationDate>February 23, 2015</creationDate>
+	<copyright>(C) 2005 - 2015 RocketTheme, LLC. All rights reserved.</copyright>
+	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
+	<authorEmail>support@rockettheme.com</authorEmail>
+	<authorUrl>http://www.rockettheme.com</authorUrl>
+	<version>2.1.9</version>
+	<description><![CDATA[
+        <div class="rokpad-description">
+        <img src="../plugins/editors/rokpad/assets/admin/images/rokpad.jpg" class="img-padding" /><h1>RokPad</h1>
+        <h2>The Power of Desktop Text Editor in a Joomla!</h2>
+        <p>Ever wished you could use a powerful desktop text editor such as Textmate, SublimeText, or UltraEdit directly on a Joomla! web site?  Now with RokPad we provide many features and capabilities that traditionally would only be found in a powerful desktop editor.  RokPad provides advanced functions such as an Ajax saving action, syntax highlighting, configurable themes, multiple cursors and selections, shortcut keys, multiple language support, and many other incredible features.</p>
+
+        <h2>Key Features:</h2>
+        <ul class="features">
+			<li>Code Highlighter built on the great ACE Editor</li>
+	        <li>Support for CSS, HTML, JavaScript, JSON, LESS, Markdown, PHP, SQL, Plain Text, Textile, XML and more...</li>
+	        <li>Ajax save and Automatic Save options. You'll never loose your content again, nor wait until the page has finished reloading after a save!</li>
+	        <li>Save, Undo, Redo, Goto line, Advanced Search and Search &amp; Replace, Full Screen. Settings like Themes, Font Size, Code Folding, Wrap Mode, Invisible Characters, Print Margin, Highlight of selected word</li>
+	        <li>26 Themes to choose from</li>
+	        <li>Resizable Editor by dragging the Statusbar</li>
+	        <li>Keyboard shortcuts</li>
+	        <li>Brackets match</li>
+	        <li>Multiple cursors and selections</li>
+	        <li>Vertical Selection</li>
+	        <li>Ability to insert at multiple locations xtd-buttons shortcodes, all at once.</li>
+	        <li>Shortcodes and Universal Tag Insertion</li>
+	        <li>Drag &amp; Drop of text from external applications such as other Browser Tabs/windows or Native Applications (Supported on Firefox, Chrome, IE10 and Safari)</li>
+	        <li>Import local files by Drag &amp; Drop directly from your desktop! (Supported on Firefox, Chrome, IE10 and Safari 6+)</li>
+	        <li>And much more!</li>
+        </ul>
+        </div>
+        ]]></description>
+	<updateservers>
+		<server name="RocketTheme Update Directory" priority="1" type="collection">http://updates.rockettheme.com/joomla/updates.xml</server>
+	</updateservers>
+	<files>
+		<folder>assets</folder>
+        <folder>ace</folder>
+        <filename plugin="rokpad">rokpad.php</filename>
+        <folder>fields</folder>
+        <folder>language</folder>
+        <filename>index.html</filename>
+    </files>
+	<languages folder="language">
+		<language tag="en-GB">en-GB/en-GB.plg_editors_rokpad.ini</language>
+	</languages>
+	<config>
+		<fields name="params">
+
+			<fieldset addfieldpath="/plugins/editors/rokpad/fields" name="core">
+				<field type="init"/>
+				<field class="top" label="ROKPAD_LABEL_AUTOSAVE" type="break"/>
+				<field default="0" description="ROKPAD_DESC_AUTOSAVEENABLE" label="ROKPAD_LABEL_AUTOSAVEENABLE" name="autosave-enabled" type="rokpadlist">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field append="minutes" default="5" description="ROKPAD_DESC_AUTOSAVETIME" label="ROKPAD_LABEL_AUTOSAVETIME" name="autosave-time" type="textplus"/>
+
+				<field label="ROKPAD_LABEL_EDITOR" type="break"/>
+				<field default="fluidvision" description="ROKPAD_DESC_THEME" label="ROKPAD_LABEL_THEME" name="theme" type="rokpadlist">
+					<option value="chrome">Chrome</option>
+					<option value="clouds">Clouds</option>
+					<option value="clouds_midnight">Clouds Midnight</option>
+					<option value="cobalt">Cobalt</option>
+					<option value="crimson_editor">Crimson Editor</option>
+					<option value="dawn">Dawn</option>
+					<option value="dreamweaver">Dreamweaver</option>
+					<option value="eclipse">Eclipse</option>
+					<option value="fluidvision">Fluidvision</option>
+					<option value="idle_fingers">idleFingers</option>
+					<option value="kr_theme">krTheme</option>
+					<option value="merbivore">Merbivore</option>
+					<option value="merbivore_soft">Merbivore Soft</option>
+					<option value="mono_industrial">Mono Industrial</option>
+					<option value="monokai">Monokai</option>
+					<option value="pastel_on_dark">Pastel on dark</option>
+					<option value="solarized_dark">Solarized Dark</option>
+					<option value="solarized_light">Solarized Light</option>
+					<option value="textmate">TextMate</option>
+					<option value="tomorrow">Tomorrow</option>
+					<option value="tomorrow_night">Tomorrow Night</option>
+					<option value="tomorrow_night_blue">Tomorrow Night Blue</option>
+					<option value="tomorrow_night_bright">Tomorrow Night Bright</option>
+					<option value="tomorrow_night_eighties">Tomorrow Night 80s</option>
+					<option value="twilight">Twilight</option>
+					<option value="vibrant_ink">Vibrant Ink</option>
+				</field>
+				<field default="12px" description="ROKPAD_DESC_FONTSIZE" label="ROKPAD_LABEL_FONTSIZE" name="font-size" type="rokpadlist">
+					<option value="7px">7px</option>
+					<option value="8px">8px</option>
+					<option value="9px">9px</option>
+					<option value="10px">10px</option>
+					<option value="11px">11px</option>
+					<option value="12px">12px</option>
+					<option value="13px">13px</option>
+					<option value="14px">14px</option>
+					<option value="15px">15px</option>
+					<option value="16px">16px</option>
+					<option value="20px">20px</option>
+					<option value="24px">24px</option>
+				</field>
+				<field default="markbeginend" description="ROKPAD_DESC_CODEFOLDING" label="ROKPAD_LABEL_CODEFOLDING" name="fold-style" type="rokpadlist">
+					<option value="manual">Manual</option>
+					<option value="markbegin">Mark Begin</option>
+					<option value="markbeginend">Mark Begin and End</option>
+				</field>
+				<field default="free" description="ROKPAD_DESC_SOFTWRAP" label="ROKPAD_LABEL_SOFTWRAP" name="use-wrap-mode" type="rokpadlist">
+					<option value="off">Off</option>
+					<option value="40">40 Chars</option>
+					<option value="80">80 Chars</option>
+					<option value="free">Free</option>
+				</field>
+				<field default="1" description="ROKPAD_DESC_FULLLINESEL" label="ROKPAD_LABEL_FULLLINESEL" name="selection-style" type="rokpadlist">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field default="1" description="ROKPAD_DESC_HIGHLIGHTLINE" label="ROKPAD_LABEL_HIGHLIGHTLINE" name="highlight-active-line" type="rokpadlist">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field default="1" description="ROKPAD_DESC_HIGHLIGHTWORD" label="ROKPAD_LABEL_HIGHLIGHTWORD" name="highlight-selected-word" type="rokpadlist">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field default="0" description="ROKPAD_DESC_INVISIBLES" label="ROKPAD_LABEL_INVISIBLES" name="show-invisibles" type="rokpadlist">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field default="1" description="ROKPAD_DESC_GUTTER" label="ROKPAD_LABEL_GUTTER" name="show-gutter" type="rokpadlist">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field default="1" description="ROKPAD_DESC_PRINTMARGIN" label="ROKPAD_LABEL_PRINTMARGIN" name="show-print-margin" type="rokpadlist">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field default="0" description="ROKPAD_DESC_FADEWIDGETS" label="ROKPAD_LABEL_FADEWIDGETS" name="fade-fold-widgets" type="rokpadlist">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+			</fieldset>
+
+		</fields>
+	</config>
+</extension>
