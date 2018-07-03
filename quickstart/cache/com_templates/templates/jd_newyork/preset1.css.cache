@@ -1,0 +1,113 @@
+a:4:{s:4:"root";s:65:"D:\xampp7\htdocs\jdnewyork\templates/jd_newyork/less/presets.less";s:8:"compiled";s:2159:"a {
+  color: #5ad2a9;
+}
+a:hover {
+  color: #35c493;
+}
+.sp-megamenu-parent >li.active>a,
+.sp-megamenu-parent >li:hover>a {
+  color: #5ad2a9;
+}
+.sp-megamenu-parent .sp-dropdown li.sp-menu-item >a:hover {
+  background: #5ad2a9;
+}
+.sp-megamenu-parent .sp-dropdown li.sp-menu-item.active>a {
+  color: #5ad2a9;
+}
+#offcanvas-toggler >i {
+  color: #000000;
+}
+#offcanvas-toggler >i:hover {
+  color: #5ad2a9;
+}
+.btn-primary,
+.sppb-btn-primary {
+  border-color: #42cb9c;
+  background-color: #5ad2a9;
+}
+.btn-primary:hover,
+.sppb-btn-primary:hover {
+  border-color: #30b084;
+  background-color: #35c493;
+}
+ul.social-icons >li a:hover {
+  color: #5ad2a9;
+}
+.sp-page-title {
+  background: #5ad2a9;
+}
+.layout-boxed .body-innerwrapper {
+  background: #ffffff;
+}
+.sp-module ul >li >a {
+  color: #000000;
+}
+.sp-module ul >li >a:hover {
+  color: #5ad2a9;
+}
+.sp-module .latestnews >div >a {
+  color: #000000;
+}
+.sp-module .latestnews >div >a:hover {
+  color: #5ad2a9;
+}
+.sp-module .tagscloud .tag-name:hover {
+  background: #5ad2a9;
+}
+.sp-simpleportfolio .sp-simpleportfolio-filter > ul > li.active > a,
+.sp-simpleportfolio .sp-simpleportfolio-filter > ul > li > a:hover {
+  background: #5ad2a9;
+}
+.search .btn-toolbar button {
+  background: #5ad2a9;
+}
+.post-format {
+  background: #5ad2a9;
+}
+.voting-symbol span.star.active:before {
+  color: #5ad2a9;
+}
+.sp-rating span.star:hover:before,
+.sp-rating span.star:hover ~ span.star:before {
+  color: #35c493;
+}
+.entry-link,
+.entry-quote {
+  background: #5ad2a9;
+}
+blockquote {
+  border-color: #5ad2a9;
+}
+.carousel-left:hover,
+.carousel-right:hover {
+  background: #5ad2a9;
+}
+#sp-footer {
+  background: #5ad2a9;
+}
+.sp-comingsoon body {
+  background-color: #5ad2a9;
+}
+.pagination>li>a,
+.pagination>li>span {
+  color: #000000;
+}
+.pagination>li>a:hover,
+.pagination>li>a:focus,
+.pagination>li>span:hover,
+.pagination>li>span:focus {
+  color: #000000;
+}
+.pagination>.active>a,
+.pagination>.active>span {
+  border-color: #5ad2a9;
+  background-color: #5ad2a9;
+}
+.pagination>.active>a:hover,
+.pagination>.active>a:focus,
+.pagination>.active>span:hover,
+.pagination>.active>span:focus {
+  border-color: #5ad2a9;
+  background-color: #5ad2a9;
+}
+";s:5:"files";a:24:{s:74:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\legacy\bootstrap.less";i:1510621544;s:74:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\legacy\variables.less";i:1510621544;s:71:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\legacy\mixins.less";i:1510621544;s:69:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\legacy\grid.less";i:1510621544;s:70:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\legacy\forms.less";i:1510621544;s:70:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\legacy\wells.less";i:1510621544;s:74:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\legacy\accordion.less";i:1510621544;s:92:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\legacy\responsive-767px-max.joomla.less";i:1510621544;s:64:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\master.less";i:1510627202;s:67:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\variables.less";i:1510621544;s:64:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\mixins.less";i:1510621544;s:65:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\icomoon.less";i:1510621544;s:62:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\menu.less";i:1510621544;s:63:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\theme.less";i:1510621544;s:67:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\jd_custom.less";i:1519221436;s:68:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\typography.less";i:1510627192;s:60:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\k2.less";i:1519221476;s:69:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\chronoforms.less";i:1519221454;s:64:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\kunena.less";i:1519221484;s:65:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\jevents.less";i:1519221470;s:68:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\virtuemart.less";i:1519221494;s:68:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\responsive.less";i:1510648206;s:66:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\hikashop.less";i:1519221444;s:65:"D:\xampp7\htdocs\jdnewyork\templates\jd_newyork\less\presets.less";i:1510621544;}s:7:"updated";i:1530632134;}
