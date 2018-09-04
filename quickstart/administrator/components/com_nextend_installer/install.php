@@ -95,7 +95,7 @@ if (!function_exists('NextendSS3DeleteExtensionFolder')) {
             $db = JFactory::getDBO();
             $db->setQuery("UPDATE #__extensions SET enabled=1 WHERE (name LIKE '%nextend%' OR name LIKE '%smartslider3%')  AND type='plugin'")
                ->execute();
-            $proInvert = 1;
+            $proInvert = 0;
         
 
             // We must delete the stucked update sites if upgrade to pro or downgrade to free

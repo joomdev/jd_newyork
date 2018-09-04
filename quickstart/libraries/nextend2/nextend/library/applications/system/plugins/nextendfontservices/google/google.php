@@ -17,8 +17,8 @@ console.log(JSON.stringify(f));
 
     private static $styles = array();
     private static $subsets = array();
-    
-    public function __construct(){
+
+    public function __construct() {
         $lines = file(dirname(__FILE__) . '/families.csv', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         for ($i = 0; $i < count($lines); $i++) {
             self::$fonts[strtolower($lines[$i])] = $lines[$i];
@@ -37,40 +37,43 @@ console.log(JSON.stringify(f));
     public function renderFields($form) {
 
         $googleFonts = new N2Tab($form, 'google-fonts', false);
-        new N2ElementOnOff($googleFonts, 'google-enabled', n2_('Enable'), 1);
+
+        $enabledGroup = new N2ElementGroup($googleFonts, 'google-font-enabled', n2_('Enabled'));
+        new N2ElementOnOff($enabledGroup, 'google-enabled', n2_('Frontend'), 1);
+        new N2ElementOnOff($enabledGroup, 'google-enabled-backend', n2_('Backend'), 1);
 
         $styleGroup = new N2ElementGroup($googleFonts, 'google-font-style', n2_('Style'));
         new N2ElementOnOff($styleGroup, 'google-style-100', '100', 0);
-        new N2ElementOnOff($styleGroup, 'google-style-100italic', '100 Italic', 0);
+        new N2ElementOnOff($styleGroup, 'google-style-100italic', '100 '.n2_x('Italic', "Font style"), 0);
         new N2ElementOnOff($styleGroup, 'google-style-200', '200', 0);
-        new N2ElementOnOff($styleGroup, 'google-style-200italic', '200 Italic', 0);
+        new N2ElementOnOff($styleGroup, 'google-style-200italic', '200 '.n2_x('Italic', "Font style"), 0);
         new N2ElementOnOff($styleGroup, 'google-style-300', '300', 1);
-        new N2ElementOnOff($styleGroup, 'google-style-300italic', '300 Italic', 0);
+        new N2ElementOnOff($styleGroup, 'google-style-300italic', '300 '.n2_x('Italic', "Font style"), 0);
         new N2ElementOnOff($styleGroup, 'google-style-400', n2_('Normal'), 1);
-        new N2ElementOnOff($styleGroup, 'google-style-400italic', 'Normal Italic', 0);
+        new N2ElementOnOff($styleGroup, 'google-style-400italic', n2_('Normal').' '.n2_x('Italic', "Font style"), 0);
         new N2ElementOnOff($styleGroup, 'google-style-500', '500', 0);
-        new N2ElementOnOff($styleGroup, 'google-style-500italic', '500 Italic', 0);
+        new N2ElementOnOff($styleGroup, 'google-style-500italic', '500 '.n2_x('Italic', "Font style"), 0);
         new N2ElementOnOff($styleGroup, 'google-style-600', '600', 0);
-        new N2ElementOnOff($styleGroup, 'google-style-600italic', '600 Italic', 0);
+        new N2ElementOnOff($styleGroup, 'google-style-600italic', '600 '.n2_x('Italic', "Font style"), 0);
         new N2ElementOnOff($styleGroup, 'google-style-700', '700', 0);
-        new N2ElementOnOff($styleGroup, 'google-style-700italic', '700 Italic', 0);
+        new N2ElementOnOff($styleGroup, 'google-style-700italic', '700 '.n2_x('Italic', "Font style"), 0);
         new N2ElementOnOff($styleGroup, 'google-style-800', '800', 0);
-        new N2ElementOnOff($styleGroup, 'google-style-800italic', '800 Italic', 0);
+        new N2ElementOnOff($styleGroup, 'google-style-800italic', '800 '.n2_x('Italic', "Font style"), 0);
         new N2ElementOnOff($styleGroup, 'google-style-900', '900', 0);
-        new N2ElementOnOff($styleGroup, 'google-style-900italic', '900 Italic', 0);
+        new N2ElementOnOff($styleGroup, 'google-style-900italic', '900 '.n2_x('Italic', "Font style"), 0);
 
 
         $characterSet = new N2ElementGroup($googleFonts, 'google-font-character-set', n2_('Character set'));
-        new N2ElementOnOff($characterSet, 'google-set-latin', 'Latin', 1);
-        new N2ElementOnOff($characterSet, 'google-set-latin-ext', 'Latin Extended', 0);
-        new N2ElementOnOff($characterSet, 'google-set-greek', 'Greek', 0);
-        new N2ElementOnOff($characterSet, 'google-set-greek-ext', 'Greek Extended', 0);
-        new N2ElementOnOff($characterSet, 'google-set-cyrillic', 'Cyrillic', 0);
-        new N2ElementOnOff($characterSet, 'google-set-devanagari', 'Devanagari', 0);
-        new N2ElementOnOff($characterSet, 'google-set-arabic', 'Arabic', 0);
-        new N2ElementOnOff($characterSet, 'google-set-khmer', 'Khmer', 0);
-        new N2ElementOnOff($characterSet, 'google-set-telugu', 'Telugu', 0);
-        new N2ElementOnOff($characterSet, 'google-set-vietnamese', 'Vietnamese', 0);
+        new N2ElementOnOff($characterSet, 'google-set-latin', n2_x('Latin', "Character set"), 1);
+        new N2ElementOnOff($characterSet, 'google-set-latin-ext', n2_x('Latin Extended', "Character set"), 0);
+        new N2ElementOnOff($characterSet, 'google-set-greek', n2_x('Greek', "Character set"), 0);
+        new N2ElementOnOff($characterSet, 'google-set-greek-ext', n2_x('Greek Extended', "Character set"), 0);
+        new N2ElementOnOff($characterSet, 'google-set-cyrillic', n2_x('Cyrillic', "Character set"), 0);
+        new N2ElementOnOff($characterSet, 'google-set-devanagari', n2_x('Devanagari', "Character set"), 0);
+        new N2ElementOnOff($characterSet, 'google-set-arabic', n2_x('Arabic', "Character set"), 0);
+        new N2ElementOnOff($characterSet, 'google-set-khmer', n2_x('Khmer', "Character set"), 0);
+        new N2ElementOnOff($characterSet, 'google-set-telugu', n2_x('Telugu', "Character set"), 0);
+        new N2ElementOnOff($characterSet, 'google-set-vietnamese', n2_x('Vietnamese', "Character set"), 0);
     }
 
     public static function getDefaults() {
@@ -97,7 +100,7 @@ console.log(JSON.stringify(f));
 
             $parameters->fillDefault(self::getDefaults());
 
-            if ($parameters->get('google-enabled', 1)) {
+            if ((!N2Platform::$isAdmin && $parameters->get('google-enabled', 1)) || (N2Platform::$isAdmin && $parameters->get('google-enabled-backend', 1))) {
                 N2GoogleFonts::$enabled = 1;
 
                 for ($i = 100; $i < 1000; $i += 100) {
@@ -134,7 +137,14 @@ console.log(JSON.stringify(f));
     }
 
     public function onFontManagerLoadBackend() {
-        N2JS::addInline('new N2Classes.NextendFontServiceGoogle("' . implode(',', self::$styles) . '","' . implode(',', self::$subsets) . '", ' . json_encode(self::$fonts) . ');');
+        $settings   = N2Fonts::loadSettings();
+        $parameters = $settings['plugins'];
+
+        $parameters->fillDefault(self::getDefaults());
+
+        if ($parameters->get('google-enabled-backend', 1)) {
+            N2JS::addInline('new N2Classes.NextendFontServiceGoogle("' . implode(',', self::$styles) . '","' . implode(',', self::$subsets) . '", ' . json_encode(self::$fonts) . ');');
+        }
     }
 
     function addStyle($parameters, $weight) {

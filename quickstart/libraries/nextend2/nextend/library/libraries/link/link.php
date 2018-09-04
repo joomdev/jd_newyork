@@ -27,16 +27,88 @@ class N2LinkParser {
         return $url;
     }
 }
+class N2LinkLightbox {
+
+    public static function parse($argument, &$attributes, $isEditor = false) {
+        if (!$isEditor && !empty($argument)) {
+            $attributes['onclick']     = "return false;";
+            $attributes['n2-lightbox'] = '';
+
+            if (!isset($attributes['class'])) $attributes['class'] = '';
+            $attributes['class'] .= " n2-lightbox-trigger";
+
+            N2AssetsPredefined::loadLiteBox();
+
+            $realUrls = array();
+            $titles   = array();
+
+            //JSON V2 storage
+            if ($argument[0] == '{') {
+                $data = json_decode($argument, true);
+
+                $argument = N2ImageHelper::fixed(array_shift($data['urls']));
+                if (!empty($data['titles'][0])) {
+                    $attributes['data-title'] = array_shift($data['titles']);
+                }
+
+                if (count($data['urls'])) {
+                    if ($data['autoplay'] > 0) {
+                        $attributes['data-autoplay'] = intval($data['autoplay']);
+                    }
+
+                    for ($i = 0; $i < count($data['urls']); $i++) {
+                        if (!empty($data['urls'][$i])) {
+                            $realUrls[] = N2ImageHelper::fixed($data['urls'][$i]);
+                            $titles[]   = !empty($data['titles'][$i]) ? $data['titles'][$i] : '';
+                        }
+                    }
+                    $attributes['n2-lightbox-urls']   = implode(',', $realUrls);
+                    $attributes['n2-lightbox-titles'] = implode('|||', $titles);
+                    $attributes['data-litebox-group'] = md5(uniqid(mt_rand(), true));
+                }
+
+            } else {
+
+                $urls     = explode(',', $argument);
+                $parts    = explode(';', array_shift($urls), 2);
+                $argument = N2ImageHelper::fixed($parts[0]);
+                if (!empty($parts[1])) {
+                    $attributes['data-title'] = $parts[1];
+                }
+
+                if (count($urls)) {
+                    if (intval($urls[count($urls) - 1]) > 0) {
+                        $attributes['data-autoplay'] = intval(array_pop($urls));
+                    }
+                    for ($i = 0; $i < count($urls); $i++) {
+                        if (!empty($urls[$i])) {
+                            $parts      = explode(';', $urls[$i], 2);
+                            $realUrls[] = N2ImageHelper::fixed($parts[0]);
+                            $titles[]   = !empty($parts[1]) ? $parts[1] : '';
+                        }
+                    }
+                    $attributes['n2-lightbox-urls']   = implode(',', $realUrls);
+                    $attributes['n2-lightbox-titles'] = implode('|||', $titles);
+                    $attributes['data-litebox-group'] = md5(uniqid(mt_rand(), true));
+                }
+            }
+        }
+
+        return $argument;
+    }
+}
+
 
 class N2LinkScrollTo {
 
     private static function init() {
         static $inited = false;
+        $speed = N2SmartSliderSettings::get('smooth-scroll-speed', 400);
         if (!$inited) {
             N2JS::addInline('
             window.n2Scroll = {
                 to: function(top){
-                    $("html, body").animate({ scrollTop: top }, 400);
+                    $("html, body").animate({ scrollTop: top }, ' . $speed . ');
                 },
                 top: function(){
                     n2Scroll.to(0);

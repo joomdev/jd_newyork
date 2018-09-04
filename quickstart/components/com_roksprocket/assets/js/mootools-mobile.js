@@ -1,4 +1,4 @@
-/*
+/*!
 ---
 
 name: Browser.Mobile
@@ -15,28 +15,498 @@ provides: Browser.Mobile
 
 ...
 */
-(function(){Browser.Device={name:"other"};
-if(Browser.Platform.ios){var a=navigator.userAgent.toLowerCase().match(/(ip(ad|od|hone))/)[0];Browser.Device[a]=true;Browser.Device.name=a;}if(this.devicePixelRatio==2){Browser.hasHighResolution=true;
-}Browser.isMobile=!["mac","linux","win"].contains(Browser.Platform.name);}).call(this);(function(){[Element,Window,Document].invoke("implement",{hasEvent:function(f){var e=this.retrieve("events"),g=(e&&e[f])?e[f].values:null;
-if(g){var d=g.length;while(d--){if(d in g){return true;}}}return false;}});var c=function(e,f,d){f=e[f];d=e[d];return function(h,g){if(d&&!this.hasEvent(g)){d.call(this,h,g);
-}if(f){f.call(this,h,g);}};};var a=function(e,d,f){return function(h,g){d[f].call(this,h,g);e[f].call(this,h,g);};};var b=Element.Events;Element.defineCustomEvent=function(d,f){var e=b[f.base];
-f.onAdd=c(f,"onAdd","onSetup");f.onRemove=c(f,"onRemove","onTeardown");b[d]=e?Object.append({},f,{base:e.base,condition:function(h,g){return(!e.condition||e.condition.call(this,h,g))&&(!f.condition||f.condition.call(this,h,g));
-},onAdd:a(f,e,"onAdd"),onRemove:a(f,e,"onRemove")}):f;return this;};Element.enableCustomEvents=function(){Object.each(b,function(e,d){if(e.onEnable){e.onEnable.call(e,d);
-}});};Element.disableCustomEvents=function(){Object.each(b,function(e,d){if(e.onDisable){e.onDisable.call(e,d);}});};})();Browser.Features.Touch=(function(){try{document.createEvent("TouchEvent").initTouchEvent("touchstart");
-return true;}catch(a){}return false;})();Browser.Features.iOSTouch=(function(){var a="cantouch",c=document.html,f=false;if(!c.addEventListener){return false;
-}var d=function(){c.removeEventListener(a,d,true);f=true;};try{c.addEventListener(a,d,true);var e=document.createEvent("TouchEvent");e.initTouchEvent(a);
-c.dispatchEvent(e);return f;}catch(b){}d();return false;})();(function(){var a=function(c){if(!c.target||c.target.tagName.toLowerCase()!="select"){c.preventDefault();
-}};var b;Element.defineCustomEvent("touch",{base:"touchend",condition:function(c){if(b||c.targetTouches.length!=0){return false;}var e=c.changedTouches[0],d=document.elementFromPoint(e.clientX,e.clientY);
-do{if(d==this){return true;}}while(d&&(d=d.parentNode));return false;},onSetup:function(){this.addEvent("touchstart",a);},onTeardown:function(){this.removeEvent("touchstart",a);
-},onEnable:function(){b=false;},onDisable:function(){b=true;}});})();if(Browser.Features.iOSTouch){(function(){var a="click";delete Element.NativeEvents[a];
-Element.defineCustomEvent(a,{base:"touchend"});})();}if(Browser.Features.Touch){(function(){var a="pinch",d=a+":threshold",c,e;var b={touchstart:function(f){if(f.targetTouches.length==2){e=true;
-}},touchmove:function(g){if(c||!e){return;}g.preventDefault();var f=this.retrieve(d,0.5);if(g.scale<(1+f)&&g.scale>(1-f)){return;}e=false;g.pinch=(g.scale>1)?"in":"out";
-this.fireEvent(a,g);}};Element.defineCustomEvent(a,{onSetup:function(){this.addEvents(b);},onTeardown:function(){this.removeEvents(b);},onEnable:function(){c=false;
-},onDisable:function(){c=true;}});})();}(function(){var a="swipe",c=a+":distance",f=a+":cancelVertical",g=50;var b={},e,d;var h=function(){d=false;};var i={touchstart:function(j){if(j.touches.length>1){return;
-}var k=j.touches[0];d=true;b={x:k.pageX,y:k.pageY};},touchmove:function(l){if(e||!d){return;}var p=l.changedTouches[0],j={x:p.pageX,y:p.pageY};if(this.retrieve(f)&&Math.abs(b.y-j.y)>10){d=false;
-return;}var o=this.retrieve(c,g),n=j.x-b.x,m=n<-o,k=n>o;if(!k&&!m){return;}l.preventDefault();d=false;l.direction=(m?"left":"right");l.start=b;l.end=j;
-this.fireEvent(a,l);},touchend:h,touchcancel:h};Element.defineCustomEvent(a,{onSetup:function(){this.addEvents(i);},onTeardown:function(){this.removeEvents(i);
-},onEnable:function(){e=false;},onDisable:function(){e=true;h();}});})();(function(){var b="touchhold",e=b+":delay",d,f;var a=function(g){clearTimeout(f);
-};var c={touchstart:function(g){if(g.touches.length>1){a();return;}f=(function(){this.fireEvent(b,g);}).delay(this.retrieve(e)||750,this);},touchmove:a,touchcancel:a,touchend:a};
-Element.defineCustomEvent(b,{onSetup:function(){this.addEvents(c);},onTeardown:function(){this.removeEvents(c);},onEnable:function(){d=false;},onDisable:function(){d=true;
-a();}});})();
+
+(function(){
+Browser.Device = {
+	name: 'other'
+};
+
+if (Browser.Platform.ios){
+	var device = navigator.userAgent.toLowerCase().match(/(ip(ad|od|hone))/)[0];
+
+	Browser.Device[device] = true;
+	Browser.Device.name = device;
+}
+
+if (this.devicePixelRatio == 2)
+	Browser.hasHighResolution = true;
+
+Browser.isMobile = !['mac', 'linux', 'win'].contains(Browser.Platform.name);
+
+}).call(this);
+
+
+/*
+---
+
+name: Element.defineCustomEvent
+
+description: Allows to create custom events based on other custom events.
+
+authors: Christoph Pojer (@cpojer)
+
+license: MIT-style license.
+
+requires: [Core/Element.Event]
+
+provides: Element.defineCustomEvent
+
+...
+*/
+
+(function(){
+
+[Element, Window, Document].invoke('implement', {hasEvent: function(event){
+	var events = this.retrieve('events'),
+		list = (events && events[event]) ? events[event].values : null;
+	if (list){
+		var i = list.length;
+		while (i--) if (i in list){
+			return true;
+		}
+	}
+	return false;
+}});
+
+var wrap = function(custom, method, extended){
+	method = custom[method];
+	extended = custom[extended];
+
+	return function(fn, name){
+		if (extended && !this.hasEvent(name)) extended.call(this, fn, name);
+		if (method) method.call(this, fn, name);
+	};
+};
+
+var inherit = function(custom, base, method){
+	return function(fn, name){
+		base[method].call(this, fn, name);
+		custom[method].call(this, fn, name);
+	};
+};
+
+var events = Element.Events;
+
+Element.defineCustomEvent = function(name, custom){
+	var base = events[custom.base];
+
+	custom.onAdd = wrap(custom, 'onAdd', 'onSetup');
+	custom.onRemove = wrap(custom, 'onRemove', 'onTeardown');
+
+	events[name] = base ? Object.append({}, custom, {
+
+		base: base.base,
+
+		condition: function(event, name){
+			return (!base.condition || base.condition.call(this, event, name)) &&
+				(!custom.condition || custom.condition.call(this, event, name));
+		},
+
+		onAdd: inherit(custom, base, 'onAdd'),
+		onRemove: inherit(custom, base, 'onRemove')
+
+	}) : custom;
+
+	return this;
+};
+
+Element.enableCustomEvents = function(){
+  Object.each(events, function(event, name){
+    if (event.onEnable) event.onEnable.call(event, name);
+  });
+};
+
+Element.disableCustomEvents = function(){
+  Object.each(events, function(event, name){
+    if (event.onDisable) event.onDisable.call(event, name);
+  });
+};
+
+})();
+
+
+/*
+---
+
+name: Browser.Features.Touch
+
+description: Checks whether the used Browser has touch events
+
+authors: Christoph Pojer (@cpojer)
+
+license: MIT-style license.
+
+requires: [Core/Browser]
+
+provides: Browser.Features.Touch
+
+...
+*/
+
+Browser.Features.Touch = (function(){
+	try {
+		document.createEvent('TouchEvent').initTouchEvent('touchstart');
+		return true;
+	} catch (exception){}
+
+	return false;
+})();
+
+// Android doesn't have a touch delay and dispatchEvent does not fire the handler
+Browser.Features.iOSTouch = (function(){
+	var name = 'cantouch', // Name does not matter
+		html = document.html,
+		hasTouch = false;
+
+	if (!html.addEventListener) return false;
+
+	var handler = function(){
+		html.removeEventListener(name, handler, true);
+		hasTouch = true;
+	};
+
+	try {
+		html.addEventListener(name, handler, true);
+		var event = document.createEvent('TouchEvent');
+		event.initTouchEvent(name);
+		html.dispatchEvent(event);
+		return hasTouch;
+	} catch (exception){}
+
+	handler(); // Remove listener
+	return false;
+})();
+
+
+/*
+---
+
+name: Touch
+
+description: Provides a custom touch event on mobile devices
+
+authors: Christoph Pojer (@cpojer)
+
+license: MIT-style license.
+
+requires: [Core/Element.Event, Custom-Event/Element.defineCustomEvent, Browser.Features.Touch]
+
+provides: Touch
+
+...
+*/
+
+(function(){
+
+var preventDefault = function(event){
+	if (!event.target || event.target.tagName.toLowerCase() != 'select')
+		event.preventDefault();
+};
+
+var disabled;
+
+Element.defineCustomEvent('touch', {
+
+	base: 'touchend',
+
+	condition: function(event){
+		if (disabled || event.targetTouches.length != 0) return false;
+
+		var touch = event.changedTouches[0],
+			target = document.elementFromPoint(touch.clientX, touch.clientY);
+
+		do {
+			if (target == this) return true;
+		} while (target && (target = target.parentNode));
+
+		return false;
+	},
+
+	onSetup: function(){
+		this.addEvent('touchstart', preventDefault);
+	},
+
+	onTeardown: function(){
+		this.removeEvent('touchstart', preventDefault);
+	},
+
+	onEnable: function(){
+		disabled = false;
+	},
+
+	onDisable: function(){
+		disabled = true;
+	}
+
+});
+
+})();
+
+
+/*
+---
+
+name: Click
+
+description: Provides a replacement for click events on mobile devices
+
+authors: Christoph Pojer (@cpojer)
+
+license: MIT-style license.
+
+requires: [Touch]
+
+provides: Click
+
+...
+*/
+
+if (Browser.Features.iOSTouch) (function(){
+
+var name = 'click';
+delete Element.NativeEvents[name];
+
+Element.defineCustomEvent(name, {
+
+	base: 'touchend'
+
+});
+
+})();
+
+
+/*
+---
+
+name: Pinch
+
+description: Provides a custom pinch event for touch devices
+
+authors: Christopher Beloch (@C_BHole), Christoph Pojer (@cpojer)
+
+license: MIT-style license.
+
+requires: [Core/Element.Event, Custom-Event/Element.defineCustomEvent, Browser.Features.Touch]
+
+provides: Pinch
+
+...
+*/
+
+if (Browser.Features.Touch) (function(){
+
+var name = 'pinch',
+	thresholdKey = name + ':threshold',
+	disabled, active;
+
+var events = {
+
+	touchstart: function(event){
+		if (event.targetTouches.length == 2) active = true;
+	},
+
+	touchmove: function(event){
+		if (disabled || !active) return;
+
+		event.preventDefault();
+
+		var threshold = this.retrieve(thresholdKey, 0.5);
+		if (event.scale < (1 + threshold) && event.scale > (1 - threshold)) return;
+
+		active = false;
+		event.pinch = (event.scale > 1) ? 'in' : 'out';
+		this.fireEvent(name, event);
+	}
+
+};
+
+Element.defineCustomEvent(name, {
+
+	onSetup: function(){
+		this.addEvents(events);
+	},
+
+	onTeardown: function(){
+		this.removeEvents(events);
+	},
+
+	onEnable: function(){
+		disabled = false;
+	},
+
+	onDisable: function(){
+		disabled = true;
+	}
+
+});
+
+})();
+
+
+/*
+---
+
+name: Swipe
+
+description: Provides a custom swipe event for touch devices
+
+authors: Christopher Beloch (@C_BHole), Christoph Pojer (@cpojer), Ian Collins (@3n)
+
+license: MIT-style license.
+
+requires: [Core/Element.Event, Custom-Event/Element.defineCustomEvent, Browser.Features.Touch]
+
+provides: Swipe
+
+...
+*/
+
+(function(){
+
+var name = 'swipe',
+	distanceKey = name + ':distance',
+	cancelKey = name + ':cancelVertical',
+	dflt = 50;
+
+var start = {}, disabled, active;
+
+var clean = function(){
+	active = false;
+};
+
+var events = {
+
+	touchstart: function(event){
+		if (event.touches.length > 1) return;
+
+		var touch = event.touches[0];
+		active = true;
+		start = {x: touch.pageX, y: touch.pageY};
+	},
+
+	touchmove: function(event){
+		if (disabled || !active) return;
+
+		var touch = event.changedTouches[0],
+			end = {x: touch.pageX, y: touch.pageY};
+		if (this.retrieve(cancelKey) && Math.abs(start.y - end.y) > 10){
+			active = false;
+			return;
+		}
+
+		var distance = this.retrieve(distanceKey, dflt),
+			delta = end.x - start.x,
+			isLeftSwipe = delta < -distance,
+			isRightSwipe = delta > distance;
+
+		if (!isRightSwipe && !isLeftSwipe)
+			return;
+
+		event.preventDefault();
+		active = false;
+		event.direction = (isLeftSwipe ? 'left' : 'right');
+		event.start = start;
+		event.end = end;
+
+		this.fireEvent(name, event);
+	},
+
+	touchend: clean,
+	touchcancel: clean
+
+};
+
+Element.defineCustomEvent(name, {
+
+	onSetup: function(){
+		this.addEvents(events);
+	},
+
+	onTeardown: function(){
+		this.removeEvents(events);
+	},
+
+	onEnable: function(){
+		disabled = false;
+	},
+
+	onDisable: function(){
+		disabled = true;
+		clean();
+	}
+
+});
+
+})();
+
+
+/*
+---
+
+name: Touchhold
+
+description: Provides a custom touchhold event for touch devices
+
+authors: Christoph Pojer (@cpojer)
+
+license: MIT-style license.
+
+requires: [Core/Element.Event, Custom-Event/Element.defineCustomEvent, Browser.Features.Touch]
+
+provides: Touchhold
+
+...
+*/
+
+(function(){
+
+var name = 'touchhold',
+	delayKey = name + ':delay',
+	disabled, timer;
+
+var clear = function(e){
+	clearTimeout(timer);
+};
+
+var events = {
+
+	touchstart: function(event){
+		if (event.touches.length > 1){
+			clear();
+			return;
+		}
+
+		timer = (function(){
+			this.fireEvent(name, event);
+		}).delay(this.retrieve(delayKey) || 750, this);
+	},
+
+	touchmove: clear,
+	touchcancel: clear,
+	touchend: clear
+
+};
+
+Element.defineCustomEvent(name, {
+
+	onSetup: function(){
+		this.addEvents(events);
+	},
+
+	onTeardown: function(){
+		this.removeEvents(events);
+	},
+
+	onEnable: function(){
+		disabled = false;
+	},
+
+	onDisable: function(){
+		disabled = true;
+		clear();
+	}
+
+});
+
+})();
+

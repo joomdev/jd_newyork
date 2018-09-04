@@ -2,7 +2,7 @@
 /**
  * @version   $Id: Wordpress.php 29725 2015-12-22 13:59:55Z jakub $
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2018 RocketTheme, LLC
  * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only
  */
 
@@ -90,7 +90,7 @@ class RokCommon_Header_Wordpress extends RokCommon_Header_AbstractHeader
 			$md5 = md5($text);
 			if(!isset($this->inline_scripts) || !in_array($md5, $this->inline_scripts)) {
 				$this->inline_scripts[] = $md5;
-				add_action('wp_head', create_function('$text', "echo '<script type=\"text/javascript\">\n" . addslashes($text) . "</script>\n';"), $order);
+				add_action('wp_head', function () use ($text) { echo '<script type="text/javascript">' . "\n" . (string)$text . "</script>\n"; }, $order);
 			}
         } else {
             echo "<script type=\"text/javascript\">\n" . (string)$text . "</script>\n";

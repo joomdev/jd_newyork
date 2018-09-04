@@ -150,7 +150,7 @@ class PlgSystemGwejson extends JPlugin
 			}
 			catch (Exception $e) {
 				//PlgSystemGwejson::throwerror("There was an exception ".$e->getMessage()." ".var_export($e->getTrace()));
-				PlgSystemGwejson::throwerror("There was an exception " . $e->getMessage());
+				PlgSystemGwejson::throwerror("There was an exception " . addslashes($e->getMessage()));
 			}
 		}
 
@@ -188,7 +188,7 @@ class PlgSystemGwejson extends JPlugin
 					//file_put_contents(dirname(__FILE__) . "/cache/error.txt", var_export($requestData, true));
 					PlgSystemGwejson::throwerror("There was an error - no request object ");
 				}
-				else if ($requestObject->error)
+				else if (isset($requestObject->error) && $requestObject->error)
 				{
 					PlgSystemGwejson::throwerror("There was an error - Request object error " . $requestObject->error);
 				}

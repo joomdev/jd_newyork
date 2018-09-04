@@ -33,6 +33,14 @@ class N2SSPluginWidgetBulletTransition extends N2SSPluginWidgetAbstract {
         $settings = new N2Tab($form, 'bullet-transition');
 
         new N2ElementWidgetPosition($settings, 'widget-bullet-position', n2_('Position'));
+        new N2ElementRadio($settings, 'widget-bullet-action', n2_('Action'), '', array(
+            'rowClass' => 'n2-expert',
+            'options'  => array(
+                'click'      => n2_('Click'),
+                'mouseenter' => n2_('Hover')
+            )
+        ));
+    
 
         new N2ElementStyle($settings, 'widget-bullet-style', n2_('Dot style'), '', array(
             'previewMode' => 'dot',
@@ -47,6 +55,29 @@ class N2SSPluginWidgetBulletTransition extends N2SSPluginWidgetAbstract {
             'set'         => 1900,
             'preview'     => '<div class="{styleClassName}" style="display:inline-block;"><div class="{styleClassName2}" style="display: inline-block; vertical-align:top;"></div><div class="{styleClassName2} n2-active" style="display: inline-block; vertical-align:top;"></div><div class="{styleClassName2}" style="display: inline-block; vertical-align:top;"></div></div>'
         ));
+        new N2ElementOnOff($settings, 'widget-bullet-bar-full-size', n2_('Bar full size'), '', array(
+            'rowClass' => 'n2-expert'
+        ));
+        new N2ElementRadio($settings, 'widget-bullet-align', n2_('Align'), '', array(
+            'rowClass' => 'n2-expert',
+            'options'  => array(
+                'left'   => n2_('Left'),
+                'center' => n2_('Center'),
+                'right'  => n2_('Right')
+            )
+        ));
+        new N2ElementRadio($settings, 'widget-bullet-orientation', n2_('Orientation'), '', array(
+            'rowClass' => 'n2-expert',
+            'options'  => array(
+                'auto'       => n2_('Auto'),
+                'horizontal' => n2_('Horizontal'),
+                'vertical'   => n2_('Vertical')
+            )
+        ));
+        new N2ElementOnOff($settings, 'widget-bullet-overlay', n2_('Overlay'), '', array(
+            'rowClass' => 'n2-expert'
+        ));
+    
     }
 
     public function getPath() {
@@ -89,29 +120,22 @@ class N2SSPluginWidgetBulletTransition extends N2SSPluginWidgetAbstract {
         list($style, $attributes) = self::getPosition($params, self::$key);
         $attributes['data-offset'] = $params->get(self::$key . 'position-offset', 0);
 
-        $dots = array();
-
-        for ($i = 0; $i < count($slider->slides); $i++) {
-            $dots[] = N2Html::tag('div', array(
-                'class'    => 'n2-ow ' . $bulletStyle,
-                'tabindex' => '0'
-            ), '');
-        }
-
         $orientation = self::getOrientationByPosition($params->get(self::$key . 'position-mode'), $params->get(self::$key . 'position-area'), $params->get(self::$key . 'orientation'), 'horizontal');
 
-        $html = implode('', $dots);
 
         $parameters = array(
-            'overlay' => $params->get(self::$key . 'position-mode') != 'simple' || $params->get(self::$key . 'overlay'),
-            'area'    => intval($params->get(self::$key . 'position-area'))
+            'overlay'    => ($params->get(self::$key . 'position-mode') != 'simple' || $params->get(self::$key . 'overlay')) ? 1 : 0,
+            'area'       => intval($params->get(self::$key . 'position-area')),
+            'dotClasses' => $bulletStyle,
+            'mode'       => '',
+            'action'     => $params->get(self::$key . 'action')
         );
 
-        $thumbnails = array();
         if ($params->get(self::$key . 'thumbnail-show-image')) {
-            foreach ($slider->slides AS $slide) {
-                $thumbnails[] = $slide->getThumbnail();
-            }
+
+            $slider->exposeSlideData['thumbnail'] = true;
+
+            $parameters['thumbnail']       = 1;
             $parameters['thumbnailWidth']  = intval($params->get(self::$key . 'thumbnail-width'));
             $parameters['thumbnailHeight'] = intval($params->get(self::$key . 'thumbnail-height'));
             $parameters['thumbnailStyle']  = $slider->addStyle($params->get(self::$key . 'thumbnail-style'), 'simple', '');
@@ -133,9 +157,6 @@ class N2SSPluginWidgetBulletTransition extends N2SSPluginWidgetAbstract {
             }
             $parameters['thumbnailPosition'] = $position;
         }
-        $parameters['thumbnails'] = $thumbnails;
-        $parameters['action']     = $params->get(self::$key . 'action');
-        $parameters['numeric']    = 0;
 
         $slider->features->addInitCallback('new N2Classes.SmartSliderWidgetBulletTransition(this, ' . json_encode($parameters) . ');');
 
@@ -146,7 +167,7 @@ class N2SSPluginWidgetBulletTransition extends N2SSPluginWidgetAbstract {
                 "style" => $style
             ), N2HTML::tag("div", array(
             "class" => $barStyle . " nextend-bullet-bar n2-ow n2-bar-justify-content-" . $params->get(self::$key . 'align')
-        ), $html));
+        ), ''));
     }
 
     public function prepareExport($export, $params) {
@@ -163,3 +184,42 @@ class N2SSPluginWidgetBulletTransition extends N2SSPluginWidgetAbstract {
 }
 
 N2SmartSliderWidgets::addWidget('bullet', new N2SSPluginWidgetBulletTransition);
+class N2SSPluginWidgetBulletTransitionBorder extends N2SSPluginWidgetBulletTransition {
+
+    protected $name = 'transitionBorder';
+
+    public function getDefaults() {
+        return array_merge(parent::getDefaults(), array(
+            'widget-bullet-style' => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiZmZmZmZmYWIiLCJwYWRkaW5nIjoiNXwqfDV8Knw1fCp8NXwqfHB4IiwiYm94c2hhZG93IjoiMHwqfDB8KnwwfCp8MHwqfDAwMDAwMGZmIiwiYm9yZGVyIjoiMnwqfHNvbGlkfCp8ZmZmZmZmMDAiLCJib3JkZXJyYWRpdXMiOiI1MCIsImV4dHJhIjoibWFyZ2luOiA0cHg7In0seyJiYWNrZ3JvdW5kY29sb3IiOiIwMWFkZDMwMCIsImJvcmRlciI6IjJ8Knxzb2xpZHwqfGZmZmZmZmFiIn1dfQ=='
+        ));
+    }
+}
+
+N2SmartSliderWidgets::addWidget('bullet', new N2SSPluginWidgetBulletTransitionBorder);
+
+class N2SSPluginWidgetBulletTransitionRectangle extends N2SSPluginWidgetBulletTransition {
+
+    protected $name = 'transitionRectangle';
+
+    public function getDefaults() {
+        return array_merge(parent::getDefaults(), array(
+            'widget-bullet-style' => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwYWIiLCJwYWRkaW5nIjoiOHwqfDh8Knw4fCp8OHwqfHB4IiwiYm94c2hhZG93IjoiMHwqfDB8KnwwfCp8MHwqfDAwMDAwMGZmIiwiYm9yZGVyIjoiMHwqfHNvbGlkfCp8MDAwMDAwZmYiLCJib3JkZXJyYWRpdXMiOiIwIiwiZXh0cmEiOiJtYXJnaW46IDRweDsifSx7ImJhY2tncm91bmRjb2xvciI6IjJlY2M3MWZmIn1dfQ=='
+        ));
+    }
+}
+
+N2SmartSliderWidgets::addWidget('bullet', new N2SSPluginWidgetBulletTransitionRectangle);
+
+class N2SSPluginWidgetBulletTransitionBar extends N2SSPluginWidgetBulletTransition {
+
+    protected $name = 'transitionBar';
+
+    public function getDefaults() {
+        return array_merge(parent::getDefaults(), array(
+            'widget-bullet-style' => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwMDAiLCJwYWRkaW5nIjoiNXwqfDV8Knw1fCp8NXwqfHB4IiwiYm94c2hhZG93IjoiMHwqfDB8KnwwfCp8MHwqfDAwMDAwMGZmIiwiYm9yZGVyIjoiMnwqfHNvbGlkfCp8MDAwMDAwYzIiLCJib3JkZXJyYWRpdXMiOiI1MCIsImV4dHJhIjoibWFyZ2luOiA0cHggM3B4OyJ9LHsiYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwYmEiLCJib3JkZXIiOiIyfCp8c29saWR8KnxmZmZmZmYwMCJ9XX0=',
+            'widget-bullet-bar'   => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiZmZmZmZmODAiLCJwYWRkaW5nIjoiMnwqfDV8KnwyfCp8NXwqfHB4IiwiYm94c2hhZG93IjoiMHwqfDB8KnwwfCp8MHwqfDAwMDAwMGZmIiwiYm9yZGVyIjoiMHwqfHNvbGlkfCp8MDAwMDAwZmYiLCJib3JkZXJyYWRpdXMiOiI1MCIsImV4dHJhIjoiIn1dfQ==',
+        ));
+    }
+}
+
+N2SmartSliderWidgets::addWidget('bullet', new N2SSPluginWidgetBulletTransitionBar);

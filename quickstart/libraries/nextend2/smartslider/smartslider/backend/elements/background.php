@@ -10,10 +10,10 @@ class N2ElementBackground extends N2ElementHidden {
 
     protected function fetchElement() {
         $this->options = array(
-            'image' => 'Image',
-            'color' => 'Color'
+            'image' => n2_('Image'),
+            'video' => n2_('Video'),
+            'color' => n2_('Color')
         );
-    
 
         N2JS::addInline('new N2Classes.FormElementBackground("' . $this->fieldID . '", "' . $this->getValue() . '");');
 

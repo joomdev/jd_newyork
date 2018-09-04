@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright   copyright (C) 2012-2017 GWE Systems Ltd - All rights reserved
+ * @copyright   copyright (C) 2012-2018 GWE Systems Ltd - All rights reserved
  *
  * @license     GNU General Public License version 2 or later; see LICENSE
  */
@@ -249,10 +249,35 @@ class plgFinderJEvents extends FinderIndexerAdapter
 		$item->url = "index.php?option=com_jevents&task=icalevent.detail&evid=".$item->eventid."&Itemid=".$itemid;//$this->getURL($item->id, $this->extension, $this->layout);
 		$item->route = "index.php?option=com_jevents&task=icalevent.detail&evid=".$item->eventid."&Itemid=".$itemid;
 
+		include_once(JPATH_SITE . "/components/com_jevents/jevents.defines.php");		
+		
 		$item->path = FinderIndexerHelper::getContentPath($item->route);
-
-		$item->publish_start_date	= isset($item->modified) ?$item->modified : "2010-01-01 00:00:00" ;
-		$item->publish_end_date	= "2099-12-31 00:00:00" ;
+		// get the data and query models
+		$dataModel = new JEventsDataModel();
+		$queryModel = new JEventsDBModel($dataModel);
+		// get the repeat (allowing for it to be unpublished)
+		$theevent = $queryModel->listEventsById($item->rp_id);
+		
+		if ($this->params->get("future", -1) != -1 && $theevent)
+		{
+			$past = $this->params->get("past", -1);
+			$date = new JDate($theevent->startDate() . " - $past days");
+			$item->publish_start_date = $date->toSql();
+		}
+		else
+		{
+			$item->publish_start_date	= isset($item->modified) ?$item->modified : "2010-01-01 00:00:00" ;			
+		}
+		if ($this->params->get("past", -1) != -1  && $theevent)
+		{
+			$future = $this->params->get("future", -1);
+			$date = new JDate($theevent->endDate() . " + $future days");
+			$item->publish_end_date = $date->toSql();			
+		}
+		else
+		{
+			$item->publish_end_date	= "2099-12-31 00:00:00" ;
+		}
 
 		// title is already set
 		//$item->title;
@@ -312,7 +337,7 @@ class plgFinderJEvents extends FinderIndexerAdapter
 	 *
 	 * @since   2.5
 	 */
-	protected function getListQuery($query = NULL)
+	protected function getListQuery($query = NULL, $type = 'list')
 	{
 		$db = JFactory::getDbo();
 		// Check if we can use the supplied SQL query.
@@ -329,8 +354,11 @@ class plgFinderJEvents extends FinderIndexerAdapter
 		$sql->leftjoin('#__jevents_vevent AS evt ON rpt.eventid=evt.ev_id');
 		$sql->leftjoin('#__categories AS c ON c.id=evt.catid');
 		$sql->join('LEFT', '#__users AS u ON u.id = evt.created_by');
-		// this query is used during the save process as well as fetching results so we can't just do this
-		//$sql->where('evt.state = 1');
+
+        if ($type === 'list' ) {
+            $sql->where('evt.state = 1');
+        }
+
 		return $sql;
 	}
 
@@ -349,7 +377,7 @@ class plgFinderJEvents extends FinderIndexerAdapter
 		//JLog::add('FinderIndexerAdapter::getItem', JLog::INFO);
 
 		// Get the list query and add the extra WHERE clause.
-		$sql = $this->getListQuery();
+		$sql = $this->getListQuery($query = NULL, 'item');
 		$sql->where('det.'. $this->db->quoteName('evdet_id') . ' = ' . (int) $id);
 
 		// Get the item to index.

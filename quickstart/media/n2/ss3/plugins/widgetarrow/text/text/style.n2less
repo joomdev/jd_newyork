@@ -1,0 +1,30 @@
+(~'div#@{sliderid}') {
+  .nextend-arrow-text {
+    cursor: pointer;
+    z-index: 10;
+    background: RGBA(0, 0, 0, 0.2);
+    box-shadow: 0 1px 2px 1px RGBA(0, 0, 0, 0.2) inset, 0 1px 0 0 RGBA(255, 255, 255, 0.2);
+    padding: 5px 10px;
+    -webkit-transition: all 0.4s ease-out;
+    -moz-transition: all 0.4s ease-out;
+    -ms-transition: all 0.4s ease-out;
+    -o-transition: all 0.4s ease-out;
+    transition: all 0.4s ease-out;
+  }
+
+  .nextend-arrow-text:HOVER {
+    background: RGBA(0, 0, 0, 0.4);
+  }
+
+  .nextend-arrow-text-next-text-rounded,
+  .nextend-arrow-text-previous-text-rounded {
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+  }
+
+  .nextend-arrow-text span {
+    color: white;
+    text-shadow: 0 1px 1px RGBA(0, 0, 0, .2);
+  }
+}

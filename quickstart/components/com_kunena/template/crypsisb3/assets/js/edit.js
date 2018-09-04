@@ -14,10 +14,18 @@ var previewActive = false;
 
 function kPreviewHelper(previewActive) {
 	var editor = jQuery('#editor');
+	if (Joomla.getOptions('com_kunena.suffixpreview'))
+	{
+		var url = 'index.php?option=com_kunena&view=topic&layout=edit&format=raw';
+	}
+	else
+	{
+		var url = jQuery('#kpreview_url').val();
+	}
 	if (editor.val() !== null) {
 		jQuery.ajax({
 			type: 'POST',
-			url: jQuery('#kpreview_url').val(),
+			url: url,
 			async: true,
 			dataType: 'json',
 			data: {body: editor.val()}
@@ -64,6 +72,18 @@ jQuery(document).ready(function ($) {
 		editor.hide();
 		$('#markItUpeditor').hide();
 	});
+
+	var cat = localStorage.getItem('copyKunenaeditor');
+	if (cat) {
+		var textarea = $("#editor").next();
+		textarea.empty();
+		$('#editor').val(cat);
+		localStorage.removeItem('copyKunenaeditor');
+	}
+
+	$('#reset').onclick = function() {
+		localStorage.removeItem('copyKunenaeditor');
+	};
 
 	/* To enabled emojis in kunena textera feature like on github */
 	if ($('#kemojis_allowed').val() === 1) {
@@ -150,6 +170,7 @@ jQuery(document).ready(function ($) {
 	$('#form_submit_button').click(function () {
 		$("#subject").attr('required', 'required');
 		$("#editor").attr('required', 'required');
+		localStorage.removeItem('copyKunenaeditor');
 	});
 
 	var category_template_text;
@@ -298,12 +319,8 @@ jQuery(document).ready(function ($) {
 		});
 	}
 
-	if ($("gotoeditor") !== undefined) {
-		$("gotoeditor").on("click", function () {
-			if (qreply.length > 0) {
-				var local = localStorage.setItem("copyKunenaeditor", qreply.val());
-				console.log(local);
-			}
-		}, false);
-	}
+	var test  = Joomla.getOptions('com_kunena.kunena_quickreplymesid');
+	$('#gotoeditor'+test).click(function () {
+		localStorage.setItem("copyKunenaeditor", $(".test" + test).val());
+	});
 });

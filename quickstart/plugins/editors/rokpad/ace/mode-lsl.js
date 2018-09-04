@@ -1,5 +1,7 @@
-/*
- * Copyright (c) 2010, Ajax.org B.V.
+/* ***** BEGIN LICENSE BLOCK *****
+ * Distributed under the BSD license:
+ *
+ * Copyright (c) 2013, Ajax.org B.V.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +25,9 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ *
+ * ***** END LICENSE BLOCK ***** */
+
 ace.define('ace/mode/lsl', ['require', 'exports', 'module' , 'ace/tokenizer', 'ace/mode/lsl_highlight_rules', 'ace/mode/matching_brace_outdent', 'ace/range', 'ace/mode/text', 'ace/mode/behaviour/cstyle', 'ace/mode/folding/cstyle', 'ace/lib/oop'], function(require, exports, module) {
 
 

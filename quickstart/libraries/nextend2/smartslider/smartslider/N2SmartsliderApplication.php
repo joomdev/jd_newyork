@@ -21,7 +21,7 @@ class N2SmartSliderApplication extends N2Application {
     }
 
     public function hasExpertMode() {
-        return false;
+        return true;
     
     }
 }

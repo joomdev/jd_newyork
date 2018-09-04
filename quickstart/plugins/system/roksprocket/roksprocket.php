@@ -15,7 +15,7 @@ jimport('joomla.plugin.plugin');
 class plgSystemRokSprocket extends JPlugin
 {
 
-	const NEEDED_ROKCOMMON_VERSION = '3.1.10';
+	const NEEDED_ROKCOMMON_VERSION = '3.2.6';
 	/**
 	 *
 	 */
@@ -35,8 +35,8 @@ class plgSystemRokSprocket extends JPlugin
 
 		if (!defined('ROKCOMMON') || !defined('ROKCOMMON_PLUGIN_LOADED')) {
 			$error_string = 'RokSprocket needs the RokCommon Library and Plug-in installed and enabled. The RokCommon System Plug-in needs to be before the RokSprocket System Plug-in in the Plug-in Manager';
-		} else if (!preg_match('/project.version/', ROKCOMMON) && version_compare(preg_replace('/-SNAPSHOT/', '', ROKCOMMON), self::NEEDED_ROKCOMMON_VERSION, '<')) {
-			$error_string = sprintf('RokSprocket needs at least RokCommon Version %s.  You currently have RokCommon Version %s', self::NEEDED_ROKCOMMON_VERSION, ROKCOMMON);
+		} elseif (self::NEEDED_ROKCOMMON_VERSION !==  '@'.'rokcommon_version'.'@' && !preg_match('/project.version/', ROKCOMMON) && version_compare(ROKCOMMON, self::NEEDED_ROKCOMMON_VERSION, '<')) {
+			$error_string = sprintf('RokSprocket needs at least RokCommon version %s.  You currently have RokCommon version %s', self::NEEDED_ROKCOMMON_VERSION, ROKCOMMON);
 		}
 
 
@@ -79,8 +79,8 @@ class plgSystemRokSprocket extends JPlugin
 			}
 		}
 
-		define('ROKSPROCKET', '2.1.23');
-		define('ROKSPROCKET_VERSION', '2.1.23');
+		define('ROKSPROCKET', '2.1.24');
+		define('ROKSPROCKET_VERSION', '2.1.24');
 
 		try {
 			$container = RokCommon_Service::getContainer();

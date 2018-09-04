@@ -1,0 +1,9 @@
+(~'div#@{sliderid}') {
+  .nextend-bar-vertical > div {
+    -webkit-box-sizing: border-box !important;
+    -moz-box-sizing: border-box !important;
+    box-sizing: border-box !important;
+    overflow: hidden;
+    overflow-y: auto;
+  }
+}

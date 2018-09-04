@@ -2,17 +2,21 @@
 <extension version="3.4" type="template" client="site" method="upgrade">
     <name>jd_newyork</name>
     <creationDate>Jan 2016</creationDate>
-    <author>Joomdev.com</author>
-	<authorEmail>support@joomdev.com</authorEmail>
+    <author>JoomDev</author>
+    <authorEmail>info@joomdev.com</authorEmail>
     <authorUrl>https://www.joomdev.com/</authorUrl>
     <copyright>Copyright (C) 2008 - 2018 Joomdev.com. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GPLv2 or later</license>
-    <version>2.2</version>
-    <description>JD NewYork Template</description>
+    <version>2.3</version>
+    <description>JD NewYork - Free Multipurpose Joomla Template</description>
 
     <languages>
         <language tag="en-GB">en-GB.tpl_jd_newyork.ini</language>
     </languages>
+
+    <updateservers>
+        <server type="extension" name="jd_newyork" priority="1">https://cdn.joomdev.com/updates/jd_newyork.xml</server>
+    </updateservers>
 
     <positions>
         <position>title</position>
@@ -89,10 +93,10 @@
         <position>copyright-d</position>
         <position>gmap</position>
         <position>c-form</position>
-		<position>footer-a</position>
-		<position>footer-b</position>
-		<position>footer-c</position>
-		<position>footer-d</position>
+        <position>footer-a</position>
+        <position>footer-b</position>
+        <position>footer-c</position>
+        <position>footer-d</position>
         <position>breadcrumb</position>
         <position>footer1</position>
         <position>footer2</position>
@@ -120,7 +124,6 @@
         <folder>js/</folder>
         <folder>layout/</folder>
         <folder>less/</folder>
-        <folder>sppagebuilder/</folder>
     </files>
     <config>
         <fields name="params">
@@ -232,7 +235,7 @@
                     <option value="after">HELIX_FEATURE_LOAD_POS_AFTER</option>
                 </field>
 
-                <field name="copyright" class="child copyright copyright_1" type="textarea" rows="6" cols="30" default="© 2017 New York Template Joomla Template by JoomDev" label="HELIX_COMPYRIGHT_TEXT" description="HELIX_COMPYRIGHT_TEXT_DESC" filter="raw" />
+                <field name="copyright" class="child copyright copyright_1" type="textarea" rows="6" cols="30" default="© {year} New York Template Joomla Template by JoomDev" label="HELIX_COMPYRIGHT_TEXT" description="HELIX_COMPYRIGHT_TEXT_DESC" filter="raw" />
 
                 <!--Social Icons-->
                 <field type="group" title="HELIX_SOCIAL_ICONS" />
@@ -280,9 +283,9 @@
                 </field>
                 <field name="comingsoon_bg" type="media" preview="true" label="HELIX_COMINGSOON_BG" description="HELIX_COMINGSOON_BG_DESC" class="child comingsoon comingsoon_1" />
                 <field name="comingsoon_logo" type="media" preview="true" label="HELIX_COMINGSOON_LOGO" description="HELIX_COMINGSOON_LOGO_DESC" class="child comingsoon comingsoon_1" />
-                <field name="comingsoon_title" type="text" default="Coming Soon Title" label="HELIX_COMINGSOON_TITLE" description="HELIX_COMINGSOON_TITLE_DESC" class="child comingsoon comingsoon_1" />
+                <field name="comingsoon_title" type="text" default="JD NewYork is Almost Ready" label="HELIX_COMINGSOON_TITLE" description="HELIX_COMINGSOON_TITLE_DESC" class="child comingsoon comingsoon_1" />
                 <field name="comingsoon_date" type="calendar" default="5-10-2018" format="%d-%m-%Y" label="HELIX_COMINGSOON_DATE" description="HELIX_COMINGSOON_DATE_DESC" class="child comingsoon comingsoon_1" />
-                <field name="comingsoon_content" type="textarea" default="Coming soon content" label="HELIX_COMINGSOON_CONTENT" description="HELIX_COMINGSOON_CONTENT_DESC" filter="raw" class="child comingsoon comingsoon_1" />
+                <field name="comingsoon_content" type="textarea" default="Creating a Brighter Future Together" label="HELIX_COMINGSOON_CONTENT" description="HELIX_COMINGSOON_CONTENT_DESC" filter="raw" class="child comingsoon comingsoon_1" />
 
                 <!--Error Page-->
                 <field type="group" title="HELIX_ERRORPAGE" />
@@ -292,9 +295,9 @@
             </fieldset>
             <!--End Basic Tab-->
 
-            <fieldset name="preset"  addfieldpath="/plugins/system/helix3/fields">
+            <fieldset name="preset" addfieldpath="/plugins/system/helix3/fields">
                 <field type="group" title="HELIX_PRESETS" />
-                <field name="preset" type="presets"  default="preset1" label="HELIX_PRESETS" />
+                <field name="preset" type="presets" default="preset1" label="HELIX_PRESETS" />
 
                 <field type="group" title="HELIX_STYLEING_OPTIONS" />
 
@@ -465,13 +468,13 @@
                 </field>
                 <field name="exclude_js" type="textarea" label="HELIX_EXCLUDE_JS" description="HELIX_EXCLUDE_JS_DESC" />
 
-                <field type="group" title="HELIX_LESS"  />
+                <field type="group" title="HELIX_LESS" />
                 <field name="lessoption" type="radio" default="0" label="HELIX_ENABLE_LESS" description="HELIX_ENABLE_LESS_DESC">
                     <option value="1">HELIX_YES</option>
                     <option value="0">HELIX_NO</option>
                 </field>
 
-                <field type="group" title="HELIX_IMPORT_EXPORT"  />
+                <field type="group" title="HELIX_IMPORT_EXPORT" />
                 <field name="export_options" type="optionio" label="HELIX_IMPORT_EXPORT_FIELD"/>
 
             </fieldset>

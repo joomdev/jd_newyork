@@ -2,9 +2,9 @@
 <!DOCTYPE extension>
 <extension type="file" version="2.5" method="upgrade">
     <name>Kunena Media Files</name>
-    <version>5.1.1</version>
-    <versionname>Belinda</versionname>
-    <creationDate>2018-06-10</creationDate>
+    <version>5.1.3</version>
+    <versionname>Dione</versionname>
+    <creationDate>2018-08-19</creationDate>
     <author>Kunena Team</author>
     <authorEmail>kunena@kunena.org</authorEmail>
     <authorUrl>https://www.kunena.org</authorUrl>

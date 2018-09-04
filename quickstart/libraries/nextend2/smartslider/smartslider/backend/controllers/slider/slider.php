@@ -148,9 +148,25 @@ class N2SmartsliderBackendSliderController extends N2SmartSliderController {
     }
 
     public function actionShapeDivider() {
+        if ($this->validateToken() && $this->validatePermission('smartslider_edit')) {
+            $this->layoutName = 'preview';
+            $this->addView("shape-divider", array(
+                'sliderId' => $this->sliderId
+            ));
+            $this->render();
+        }
+    
     }
 
     public function actionParticle() {
+        if ($this->validateToken() && $this->validatePermission('smartslider_edit')) {
+            $this->layoutName = 'preview';
+            $this->addView("particle", array(
+                'sliderId' => $this->sliderId
+            ));
+            $this->render();
+        }
+    
     }
 
 }

@@ -36,7 +36,8 @@ class N2SSPluginItemFactoryYouTube extends N2SSPluginItemFactoryAbstract {
             'modestbranding' => 1,
             'reset'          => 0,
             'start'          => '0',
-            'playbutton'     => 1
+            'playbutton'     => 1,
+            'scroll-pause'   => 'partly-visible',
         );
     }
 
@@ -77,6 +78,14 @@ class N2SSPluginItemFactoryYouTube extends N2SSPluginItemFactoryAbstract {
         new N2ElementImage($settings, 'image', n2_('Cover image'), '', array(
             'fixed' => true,
             'style' => 'width:236px;'
+        ));
+
+        new N2ElementList($settings, 'scroll-pause', n2_('Pause on scroll'), 'partly-visible', array(
+            'options' => array(
+                ''               => n2_('Never'),
+                'partly-visible' => n2_('When partly visible'),
+                'not-visible'    => n2_('When not visible'),
+            )
         ));
 
         $misc = new N2ElementGroup($settings, 'item-vimeo-misc');
@@ -120,6 +129,15 @@ class N2SSPluginItemFactoryYouTube extends N2SSPluginItemFactoryAbstract {
         new N2ElementOnOff($misc, 'controls', n2_('Controls'), 1);
         new N2ElementOnOff($misc, 'center', n2_('Centered'), 0);
         new N2ElementOnOff($misc, 'loop', n2_('Loop'), 0);
+
+        new N2ElementOnOff($misc, 'showinfo', n2_('Show video title'), 1, array(
+            'rowClass' => 'n2-expert'
+        ));
+        new N2ElementOnOff($misc, 'modestbranding', n2_('Hide YouTube logo'), 1, array(
+            'rowClass' => 'n2-expert'
+        ));
+        new N2ElementOnOff($misc, 'reset', n2_('Reset when slide changes'), 0);
+    
         new N2ElementOnOff($misc, 'related', n2_('Related'), 0);
 
 

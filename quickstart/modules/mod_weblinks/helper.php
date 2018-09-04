@@ -1,9 +1,9 @@
 <?php
 /**
- * @package     Joomla.Site
- * @subpackage  mod_weblinks
+ * @package     Joomla.Administrator
+ * @subpackage  Weblinks
  *
- * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -17,9 +17,7 @@ JModelLegacy::addIncludePath(JPATH_SITE . '/components/com_weblinks/models', 'We
 /**
  * Helper for mod_weblinks
  *
- * @package     Joomla.Site
- * @subpackage  mod_weblinks
- * @since       1.5.0
+ * @since  1.5
  */
 class ModWeblinksHelper
 {
@@ -30,7 +28,7 @@ class ModWeblinksHelper
 	 *
 	 * @return  mixed   Null if no weblinks based on input parameters else an array containing all the weblinks.
 	 *
-	 * @since   1.5.0
+	 * @since   1.5
 	 **/
 	public static function getList(&$params)
 	{
@@ -59,6 +57,9 @@ class ModWeblinksHelper
 
 		$catid	= (int) $params->get('catid', 0);
 		$model->setState('category.id', $catid);
+		$model->setState('category.group', $params->get('groupby', 0));
+		$model->setState('category.ordering', $params->get('groupby_ordering', 'c.lft'));
+		$model->setState('category.direction', $params->get('groupby_direction', 'ASC'));
 
 		// Create query object
 		$db = JFactory::getDbo();
@@ -108,9 +109,7 @@ class ModWeblinksHelper
 
 			return $items;
 		}
-		else
-		{
-			return;
-		}
+
+		return;
 	}
 }

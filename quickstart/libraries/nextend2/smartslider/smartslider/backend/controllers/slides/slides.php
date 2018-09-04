@@ -33,6 +33,18 @@ class N2SmartsliderBackendSlidesController extends N2SmartSliderController {
     public function actionCreate() {
         if ($this->validatePermission('smartslider_edit')) {
             $sliderId = N2Request::getInt('sliderid');
+            if (N2Request::getCmd('mode') == 'sample') {
+                if (N2SmartsliderLicenseModel::getInstance()
+                                             ->isActive() != 'OK'
+                ) {
+                    N2Message::error(n2_('This feature requires valid license key!'));
+                    $this->redirect(array(
+                        "slider/edit",
+                        array("sliderid" => $sliderId)
+                    ));
+                }
+            }
+        
 
             $slidersModel = new N2SmartsliderSlidersModel();
             $slider       = $slidersModel->get($sliderId);

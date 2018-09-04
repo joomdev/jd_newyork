@@ -15,7 +15,7 @@ class N2SSPluginItemFactoryHeading extends N2SSPluginItemFactoryAbstract {
 
     public function __construct() {
         $this->title = n2_x('Heading', 'Slide item');
-        $this->group = n2_('Basic');
+        $this->group = n2_('Content');
     }
 
     function getValues() {
@@ -145,6 +145,11 @@ class N2SSPluginItemFactoryHeading extends N2SSPluginItemFactoryAbstract {
         ));
         new N2ElementOnOff($other, 'fullwidth', n2_('Full width'), 1);
         new N2ElementOnOff($other, 'nowrap', n2_('No wrap'), 0);
+        new N2ElementText($settings, 'title', n2_('Title'), '', array(
+            'style'    => 'width:174px;',
+            'rowClass' => 'n2-expert'
+        ));
+    
 
         new N2ElementFont($settings, 'font', n2_('Font') . ' - ' . n2_('Heading'), '', array(
             'previewMode' => 'hover',
@@ -160,6 +165,58 @@ class N2SSPluginItemFactoryHeading extends N2SSPluginItemFactoryAbstract {
             'font'        => 'item_headingfont',
             'rowClass'    => 'n2-hidden'
         ));
+        $splitText = new N2ElementGroup($settings, 'item-heading-splittext');
+        new N2ElementSplitTextAnimation($splitText, 'split-text-animation-in', n2_('Split text - in'), '', array(
+            'group'           => 'in',
+            'relatedFont'     => 'item_headingfont',
+            'relatedStyle'    => 'item_headingstyle',
+            'transformOrigin' => 'item_headingsplit-text-transform-origin',
+            'preview'         => '<div style="width:{nextend.activeLayer.prop(\'style\').width};"><div class="{styleClassName}"><span class="{fontClassName}">{$(\'#item_headingheading\').val().replace(/\\n/g, "<br />");}</span></div></div>'
+        ));
+        new N2ElementNumber($splitText, 'split-text-delay-in', n2_('Delay'), 0, array(
+            'unit'  => 'ms',
+            'min'   => 0,
+            'style' => 'width:40px;'
+        ));
+
+        new N2ElementSplitTextAnimation($splitText, 'split-text-animation-out', n2_('Split text - out'), '', array(
+            'group'           => 'out',
+            'relatedFont'     => 'item_headingfont',
+            'relatedStyle'    => 'item_headingstyle',
+            'transformOrigin' => 'item_headingsplit-text-transform-origin',
+            'preview'         => '<div style="width:{nextend.activeLayer.prop(\'style\').width};"><div class="{styleClassName}"><span class="{fontClassName}">{$(\'#item_headingheading\').val().replace(/\\n/g, "<br />");}</span></div></div>'
+        ));
+        new N2ElementNumber($splitText, 'split-text-delay-out', n2_('Delay'), 0, array(
+            'unit'  => 'ms',
+            'min'   => 0,
+            'style' => 'width:40px;'
+        ));
+
+        new N2ElementOnOff($splitText, 'split-text-backface-visibility', n2_('Backface visibility'), 1);
+
+        $transformOrigin = new N2ElementMixed($splitText, 'split-text-transform-origin', n2_('Transform origin'), '50|*|50|*|0');
+        new N2ElementNumber($transformOrigin, 'split-text-transform-origin-x', false, '', array(
+            'sublabel' => 'X',
+            'unit'     => '%',
+            'style'    => 'width: 22px;'
+        ));
+        new N2ElementNumber($transformOrigin, 'split-text-transform-origin-y', false, '', array(
+            'sublabel' => 'Y',
+            'unit'     => '%',
+            'style'    => 'width: 22px;'
+        ));
+        new N2ElementNumber($transformOrigin, 'split-text-transform-origin-z', false, '', array(
+            'sublabel' => 'Z',
+            'unit'     => 'px',
+            'style'    => 'width: 22px;'
+        ));
+
+
+        new N2ElementText($settings, 'class', n2_('CSS class'), '', array(
+            'style'    => 'width:174px;',
+            'rowClass' => 'n2-expert'
+        ));
+    
 
     }
 

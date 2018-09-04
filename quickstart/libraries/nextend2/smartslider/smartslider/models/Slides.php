@@ -159,6 +159,34 @@ class N2SmartsliderSlidesModel extends N2Model {
             $slideBackground  = new N2Tab($_slideBackground, '');
 
             new N2ElementBackground($slideBackground, 'background-type', 'image');
+            $slideVideoBackground = new N2ElementGroup($slideBackground, 'background-video', n2_('Background video'), array(
+                'rowClass' => 'n2-ss-background-video-param',
+                'tip'      => n2_('Mobile and tablet devices do not allow to autoplay videos. The background image displays when the autoplay not allowed.')
+            ));
+
+            new N2ElementVideo($slideVideoBackground, 'backgroundVideoMp4', 'MP4 video', '', array(
+                'post'  => 'break',
+                'style' => 'width:500px'
+            ));
+
+            new N2ElementNumberSlider($slideVideoBackground, 'backgroundVideoOpacity', n2_('Opacity'), 100, array(
+                'unit'  => '%',
+                'min'   => 0,
+                'max'   => 100,
+                'style' => 'width:22px;'
+            ));
+
+            new N2ElementOnOff($slideVideoBackground, 'backgroundVideoMuted', n2_('Muted'), 1);
+            new N2ElementOnOff($slideVideoBackground, 'backgroundVideoLoop', n2_('Loop'), 1);
+
+            new N2ElementList($slideVideoBackground, 'backgroundVideoMode', n2_('Fill mode'), 'fill', array(
+                'options' => array(
+                    'fill'   => n2_('Fill'),
+                    'fit'    => n2_('Fit'),
+                    'center' => n2_('Center')
+                )
+            ));
+        
 
             $slideImageBackground = new N2ElementGroup($slideBackground, 'background-image', n2_('Background'), array(
                 'rowClass' => 'n2-ss-slide-background-image-param'
@@ -249,6 +277,11 @@ class N2SmartsliderSlidesModel extends N2Model {
                     'label' => n2_('Tile')
                 )
             );
+            $backgroundModeOptions['fixed'] = array(
+                'image' => '$ss$/admin/images/fillmode/fixed.png',
+                'label' => n2_('Fixed')
+            );
+        
             new N2ElementImageListLabel($slideBackground, 'backgroundMode', n2_('Fill mode'), 'default', array(
                 'options'  => $backgroundModeOptions,
                 'rowClass' => 'n2-ss-slide-background-image-param n2-ss-background-video-param'
@@ -518,6 +551,18 @@ class N2SmartsliderSlidesModel extends N2Model {
                 ));
                 break;
             case 'video':
+                $videoLayer = new N2SmartSliderSlideBuilderLayer($slideBuilder, 'video');
+                $videoLayer->set(array(
+                    'desktopportraitwidth'  => '100%',
+                    'desktopportraitheight' => '100%',
+                    'desktopportraitalign'  => 'left',
+                    'desktopportraitvalign' => 'top'
+                ));
+                $videoLayer->item->set(array(
+                    "video_mp4" => $video['video']
+                ));
+                break;
+            
             default:
                 return false;
         }

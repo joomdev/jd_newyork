@@ -168,6 +168,11 @@ class N2SmartSliderFeatureSlideBackground {
         return '';
     }
 
+    /**
+     * @param $slide N2SmartSliderSlide
+     *
+     * @return string
+     */
     private function renderImage($slide) {
 
         $rawBackgroundImage = $slide->parameters->get('backgroundImage', '');
@@ -201,6 +206,7 @@ class N2SmartSliderFeatureSlideBackground {
             $src = N2Image::base64Transparent();
         } else {
             $src = N2ImageHelper::dynamic($this->slider->features->optimize->optimizeBackground($backgroundImage, $x, $y));
+            $slide->addImage(N2ImageHelper::fixed($src));
         }
 
 
@@ -268,6 +274,44 @@ class N2SmartSliderFeatureSlideBackground {
     }
 
     private function renderBackgroundVideo($slide) {
+        $mp4 = N2ImageHelper::fixed($slide->fill($slide->parameters->get('backgroundVideoMp4', '')));
+
+        if (empty($mp4)) {
+            return '';
+        }
+
+        $sources = '';
+
+        if ($mp4) {
+            $sources .= N2Html::tag("source", array(
+                "src"  => $mp4,
+                "type" => "video/mp4"
+            ), '', false);
+        }
+
+        $opacity = min(100, max(0, $slide->parameters->get('backgroundVideoOpacity', 100)));
+
+        $attributes = array(
+            'class'              => 'n2-ss-slide-background-video n2-ow',
+            'style'              => 'opacity:' . ($opacity / 100) . ';',
+            'data-mode'          => $slide->parameters->get('backgroundVideoMode', 'fill'),
+            'playsinline'        => 1,
+            'webkit-playsinline' => 1,
+            'onloadstart'        => 'this.n2LoadStarted=1;',
+            'data-keepplaying'   => 1,
+            'preload'            => 'none'
+        );
+
+        if ($slide->parameters->get('backgroundVideoMuted', 1)) {
+            $attributes['muted'] = 'muted';
+        }
+
+        if ($slide->parameters->get('backgroundVideoLoop', 1)) {
+            $attributes['loop'] = 'loop';
+        }
+
+        return N2Html::tag('video', $attributes, $sources);
+    
 
         return '';
     }

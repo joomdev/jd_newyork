@@ -1,7 +1,7 @@
 <?php
 
 /**
- * copyright (C) 2008-2017 GWE Systems Ltd - All rights reserved
+ * copyright (C) 2008-2018 GWE Systems Ltd - All rights reserved
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die();
@@ -257,7 +257,7 @@ class DefaultModLatestView
 			$this->maxEvents = $limit;
 		}
 
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 
 		$t_datenow = JEVHelper::getNow();
 		$this->now = $t_datenow->toUnix(true);
@@ -404,13 +404,16 @@ class DefaultModLatestView
 		$reg =  JFactory::getConfig();
 		$pastdate = $reg->get("jev.timelimit.past", false);
 		$futuredate = $reg->get("jev.timelimit.future", false);
-		if ($pastdate)
+		if ($this->dispMode !== 5 && $this->dispMode !== 8)
 		{
-			$beginDate = $pastdate > $beginDate ? $pastdate : $beginDate;
-		}
-		if ($futuredate)
-		{
-			$endDate = $futuredate < $endDate ? $futuredate : $endDate;
+			if ($pastdate)
+			{
+				$beginDate = $pastdate > $beginDate ? $pastdate : $beginDate;
+			}
+			if ($futuredate)
+			{
+				$endDate = $futuredate < $endDate ? $futuredate : $endDate;
+			}
 		}
 		$timeLimitNow = $todayBegin < $beginDate ? $beginDate : $todayBegin;
 		$timeLimitNow = JevDate::mktime(0, 0, 0, intval(JString::substr($timeLimitNow, 5, 2)), intval(JString::substr($timeLimitNow, 8, 2)), intval(JString::substr($timeLimitNow, 0, 4)));
@@ -756,8 +759,8 @@ class DefaultModLatestView
                         JFactory::getApplication()->setUserState("jevents.moduleid".$this->_modid.".lastEventDate",$lastEventDate);
 
                         // Navigation
-                        static $scriptloaded = false;
-                        if (!$scriptloaded ){
+			if (!defined('_JEVM_SCRIPTLOADED')) {
+                            define('_JEVM_SCRIPTLOADED', 1);
                             $root = JURI::root();
                             $token= JSession::getFormToken();
                             $script = <<<SCRIPT
@@ -1166,23 +1169,54 @@ SCRIPT;
 					if ($match == "endDate" && $dayEvent->sdn() == 59)
 					{
 						$tempEndDate = $endDate + 1;
+						
 						if ($dayEvent->alldayevent() || $dayEvent->noendtime())
 						{
+							//$tempEndDate  -= 86400;
+							
+							$jmatch = new JevDate('now', new DateTimeZone('Europe/Berlin'));
+							$jmatch->setDate($dayEvent->ydn(), $dayEvent->mdn(), $dayEvent->ddn());
+							$jmatch->setTime(0,0,0);
+							$tempEndDate = $jmatch->getTimeStamp();
+							
+							/*							
+							$jmatch = new JevDate($tempEndDate);												
+							// IS THIS IN GMT OR LOCAL ????
+							$jmatch->setTime(24,0,0);
 							// if an all day event then we don't want to roll to the next day
-							$tempEndDate -= 86400;
+							$jmatch->sub(new DateInterval('P1D'));
+							
+							$tempEndDate = $jmatch;
+							 */
 						}
+						
 						$match = "tempEndDate";
 					}
 					// if a '%' sign detected in date format string, we assume JevDate::strftime() is to be used,
 					if (preg_match("/\%/", $dateParm))
 					{
-						$jmatch = new JevDate($$match);
-						$content .= $jmatch->toFormat($dateParm);
+						$tempmatch = $$match;
+						if (is_a($tempmatch, "JevDate"))
+						{
+							$content .= $tempmatch->toFormat($dateParm, true);
+						}
+						else 
+						{
+							$jmatch = new JevDate($$match);
+							$content .= $jmatch->toFormat($dateParm);
+						}
 					}
 					// otherwise the date() function is assumed.
 					else
 					{
-						$content .= date($dateParm, $$match);
+						$tempmatch = $$match;
+						if (is_a($tempmatch, "JevDate"))
+						{
+							$content .= $tempmatch->format($dateParm, true);
+						}
+						else {
+							$content .= date($dateParm, $$match);
+						}
 					}
 					if ($match == "tempEndDate")
 					{

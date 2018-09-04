@@ -2,7 +2,7 @@
 /**
  * @version   $Id: Orderable.php 30067 2016-03-08 13:44:25Z matias $
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2018 RocketTheme, LLC
  * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only
  */
 defined('ROKCOMMON') or die;

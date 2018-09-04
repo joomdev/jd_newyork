@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<extension group="editors" method="upgrade" type="plugin" version="2.5">
-	<name>Editor - RokPad</name>
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="editors" method="upgrade">
+	<name>RokPad</name>
 	<author>RocketTheme, LLC</author>
-	<creationDate>February 23, 2015</creationDate>
-	<copyright>(C) 2005 - 2015 RocketTheme, LLC. All rights reserved.</copyright>
+	<creationDate>August 30, 2018</creationDate>
+	<copyright>(C) 2005 - 2018 RocketTheme, LLC. All rights reserved.</copyright>
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
 	<authorEmail>support@rockettheme.com</authorEmail>
 	<authorUrl>http://www.rockettheme.com</authorUrl>
-	<version>2.1.9</version>
+	<version>2.1.10</version>
 	<description><![CDATA[
         <div class="rokpad-description">
         <img src="../plugins/editors/rokpad/assets/admin/images/rokpad.jpg" class="img-padding" /><h1>RokPad</h1>
@@ -35,33 +35,33 @@
         </div>
         ]]></description>
 	<updateservers>
-		<server name="RocketTheme Update Directory" priority="1" type="collection">http://updates.rockettheme.com/joomla/updates.xml</server>
+		<server type="collection" priority="1" name="RocketTheme Update Directory">http://updates.rockettheme.com/joomla/updates.xml</server>
 	</updateservers>
 	<files>
+		<filename plugin="rokpad">rokpad.php</filename>
+		<filename>MD5SUMS</filename>
+		<folder>ace</folder>
 		<folder>assets</folder>
-        <folder>ace</folder>
-        <filename plugin="rokpad">rokpad.php</filename>
-        <folder>fields</folder>
-        <folder>language</folder>
-        <filename>index.html</filename>
-    </files>
+		<folder>fields</folder>
+		<folder>language</folder>
+	</files>
 	<languages folder="language">
 		<language tag="en-GB">en-GB/en-GB.plg_editors_rokpad.ini</language>
 	</languages>
 	<config>
 		<fields name="params">
 
-			<fieldset addfieldpath="/plugins/editors/rokpad/fields" name="core">
+			<fieldset name="core" addfieldpath="/plugins/editors/rokpad/fields">
 				<field type="init"/>
-				<field class="top" label="ROKPAD_LABEL_AUTOSAVE" type="break"/>
-				<field default="0" description="ROKPAD_DESC_AUTOSAVEENABLE" label="ROKPAD_LABEL_AUTOSAVEENABLE" name="autosave-enabled" type="rokpadlist">
+				<field type="break" label="ROKPAD_LABEL_AUTOSAVE" class="top"/>
+				<field name="autosave-enabled" type="rokpadlist" default="0" label="ROKPAD_LABEL_AUTOSAVEENABLE" description="ROKPAD_DESC_AUTOSAVEENABLE">
 					<option value="0">JNO</option>
 					<option value="1">JYES</option>
 				</field>
-				<field append="minutes" default="5" description="ROKPAD_DESC_AUTOSAVETIME" label="ROKPAD_LABEL_AUTOSAVETIME" name="autosave-time" type="textplus"/>
+				<field name="autosave-time" type="textplus" append="minutes" default="5" label="ROKPAD_LABEL_AUTOSAVETIME" description="ROKPAD_DESC_AUTOSAVETIME" />
 
-				<field label="ROKPAD_LABEL_EDITOR" type="break"/>
-				<field default="fluidvision" description="ROKPAD_DESC_THEME" label="ROKPAD_LABEL_THEME" name="theme" type="rokpadlist">
+				<field type="break" label="ROKPAD_LABEL_EDITOR"/>
+				<field name="theme" type="rokpadlist" default="fluidvision" label="ROKPAD_LABEL_THEME" description="ROKPAD_DESC_THEME">
 					<option value="chrome">Chrome</option>
 					<option value="clouds">Clouds</option>
 					<option value="clouds_midnight">Clouds Midnight</option>
@@ -89,7 +89,7 @@
 					<option value="twilight">Twilight</option>
 					<option value="vibrant_ink">Vibrant Ink</option>
 				</field>
-				<field default="12px" description="ROKPAD_DESC_FONTSIZE" label="ROKPAD_LABEL_FONTSIZE" name="font-size" type="rokpadlist">
+				<field name="font-size" type="rokpadlist" default="12px" label="ROKPAD_LABEL_FONTSIZE" description="ROKPAD_DESC_FONTSIZE">
 					<option value="7px">7px</option>
 					<option value="8px">8px</option>
 					<option value="9px">9px</option>
@@ -103,42 +103,42 @@
 					<option value="20px">20px</option>
 					<option value="24px">24px</option>
 				</field>
-				<field default="markbeginend" description="ROKPAD_DESC_CODEFOLDING" label="ROKPAD_LABEL_CODEFOLDING" name="fold-style" type="rokpadlist">
+				<field name="fold-style" type="rokpadlist" default="markbeginend" label="ROKPAD_LABEL_CODEFOLDING" description="ROKPAD_DESC_CODEFOLDING">
 					<option value="manual">Manual</option>
 					<option value="markbegin">Mark Begin</option>
 					<option value="markbeginend">Mark Begin and End</option>
 				</field>
-				<field default="free" description="ROKPAD_DESC_SOFTWRAP" label="ROKPAD_LABEL_SOFTWRAP" name="use-wrap-mode" type="rokpadlist">
+				<field name="use-wrap-mode" type="rokpadlist" default="free" label="ROKPAD_LABEL_SOFTWRAP" description="ROKPAD_DESC_SOFTWRAP">
 					<option value="off">Off</option>
 					<option value="40">40 Chars</option>
 					<option value="80">80 Chars</option>
 					<option value="free">Free</option>
 				</field>
-				<field default="1" description="ROKPAD_DESC_FULLLINESEL" label="ROKPAD_LABEL_FULLLINESEL" name="selection-style" type="rokpadlist">
+				<field name="selection-style" type="rokpadlist" default="1" label="ROKPAD_LABEL_FULLLINESEL" description="ROKPAD_DESC_FULLLINESEL">
 					<option value="0">JNO</option>
 					<option value="1">JYES</option>
 				</field>
-				<field default="1" description="ROKPAD_DESC_HIGHLIGHTLINE" label="ROKPAD_LABEL_HIGHLIGHTLINE" name="highlight-active-line" type="rokpadlist">
+				<field name="highlight-active-line" type="rokpadlist" default="1" label="ROKPAD_LABEL_HIGHLIGHTLINE" description="ROKPAD_DESC_HIGHLIGHTLINE">
 					<option value="0">JNO</option>
 					<option value="1">JYES</option>
 				</field>
-				<field default="1" description="ROKPAD_DESC_HIGHLIGHTWORD" label="ROKPAD_LABEL_HIGHLIGHTWORD" name="highlight-selected-word" type="rokpadlist">
+				<field name="highlight-selected-word" type="rokpadlist" default="1" label="ROKPAD_LABEL_HIGHLIGHTWORD" description="ROKPAD_DESC_HIGHLIGHTWORD">
 					<option value="0">JNO</option>
 					<option value="1">JYES</option>
 				</field>
-				<field default="0" description="ROKPAD_DESC_INVISIBLES" label="ROKPAD_LABEL_INVISIBLES" name="show-invisibles" type="rokpadlist">
+				<field name="show-invisibles" type="rokpadlist" default="0" label="ROKPAD_LABEL_INVISIBLES" description="ROKPAD_DESC_INVISIBLES">
 					<option value="0">JNO</option>
 					<option value="1">JYES</option>
 				</field>
-				<field default="1" description="ROKPAD_DESC_GUTTER" label="ROKPAD_LABEL_GUTTER" name="show-gutter" type="rokpadlist">
+				<field name="show-gutter" type="rokpadlist" default="1" label="ROKPAD_LABEL_GUTTER" description="ROKPAD_DESC_GUTTER">
 					<option value="0">JNO</option>
 					<option value="1">JYES</option>
 				</field>
-				<field default="1" description="ROKPAD_DESC_PRINTMARGIN" label="ROKPAD_LABEL_PRINTMARGIN" name="show-print-margin" type="rokpadlist">
+				<field name="show-print-margin" type="rokpadlist" default="1" label="ROKPAD_LABEL_PRINTMARGIN" description="ROKPAD_DESC_PRINTMARGIN">
 					<option value="0">JNO</option>
 					<option value="1">JYES</option>
 				</field>
-				<field default="0" description="ROKPAD_DESC_FADEWIDGETS" label="ROKPAD_LABEL_FADEWIDGETS" name="fade-fold-widgets" type="rokpadlist">
+				<field name="fade-fold-widgets" type="rokpadlist" default="0" label="ROKPAD_LABEL_FADEWIDGETS" description="ROKPAD_DESC_FADEWIDGETS">
 					<option value="0">JNO</option>
 					<option value="1">JYES</option>
 				</field>

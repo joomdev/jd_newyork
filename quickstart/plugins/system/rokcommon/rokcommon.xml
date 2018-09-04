@@ -1,29 +1,29 @@
-<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<extension group="system" method="upgrade" type="plugin" version="1.6.0">
-	<name>System - RokCommon</name>
-    <creationDate>August 4, 2016</creationDate>
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" group="system" version="2.5" method="upgrade">
+    <name>System - RokCommon</name>
+    <creationDate>August 21, 2018</creationDate>
     <author>RocketTheme, LLC</author>
     <authorEmail>support@rockettheme.com</authorEmail>
     <authorUrl>http://www.rockettheme.com</authorUrl>
-    <copyright>(C) 2005 - 2016 RocketTheme, LLC. All rights reserved.</copyright>
+    <copyright>(C) 2005 - 2018 RocketTheme, LLC. All rights reserved.</copyright>
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
-    <version>3.2.5</version>
-	<description>RokCommon System Plugin</description>
-	<files>
-		<folder>sql</folder>
-        <folder>language</folder>
-        <filename>index.html</filename>
+    <version>3.2.6</version>
+    <description>RokCommon System Plugin</description>
+    <files>
         <filename plugin="rokcommon">rokcommon.php</filename>
+        <filename>MD5SUMS</filename>
+        <folder>language</folder>
         <folder>lib</folder>
+        <folder>sql</folder>
     </files>
     <install>
         <sql>
-            <file charset="utf8" driver="mysql">sql/install.mysql.utf8.sql</file>
+            <file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
         </sql>
     </install>
     <uninstall folder="sql">
         <sql>
-            <file charset="utf8" driver="mysql">sql/uninstall.mysql.utf8.sql</file>
+            <file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
         </sql>
     </uninstall>
     <config>

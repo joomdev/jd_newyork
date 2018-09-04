@@ -23,6 +23,17 @@ class N2SSPluginWidgetBullet extends N2SSPluginSliderWidget {
         new N2ElementWidgetPluginMatrix($settings, 'widgetbullet', false, '', $url, array(
             'widget' => $this
         ));
+        $display = new N2ElementGroup($settings, 'widget-bullet-display', n2_('Display'), array(
+            'rowClass' => 'n2-expert'
+        ));
+        new N2ElementOnOff($display, 'widget-bullet-display-desktop', n2_('Desktop'), 1);
+        new N2ElementOnOff($display, 'widget-bullet-display-tablet', n2_('Tablet'), 1);
+        new N2ElementOnOff($display, 'widget-bullet-display-mobile', n2_('Mobile'), 1);
+        new N2ElementText($display, 'widget-bullet-exclude-slides', n2_('Hide on slides'), '', array(
+            'tip' => n2_('List the slides separated by commas on which you want the controls to be hidden.')
+        ));
+
+    
 
         new N2ElementOnOff($settings, 'widget-bullet-display-hover', n2_('Shows on hover'), 0);
 

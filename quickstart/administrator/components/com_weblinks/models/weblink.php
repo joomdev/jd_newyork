@@ -1,29 +1,28 @@
 <?php
 /**
  * @package     Joomla.Administrator
- * @subpackage  com_weblinks
+ * @subpackage  Weblinks
  *
- * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 defined('_JEXEC') or die;
 
+use Joomla\Registry\Registry;
+
 /**
  * Weblinks model.
  *
- * @package     Joomla.Administrator
- * @subpackage  com_weblinks
- * @since       1.5
+ * @since  1.5
  */
 class WeblinksModelWeblink extends JModelAdmin
 {
-
 	/**
 	 * The type alias for this content type.
 	 *
-	 * @var      string
-	 * @since    3.2
+	 * @var    string
+	 * @since  3.2
 	 */
 	public $typeAlias = 'com_weblinks.weblink';
 
@@ -52,16 +51,13 @@ class WeblinksModelWeblink extends JModelAdmin
 			{
 				return;
 			}
-			$user = JFactory::getUser();
 
 			if ($record->catid)
 			{
-				return $user->authorise('core.delete', 'com_weblinks.category.'.(int) $record->catid);
+				return JFactory::getUser()->authorise('core.delete', 'com_weblinks.category.' . (int) $record->catid);
 			}
-			else
-			{
-				return parent::canDelete($record);
-			}
+
+			return parent::canDelete($record);
 		}
 	}
 
@@ -76,16 +72,12 @@ class WeblinksModelWeblink extends JModelAdmin
 	 */
 	protected function canEditState($record)
 	{
-		$user = JFactory::getUser();
-
 		if (!empty($record->catid))
 		{
-			return $user->authorise('core.edit.state', 'com_weblinks.category.'.(int) $record->catid);
+			return JFactory::getUser()->authorise('core.edit.state', 'com_weblinks.category.' . (int) $record->catid);
 		}
-		else
-		{
-			return parent::canEditState($record);
-		}
+
+		return parent::canEditState($record);
 	}
 
 	/**
@@ -199,12 +191,12 @@ class WeblinksModelWeblink extends JModelAdmin
 		if ($item = parent::getItem($pk))
 		{
 			// Convert the metadata field to an array.
-			$registry = new JRegistry;
+			$registry = new Registry;
 			$registry->loadString($item->metadata);
 			$item->metadata = $registry->toArray();
 
 			// Convert the images field to an array.
-			$registry = new JRegistry;
+			$registry = new Registry;
 			$registry->loadString($item->images);
 			$item->images = $registry->toArray();
 
@@ -234,11 +226,11 @@ class WeblinksModelWeblink extends JModelAdmin
 		$user = JFactory::getUser();
 
 		$table->title = htmlspecialchars_decode($table->title, ENT_QUOTES);
-		$table->alias = JApplication::stringURLSafe($table->alias);
+		$table->alias = JApplicationHelper::stringURLSafe($table->alias);
 
 		if (empty($table->alias))
 		{
-			$table->alias = JApplication::stringURLSafe($table->title);
+			$table->alias = JApplicationHelper::stringURLSafe($table->title);
 		}
 
 		if (empty($table->id))
@@ -248,7 +240,7 @@ class WeblinksModelWeblink extends JModelAdmin
 			// Set ordering to the last item if not set
 			if (empty($table->ordering))
 			{
-				$db = JFactory::getDbo();
+				$db = $this->getDbo();
 				$query = $db->getQuery(true)
 					->select('MAX(ordering)')
 					->from($db->quoteName('#__weblinks'));
@@ -262,7 +254,7 @@ class WeblinksModelWeblink extends JModelAdmin
 			{
 				// Set the values
 				$table->modified    = $date->toSql();
-				$table->modified_by = $user->get('id');
+				$table->modified_by = $user->id;
 			}
 		}
 
@@ -299,6 +291,31 @@ class WeblinksModelWeblink extends JModelAdmin
 	public function save($data)
 	{
 		$app = JFactory::getApplication();
+
+		JLoader::register('CategoriesHelper', JPATH_ADMINISTRATOR . '/components/com_categories/helpers/categories.php');
+
+		// Cast catid to integer for comparison
+		$catid = (int) $data['catid'];
+ 
+		// Check if New Category exists
+		if ($catid > 0)
+		{
+			$catid = CategoriesHelper::validateCategoryId($data['catid'], 'com_weblinks');
+		}
+
+		// Save New Category
+		if ($catid == 0 && $this->canCreateCategory())
+		{
+			$table = array();
+			$table['title'] = $data['catid'];
+			$table['parent_id'] = 1;
+			$table['extension'] = 'com_weblinks';
+			$table['language'] = $data['language'];
+			$table['published'] = 1;
+
+			// Create new category and get catid back
+			$data['catid'] = CategoriesHelper::createCategory($table);
+		}
 
 		// Alter the title for save as copy
 		if ($app->input->get('task') == 'save2copy')
@@ -339,5 +356,38 @@ class WeblinksModelWeblink extends JModelAdmin
 		}
 
 		return array($name, $alias);
+	}
+
+	/**
+	 * Allows preprocessing of the JForm object.
+	 *
+	 * @param   JForm   $form   The form object
+	 * @param   array   $data   The data to be merged into the form object
+	 * @param   string  $group  The plugin group to be executed
+	 *
+	 * @return  void
+	 *
+	 * @since    3.6.0
+	 */
+	protected function preprocessForm(JForm $form, $data, $group = 'content')
+	{
+		if ($this->canCreateCategory())
+		{
+			$form->setFieldAttribute('catid', 'allowAdd', 'true');
+		}
+
+		parent::preprocessForm($form, $data, $group);
+	}
+
+	/**
+	 * Is the user allowed to create an on the fly category?
+	 *
+	 * @return  bool
+	 *
+	 * @since   3.6.0
+	 */
+	private function canCreateCategory()
+	{
+		return JFactory::getUser()->authorise('core.create', 'com_weblinks');
 	}
 }

@@ -1,8 +1,7 @@
 <?php
 
 if (!defined('N2SSPRO')) {
-    define('N2SSPRO', 0);
-
+    define('N2SSPRO', 1);
 }
 
 class N2SmartsliderApplicationInfoFilter {

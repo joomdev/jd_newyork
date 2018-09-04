@@ -2,6 +2,13 @@
     <div id="n2-ss-slide-canvas-settings"><a href="#" class="n2-button n2-button-icon n2-button-m n2-radius-s n2-button-grey n2-uc n2-h4" data-n2tip="<?php n2_e('Canvas settings'); ?>"><i class="n2-i n2-it n2-i-16 n2-i-settings"></i></a><div class="n2-ss-settings-panel"><div class="n2-ss-settings-panel-inner"></div></div></div>
     <?php
     ?>
+    <div data-placement="absolute" id="n2-ss-layer-parent-linker" data-n2tip="<?php n2_e('Create layer chain relation - align layers to each other'); ?>"
+         class="n2-ss-tool n2-button n2-button-icon n2-button-grey n2-button-s n2-radius-s">
+                                <i
+                                        class="n2-i n2-it n2-i-16 n2-i-layerlink"></i></div>
+    <?php
+
+    ?>
     <div>
         <div data-placement="absolute" id="n2-ss-layer-horizontal-align"
              class="n2-ss-tool n2-form-element-radio-tab n2-form-element-icon-radio">

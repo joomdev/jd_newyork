@@ -4,7 +4,7 @@
  *
  * @version     $Id: jeventshtml.php 3549 2012-04-20 09:26:21Z geraintedwards $
  * @package     JEvents
- * @copyright   Copyright (C) 2008-2017 GWE Systems Ltd, 2006-2008 JEvents Project Group
+ * @copyright   Copyright (C) 2008-2018 GWE Systems Ltd, 2006-2008 JEvents Project Group
  * @license     GNU/GPLv2, see http://www.gnu.org/licenses/gpl-2.0.html
  * @link        http://www.jevents.net
  */
@@ -223,15 +223,53 @@ class JEventsHTML
 
 		ob_start();
 		$t_first_entry = ($require_sel) ? JText::_('JEV_EVENT_CHOOSE_CATEG') : JText::_('JEV_EVENT_ALLCAT');
-		$options = JHtml::_('category.options', $sectionname);
-		/* hide second level categories
-		  for ($i=0;$i<count($options);$i++){
-		  if (strpos($options[$i]->text,"-")!==false){
-		  unset($options[$i]);
-		  }
-		  }
-		  $options = array_values($options);
-		 */
+
+		//$options = JHtml::_('category.options', $sectionname);
+
+        $db     = JFactory::getDbo();
+        $user   = JFactory::getUser();
+        $groups = implode(',', $user->getAuthorisedViewLevels());
+
+        $query = $db->getQuery(true)
+            ->select('a.id, a.title, a.level, a.language, a.parent_id')
+            ->from('#__categories AS a')
+            ->where('a.parent_id > 0');
+
+        // Filter on extension.
+        $query->where('extension = ' . $db->quote($sectionname));
+
+        // Filter on user access level
+        $query->where('a.access IN (' . $groups . ')');
+
+        $query->order('a.lft');
+
+        $db->setQuery($query);
+        $items = $db->loadObjectList();
+
+        // Assemble the list options.
+        $options = array();
+        $parents = array();
+
+        foreach ($items as &$item)
+        {
+            $repeat = ($item->level - 1 >= 0) ? $item->level - 1 : 0;
+            $item->title = str_repeat('- ', $repeat) . $item->title;
+
+            if ($item->language !== '*')
+            {
+                $item->title .= ' (' . $item->language . ')';
+            }
+
+            $option =  JHtml::_('select.option', $item->id, $item->title);
+            $option->level = $item->level;
+            $option->parent_id = $item->parent_id;
+            if ($option->parent_id > 1 && !array_key_exists($option->parent_id, $parents))
+            {
+                $parents[$option->parent_id] = 1;
+            }
+            $options[] = $option;
+        }
+
 		if ($catidList != null)
 		{
 			$cats = explode(',', $catidList);
@@ -244,6 +282,25 @@ class JEventsHTML
 				}
 			}
 			$options = array_values($options);
+		}
+
+		// Needs to be ordered so that selected values appear first when editing an event with sortable multiple categories
+		if (is_array($catid) && $eventediting)
+		{
+            for ($c = 0; $c < count($catid); $c ++)
+            {
+                for ($o = 0; $o < count($options); $o++)
+                {
+                    if ($options[$o]->value == $catid[$c])
+                    {
+                        $options[ - (count($catid) - $c)] = $options[$o];
+                        unset($options[$o]);
+                        break;
+                    }
+                }
+            }
+            ksort($options);
+            $options = array_values($options);
 		}
 
 		// translate where appropriate
@@ -353,19 +410,12 @@ class JEventsHTML
 				$count = count($options);
 				for ($o = 0; $o < $count; $o++)
 				{
-					if (strpos($options[$o]->text, "-") !== 0)
+					if ($options[$o]->level == 1)
 					{
-						// Do not block if there is a child!  This is a crude test of this
-						if (array_key_exists($o + 1, $options) && strpos($options[$o + 1]->text, "-") !== 0)
-						{
-							continue;
-						}
-						// If its the last one then it also has no children
-						if (!array_key_exists($o + 1, $options))
-						{
-							continue;
-						}
-						$options[$o]->disable = true;
+					    // Do not block if there is no child
+					    if (!array_key_exists($options[$o]->value, $parents))
+					        continue;
+					    $options[$o]->disable = true;
 					}
 				}
 			}
@@ -381,7 +431,7 @@ class JEventsHTML
 		}
 
 		// sort categories alphabetically
-		//usort($options, function($a, $b) { return strcmp($a->text,$b->text);});
+		// usort($options, function($a, $b) { return strcmp($a->text,$b->text);});
 		// should we offer multi-choice categories?
 		// do not use jev_com_component incase we call this from locations etc.
 		$params = JComponentHelper::getParams(JRequest::getCmd("option", "com_jevents"));
@@ -389,12 +439,14 @@ class JEventsHTML
 		{
 			$size = count($options) > 6 ? 6 : count($options) + 1;
 			?>
+			<label class="sr-only" for="<?php echo $fieldname;?>"><?php echo JText::_('JEV_CATEGORY_SELECT_LBL'); ?></label>
 			<select name="<?php echo $fieldname; ?>[]"  id="<?php echo $fieldname; ?>" <?php echo $args; ?> multiple="multiple" size="<?php echo $size; ?>" style="width:300px;">
 			    <?php
 		    }
 		    else
 		    {
 			    ?>
+			    <label class="sr-only" for="<?php echo $fieldname;?>"><?php echo JText::_('JEV_CATEGORY_SELECT_LBL'); ?></label>
 			    <select name="<?php echo $fieldname; ?>" <?php echo $args; ?>  id="<?php echo $fieldname; ?>" >
 				<option value="0"><?php echo $t_first_entry; ?></option>
 				<?php
@@ -403,7 +455,13 @@ class JEventsHTML
 			<?php echo JHtml::_('select.options', $options, 'value', 'text', $catid); ?>
 		    </select>
 		    <?php
-		    return ob_get_clean();
+		    $html =  ob_get_clean();
+		    if (count($options) == 1)
+		    {
+			$html   =   "<div class='catname'>".  $options[0]->text. "</div>";
+			$html  .= "<input type='hidden' id='" . $fieldname . "' name='" . $fieldname . "[]' value='$catid' />";
+		    }
+		return $html;
 	    }
 
 	    public static function buildWeekDaysCheck($reccurweekdays, $args, $name = "reccurweekdays")
@@ -519,7 +577,7 @@ class JEventsHTML
 				    . $a . '" ' . $args . $checked . ' onclick="updateRepeatWarning();" />'
 				    . '<label for="cb_wn' . $a . '" class="checkbox btn">'
 				    . '<span class="weeknameforward" ' . $fwdstyle . '>' . $week_name[$a] . "</span>"
-				    . '<span class="weeknameback"' . $bckstyle . '>' . $backwards_week_name[$a] . "</span>"
+				    . '<span class="weeknameback" ' . $bckstyle . '>' . $backwards_week_name[$a] . "</span>"
 				    . '</label>' . "\n"
 			    ;
 		    }
@@ -529,7 +587,7 @@ class JEventsHTML
 	    public static function getUserMailtoLink($evid, $userid, $admin = false, $event)
 	    {
 
-		    $db = JFactory::getDBO();
+		    $db = JFactory::getDbo();
 
 		    static $arr_userids;
 		    static $arr_evids;
@@ -602,7 +660,7 @@ class JEventsHTML
 				    $anonplugin = JPluginHelper::getPlugin("jevents", "jevanonuser");
 				    if ($anonplugin)
 				    {
-					    $db = JFactory::getDBO();
+					    $db = JFactory::getDbo();
 					    $db->setQuery("SELECT a.* FROM #__jev_anoncreator as a LEFT JOIN #__jevents_repetition as r on a.ev_id=r.eventid where r.rp_id=" . intval($evid) . " LIMIT 1");
 					    $anonrow = $db->loadObject();
 					    if ($anonrow)
@@ -651,7 +709,7 @@ class JEventsHTML
 
 	    public static function getColorBar($event_id = null, $newcolor)
 	    {
-		    $db = JFactory::getDBO();
+		    $db = JFactory::getDbo();
 
 		    $cfg = JEVConfig::getInstance();
 

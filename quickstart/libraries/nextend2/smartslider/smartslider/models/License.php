@@ -49,8 +49,15 @@ class N2SmartsliderLicenseModel {
     }
 
     public function checkKey($license, $action = 'licensecheck') {
-        return 0;
-    
+        $result = N2SS3::api(array(
+            'action'  => $action,
+            'license' => $license
+        ));
+        if ($result === false) {
+            return 'CONNECTION_ERROR';
+        }
+
+        return $result['status'];
     }
 
     public function isActive($cacheAccepted = true) {
@@ -72,7 +79,7 @@ class N2SmartsliderLicenseModel {
         if ($this->hasKey()) {
             $this->checkKey($this->key, 'licensedeauthorize');
             $this->setKey('');
-            N2Message::notice('Smart Slider deauthorized on this site!');
+            N2Message::notice(n2_('Smart Slider deauthorized on this site!'));
 
             return 'OK';
         }

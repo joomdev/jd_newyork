@@ -84,6 +84,8 @@ class N2SmartSliderExport {
                     self::addImage($slide['params']->get('backgroundImage'));
                     self::addImage($slide['params']->get('ligthboxImage'));
                     self::addLightbox($slide['params']->get('link'));
+                    self::addImage($slide['params']->get('backgroundVideoMp4'));
+                
 
                     $layers = json_decode($slide['slide'], true);
 

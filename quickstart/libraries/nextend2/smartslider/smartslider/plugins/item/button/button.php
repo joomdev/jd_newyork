@@ -6,7 +6,7 @@ class N2SSPluginItemFactoryButton extends N2SSPluginItemFactoryAbstract {
 
     public $type = 'button';
 
-    protected $priority = 3;
+    protected $priority = 4;
 
     private $font = 1103;
     private $style = 1101;
@@ -15,7 +15,7 @@ class N2SSPluginItemFactoryButton extends N2SSPluginItemFactoryAbstract {
 
     public function __construct() {
         $this->title = n2_x('Button', 'Slide item');
-        $this->group = n2_('Basic');
+        $this->group = n2_('Content');
     }
 
     private function initDefaultFont() {
@@ -158,6 +158,38 @@ class N2SSPluginItemFactoryButton extends N2SSPluginItemFactoryAbstract {
         $ui = new N2ElementGroup($settings, 'item-button-ui');
         new N2ElementOnOff($ui, 'fullwidth', n2_('Full width'), 1);
         new N2ElementOnOff($ui, 'nowrap', n2_('No wrap'), 1);
+        new N2ElementText($settings, 'class', 'CSS class', '', array(
+            'rowClass' => 'n2-expert',
+            'style'    => 'width: 174px;'
+        ));
+
+        $icon = new N2ElementGroup($settings, 'item-button-icon');
+        new N2ElementIcon2Manager($icon, 'icon', n2_('Icon'), '', array(
+            'hasClear' => true
+        ));
+        new N2ElementNumberSlider($icon, 'iconsize', n2_('Size'), 100, array(
+            'min'       => 5,
+            'max'       => 1000,
+            'sliderMax' => 300,
+            'step'      => 5,
+            'wide'      => 4,
+            'unit'      => 'px'
+        ));
+        new N2ElementNumberSlider($icon, 'iconspacing', n2_('Spacing'), 30, array(
+            'min'  => 0,
+            'max'  => 300,
+            'step' => 1,
+            'wide' => 4,
+            'unit' => '%'
+        ));
+        new N2ElementList($icon, 'iconplacement', n2_('Placement'), '', array(
+            'options' => array(
+                'left'  => n2_('Left'),
+                'right' => n2_('Right')
+            )
+        ));
+
+    
     }
 }
 

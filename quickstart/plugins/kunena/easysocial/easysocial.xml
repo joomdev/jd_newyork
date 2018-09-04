@@ -2,8 +2,8 @@
 <!DOCTYPE extension>
 <extension version="2.5" type="plugin" group="kunena" method="upgrade">
     <name>plg_kunena_easysocial</name>
-    <version>5.1.1</version>
-    <creationDate>2018-06-10</creationDate>
+    <version>5.1.3</version>
+    <creationDate>2018-08-19</creationDate>
     <author>StackIdeas</author>
     <authorEmail>support@stackideas.com</authorEmail>
     <authorUrl>http://stackideas.com</authorUrl>

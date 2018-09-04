@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version   $Id: EasyBlog.php 28637 2015-07-09 15:45:21Z james $
+ * @version   $Id: EasyBlog.php 30755 2018-04-13 15:41:51Z reggie $
  * @author    RocketTheme http://www.rockettheme.com
  * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
  * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only

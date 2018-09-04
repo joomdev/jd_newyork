@@ -6,7 +6,7 @@ class N2SSPluginItemFactoryImage extends N2SSPluginItemFactoryAbstract {
 
     protected $type = 'image';
 
-    protected $priority = 4;
+    protected $priority = 3;
 
     protected $layerProperties = array("desktopportraitwidth" => "300");
 
@@ -16,7 +16,7 @@ class N2SSPluginItemFactoryImage extends N2SSPluginItemFactoryAbstract {
 
     public function __construct() {
         $this->title = n2_x('Image', 'Slide item');
-        $this->group = n2_('Basic');
+        $this->group = n2_('Image');
     }
 
     private function initDefaultStyle() {
@@ -136,6 +136,20 @@ class N2SSPluginItemFactoryImage extends N2SSPluginItemFactoryAbstract {
         new N2ElementText($size, 'size-2', n2_('Height'), '', array(
             'style' => 'width:60px;'
         ));
+        new N2ElementOnOff($misc, 'image-optimize', n2_('Optimize image'), 1);
+
+
+        new N2ElementStyle($settings, 'style', n2_('Style') . ' - ' . n2_('Image'), '', array(
+            'previewMode' => 'box',
+            'preview'     => '<div class="{styleClassName}" style="width:{nextend.activeLayer.width()}px;height:{nextend.activeLayer.height()}px;"><img style="width:100%;" src="{nextend.imageHelper.fixed($(\'#item_imageimage\').val())}" /></div>',
+            'rowClass'    => 'n2-hidden'
+        ));
+
+        new N2ElementText($settings, 'cssclass', 'CSS Class', '', array(
+            'style'    => 'width:174px;',
+            'rowClass' => 'n2-expert'
+        ));
+    
 
 
     }

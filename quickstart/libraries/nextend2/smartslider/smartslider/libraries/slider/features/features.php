@@ -5,6 +5,9 @@ N2Loader::import('libraries.image.manager');
 
 class N2SmartSliderFeatures {
 
+    /**
+     * @var N2SmartSliderRenderableAbstract
+     */
     private $slider;
 
     public $allowBGImageAttachmentFixed = true;
@@ -71,8 +74,11 @@ class N2SmartSliderFeatures {
 
     public $optimize;
 
-    private $initCallbacks = array();
-
+    /**
+     * N2SmartSliderFeatures constructor.
+     *
+     * @param $slider N2SmartSliderRenderableAbstract
+     */
     public function __construct($slider) {
         $this->slider = $slider;
 
@@ -89,6 +95,8 @@ class N2SmartSliderFeatures {
         $this->translateUrl    = new N2SmartSliderFeatureTranslateUrl($slider);
         $this->layerMode       = new N2SmartSliderFeatureLayerMode($slider);
         $this->slideBackground = new N2SmartSliderFeatureSlideBackground($slider);
+        $this->postBackgroundAnimation = new N2SmartSliderFeaturePostBackgroundAnimation($slider);
+    
         $this->loadSpinner = new N2SmartSliderFeatureSpinner($slider);
     }
 
@@ -107,6 +115,50 @@ class N2SmartSliderFeatures {
                 'randomizeFirst' => intval($this->slider->params->get('randomizeFirst', 0))
             );
         }
+        if ($this->slider->params->get('global-lightbox', 0)) {
+            $fail         = false;
+            $images       = array();
+            $deviceImages = array();
+            $titles       = array();
+            $descriptions = array();
+            for ($i = 0; $i < count($this->slider->slides); $i++) {
+                $backgroundImage = $this->slider->slides[$i]->getLightboxImage();
+                $image           = N2ImageHelper::fixed($backgroundImage);
+
+                $imageData = N2ImageManager::getImageData($backgroundImage);
+                foreach ($imageData AS $k => $data) {
+                    if (!empty($data['image'])) {
+                        if (!isset($deviceImages[$image])) {
+                            $deviceImages[$image] = array(
+                                'desktop' => $image
+                            );
+                        }
+                        $deviceImages[$image][$k] = N2ImageHelper::fixed($data['image']);
+                    }
+                }
+                if (!empty($image)) {
+                    $images[]       = $image;
+                    $titles[]       = $this->slider->slides[$i]->getTitle();
+                    $descriptions[] = $this->slider->slides[$i]->getDescription();
+                } else {
+                    $fail = true;
+                    break;
+                }
+            }
+            if (!$fail) {
+                N2AssetsPredefined::loadLiteBox();
+                $return['lightbox']             = $images;
+                $return['lightboxDeviceImages'] = $deviceImages;
+                $label                          = $this->slider->params->get('global-lightbox-label', 0);
+                if ($label == 'name' || $label == 'namemore') {
+                    $return['titles'] = $titles;
+                    if ($label == 'namemore') {
+                        $return['descriptions'] = $descriptions;
+                    }
+                }
+            }
+        }
+    
 
         $this->makeJavaScriptProperties($return);
 
@@ -129,13 +181,17 @@ class N2SmartSliderFeatures {
         $this->autoplay->makeJavaScriptProperties($properties);
         $this->layerMode->makeJavaScriptProperties($properties);
         $this->slideBackground->makeJavaScriptProperties($properties);
-        $properties['initCallbacks'] = &$this->initCallbacks;
+        $this->postBackgroundAnimation->makeJavaScriptProperties($properties);
+    
+        $properties['initCallbacks'] = &$this->slider->initCallbacks;
     }
 
     /**
      * @param $slide N2SmartSliderSlide
      */
     public function makeSlide($slide) {
+        $this->postBackgroundAnimation->makeSlide($slide);
+    
     }
 
     /**
@@ -148,7 +204,7 @@ class N2SmartSliderFeatures {
         return $this->slideBackground->make($slide);
     }
 
-    public function addInitCallback($callback) {
-        $this->initCallbacks[] = $callback;
+    public function addInitCallback($callback, $name = false) {
+        $this->slider->addScript($callback, $name);
     }
 }

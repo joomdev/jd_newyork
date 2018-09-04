@@ -57,9 +57,12 @@ N2JS::addFirstCode("
     autoHeight();
     $(window).on('resize', autoHeight);
     $('.n2-ss-slider').on('SliderResize', autoHeight);
-    window[$('.n2-ss-slider').attr('id')].startedDeferred.done(function(slider){
-        slider.ready(autoHeight);
-    });
+    
+    N2R('#' + $('.n2-ss-slider').attr('id'), $.proxy(function ($, slider) {
+        slider.startedDeferred.done(function(slider){
+            slider.ready(autoHeight);
+        });
+    }));
         
     $('.n2-lb-header').each(function () {
         var bar = $(this);
@@ -103,55 +106,3 @@ N2JS::addFirstCode("
     </div>
 
     <div class="n2-clear"></div>
-<?php
-if (!N2Base::getApplication('smartslider')->storage->get('free', 'subscribeOnImport')) {
-    ?>
-    <div class="n2-ss-preview-subscribe">
-        <div class="n2-ss-preview-subscribe-close"></div>
-        <form>
-            <div class="n2-input-button"><input id="EMAIL" name="EMAIL" value="<?php echo N2Platform::getUserEmail(); ?>" type="email"><a href="#" class="n2-button n2-button-normal n2-button-l n2-radius-s n2-button-green n2-uc n2-h4">SIGNUP</a></div>
-            <input type="hidden" name="<?php echo strtoupper(N2Platform::getPlatform()); ?>" value="Yes"/>
-            <input type="hidden" name="SOURCE" value="Smart Slider 3"/>
-        </form>
-    </div>
-    <script type="text/javascript">
-        N2R('documentReady', function ($) {
-            var subscribe = $('.n2-ss-preview-subscribe'),
-                form = subscribe.find('form').on('submit', function (e) {
-                    e.preventDefault();
-                    button.trigger('click');
-                }),
-                button = form.find('.n2-button-green'),
-                hideSubscriptionForm = function () {
-                    subscribe.removeClass('n2-active');
-                    N2Classes.AjaxHelper.ajax({
-                        type: "GET",
-                        url: N2Classes.AjaxHelper.makeAjaxUrl('<?php echo $this->appType->router->createAjaxUrl(array('settings/subscribed')); ?>'),
-                        dataType: 'json'
-                    });
-                };
-
-            button.on('click', $.proxy(function (e) {
-                e.preventDefault();
-                N2Classes.AjaxHelper.ajax({
-                    type: "POST",
-                    url: "//secure.nextendweb.com/mailchimp/subscribe.php",
-                    data: form.serialize(),
-                    dataType: 'json'
-                }).done($.proxy(function (response) {
-                    hideSubscriptionForm();
-                }, this));
-            }, this));
-
-            subscribe.find('.n2-ss-preview-subscribe-close').on('click', $.proxy(function (e) {
-                e.preventDefault();
-                hideSubscriptionForm();
-            }, this));
-
-            setTimeout(function () {
-                subscribe.addClass('n2-active');
-            }, 3000);
-        });
-</script>
-    <?php
-}

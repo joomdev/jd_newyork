@@ -1,9 +1,9 @@
 <?php
 /**
- * @package     Joomla.Site
- * @subpackage  com_weblinks
+ * @package     Joomla.Administrator
+ * @subpackage  Weblinks
  *
- * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -12,9 +12,7 @@ defined('_JEXEC') or die;
 /**
  * HTML View class for the WebLinks component
  *
- * @package     Joomla.Site
- * @subpackage  com_weblinks
- * @since       1.5
+ * @since  1.5
  */
 class WeblinksViewCategory extends JViewCategory
 {
@@ -35,7 +33,7 @@ class WeblinksViewCategory extends JViewCategory
 		{
 			$item->slug = $item->alias ? ($item->id . ':' . $item->alias) : $item->id;
 
-			if ($item->params->get('count_clicks', $this->params->get('count_clicks')) == 1)
+			if ($item->params->get('count_clicks', $this->params->get('count_clicks', 1)) == 1)
 			{
 				$item->link = JRoute::_('index.php?option=com_weblinks&task=weblink.go&id=' . $item->id);
 			}
@@ -60,6 +58,8 @@ class WeblinksViewCategory extends JViewCategory
 	 */
 	protected function prepareDocument()
 	{
+		parent::prepareDocument();
+
 		$app		= JFactory::getApplication();
 		$menus		= $app->getMenu();
 		$pathway	= $app->getPathway();

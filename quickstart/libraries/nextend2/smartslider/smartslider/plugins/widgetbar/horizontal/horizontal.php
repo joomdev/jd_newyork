@@ -71,7 +71,15 @@ class N2SSPluginWidgetBarHorizontal extends N2SSPluginWidgetAbstract {
         ));
 
         $size = new N2ElementGroup($settings, 'horizontal-bar-size', n2_('Size'));
+        new N2ElementText($size, 'widget-bar-width', n2_('Width'), '', array(
+            'rowClass' => 'n2-expert'
+        ));
+    
         new N2ElementOnOff($size, 'widget-bar-full-width', n2_('Full width'));
+        new N2ElementOnOff($size, 'widget-bar-overlay', n2_('Overlay'), 0, array(
+            'rowClass' => 'n2-expert'
+        ));
+    
 
 
         new N2ElementText($settings, 'widget-bar-separator', n2_('Separator'));
@@ -139,48 +147,35 @@ class N2SSPluginWidgetBarHorizontal extends N2SSPluginWidgetAbstract {
             $innerStyle = 'display: inline-block;';
         }
 
-        $separator       = $params->get(self::$key . 'separator');
-        $showTitle       = intval($params->get(self::$key . 'show-title'));
+        $showTitle = intval($params->get(self::$key . 'show-title'));
+        if ($showTitle) {
+            $slider->exposeSlideData['title'] = true;
+        }
         $showDescription = intval($params->get(self::$key . 'show-description'));
-        $slides          = array();
-        for ($i = 0; $i < count($slider->slides); $i++) {
-
-            $html = '';
-            if ($showTitle) {
-                $title = N2Translation::_($slider->slides[$i]->getTitle());
-                if (!empty($title)) {
-                    $html .= N2Html::tag('span', array(
-                        'class' => $fontTitle . ' n2-ow'
-                    ), $title);
-                }
-            }
-
-            $description = $slider->slides[$i]->getDescription();
-            if ($showDescription && !empty($description)) {
-                $html .= N2Html::tag('span', array('class' => $fontDescription . ' n2-ow'), (!empty($html) ? $separator : '') . N2SmartSlider::addCMSFunctions(N2Translation::_($description)));
-            }
-
-            $slides[$i] = array(
-                'html'    => $html,
-                'hasLink' => $slider->slides[$i]->hasLink
-            );
+        if ($showDescription) {
+            $slider->exposeSlideData['description'] = true;
         }
 
         $parameters = array(
-            'overlay' => $params->get(self::$key . 'position-mode') != 'simple' || $params->get(self::$key . 'overlay'),
-            'area'    => intval($params->get(self::$key . 'position-area')),
-            'animate' => intval($params->get(self::$key . 'animate'))
+            'overlay'         => ($params->get(self::$key . 'position-mode') != 'simple' || $params->get(self::$key . 'overlay')) ? 1 : 0,
+            'area'            => intval($params->get(self::$key . 'position-area')),
+            'animate'         => intval($params->get(self::$key . 'animate')),
+            'showTitle'       => $showTitle,
+            'fontTitle'       => $fontTitle,
+            'showDescription' => $showDescription,
+            'fontDescription' => $fontDescription,
+            'separator'       => $params->get(self::$key . 'separator')
         );
 
-        $slider->features->addInitCallback('new N2Classes.SmartSliderWidgetBarHorizontal(this, ' . json_encode($slides) . ', ' . json_encode($parameters) . ');');
+        $slider->features->addInitCallback('new N2Classes.SmartSliderWidgetBarHorizontal(this, ' . json_encode($parameters) . ');');
 
         return N2Html::tag("div", $displayAttributes + $attributes + array(
                 "class" => $displayClass . "nextend-bar nextend-bar-horizontal n2-ow",
                 "style" => $style
             ), N2Html::tag("div", array(
             "class" => $styleClass . ' n2-ow',
-            "style" => $innerStyle . ($slides[$slider->firstSlideIndex]['hasLink'] ? 'cursor:pointer;' : '')
-        ), $slides[$slider->firstSlideIndex]['html']));
+            "style" => $innerStyle
+        ), ''));
     }
 
     public function prepareExport($export, $params) {
@@ -196,6 +191,8 @@ class N2SSPluginWidgetBarHorizontal extends N2SSPluginWidgetAbstract {
         $params->set(self::$key . 'font-description', $import->fixSection($params->get(self::$key . 'font-description', '')));
     }
 }
+N2SmartSliderWidgets::addWidget('bar', new N2SSPluginWidgetBarHorizontal);
+
 
 class N2SSPluginWidgetBarHorizontalFull extends N2SSPluginWidgetBarHorizontal {
 

@@ -156,6 +156,7 @@
   font-size: 10px;
   font-weight: bold;
   text-transform: uppercase;
+  width: 100%;
 }
 #kunena.layout .topic-moderator {
   display: inline-block;
@@ -170,6 +171,7 @@
   font-size: 10px;
   font-weight: bold;
   text-transform: uppercase;
+  width: 100%;
 }
 #kunena.layout hr {
   margin: 0;
@@ -231,13 +233,8 @@
   margin-bottom: 20px;
   border-radius: 4px;
 }
-#kunena.layout .horizontal-message-top .kmsg {
-  padding-top: 40px;
-  min-height: 140px;
-  padding-left: 10px;
-}
 #kunena.layout .horizontal-message .kmessage {
-  padding: 10px;
+  padding: 5px 10px 0;
 }
 #kunena.layout [class*="horizontal-message-top"] {
   position: relative;
@@ -247,10 +244,12 @@
   position: absolute;
   top: 0;
   font-weight: bold;
-  padding: 8px 12px;
-  margin-top: -10px;
+  padding: 8px 12px !important;
+  margin-top: -10px !important;
   border-right: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
+  border-top: 0 !important;
+  border-left: 0 !important;
 }
 #kunena.layout [class*="horizontal-message-bottom"] {
   position: relative;
@@ -260,11 +259,22 @@
   position: absolute;
   top: 0;
   font-weight: bold;
-  padding: 8px 12px;
+  padding: 8px 12px !important;
   border-right: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
 }
-#kunena.layout [class*="badger"] {
+#kunena.layout .horizontal-message [class*="badger-left"] {
+  position: relative;
+  margin: -8px 0 0 0;
+  padding: 0 9px 0 3px !important;
+  border-radius: 4px;
+  border: 0;
+  box-shadow: none;
+}
+#kunena.layout .message-bottom [class*="badger-left"] {
+  margin: 0;
+}
+#kunena.layout [class*="badger-left"] {
   position: relative;
   margin: 15px 0;
   padding: 39px 19px 0 14px;
@@ -289,6 +299,10 @@
 #kunena.layout .badger-info:after {
   background: rgba(229,229,229,0.4);
 }
+#kunena.layout .badger-solved {
+  border: 1px solid #5cb85c;
+  background-color: honeydew;
+}
 #kunena.layout legend {
   color: inherit;
 }
@@ -308,6 +322,28 @@
   padding: 15px;
   font-style: italic;
 }
+#kunena.layout .mykmsg-header {
+  margin-top: 0;
+  background: rgba(229,229,229,0.4);
+  padding: 10px 19px 12px 14px !important;
+  margin-left: -15px;
+  margin-right: -20px;
+  font-weight: bold;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+#kunena.layout .badger-left::after {
+  border-radius: 0 !important;
+  height: 0 !important;
+}
+#kunena.layout [class*="badger"]::after {
+  padding: 0;
+  border-right: none !important;
+  border-bottom: none !important;
+}
+#kunena.layout [class*="badger-left"] {
+  padding: 0 19px 0 14px !important;
+}
 #kunena.layout #kwho > div > p,
 #kunena.layout #kstats > div > p {
   margin: 0;
@@ -319,7 +355,6 @@
   padding-right: 10px;
 }
 #kunena.layout .kmsg {
-  height: 100%;
   margin: 20px 0;
   word-wrap: break-word;
   font-family: "Segoe UI", "Segoe UI Emoji", "Segoe UI Symbol", Helvetica, Arial, sans-serif;
@@ -429,7 +464,6 @@
   line-height: 150%;
 }
 #kunena.layout .nav .dropdown-menu a {
-  display: inline-block;
   text-decoration: none;
 }
 #kunena.layout .nav .dropdown-menu a .btn-link {
@@ -707,12 +741,12 @@
 #kunena.layout #search .btn.b3:before {
   content: "\e260";
   font-size: 14px;
-  font-family: "Glyphicons Halflings";
+  font-family: "Glyphicons Halflings", serif;
 }
 #kunena.layout .btn-toolbar .btn.b3.collapsed:before,
 #kunena.layout #search .btn.b3.collapsed:before {
   content: "\e259";
-  font-family: "Glyphicons Halflings";
+  font-family: "Glyphicons Halflings", serif;
   font-size: 14px;
 }
 #kunena.layout .btn-toolbar .btn.b2:before,
@@ -946,30 +980,35 @@
 #kunena.layout .breadcrumb .divider {
   display: inline-block;
 }
+#kunena.layout .dropdown-toggle .status-green,
 #kunena.layout .dropdown-toggle img.green {
   margin-top: 0 !important;
   -webkit-box-shadow: 0 0 0 2px green, 0 0 0 4px #ccc, 0 2px 5px 4px rgba(0,0,0,0.1);
   -moz-box-shadow: 0 0 0 2px green, 0 0 0 4px #ccc, 0 2px 5px 4px rgba(0,0,0,0.1);
   box-shadow: 0 0 0 2px green, 0 0 0 4px #ccc, 0 2px 5px 4px rgba(0,0,0,0.1);
 }
+#kunena.layout .dropdown-toggle .status-yellow,
 #kunena.layout .dropdown-toggle img.yellow {
   margin-top: 0 !important;
   -webkit-box-shadow: 0 0 0 2px yellow, 0 0 0 4px #ccc, 0 2px 5px 4px rgba(0,0,0,0.1);
   -moz-box-shadow: 0 0 0 2px yellow, 0 0 0 4px #ccc, 0 2px 5px 4px rgba(0,0,0,0.1);
   box-shadow: 0 0 0 2px yellow, 0 0 0 4px #ccc, 0 2px 5px 4px rgba(0,0,0,0.1);
 }
+#kunena.layout .dropdown-toggle .status-red,
 #kunena.layout .dropdown-toggle img.red {
   margin-top: 0 !important;
   -webkit-box-shadow: 0 0 0 2px red, 0 0 0 4px #ccc, 0 2px 5px 4px rgba(0,0,0,0.1);
   -moz-box-shadow: 0 0 0 2px red, 0 0 0 4px #ccc, 0 2px 5px 4px rgba(0,0,0,0.1);
   box-shadow: 0 0 0 2px red, 0 0 0 4px #ccc, 0 2px 5px 4px rgba(0,0,0,0.1);
 }
+#kunena.layout .dropdown-toggle .status-grey,
 #kunena.layout .dropdown-toggle img.grey {
   margin-top: 0 !important;
   -webkit-box-shadow: 0 0 0 2px grey, 0 0 0 4px #ccc, 0 2px 5px 4px rgba(0,0,0,0.1);
   -moz-box-shadow: 0 0 0 2px grey, 0 0 0 4px #ccc, 0 2px 5px 4px rgba(0,0,0,0.1);
   box-shadow: 0 0 0 2px grey, 0 0 0 4px #ccc, 0 2px 5px 4px rgba(0,0,0,0.1);
 }
+#kunena.layout .dropdown-toggle .status-none,
 #kunena.layout .dropdown-toggle img.none {
   display: inline-block;
   margin-top: 0 !important;
@@ -1016,8 +1055,12 @@
 }
 #kunena.layout #ann-date .date,
 #kunena.layout #ann-date2 .date,
-#kunena.layout #ann-date3 .date {
+#kunena.layout #ann-date3 .date,
+#kunena.layout #searchatdate .date {
   display: inline-block !important;
+}
+#kunena.layout .dropdown-submenu > a::after {
+  display: none !important;
 }
 #kunena.layout .inputbox#catid {
   max-width: 250px;
@@ -1032,7 +1075,7 @@
 #kunena.layout #nav-menu img {
   width: 80%;
 }
-#kunena.layout #kbbcode-message {
+#kunena.layout #editor {
   resize: vertical;
 }
 #kunena.layout tr td.kpostbuttons select.selectbox {
@@ -1059,103 +1102,103 @@
   min-height: 150px;
 }
 #kunena.layout .markItUp .boldbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/bold.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/bold.png);
 }
 #kunena.layout .markItUp .italicbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/italic.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/italic.png);
 }
 #kunena.layout .markItUp .underlinebutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/underline.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/underline.png);
 }
 #kunena.layout .markItUp .strokebutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/stroke.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/stroke.png);
 }
 #kunena.layout .markItUp .supscriptbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/supscript.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/supscript.png);
 }
 #kunena.layout .markItUp .subscriptbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/subscript.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/subscript.png);
 }
 #kunena.layout .markItUp .sizebutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/fonts.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/fonts.png);
 }
 #kunena.layout .markItUp .colors a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/colors.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/colors.png);
 }
 #kunena.layout .markItUp .bulletedlistbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/list-bullet.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/list-bullet.png);
 }
 #kunena.layout .markItUp .numericlistbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/list-numeric.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/list-numeric.png);
 }
 #kunena.layout .markItUp .listitembutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/list-item.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/list-item.png);
 }
 #kunena.layout .markItUp .alignleftbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/text_align_left.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/text_align_left.png);
 }
 #kunena.layout .markItUp .centerbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/text_align_center.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/text_align_center.png);
 }
 #kunena.layout .markItUp .alignrightbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/text_align_right.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/text_align_right.png);
 }
 #kunena.layout .markItUp .quotebutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/quotes.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/quotes.png);
 }
 #kunena.layout .markItUp .codemodalboxbutton a,
 #kunena.layout .markItUp .codesimplebutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/code.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/code.png);
 }
 #kunena.layout .markItUp .tablebutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/table.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/table.png);
 }
 #kunena.layout .markItUp .spoilerbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/spoiler.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/spoiler.png);
 }
 #kunena.layout .markItUp .hiddentextbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/hidden.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/hidden.png);
 }
 #kunena.layout .markItUp .picturebutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/picture.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/picture.png);
 }
 #kunena.layout .markItUp .linkbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/link.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/link.png);
 }
 #kunena.layout .markItUp .ebaybutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/ebay.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/ebay.png);
 }
 #kunena.layout .markItUp .videodropdownbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/film.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/film.png);
 }
 #kunena.layout .markItUp .mapbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/map.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/map.png);
 }
 #kunena.layout .markItUp .pollbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/poll.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/poll.png);
 }
 #kunena.layout .markItUp .tweetbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/tweet.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/tweet.png);
 }
 #kunena.layout .markItUp .soundcloudbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/soundcloud.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/soundcloud.png);
   margin-left: -3px;
   margin-top: 3px;
 }
 #kunena.layout .markItUp .instagrambutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/instagram.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/instagram.png);
 }
 #kunena.layout .markItUp .hrbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/hr.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/hr.png);
 }
 #kunena.layout .markItUp .emoticonsbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/emoticon.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/emoticon.png);
 }
 #kunena.layout .markItUp .confidentialbutton a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/confidential.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/confidential.png);
 }
 #kunena.layout .markItUp .clean a {
-  background-image: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/clean.png);
+  background-image: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/clean.png);
 }
 #kunena.layout .markItUp .colors ul {
   width: auto;
@@ -1359,15 +1402,12 @@
 #kunena.layout #files p {
   margin: 15px 0 0 0;
 }
-#kunena.layout #kbbcode-preview-real {
-  min-height: 3em;
-}
 #kunena.layout #kbbcode-preview {
   height: auto !important;
   margin-bottom: 35px;
 }
-#kunena.layout #kshow_attach_form {
-  margin-top: -100px;
+#kunena.layout .wysibb-text-editor {
+  min-height: 300px !important;
 }
 #kunena.layout #iconset_inject .inline:hover {
   cursor: pointer;
@@ -1458,28 +1498,65 @@
   max-width: none !important;
 }
 #kunena.layout .kicon-folder {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/icons/folder_nonew.png) no-repeat left center;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/icons/folder_nonew.png) no-repeat left center;
   width: 32px;
   height: 32px;
   display: inline-block;
 }
 #kunena.layout .kicon-folder.knewchar {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/icons/folder.png) no-repeat left center;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/icons/folder.png) no-repeat left center;
   width: 32px;
   height: 32px;
   display: inline-block;
 }
 #kunena.layout .kicon-folder-sm {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/icons/folder_nonew_sm.png) no-repeat left center;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/icons/folder_nonew_sm.png) no-repeat left center;
   width: 16px;
   height: 16px;
   display: inline-block;
 }
 #kunena.layout .kicon-folder-sm-new {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/icons/folder_sm.png) no-repeat left center;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/icons/folder_sm.png) no-repeat left center;
   width: 16px;
   height: 16px;
   display: inline-block;
+}
+#kunena.layout .b2-3x {
+  padding-top: 10px;
+  font-size: 32px;
+}
+#kunena.layout .b2-7x {
+  padding-top: 10px;
+  font-size: 52px;
+}
+#kunena.layout .user-circle.user-default {
+  width: 32px;
+  height: 32px;
+  text-align: center;
+  font-size: 24px;
+  line-height: 1.33;
+  border-radius: 50%;
+  border: 1px solid;
+}
+#kunena.layout .user-circle.user-xl {
+  width: 70px;
+  height: 70px;
+  padding: 10px 16px;
+  font-size: 52px;
+  line-height: 1.33;
+  border-radius: 50%;
+  border: 1px solid;
+}
+#kunena.layout .icon.icon-one-fine-dot {
+  margin-right: 0;
+}
+#kunena.layout .icon.icon-one-fine-dot:before {
+  content: "\25cf";
+  font-size: 2em;
+}
+#kunena.layout .glyphicon.glyphicon-one-fine-dot:before {
+  content: "\25cf";
+  font-size: 1.5em;
 }
 #kunena.layout .kwho-guest {
   color: #666666;
@@ -1490,6 +1567,7 @@
 #kunena.layout .kwho-moderator {
   color: #0000FF;
 }
+#kunena.layout .kwho-globalmod,
 #kunena.layout .kwho-globalmoderator {
   color: #800000;
 }
@@ -1506,17 +1584,17 @@
   display: inline-block;
   vertical-align: text-top;
   margin-right: 3px;
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/iconsets/profile/default/default.png) no-repeat;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/iconsets/profile/default/default.png) no-repeat;
 }
 #kunena.layout .inline .kicon-profile {
   width: 32px;
   height: 32px;
 }
 #kunena.layout .kicon-profile-myspace {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/myspace.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/myspace.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-digg {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/digg.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/digg.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-birthdate {
   background-position: 0 -42px;
@@ -1528,16 +1606,16 @@
   background-position: 0 -294px;
 }
 #kunena.layout .kicon-profile-twitter {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/twitter.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/twitter.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-pm {
   background-position: 0 -437px;
 }
 #kunena.layout .kicon-profile-microsoft {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/microsoft.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/microsoft.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-friendfeed {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/friendfeed.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/friendfeed.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-website {
   background-position: 0 -521px;
@@ -1546,28 +1624,28 @@
   background-position: 0 -458px;
 }
 #kunena.layout .kicon-profile-google {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/google.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/google.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-gender-unknown {
   background-position: 0 -231px;
 }
 #kunena.layout .kicon-profile-facebook {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/facebook.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/facebook.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-email {
   background-position: 0 -126px;
 }
 #kunena.layout .kicon-profile-delicious {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/delicious.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/delicious.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-icq {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/icq.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/icq.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-flickr {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/flickr.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/flickr.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-skype {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/skype.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/skype.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-location {
   background-position: 0 -353px;
@@ -1576,46 +1654,52 @@
   background-position: 0 -374px;
 }
 #kunena.layout .kicon-profile-linkedin {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/linkedin.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/linkedin.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-gender-female {
   background-position: 0 -168px;
 }
 #kunena.layout .kicon-profile-blogspot {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/blogger.png) 50% 50%;
-}
-#kunena.layout .kicon-profile-aim {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/aim.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/blogger.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-apple {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/apple.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/apple.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-qq {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/qq.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/qq.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-qzone {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/qzone.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/qzone.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-instagram {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/instagram.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/instagram.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-weibo {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/weibo.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/weibo.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-wechat {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/wechat.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/wechat.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-vk {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/vk.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/vk.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-telegram {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/telegram.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/telegram.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-bebo {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/bebo.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/bebo.png) 50% 50%;
 }
 #kunena.layout .kicon-profile-yim {
-  background: url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/social/yim.png) 50% 50%;
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/yim.png) 50% 50%;
+}
+#kunena.layout .kicon-profile-whatsapp {
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/whatsapp.png) 50% 50%;
+}
+#kunena.layout .kicon-profile-youtube {
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/youtube.png) 50% 50%;
+}
+#kunena.layout .kicon-profile-ok {
+  background: url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/social/ok.png) 50% 50%;
 }
 #kunena.layout span.kicon-profile-website,
 #kunena.layout span.kicon-profile-pm {
@@ -1739,6 +1823,9 @@
   #kunena.layout a.dropdown-toggle,
   #kunena.layout i.glyphicon .glyphicon-large {
     color: inherit;
+  }
+  #kunena.layout .kmsg {
+    height: 100%;
   }
   #kunena.layout .navbar .nav {
     width: 100%;
@@ -2041,7 +2128,7 @@
 #kunena.layout .ic-play {
   display: inline-block;
   vertical-align: middle;
-  background: transparent url(/newyork21/components/com_kunena/template/crypsisb3/assets/images/sprite.png) no-repeat 0 0;
+  background: transparent url(/newyork22/components/com_kunena/template/crypsisb3/assets/images/sprite.png) no-repeat 0 0;
   background-size: 177px 241px;
 }
 #kunena.layout .verified {

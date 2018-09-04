@@ -1,4 +1,4 @@
-/*
+/*!
 ---
 name: Picker.Attach
 description: Adds attach and detach methods to the Picker, to attach it to element events
@@ -7,16 +7,156 @@ requires: [Picker, Core/Element.Event]
 provides: Picker.Attach
 ...
 */
-Picker.Attach=new Class({Extends:Picker,options:{togglesOnly:true,showOnInit:false,blockKeydown:true},initialize:function(e,d){this.parent(d);
-this.attachedEvents=[];this.attachedElements=[];this.toggles=[];this.inputs=[];var b=function(f){if(this.attachedElements.contains(f.target)){return;}this.close();
-}.bind(this);var a=this.picker.getDocument().addEvent("click",b);var c=function(f){f.stopPropagation();return false;};this.picker.addEvent("click",c);if(this.options.toggleElements){this.options.toggle=a.getElements(this.options.toggleElements);
-}this.attach(e,this.options.toggle);},attach:function(b,c){if(typeOf(b)=="string"){b=document.id(b);}if(typeOf(c)=="string"){c=document.id(c);}var a=Array.from(b),d=Array.from(c),e=[].append(a).combine(d),i=this;
-var g=function(l){var j=i.options.blockKeydown&&l.type=="keydown"&&!(["tab","esc"].contains(l.key)),k=l.type=="keydown"&&(["tab","esc"].contains(l.key)),m=l.target.get("tag")=="a"||l.target.getParent().get("tag")=="a";
-if(j||m){l.preventDefault();}if(k||m){i.close();}};var h=function(j){return function(l){var k=l.target.get("tag");if(k=="input"&&l.type=="click"&&!j.match(":focus")||(i.opened&&i.input==j)){return;
-}if(k=="a"||l.target.getParent().get("tag")=="a"){l.stop();}i.position(j);i.open();i.fireEvent("attached",[l,j]);};};var f=function(j,k){return function(l){if(i.opened){k(l);
-}else{j(l);}};};e.each(function(m){if(i.attachedElements.contains(m)){return;}var l={},j=m.get("tag"),n=h(m),k=f(n,g);if(j=="input"){if(!i.options.togglesOnly||!d.length){l={focus:n,click:n,keydown:g};
-}i.inputs.push(m);}else{if(d.contains(m)){i.toggles.push(m);l.click=k;}else{l.click=n;}}m.addEvents(l);i.attachedElements.push(m);i.attachedEvents.push(l);
-});return this;},detach:function(c,a){if(typeOf(c)=="string"){c=document.id(c);}if(typeOf(a)=="string"){a=document.id(a);}var f=Array.from(c),e=Array.from(a),d=[].append(f).combine(e),b=this;
-if(!d.length){d=b.attachedElements;}d.each(function(j){var h=b.attachedElements.indexOf(j);if(h<0){return;}var g=b.attachedEvents[h];j.removeEvents(g);
-delete b.attachedEvents[h];delete b.attachedElements[h];var l=b.toggles.indexOf(j);if(l!=-1){delete b.toggles[l];}var k=b.inputs.indexOf(j);if(l!=-1){delete b.inputs[k];
-}});return this;},destroy:function(){this.detach();return this.parent();}});
+
+
+Picker.Attach = new Class({
+
+	Extends: Picker,
+
+	options: {/*
+		onAttached: function(event){},
+
+		toggleElements: null, // deprecated
+		toggle: null, // When set it deactivate toggling by clicking on the input */
+		togglesOnly: true, // set to false to always make calendar popup on input element, if true, it depends on the toggles elements set.
+		showOnInit: false, // overrides the Picker option
+		blockKeydown: true
+	},
+
+	initialize: function(attachTo, options){
+		this.parent(options);
+
+		this.attachedEvents = [];
+		this.attachedElements = [];
+		this.toggles = [];
+		this.inputs = [];
+
+		var documentEvent = function(event){
+			if (this.attachedElements.contains(event.target)) return;
+			this.close();
+		}.bind(this);
+		var document = this.picker.getDocument().addEvent('click', documentEvent);
+
+		var preventPickerClick = function(event){
+			event.stopPropagation();
+			return false;
+		};
+		this.picker.addEvent('click', preventPickerClick);
+
+		// Support for deprecated toggleElements
+		if (this.options.toggleElements) this.options.toggle = document.getElements(this.options.toggleElements);
+
+		this.attach(attachTo, this.options.toggle);
+	},
+
+	attach: function(attachTo, toggle){
+		if (typeOf(attachTo) == 'string') attachTo = document.id(attachTo);
+		if (typeOf(toggle) == 'string') toggle = document.id(toggle);
+
+		var elements = Array.from(attachTo),
+			toggles = Array.from(toggle),
+			allElements = [].append(elements).combine(toggles),
+			self = this;
+
+		var closeEvent = function(event){
+			var stopInput = self.options.blockKeydown
+					&& event.type == 'keydown'
+					&& !(['tab', 'esc'].contains(event.key)),
+				isCloseKey = event.type == 'keydown'
+					&& (['tab', 'esc'].contains(event.key)),
+				isA = event.target.get('tag') == 'a' || event.target.getParent().get('tag') == 'a';
+
+			if (stopInput || isA) event.preventDefault();
+			if (isCloseKey || isA) self.close();
+		};
+
+		var getOpenEvent = function(element){
+			return function(event){
+				var tag = event.target.get('tag');
+				if (tag == 'input' && event.type == 'click' && !element.match(':focus') || (self.opened && self.input == element)) return;
+				if (tag == 'a' || event.target.getParent().get('tag') == 'a') event.stop();
+
+				self.position(element);
+				self.open();
+				self.fireEvent('attached', [event, element]);
+			};
+		};
+
+		var getToggleEvent = function(open, close){
+			return function(event){
+				if (self.opened) close(event);
+				else open(event);
+			};
+		};
+
+		allElements.each(function(element){
+
+			// The events are already attached!
+			if (self.attachedElements.contains(element)) return;
+
+			var events = {},
+				tag = element.get('tag'),
+				openEvent = getOpenEvent(element),
+				// closeEvent does not have a depency on element
+				toggleEvent = getToggleEvent(openEvent, closeEvent);
+
+			if (tag == 'input'){
+				// Fix in order to use togglers only
+				if (!self.options.togglesOnly || !toggles.length){
+					events = {
+						focus: openEvent,
+						click: openEvent,
+						keydown: closeEvent
+					};
+				}
+				self.inputs.push(element);
+			} else {
+				if (toggles.contains(element)){
+					self.toggles.push(element);
+					events.click = toggleEvent
+				} else {
+					events.click = openEvent;
+				}
+			}
+			element.addEvents(events);
+			self.attachedElements.push(element);
+			self.attachedEvents.push(events);
+		});
+		return this;
+	},
+
+	detach: function(attachTo, toggle){
+		if (typeOf(attachTo) == 'string') attachTo = document.id(attachTo);
+		if (typeOf(toggle) == 'string') toggle = document.id(toggle);
+
+		var elements = Array.from(attachTo),
+			toggles = Array.from(toggle),
+			allElements = [].append(elements).combine(toggles),
+			self = this;
+
+		if (!allElements.length) allElements = self.attachedElements;
+
+		allElements.each(function(element){
+			var i = self.attachedElements.indexOf(element);
+			if (i < 0) return;
+
+			var events = self.attachedEvents[i];
+			element.removeEvents(events);
+			delete self.attachedEvents[i];
+			delete self.attachedElements[i];
+
+			var toggleIndex = self.toggles.indexOf(element);
+			if (toggleIndex != -1) delete self.toggles[toggleIndex];
+
+			var inputIndex = self.inputs.indexOf(element);
+			if (toggleIndex != -1) delete self.inputs[inputIndex];
+		});
+		return this;
+	},
+
+	destroy: function(){
+		this.detach();
+		return this.parent();
+	}
+
+});

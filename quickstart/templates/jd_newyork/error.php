@@ -1,9 +1,9 @@
 <?php
 /**
- * @package Helix3 Framework
- * Template Name - Shaper Helix - iii
- * @author JoomShaper http://www.joomshaper.com
- * @copyright Copyright (c) 2010 - 2017 JoomShaper
+ * JD NewYork @package Helix3 Framework
+ * Template Name - JD NewYork
+ * @author JoomDev https://www.joomdev.com
+ * @copyright Copyright (C) 2008 - 2018 JoomDev
  * @license http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 or later
 */
 //no direct accees

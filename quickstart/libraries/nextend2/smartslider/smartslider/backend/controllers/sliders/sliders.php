@@ -187,10 +187,6 @@ class N2SmartsliderBackendSlidersController extends N2SmartSliderController {
     }
 
     public function actionHidePromoUpgrade() {
-        if ($this->validateToken()) {
-            $this->appType->app->storage->set('free', 'promoUpgrade', 1);
-        }
-    
         $this->redirectToSliders();
     }
 

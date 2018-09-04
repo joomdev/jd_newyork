@@ -1,9 +1,9 @@
 <?php
 /**
- * @package     Joomla.Plugin
- * @subpackage  Search.weblinks
+ * @package     Joomla.Administrator
+ * @subpackage  Weblinks
  *
- * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -14,9 +14,7 @@ require_once JPATH_SITE . '/components/com_weblinks/helpers/route.php';
 /**
  * Weblinks search plugin.
  *
- * @package     Joomla.Plugin
- * @subpackage  Search.weblinks
- * @since       1.6
+ * @since  1.6
  */
 class PlgSearchWeblinks extends JPlugin
 {
@@ -62,9 +60,7 @@ class PlgSearchWeblinks extends JPlugin
 	public function onContentSearch($text, $phrase = '', $ordering = '', $areas = null)
 	{
 		$db = JFactory::getDbo();
-		$app = JFactory::getApplication();
-		$user = JFactory::getUser();
-		$groups = implode(',', $user->getAuthorisedViewLevels());
+		$groups = implode(',', JFactory::getUser()->getAuthorisedViewLevels());
 
 		$searchText = $text;
 
@@ -178,7 +174,7 @@ class PlgSearchWeblinks extends JPlugin
 		$case_when1 .= ' ELSE ';
 		$case_when1 .= $c_id . ' END as catslug';
 
-		$query->select('a.title AS title, \'\' AS created, a.url, a.description AS text, ' . $case_when . "," . $case_when1)
+		$query->select('a.title AS title, a.created AS created, a.url, a.description AS text, ' . $case_when . "," . $case_when1)
 		->select($query->concatenate(array($db->quote($searchWeblinks), 'c.title'), " / ") . ' AS section')
 		->select('\'1\' AS browsernav')
 		->from('#__weblinks AS a')
@@ -187,7 +183,7 @@ class PlgSearchWeblinks extends JPlugin
 		->order($order);
 
 		// Filter by language.
-		if ($app->isSite() && JLanguageMultilang::isEnabled())
+		if (JFactory::getApplication()->isSite() && JLanguageMultilang::isEnabled())
 		{
 			$tag = JFactory::getLanguage()->getTag();
 			$query->where('a.language in (' . $db->quote($tag) . ',' . $db->quote('*') . ')')

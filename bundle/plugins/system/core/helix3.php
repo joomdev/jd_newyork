@@ -2,7 +2,7 @@
 /**
 * @package Helix3 Framework
 * @author JoomShaper http://www.joomshaper.com
-* @copyright Copyright (c) 2010 - 2017 JoomShaper
+* @copyright Copyright (c) 2010 - 2018 JoomShaper
 * @license http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 or Later
 */
 
@@ -79,7 +79,10 @@ class Helix3
 		$layout    = $app->input->getCmd('layout', '');
 		$task      = $app->input->getCmd('task', '');
 		$itemid    = $app->input->getCmd('Itemid', '');
-		$sitename  = $app->get('sitename');
+		$menu      = $app->getMenu()->getActive();
+		if ($menu) {
+			$pageclass = $menu->params->get('pageclass_sfx');
+		}
 
 		if ($view == 'modules')
 		{
@@ -93,6 +96,7 @@ class Helix3
 		. ($itemid ? ' itemid-' . $itemid : '')
 		. ($language ? ' ' . $language : '')
 		. ($direction ? ' ' . $direction : '')
+		. (isset($pageclass) && $pageclass ? ' ' . $pageclass : '')
 		. ($class ? ' ' . $class : '');
 	}
 

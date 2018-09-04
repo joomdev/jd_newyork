@@ -2008,6 +2008,9 @@ textarea.uneditable-input {
   font-weight: 700;
   color: #000;
 }
+.backface-visible {
+  backface-visibility: hidden;
+}
 #sp-top-bar {
   padding: 8px 0;
 }
@@ -2414,12 +2417,20 @@ article.item {
 .entry-quote {
   margin-bottom: 50px;
 }
+.pull-right.entry-image {
+  margin: 0 0 18px 20px;
+}
+.entry-status,
+.entry-quote {
+  margin-bottom: 50px;
+}
 .entry-header {
   position: relative;
   margin-bottom: 30px;
 }
 .entry-header.has-post-format {
   margin-left: 68px;
+  display: inline-block;
 }
 .entry-header h2 {
   margin: 8px 0 0;
@@ -3419,6 +3430,15 @@ table.category tbody >tr td {
     font-size: 90%;
   }
 }
+@media (min-width: 768px) {
+  .sppb-col-sm-offset-6 {
+    margin-left: 50%;
+  }
+}
+.sppb-testimonial-pro .sppb-item img {
+  display: inline-block;
+  margin-bottom: 10px;
+}
 .com-k2 section#sp-main-body,
 .com-chronoforms6 section#sp-main-body,
 .view-category section#sp-main-body,
@@ -3438,6 +3458,10 @@ section#sp-main-body {
   margin: 0 auto 30px;
   width: 70%;
 }
+.scrollup {
+  bottom: 30px;
+  right: 30px;
+}
 .scrollup:hover {
   background-color: #5ad2a9;
 }
@@ -3450,10 +3474,10 @@ section#sp-main-body {
 .offcanvas-menu .offcanvas-inner .sp-module h3.sp-module-title {
   display: none;
 }
-#sp-menu ul.sp-megamenu-parent > li {
+#sp-menu ul.sp-megamenu-parent> li {
   border-right: 1px solid #ebebeb;
 }
-#sp-menu ul.sp-megamenu-parent > li a {
+#sp-menu ul.sp-megamenu-parent> li a {
   font-size: 16px;
   padding: 0 18px;
   font-weight: 600;
@@ -3461,7 +3485,7 @@ section#sp-main-body {
   text-transform: none;
   vertical-align: middle;
 }
-#sp-menu ul.sp-megamenu-parent > li.home-icon- a {
+#sp-menu ul.sp-megamenu-parent> li.home-icon- a {
   font-size: 30px;
 }
 #sp-menu .sp-dropdown .sp-dropdown-inner {
@@ -3566,7 +3590,7 @@ section#sp-main-body {
 #sp-testimonial-a .sprocket-quotes-item:after {
   display: none;
 }
-#sp-testimonial-a .sprocket-quotes .cols-1 > li {
+#sp-testimonial-a .sprocket-quotes .cols-1>li {
   width: 70%;
   display: block;
   margin: 0 auto;
@@ -3975,7 +3999,7 @@ div.sprocket-strips-c .sprocket-strips-c-block {
 .sp-module.title-right h3.sp-module-title:after {
   margin: 20px 0 0 auto;
 }
-.sp-module ul > li {
+.sp-module ul>li {
   border: none;
 }
 .slider-heading h2:after {
@@ -4478,9 +4502,8 @@ ul.address i.fa {
   position: relative;
 }
 ul.address span {
-  float: left;
+  overflow: hidden;
   line-height: 25px;
-  text-align: left;
 }
 .address-box {
   color: #24272c;
@@ -4626,12 +4649,12 @@ div.k2ItemsBlock a.moduleItemReadMore:hover {
 div.k2ItemsBlock a.moduleItemTitle {
   color: #3d3d3d;
   display: inline-block;
-  font-size: 17px;
-  font-weight: 600;
+  width: 100%;
+  font-size: 14px;
   padding: 15px 0;
   text-align: left;
   text-transform: capitalize;
-  width: 100%;
+  font-weight: 600;
 }
 #k2Container.itemListView .catItemView h3.catItemTitle {
   font-size: 30px;

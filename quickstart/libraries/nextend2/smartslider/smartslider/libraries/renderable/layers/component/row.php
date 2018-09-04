@@ -132,7 +132,7 @@ class N2SSSlideComponentRow extends N2SSSlideComponent {
 
             if (!isset($this->attributes['onclick'])) {
                 if (empty($target) || $target == '_self') {
-                    $this->attributes['onclick'] = 'window.location=this.getAttribute("data-href");';
+                    $this->attributes['onclick'] = "n2const.setLocation(this.getAttribute('data-href'))";
                 } else {
                     $this->attributes['onclick'] = 'var w=window.open();w.opener=null;w.location=this.getAttribute("data-href");';
                 }
@@ -151,12 +151,12 @@ class N2SSSlideComponentRow extends N2SSSlideComponent {
         $this->createProperty('bgimagey', 50);
         $this->createProperty('bgimageparallax', '0');
 
-        $this->createProperty('bgcolor', '00000000');
+        $this->createColorProperty('bgcolor', '00000000');
         $this->createProperty('bgcolorgradient', 'off');
-        $this->createProperty('bgcolorgradientend', '00000000');
-        $this->createProperty('bgcolor-hover');
+        $this->createColorProperty('bgcolorgradientend', '00000000');
+        $this->createColorProperty('bgcolor-hover');
         $this->createProperty('bgcolorgradient-hover');
-        $this->createProperty('bgcolorgradientend-hover');
+        $this->createColorProperty('bgcolorgradientend-hover');
 
         $this->createProperty('borderradius', 0);
         $this->createProperty('borderradius-hover');
@@ -206,6 +206,11 @@ class N2SSSlideComponentRow extends N2SSSlideComponent {
      * @param array              $layer
      */
     public static function getFilled($slide, &$layer) {
+        N2SSSlideComponent::getFilled($slide, $layer);
+
+        if (!empty($layer['bgimage'])) {
+            $layer['bgimage'] = $slide->fill($layer['bgimage']);
+        }
 
         $slide->fillLayers($layer['cols']);
     }

@@ -138,8 +138,22 @@ class N2SmartsliderSlidersModel extends N2Model {
         new N2ElementText($generalTab2, 'title', n2_('Name'), n2_('Slider'), array(
             'style' => 'width:400px;'
         ));
-        new N2ElementText($generalTab2, 'alias', n2_('Alias'), '', array(
+
+        $aliasGroup = new N2ElementGroup($generalTab2, 'aliasgroup', n2_('Alias'));
+
+        new N2ElementText($aliasGroup, 'alias', n2_('Alias'), '', array(
             'style' => 'width:200px;'
+        ));
+
+        new N2ElementOnOff($aliasGroup, 'alias-id', n2_('Use as ID on element before slider'), '', array(
+            'tip'           => 'You can have an empty div element before our slider, which would use this alias as its id. This can be useful, if you would want to use #your-alias as the url in your menu to jump to that element.',
+            'relatedFields' => array(
+                'alias-smoothscroll'
+            )
+        ));
+
+        new N2ElementOnOff($aliasGroup, 'alias-smoothscroll', n2_('Smooth scroll to this element'), '', array(
+            'tip' => 'The #your-alias urls in links would be forced to smooth scroll to our element.'
         ));
 
         $controls = new N2ElementGroup($generalTab2, 'controls', n2_('Controls'));
@@ -153,6 +167,8 @@ class N2SmartsliderSlidersModel extends N2Model {
             )
         ));
         new N2ElementOnOff($controls, 'controlsKeyboard', n2_('Keyboard'), 1);
+        new N2ElementOnOff($controls, 'controlsTilt', n2_('Tilt'), 0);
+    
 
 
         new N2ElementImage($generalTab2, 'thumbnail', n2_('Thumbnail'), '');
@@ -191,10 +207,18 @@ class N2SmartsliderSlidersModel extends N2Model {
                 'label' => n2_('Tile')
             )
         );
+        $backgroundModeOptions['fixed'] = array(
+            'image' => '$ss$/admin/images/fillmode/fixed.png',
+            'label' => n2_('Fixed')
+        );
+    
         new N2ElementImageListLabel($generalTab2, 'backgroundMode', n2_('Slide background image fill'), 'fill', array(
             'tip'     => n2_('If the size of your image is not the same as your slide\'s, you can improve the result with the filling modes.'),
             'options' => $backgroundModeOptions
         ));
+        new N2ElementShapeDivider($generalTab2, 'shape-divider', n2_('Shape divider'));
+        new N2ElementParticle($generalTab2, 'particle', n2_('Particle effect'));
+    
 
         $sliderTypeTab = new N2Tab($generalTab, 'slidertype', n2_('Slider Type'), array(
             'class' => 'n2-expert'
@@ -236,6 +260,67 @@ class N2SmartsliderSlidersModel extends N2Model {
             ),
             'unit'   => 'px'
         ));
+        new N2ElementNumberAutocomplete($size, 'desktop-portrait-minimum-font-size', n2_('Min. font size'), 1, array(
+            'rowClass' => 'n2-expert',
+            'style'    => 'width:20px',
+            'values'   => array(
+                0,
+                4,
+                8,
+                12
+            ),
+            'unit'     => 'px'
+        ));
+    
+        $desktopLandscape = new N2ElementGroup($sizeTab2, 'desktop-landscape', n2_('Desktop landscape slider size'), array(
+            'rowClass' => 'n2-expert'
+        ));
+        new N2ElementOnOff($desktopLandscape, 'desktop-landscape', n2_('Enable'), 0, array(
+            'relatedFields' => array(
+                'desktop-landscape-width',
+                'desktop-landscape-height',
+                'desktop-landscape-minimum-font-size'
+            )
+        ));
+        new N2ElementNumberAutocomplete($desktopLandscape, 'desktop-landscape-width', n2_('Width'), 1440, array(
+            'style'  => 'width:35px',
+            'values' => array(
+                1440,
+                1000,
+                800,
+                600,
+                400
+            ),
+            'unit'   => 'px'
+        ));
+        new N2ElementNumberAutocomplete($desktopLandscape, 'desktop-landscape-height', n2_('Height'), 0, array(
+            'style'  => 'width:35px',
+            'values' => array(
+                800,
+                600,
+                500,
+                400,
+                300
+            ),
+            'unit'   => 'px'
+        ));
+        new N2ElementNumberAutocomplete($desktopLandscape, 'desktop-landscape-minimum-font-size', n2_('Min. font size'), 1, array(
+            'style'  => 'width:20px',
+            'values' => array(
+                0,
+                4,
+                8,
+                12
+            ),
+            'unit'   => 'px'
+        ));
+
+
+        $showOnDevices = new N2ElementGroup($sizeTab2, 'show-on-device', n2_('Show on devices'));
+        new N2ElementOnOff($showOnDevices, 'desktop', n2_('Desktop'), 1);
+        new N2ElementOnOff($showOnDevices, 'tablet', n2_('Tablet'), 1);
+        new N2ElementOnOff($showOnDevices, 'mobile', n2_('Mobile'), 1);
+    
 
         $margin = new N2ElementMixed($sizeTab2, 'margin', n2_('Margin'), '0|*|0|*|0|*|0');
         new N2ElementNumber($margin, 'margin-top', n2_('Top'), '', array(
@@ -254,6 +339,168 @@ class N2SmartsliderSlidersModel extends N2Model {
             'style' => 'width:22px;',
             'unit'  => 'px'
         ));
+        $tablet = new N2Tab($sizeTab, 'slider-responsive-tablet', n2_('Slider size') . ' - ' . n2_('Tablet'), array(
+            'class' => 'n2-expert'
+        ));
+
+        $tabletPortrait = new N2ElementGroup($tablet, 'tablet-portrait', n2_('Portrait'));
+        new N2ElementOnOff($tabletPortrait, 'tablet-portrait', n2_('Enable'), 0, array(
+            'relatedFields' => array(
+                'tablet-portrait-width',
+                'tablet-portrait-height',
+                'tablet-portrait-minimum-font-size'
+            )
+        ));
+        new N2ElementNumberAutocomplete($tabletPortrait, 'tablet-portrait-width', n2_('Width'), 800, array(
+            'style'  => 'width:35px',
+            'values' => array(
+                800,
+                600,
+                500,
+                400
+            ),
+            'unit'   => 'px'
+        ));
+        new N2ElementNumberAutocomplete($tabletPortrait, 'tablet-portrait-height', n2_('Height'), 0, array(
+            'style'  => 'width:35px',
+            'values' => array(
+                0,
+                800,
+                600,
+                500
+            ),
+            'unit'   => 'px'
+        ));
+        new N2ElementNumberAutocomplete($tabletPortrait, 'tablet-portrait-minimum-font-size', n2_('Min. font size'), 1, array(
+            'style'  => 'width:20px',
+            'values' => array(
+                0,
+                4,
+                8,
+                12
+            ),
+            'unit'   => 'px'
+        ));
+
+        $tabletLandscape = new N2ElementGroup($tablet, 'tablet-landscape', n2_('Landscape'));
+        new N2ElementOnOff($tabletLandscape, 'tablet-landscape', n2_('Enable'), 0, array(
+            'relatedFields' => array(
+                'tablet-landscape-width',
+                'tablet-landscape-height',
+                'tablet-landscape-minimum-font-size'
+            )
+        ));
+        new N2ElementNumberAutocomplete($tabletLandscape, 'tablet-landscape-width', n2_('Width'), 1024, array(
+            'style'  => 'width:35px',
+            'values' => array(
+                1024,
+                800,
+                600,
+                500
+            ),
+            'unit'   => 'px'
+        ));
+        new N2ElementNumberAutocomplete($tabletLandscape, 'tablet-landscape-height', n2_('Height'), 0, array(
+            'style'  => 'width:35px',
+            'values' => array(
+                0,
+                600,
+                500,
+                400
+            ),
+            'unit'   => 'px'
+        ));
+        new N2ElementNumberAutocomplete($tabletLandscape, 'tablet-landscape-minimum-font-size', n2_('Min. font size'), 1, array(
+            'style'  => 'width:20px',
+            'values' => array(
+                0,
+                4,
+                8,
+                12
+            ),
+            'unit'   => 'px'
+        ));
+    
+        $mobile = new N2Tab($sizeTab, 'slider-responsive-mobile', n2_('Slider size') . ' - ' . n2_('Mobile'), array(
+            'class' => 'n2-expert'
+        ));
+
+        $mobilePortrait = new N2ElementGroup($mobile, 'mobile-portrait', n2_('Portrait'));
+        new N2ElementOnOff($mobilePortrait, 'mobile-portrait', n2_('Enable'), 0, array(
+            'relatedFields' => array(
+                'mobile-portrait-width',
+                'mobile-portrait-height',
+                'mobile-portrait-minimum-font-size'
+            )
+        ));
+        new N2ElementNumberAutocomplete($mobilePortrait, 'mobile-portrait-width', n2_('Width'), 440, array(
+            'style'  => 'width:35px',
+            'values' => array(
+                440,
+                400
+            ),
+            'unit'   => 'px'
+        ));
+        new N2ElementNumberAutocomplete($mobilePortrait, 'mobile-portrait-height', n2_('Height'), 0, array(
+            'style'  => 'width:35px',
+            'values' => array(
+                0,
+                400,
+                300,
+                200
+            ),
+            'unit'   => 'px'
+        ));
+        new N2ElementNumberAutocomplete($mobilePortrait, 'mobile-portrait-minimum-font-size', n2_('Min. font size'), 1, array(
+            'style'  => 'width:20px',
+            'values' => array(
+                0,
+                4,
+                8,
+                12
+            ),
+            'unit'   => 'px'
+        ));
+
+        $mobileLandscape = new N2ElementGroup($mobile, 'mobile-landscape', n2_('Landscape'));
+        new N2ElementOnOff($mobileLandscape, 'mobile-landscape', n2_('Enable'), 0, array(
+            'relatedFields' => array(
+                'mobile-landscape-width',
+                'mobile-landscape-height',
+                'mobile-landscape-minimum-font-size'
+            )
+        ));
+        new N2ElementNumberAutocomplete($mobileLandscape, 'mobile-landscape-width', n2_('Width'), 740, array(
+            'style'  => 'width:35px',
+            'values' => array(
+                740,
+                600,
+                500,
+                400
+            ),
+            'unit'   => 'px'
+        ));
+        new N2ElementNumberAutocomplete($mobileLandscape, 'mobile-landscape-height', n2_('Height'), 0, array(
+            'style'  => 'width:35px',
+            'values' => array(
+                0,
+                400,
+                300,
+                200
+            ),
+            'unit'   => 'px'
+        ));
+        new N2ElementNumberAutocomplete($mobileLandscape, 'mobile-landscape-minimum-font-size', n2_('Min. font size'), 1, array(
+            'style'  => 'width:20px',
+            'values' => array(
+                0,
+                4,
+                8,
+                12
+            ),
+            'unit'   => 'px'
+        ));
+    
 
 
         $responsiveMode = new N2Tab($sizeTab, 'slider-responsive-types', n2_('Responsive mode'));
@@ -284,6 +531,29 @@ class N2SmartsliderSlidersModel extends N2Model {
             'style' => 'width:35px;',
             'unit'  => 'ms'
         ));
+        new N2ElementOnOff($autoplayGroup, 'autoplayStart', n2_('Autostart'), 1);
+    
+        $autoplayFinish = new N2ElementMixed($autoplayTab2, 'autoplayfinish', n2_('Finish autoplay on'), '0|*|loop|*|current');
+        new N2ElementNumber($autoplayFinish, 'autoplayfinish-1', n2_('Count'), '', array(
+            'style' => 'width:20px;'
+        ));
+        new N2ElementSwitcher($autoplayFinish, 'autoplayfinish-2', '', '', array(
+            'options' => array(
+                'loop'       => n2_('loops'),
+                'slide'      => n2_('slide count'),
+                'slideindex' => n2_('slide index')
+            )
+        ));
+        new N2ElementSwitcher($autoplayFinish, 'autoplayfinish-3', '', '', array(
+            'options' => array(
+                'current' => n2_('last slide'),
+                'next'    => n2_('next slide')
+            )
+        ));
+
+
+        new N2ElementOnOff($autoplayTab2, 'autoplayAllowReStart', n2_('Allow restart after finish'), 0);
+    
 
         $stopAutoplayOn = new N2ElementGroup($autoplayTab2, 'autoplay-stop-on', n2_('Stop autoplay on'));
         new N2ElementOnOff($stopAutoplayOn, 'autoplayStopClick', n2_('Click'), 1);
@@ -295,9 +565,115 @@ class N2SmartsliderSlidersModel extends N2Model {
             )
         ));
         new N2ElementOnOff($stopAutoplayOn, 'autoplayStopMedia', n2_('Media started'), 1);
+        $resumeAutoplayOn = new N2ElementGroup($autoplayTab2, 'autoplay-resume-on', n2_('Resume autoplay on'));
+        new N2ElementOnOff($resumeAutoplayOn, 'autoplayResumeClick', n2_('Click'), 0);
+        new N2ElementList($resumeAutoplayOn, 'autoplayResumeMouse', n2_('Mouse'), 0, array(
+            'options' => array(
+                '0'     => n2_('Off'),
+                'leave' => n2_('Leave'),
+                'enter' => n2_('Enter')
+            )
+        ));
+        new N2ElementOnOff($resumeAutoplayOn, 'autoplayResumeMedia', n2_('Media ended'), 1);
+    
+        $layerAnimations  = new N2TabGroupped($sliderSettings, 'slider-layer', n2_('Layer animations'));
+        $layerAnimations2 = new N2Tab($layerAnimations, 'layer-animations', false);
+
+        $layerAnimationsGroup = new N2ElementGroup($layerAnimations2, 'layer-animations', n2_('Layer animations'));
+        new N2ElementOnOff($layerAnimationsGroup, 'playfirstlayer', n2_('Play on first load'), 1);
+        new N2ElementOnOff($layerAnimationsGroup, 'playonce', n2_('Play once'), 0);
+        new N2ElementList($layerAnimationsGroup, 'layer-animation-play-in', n2_('Play on'), 'end', array(
+            'options' => array(
+                'start' => n2_('Main animation start'),
+                'end'   => n2_('Main animation end')
+            )
+        ));
+        new N2ElementList($layerAnimationsGroup, 'layer-animation-play-mode', n2_('Mode'), 'skippable', array(
+            'options' => array(
+                'skippable' => n2_('Skippable'),
+                'forced'    => n2_('Forced')
+            )
+        ));
+
+
+        $parallaxGroup = new N2ElementGroup($layerAnimations2, 'parallax', n2_('Parallax'));
+        new N2ElementOnOff($parallaxGroup, 'parallax-enabled', n2_('Enable'), 1, array(
+            'relatedFields' => array(
+                'parallax-enabled-mobile',
+                'parallax-3d',
+                'parallax-animate',
+                'parallax-horizontal',
+                'parallax-vertical',
+                'parallax-mouse-origin',
+                'parallax-scroll-move'
+            )
+        ));
+        new N2ElementOnOff($parallaxGroup, 'parallax-enabled-mobile', n2_('Mobile'), 0, array(
+            'rowClass' => 'n2-expert'
+        ));
+        new N2ElementOnOff($parallaxGroup, 'parallax-3d', '3D', 0);
+        new N2ElementOnOff($parallaxGroup, 'parallax-animate', n2_('Animate'), 1);
+        new N2ElementList($parallaxGroup, 'parallax-horizontal', n2_('Horizontal'), 'mouse', array(
+            'options' => array(
+                '0'            => n2_('Off'),
+                'mouse'        => n2_('Mouse'),
+                'mouse-invert' => n2_('Mouse') . ' - ' . n2_('Invert')
+            )
+        ));
+        new N2ElementList($parallaxGroup, 'parallax-vertical', n2_('Vertical'), 'mouse', array(
+            'options' => array(
+                '0'             => n2_('Off'),
+                'scroll'        => n2_('Scroll'),
+                'scroll-invert' => n2_('Scroll') . ' - ' . n2_('Invert'),
+                'mouse'         => n2_('Mouse'),
+                'mouse-invert'  => n2_('Mouse') . ' - ' . n2_('Invert')
+            )
+        ));
+        new N2ElementList($parallaxGroup, 'parallax-mouse-origin', n2_('Mouse origin'), 'slider', array(
+            'options' => array(
+                'slider' => n2_('Slider center'),
+                'enter'  => n2_('Mouse enter position')
+            )
+        ));
+        new N2ElementList($parallaxGroup, 'parallax-scroll-move', n2_('Scroll move'), 'both', array(
+            'options' => array(
+                'both'   => n2_('Both'),
+                'bottom' => n2_('To bottom'),
+                'top'    => n2_('To top')
+            )
+        ));
+
+
+        new N2ElementNumberAutocomplete($layerAnimations2, 'perspective', n2_('Perspective'), 1000, array(
+            'style'  => 'width:35px',
+            'values' => array(
+                0,
+                500,
+                1000,
+                1500,
+                2000,
+                3000
+            ),
+            'unit'   => 'px'
+        ));
+
+    
 
         $optimize  = new N2TabGroupped($sliderSettings, 'optimize', n2_('Optimize'));
         $optimize2 = new N2Tab($optimize, 'optimize-images', false);
+        $loading = new N2ElementGroup($optimize2, 'loading', n2_('Loading'));
+        new N2ElementRadio($loading, 'imageload', n2_('Mode'), '0', array(
+            'options' => array(
+                '0' => n2_('Normal'),
+                '2' => n2_('Delayed loading'),
+                '1' => n2_('Lazy loading')
+            )
+        ));
+        new N2ElementNumber($loading, 'imageloadNeighborSlides', n2_('Load neighbor'), 0, array(
+            'unit'  => n2_('slides'),
+            'style' => 'width:15px;'
+        ));
+    
 
         $optimizeImages = new N2ElementGroup($optimize2, 'optimize-images', n2_('Optimize images'));
         new N2ElementOnOff($optimizeImages, 'optimize', n2_('Enable'), 0, array(
@@ -341,6 +717,44 @@ class N2SmartsliderSlidersModel extends N2Model {
             'unit'  => 'px',
             'style' => 'width:40px;'
         ));
+        $optimizeLayerImages = new N2Tab($optimize, 'optimize-layer-images', n2_('Layer images'));
+
+        $layerImageGroup = new N2ElementGroup($optimizeLayerImages, 'layer-image-resize', n2_('Layer image resize'));
+        new N2ElementOnOff($layerImageGroup, 'layer-image-optimize', n2_('Enable'), '0', array(
+            'relatedFields' => array(
+                'layer-image-tablet',
+                'layer-image-mobile'
+            )
+        ));
+        new N2ElementNumber($layerImageGroup, 'layer-image-tablet', n2_('Tablet scale'), 50, array(
+            'min'   => 1,
+            'max'   => 100,
+            'unit'  => '%',
+            'style' => 'width:30px;'
+        ));
+        new N2ElementNumber($layerImageGroup, 'layer-image-mobile', n2_('Mobile scale'), 30, array(
+            'min'   => 1,
+            'max'   => 100,
+            'unit'  => '%',
+            'style' => 'width:30px;'
+        ));
+
+        $layerImageEmbed = new N2ElementGroup($optimizeLayerImages, 'embed-layer-images', n2_('Embed layer images into HTML'));
+        new N2ElementOnOff($layerImageEmbed, 'layer-image-base64', 'Enabled', '0', array(
+            'relatedFields' => array(
+                'layer-image-base64-size'
+            )
+        ));
+        new N2ElementNumber($layerImageEmbed, 'layer-image-base64-size', n2_('Maximum file size to embed'), 5, array(
+            'min'   => 0,
+            'unit'  => 'kb',
+            'style' => 'width:30px;'
+        ));
+
+        $optimizeSlides = new N2Tab($optimize, 'optimize-slides', n2_('Slides'));
+        new N2ElementOnOff($optimizeSlides, 'slides-background-video-mobile', 'Show background video on mobile', 1);
+
+    
 
 
         $loading     = new N2TabGroupped($sliderSettings, 'loading', n2_('Loading'));
@@ -356,6 +770,59 @@ class N2SmartsliderSlidersModel extends N2Model {
             'unit'  => '%',
             'style' => 'width:30px;'
         ));
+        $fadeInSlider = new N2ElementGroup($loadingCore, 'fade-on-load', n2_('Fade in slider'), array(
+            'tip' => 'When disabled the slider won\'t wait for the CSS codes to display the layers where they should be. Instead, they\'ll jump into their places after the CSS codes are ready.'
+        ));
+        new N2ElementOnOff($fadeInSlider, 'fadeOnLoad', n2_('on load'), 1);
+        new N2ElementOnOff($fadeInSlider, 'fadeOnScroll', n2_('on scroll'), 0);
+
+        new N2ElementImageListFromFolderValue($loadingCore, 'spinner', n2_('Loading animation'), 'simpleWhite', array(
+            'folder'   => N2Filesystem::translate(N2ImageHelper::fixed('$ss$/spinner/', true)),
+            'rowClass' => 'n2-white'
+        ));
+
+
+        $customLoadingImage = new N2ElementGroup($loadingCore, 'custom-loading-animation', n2_('Custom loading animation'), array(
+            'rowClass' => 'n2-expert'
+        ));
+        new N2ElementImage($customLoadingImage, 'custom-spinner', n2_('Image'), '', array(
+            'relatedFields' => array(
+                'custom-spinner-width',
+                'custom-spinner-height',
+                'custom-display'
+            )
+        ));
+        new N2ElementNumberAutocomplete($customLoadingImage, 'custom-spinner-width', n2_('Width'), 100, array(
+            'values' => array(
+                300,
+                200,
+                100,
+                50
+            ),
+            'unit'   => 'px',
+            'style'  => 'width:30px;'
+        ));
+        new N2ElementNumberAutocomplete($customLoadingImage, 'custom-spinner-height', n2_('Height'), 100, array(
+            'values' => array(
+                300,
+                200,
+                100,
+                50
+            ),
+            'unit'   => 'px',
+            'style'  => 'width:30px;'
+        ));
+        new N2ElementOnOff($customLoadingImage, 'custom-display', n2_('Hide until complete load'), 1);
+
+        $customLoadingBackground = new N2ElementGroup($loadingCore, 'custom-loading-background', n2_('Loading background'), array(
+            'rowClass' => 'n2-expert'
+        ));
+
+        new N2ElementImage($customLoadingBackground, 'placeholder-background-image', n2_('Placeholder image'), '');
+        new N2ElementColor($customLoadingBackground, 'placeholder-color', n2_('Placeholder color'), 'FFFFFF00', array(
+            'alpha' => true
+        ));
+    
 
         new N2ElementNumber($loadingCore, 'dependency', n2_('Load this slider after'), '', array(
             'style'    => 'width:40px;',
@@ -368,18 +835,60 @@ class N2SmartsliderSlidersModel extends N2Model {
             'unit'  => 'ms'
         ));
         new N2ElementOnOff($loadingCore, 'is-delayed', n2_('Delayed (for lightbox/tabs)'), 0);
+        $slides     = new N2TabGroupped($sliderSettings, 'slides', n2_('Slides'));
+        $slidesCore = new N2Tab($slides, 'slides-core', false);
+
+        $randomize = new N2ElementGroup($slidesCore, 'randomize', n2_('Randomize'));
+        new N2ElementOnOff($randomize, 'randomize', n2_('Randomize slides'), 0);
+        new N2ElementOnOff($randomize, 'randomizeFirst', n2_('Randomize first slide'), 0);
+        new N2ElementOnOff($randomize, 'randomize-cache', n2_('Cache support'), 1);
+        new N2ElementNumber($randomize, 'variations', n2_('Cache variations'), 5, array(
+            'style' => 'width:40px;'
+        ));
+
+        new N2ElementNumber($slidesCore, 'maximumslidecount', n2_('Maximum slide count'), 1000, array(
+            'style' => 'width:40px;'
+        ));
+
+        $slideBackgroundLightbox = new N2ElementGroup($slidesCore, 'lightbox', n2_('Lightbox from slide backgrounds'));
+        new N2ElementOnOff($slideBackgroundLightbox, 'global-lightbox', n2_('Enable'), 0, array(
+            'relatedFields' => array('global-lightbox-label')
+        ));
+        new N2ElementRadio($slideBackgroundLightbox, 'global-lightbox-label', n2_('Show label'), '0', array(
+            'options' => array(
+                '0'        => n2_('No'),
+                'name'     => n2_('Only slide name'),
+                'namemore' => n2_('Slide name and description')
+            )
+        ));
+
+        new N2ElementOnOff($slidesCore, 'maintain-session', n2_('Maintain slide session'), 0);
+
+    
 
 
         $developer        = new N2TabGroupped($sliderSettings, 'developer', n2_('Developer'));
         $developerOptions = new N2Tab($developer, 'developer-options', false);
+        new N2ElementOnOff($developerOptions, 'blockrightclick', n2_('Block right click'), 0);
+    
 
         new N2ElementOnOff($developerOptions, 'overflow-hidden-page', n2_('Hide website\'s scrollbar'), 0, array(
             'tip' => n2_('You won\'t be able to scroll your website anymore.')
         ));
+        new N2ElementOnOff($developerOptions, 'scroll-fix', n2_('Browser scroll fix (Full page)'), 0);
+    
 
-        new N2ElementOnOff($developerOptions, 'clear-both', n2_('Clear both before slider'), 0, array(
+        $clearGroup = new N2ElementGroup($developerOptions, 'cleargroup', n2_('Clear both'));
+        new N2ElementOnOff($clearGroup, 'clear-both', n2_('Before slider'), 0, array(
             'tip' => n2_('If your slider does not resize correctly, turn this option on.')
         ));
+        new N2ElementOnOff($clearGroup, 'clear-both-after', n2_('After slider'), 1, array(
+            'tip' => n2_('Turn this off to allow contents following the slider get into the same row where the slider is.')
+        ));
+        $backgroundParallax = new N2ElementGroup($developerOptions, 'background-parallax', n2_('Background parallax'));
+        new N2ElementOnOff($backgroundParallax, 'bg-parallax-tablet', n2_('Tablet'), 0);
+        new N2ElementOnOff($backgroundParallax, 'bg-parallax-mobile', n2_('Mobile'), 0);
+    
 
         new N2ElementTextarea($developerOptions, 'custom-css-codes', 'CSS', '', array(
             'fieldStyle' => 'width:600px;height:300px;'
@@ -419,6 +928,19 @@ class N2SmartsliderSlidersModel extends N2Model {
         new N2ElementOnOff($settings, 'restore', n2_('Restore slider'), 0, array(
             'tip' => n2_('Delete the slider with the same ID')
         ));
+        new N2ElementRadio($settings, 'image-mode', n2_('Image mode'), 'clone', array(
+            'rowClass' => 'n2-expert',
+            'options'  => array(
+                'clone'    => n2_('Clone'),
+                'update'   => n2_('Old site url'),
+                'original' => n2_('Original')
+            )
+        ));
+
+        new N2ElementOnOff($settings, 'linked-visuals', n2_('Use linked visuals'), 1, array(
+            'rowClass' => 'n2-expert'
+        ));
+    
 
 
         echo $form->render('slider');
@@ -993,8 +1515,170 @@ class N2SmartsliderSlidersModel extends N2Model {
     }
 
     public static function renderShapeDividerForm() {
+
+        N2Loader::import('libraries.form.form');
+        $form = new N2Form(N2Base::getApplication('smartslider')
+                                 ->getApplicationType('backend'));
+
+        $settings = new N2Tab($form, 'shapedivider');
+
+        $top = new N2ElementGroup($settings, 'shapedivider-top', n2_('Top'));
+        new N2ElementShapeDividerType($top, 'shapedivider-top-type', n2_('Type'), '0');
+
+        new N2ElementColor($top, 'shapedivider-top-color', n2_('Color'), 'ffffffff', array(
+            'alpha' => true
+        ));
+
+        new N2ElementColor($top, 'shapedivider-top-color2', n2_('Secondary'), 'FFFFFF80', array(
+            'alpha' => true
+        ));
+
+        new N2ElementNumberSlider($top, 'shapedivider-top-width', n2_('Width'), 100, array(
+            'unit'      => '%',
+            'style'     => 'width:35px;',
+            'min'       => 100,
+            'max'       => 400,
+            'step'      => 5,
+            'sliderMax' => 400
+        ));
+
+        new N2ElementNumberSlider($top, 'shapedivider-top-height', n2_('Height'), 100, array(
+            'unit'      => '%',
+            'style'     => 'width:35px;',
+            'min'       => 0,
+            'max'       => 500,
+            'step'      => 10,
+            'sliderMax' => 500
+        ));
+
+        new N2ElementOnOff($top, 'shapedivider-top-flip', n2_('Flip'), 0);
+        new N2ElementOnOff($top, 'shapedivider-top-animate', n2_('Animate'), 0);
+        new N2ElementNumberSlider($top, 'shapedivider-top-speed', n2_('Speed'), 100, array(
+            'style'     => 'width:35px;',
+            'unit'      => '%',
+            'min'       => 10,
+            'max'       => 1000,
+            'step'      => 1,
+            'sliderMax' => 100
+        ));
+
+        new N2ElementList($top, 'shapedivider-top-scroll', n2_('Scroll'), '0', array(
+            'options' => array(
+                '0'      => n2_('None'),
+                'grow'   => n2_('Grow'),
+                'shrink' => n2_('Shrink')
+            )
+        ));
+
+        $bottom = new N2ElementGroup($settings, 'shapedivider-bottom', n2_('Bottom'));
+        new N2ElementShapeDividerType($bottom, 'shapedivider-bottom-type', n2_('Type'), '0');
+
+        new N2ElementColor($bottom, 'shapedivider-bottom-color', n2_('Color'), 'ffffffff', array(
+            'alpha' => true
+        ));
+
+        new N2ElementColor($bottom, 'shapedivider-bottom-color2', n2_('Secondary'), 'FFFFFF80', array(
+            'alpha' => true
+        ));
+
+        new N2ElementNumberSlider($bottom, 'shapedivider-bottom-width', n2_('Width'), 100, array(
+            'style'     => 'width:35px;',
+            'unit'      => '%',
+            'min'       => 100,
+            'max'       => 400,
+            'step'      => 5,
+            'sliderMax' => 400
+        ));
+
+        new N2ElementNumberSlider($bottom, 'shapedivider-bottom-height', n2_('Height'), 100, array(
+            'style' => 'width:35px;',
+            'unit'  => '%',
+            'min'   => 0,
+            'max'   => 500,
+            'step'  => 10
+        ));
+
+        new N2ElementOnOff($bottom, 'shapedivider-bottom-flip', n2_('Flip'), 0);
+        new N2ElementOnOff($bottom, 'shapedivider-bottom-animate', n2_('Animate'), 0);
+        new N2ElementNumberSlider($bottom, 'shapedivider-bottom-speed', n2_('Speed'), 100, array(
+            'style'     => 'width:35px;',
+            'unit'      => '%',
+            'min'       => 10,
+            'max'       => 1000,
+            'step'      => 1,
+            'sliderMax' => 100
+        ));
+
+        new N2ElementList($bottom, 'shapedivider-bottom-scroll', n2_('Scroll'), '0', array(
+            'options' => array(
+                '0'      => n2_('None'),
+                'grow'   => n2_('Grow'),
+                'shrink' => n2_('Shrink')
+            )
+        ));
+
+
+        echo $form->render('slider');
+    
     }
 
     public static function renderParticleForm() {
+
+        N2Loader::import('libraries.form.form');
+        $form = new N2Form(N2Base::getApplication('smartslider')
+                                 ->getApplicationType('backend'));
+
+        $settings       = new N2Tab($form, 'particle');
+        $particleEffect = new N2ElementGroup($settings, 'particle-effect', n2_('Particle effect'));
+        new N2ElementParticleJSPresets($particleEffect, 'preset', n2_('Effect'), 0);
+        new N2ElementOnOff($particleEffect, 'mobile', n2_('Show on mobile'), 0);
+
+        $particleSettings = new N2ElementGroup($settings, 'particle-settings', n2_('Settings'));
+
+        new N2ElementColor($particleSettings, 'color', n2_('Color'), 'FFFFFF80', array(
+            'alpha' => true
+        ));
+
+        new N2ElementColor($particleSettings, 'line-color', n2_('Line color'), 'FFFFFF66', array(
+            'alpha' => true
+        ));
+
+        new N2ElementNumberSlider($particleSettings, 'speed', n2_('Speed'), 2, array(
+            'style' => 'width:35px;',
+            'min'   => 1,
+            'max'   => 60
+        ));
+
+        new N2ElementNumberSlider($particleSettings, 'number', n2_('Number of particles'), 28, array(
+            'style' => 'width:35px;',
+            'min'   => 10,
+            'max'   => 200
+        ));
+
+        new N2ElementList($particleSettings, 'hover', n2_('Hover'), 'off', array(
+            'options' => array(
+                '0'       => n2_('Off'),
+                'grab'    => n2_('Grab'),
+                'bubble'  => n2_('Bubble'),
+                'repulse' => n2_('Repulse')
+            )
+        ));
+
+        new N2ElementList($particleSettings, 'click', n2_('Click'), 'off', array(
+            'options' => array(
+                '0'       => n2_('Off'),
+                'repulse' => n2_('Repulse'),
+                'push'    => n2_('Push'),
+                'remove'  => n2_('Remove'),
+                'bubble'  => n2_('Bubble')
+            )
+        ));
+
+        new N2ElementTextarea($settings, 'custom', n2_('Custom'), '', array(
+            'fieldStyle' => 'width: 480px;min-height:200px;resize: vertical;'
+        ));
+
+        echo $form->render('slider');
+    
     }
 } 

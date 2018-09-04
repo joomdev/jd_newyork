@@ -31,6 +31,10 @@ class N2Color {
         return intval(hexdec(substr($value, 6, 2)) / 2);
     }
 
+    static function hex2opacity($value) {
+        return self::hex2alpha($value) / 127;
+    }
+
     static function colorToCss($value) {
         return array(
             substr($value, 0, 2) == '00' ? false : substr($value, 0, 6),

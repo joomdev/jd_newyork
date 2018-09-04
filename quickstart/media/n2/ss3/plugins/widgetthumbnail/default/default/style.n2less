@@ -5,11 +5,12 @@
   }
 
   .n2-ss-thumb-image {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
     background-position: center center;
     background-size: cover;
-    display: inline-block;
-    width: 100%;
-    height: auto;
   }
 
   .nextend-thumbnail-inner {
@@ -120,7 +121,7 @@
     align-content: space-between;
   }
 
-  .nextend-thumbnail-scroller.nextend-thumbnail-invert-group-dir{
+  .nextend-thumbnail-scroller.nextend-thumbnail-invert-group-dir {
     align-content: inherit;
   }
 
@@ -150,12 +151,17 @@
   }
 
   .nextend-thumbnail-default .nextend-thumbnail-scroller > div {
+    display: flex;
     position: relative;
     flex: 0 0 auto;
     -webkit-box-sizing: content-box !important;
     -moz-box-sizing: content-box !important;
     box-sizing: content-box !important;
     cursor: pointer;
+  }
+
+  .nextend-thumbnail-horizontal .nextend-thumbnail-scroller > div {
+    flex-flow: column;
   }
 
   .nextend-thumbnail-default .nextend-thumbnail-scroller > div.n2-active {

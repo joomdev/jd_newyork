@@ -29,7 +29,7 @@ class N2SmartSliderItemsFactory {
 
             self::sortItems();
 
-            self::$itemGroups[n2_('Basic')] = array();
+            self::$itemGroups[n2_('Content')] = array();
 
             foreach (self::$items as $type => $item) {
                 $group = $item->getGroup();
@@ -100,7 +100,13 @@ class N2SmartSliderItemsFactory {
             self::$i[$elementID]++;
             $id = $elementID . 'item' . self::$i[$elementID];
 
-            return new $class($id, $itemData['values'], $layer);
+            /**
+             * @var $item N2SSItemAbstract
+             */
+            $item = new $class($id, $itemData['values'], $layer);
+            $item->fillDefault($factory->getValues());
+
+            return $item;
         }
 
         throw new Exception('Missing ' . $type . ' class:' . $class);

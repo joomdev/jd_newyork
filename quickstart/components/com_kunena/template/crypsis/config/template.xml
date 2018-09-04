@@ -2,8 +2,8 @@
 <!DOCTYPE kinstall>
 <kinstall type="kunena-template" version="4.0">
     <name>Crypsis</name>
-    <version>5.1.1</version>
-    <creationDate>2018-06-10</creationDate>
+    <version>5.1.3</version>
+    <creationDate>2018-08-19</creationDate>
     <author>Kunena Team</author>
     <authorEmail>team@kunena.org</authorEmail>
     <authorUrl>https://www.kunena.org</authorUrl>

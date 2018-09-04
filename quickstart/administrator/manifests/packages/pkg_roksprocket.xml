@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<extension version="3.4" type="package" method="upgrade">
+    <name>pkg_roksprocket</name>
+    <packagename>roksprocket</packagename>
+    <author>RocketTheme, LLC</author>
+    <creationDate>August 21, 2018</creationDate>
+    <copyright>(C) 2005 - 2018 RocketTheme, LLC. All rights reserved.</copyright>
+    <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
+    <authorEmail>support@rockettheme.com</authorEmail>
+    <authorUrl>http://www.rockettheme.com</authorUrl>
+    <version>2.1.24</version>
+    <description>RokSprocket</description>
+
+    <scriptfile>install.php</scriptfile>
+
+    <blockChildUninstall>true</blockChildUninstall>
+    <files folder="packages">
+        <!-- System plugins -->
+        <file type="plugin"    group="system"     id="roksprocket"          enabled="1">plg_system_roksprocket-2.1.24.zip</file>
+        <!-- Content plugins -->
+        <file type="plugin"    group="content"    id="rokinjectmodule"      enabled="1">plg_content_rokinjectmodule-2.1.24.zip</file>
+        <!-- Modules -->
+        <file type="module"    client="site"      id="mod_roksprocket"      enabled="1">mod_roksprocket-2.1.24.zip</file>
+        <!-- Administration component -->
+        <file type="component"                    id="com_roksprocket"      enabled="1">com_roksprocket-2.1.24.zip</file>
+    </files>
+
+    <languages folder="language">
+        <language tag="en-GB">en-GB/en-GB.pkg_roksprocket.sys.ini</language>
+    </languages>
+
+    <updateservers>
+        <server type="collection" priority="1" name="RocketTheme Update Directory">http://updates.rockettheme.com/joomla/updates.xml</server>
+    </updateservers>
+</extension>

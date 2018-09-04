@@ -1,28 +1,36 @@
 <?php
 /**
- * @package     Joomla.Site
- * @subpackage  com_weblinks
+ * @package     Joomla.Administrator
+ * @subpackage  Weblinks
  *
- * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 defined('_JEXEC') or die;
 
+use Joomla\Utilities\ArrayHelper;
+
 /**
- * @package     Joomla.Site
- * @subpackage  com_weblinks
- * @since       1.5
+ * Weblinks class.
+ *
+ * @since  1.5
  */
 class WeblinksControllerWeblink extends JControllerForm
 {
 	/**
-	 * @since   1.6
+	 * The URL view item variable.
+	 *
+	 * @var    string
+	 * @since  1.6
 	 */
 	protected $view_item = 'form';
 
 	/**
-	 * @since   1.6
+	 * The URL view list variable.
+	 *
+	 * @var    string
+	 * @since  1.6
 	 */
 	protected $view_list = 'categories';
 
@@ -38,6 +46,7 @@ class WeblinksControllerWeblink extends JControllerForm
 	 * Method to add a new record.
 	 *
 	 * @return  boolean  True if the article can be added, false if not.
+	 *
 	 * @since   1.6
 	 */
 	public function add()
@@ -53,32 +62,29 @@ class WeblinksControllerWeblink extends JControllerForm
 	 * Method override to check if you can add a new record.
 	 *
 	 * @param   array  $data  An array of input data.
-	 * 
+	 *
 	 * @return  boolean
-	 * 
+	 *
 	 * @since   1.6
 	 */
 	protected function allowAdd($data = array())
 	{
-		$user		= JFactory::getUser();
-		$categoryId	= JArrayHelper::getValue($data, 'catid', $this->input->getInt('id'), 'int');
-		$allow		= null;
+		$categoryId = ArrayHelper::getValue($data, 'catid', $this->input->getInt('id'), 'int');
+		$allow      = null;
 
 		if ($categoryId)
 		{
 			// If the category has been passed in the URL check it.
-			$allow	= $user->authorise('core.create', $this->option . '.category.' . $categoryId);
+			$allow = JFactory::getUser()->authorise('core.create', $this->option . '.category.' . $categoryId);
 		}
 
-		if ($allow === null)
-		{
-			// In the absense of better information, revert to the component permissions.
-			return parent::allowAdd($data);
-		}
-		else
+		if ($allow !== null)
 		{
 			return $allow;
 		}
+
+		// In the absense of better information, revert to the component permissions.
+		return parent::allowAdd($data);
 	}
 
 	/**
@@ -88,7 +94,7 @@ class WeblinksControllerWeblink extends JControllerForm
 	 * @param   string  $key   The name of the key for the primary key.
 	 *
 	 * @return  boolean
-	 * 
+	 *
 	 * @since   1.6
 	 */
 	protected function allowEdit($data = array(), $key = 'id')
@@ -106,11 +112,9 @@ class WeblinksControllerWeblink extends JControllerForm
 			// The category has been set. Check the category permissions.
 			return JFactory::getUser()->authorise('core.edit', $this->option . '.category.' . $categoryId);
 		}
-		else
-		{
-			// Since there is no asset tracking, revert to the component permissions.
-			return parent::allowEdit($data, $key);
-		}
+
+		// Since there is no asset tracking, revert to the component permissions.
+		return parent::allowEdit($data, $key);
 	}
 
 	/**
@@ -119,15 +123,17 @@ class WeblinksControllerWeblink extends JControllerForm
 	 * @param   string  $key  The name of the primary key of the URL variable.
 	 *
 	 * @return  boolean  True if access level checks pass, false otherwise.
-	 * 
+	 *
 	 * @since   1.6
 	 */
 	public function cancel($key = 'w_id')
 	{
-		parent::cancel($key);
+		$return = parent::cancel($key);
 
 		// Redirect to the return page.
 		$this->setRedirect($this->getReturnPage());
+
+		return $return;
 	}
 
 	/**
@@ -137,14 +143,12 @@ class WeblinksControllerWeblink extends JControllerForm
 	 * @param   string  $urlVar  The name of the URL variable if different from the primary key (sometimes required to avoid router collisions).
 	 *
 	 * @return  boolean  True if access level check and checkout passes, false otherwise.
-	 * 
+	 *
 	 * @since   1.6
 	 */
 	public function edit($key = null, $urlVar = 'w_id')
 	{
-		$result = parent::edit($key, $urlVar);
-
-		return $result;
+		return parent::edit($key, $urlVar);
 	}
 
 	/**
@@ -155,14 +159,12 @@ class WeblinksControllerWeblink extends JControllerForm
 	 * @param   array   $config  Configuration array for model. Optional.
 	 *
 	 * @return  object  The model.
-	 * 
+	 *
 	 * @since   1.5
 	 */
 	public function getModel($name = 'form', $prefix = '', $config = array('ignore_request' => true))
 	{
-		$model = parent::getModel($name, $prefix, $config);
-
-		return $model;
+		return parent::getModel($name, $prefix, $config);
 	}
 
 	/**
@@ -172,14 +174,14 @@ class WeblinksControllerWeblink extends JControllerForm
 	 * @param   string   $urlVar    The name of the URL variable for the id.
 	 *
 	 * @return  string  The arguments to append to the redirect URL.
-	 * 
+	 *
 	 * @since   1.6
 	 */
 	protected function getRedirectToItemAppend($recordId = null, $urlVar = null)
 	{
 		$append = parent::getRedirectToItemAppend($recordId, $urlVar);
-		$itemId	= $this->input->getInt('Itemid');
-		$return	= $this->getReturnPage();
+		$itemId = $this->input->getInt('Itemid');
+		$return = $this->getReturnPage();
 
 		if ($itemId)
 		{
@@ -195,12 +197,10 @@ class WeblinksControllerWeblink extends JControllerForm
 	}
 
 	/**
-	 * Get the return URL.
-	 *
-	 * If a "return" variable has been passed in the request
+	 * Get the return URL if a "return" variable has been passed in the request
 	 *
 	 * @return  string  The return URL.
-	 * 
+	 *
 	 * @since   1.6
 	 */
 	protected function getReturnPage()
@@ -211,24 +211,8 @@ class WeblinksControllerWeblink extends JControllerForm
 		{
 			return JUri::base();
 		}
-		else
-		{
-			return base64_decode($return);
-		}
-	}
 
-	/**
-	 * Function that allows child controller access to model data after the data has been saved.
-	 *
-	 * @param   JModelLegacy  $model      The data model object.
-	 * @param   array         $validData  The validated data.
-	 *
-	 * @return  void
-	 * @since   1.6
-	 */
-	protected function postSaveHook(JModelLegacy $model, $validData = array())
-	{
-		return;
+		return base64_decode($return);
 	}
 
 	/**
@@ -238,16 +222,26 @@ class WeblinksControllerWeblink extends JControllerForm
 	 * @param   string  $urlVar  The name of the URL variable if different from the primary key (sometimes required to avoid router collisions).
 	 *
 	 * @return  boolean  True if successful, false otherwise.
-	 * 
+	 *
 	 * @since   1.6
 	 */
 	public function save($key = null, $urlVar = 'w_id')
 	{
+		// Get the application
+		$app = JFactory::getApplication();
+
+		// Get the data from POST
+		$data = $this->input->post->get('jform', array(), 'array');
+
+		// Save the data in the session.
+		$app->setUserState('com_weblinks.edit.weblink.data', $data);
 		$result = parent::save($key, $urlVar);
 
 		// If ok, redirect to the return page.
 		if ($result)
 		{
+			// Flush the data from the session
+			$app->setUserState('com_weblinks.edit.weblink.data', null);
 			$this->setRedirect($this->getReturnPage());
 		}
 
@@ -258,7 +252,7 @@ class WeblinksControllerWeblink extends JControllerForm
 	 * Go to a weblink
 	 *
 	 * @return  void
-	 * 
+	 *
 	 * @since   1.6
 	 */
 	public function go()
@@ -267,11 +261,11 @@ class WeblinksControllerWeblink extends JControllerForm
 		$id = $this->input->getInt('id');
 
 		// Get the model, requiring published items
-		$modelLink	= $this->getModel('Weblink', '', array('ignore_request' => true));
+		$modelLink = $this->getModel('Weblink', '', array('ignore_request' => true));
 		$modelLink->setState('filter.published', 1);
 
 		// Get the item
-		$link	= $modelLink->getItem($id);
+		$link = $modelLink->getItem($id);
 
 		// Make sure the item was found.
 		if (empty($link))
@@ -280,8 +274,7 @@ class WeblinksControllerWeblink extends JControllerForm
 		}
 
 		// Check whether item access level allows access.
-		$user	= JFactory::getUser();
-		$groups	= $user->getAuthorisedViewLevels();
+		$groups = JFactory::getUser()->getAuthorisedViewLevels();
 
 		if (!in_array($link->access, $groups))
 		{
@@ -312,11 +305,9 @@ class WeblinksControllerWeblink extends JControllerForm
 		if ($link->url)
 		{
 			$modelLink->hit($id);
-			JFactory::getApplication()->redirect($link->url);
+			JFactory::getApplication()->redirect($link->url, 301);
 		}
-		else
-		{
-			return JError::raiseWarning(404, JText::_('COM_WEBLINKS_ERROR_WEBLINK_URL_INVALID'));
-		}
+
+		return JError::raiseWarning(404, JText::_('COM_WEBLINKS_ERROR_WEBLINK_URL_INVALID'));
 	}
 }

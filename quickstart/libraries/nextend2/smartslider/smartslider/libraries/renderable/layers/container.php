@@ -48,10 +48,12 @@ class  N2SSLayersContainer {
                             $this->layers[] = $layer;
 
                         } catch (Exception $e) {
-                            var_dump($e->getMessage());
+                            N2Message::error($e->getMessage());
                         }
                         break;
                     case 'group':
+                        $this->layers[] = new N2SSSlideComponentGroup($i, $slide, $component, $node, $allowedPlacement);
+                    
                         break;
 
                 }

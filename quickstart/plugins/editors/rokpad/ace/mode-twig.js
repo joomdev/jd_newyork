@@ -1,5 +1,7 @@
-/*
- * Copyright (c) 2010, Ajax.org B.V.
+/* ***** BEGIN LICENSE BLOCK *****
+ * Distributed under the BSD license:
+ *
+ * Copyright (c) 2013, Ajax.org B.V.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,7 +25,9 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ *
+ * ***** END LICENSE BLOCK ***** */
+
 ace.define('ace/mode/twig', ['require', 'exports', 'module' , 'ace/lib/oop', 'ace/mode/text', 'ace/mode/javascript', 'ace/mode/css', 'ace/tokenizer', 'ace/mode/twig_highlight_rules', 'ace/mode/behaviour/html', 'ace/mode/folding/html', 'ace/mode/matching_brace_outdent'], function(require, exports, module) {
 
 

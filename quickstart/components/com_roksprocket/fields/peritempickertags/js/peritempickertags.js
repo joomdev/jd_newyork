@@ -1,32 +1,254 @@
-/*
+/*!
  * @version   $Id: peritempickertags.js 10889 2013-05-30 07:48:35Z btowles $
  * @author    RocketTheme http://www.rockettheme.com
  * @copyright Copyright (C) 2007 - 2018 RocketTheme, LLC
  * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only
  */
-((function(){if(typeof this.RokSprocket=="undefined"){this.RokSprocket={};
-}var a=(Browser.name=="ie"&&Browser.version<=9)?"keypress":"input";this.PerItemPickerTags=new Class({Implements:[Options,Events],options:{},initialize:function(c){this.setOptions(c);
-this.attach();},getPickers:function(){this.pickers=document.getElements("[data-peritempickertags]");return this.pickers;},attach:function(c){var d=(c?new Elements([c]).flatten():this.getPickers());
-this.fireEvent("beforeAttach",d);d.each(function(i){var e=i.getElement("select"),j=i.getElement("[data-peritempickertags-display]"),h=i.getElement("#"+i.get("data-peritempickertags-id"));
-var l=e.retrieve("roksprocket:pickers:change",function(m){this.change.call(this,m,e);}.bind(this)),g=j.retrieve("roksprocket:pickers:input",function(m){this.keypress.call(this,m,j,h,e);
-}.bind(this)),f=j.retrieve("roksprocket:pickers:focus",function(m){this.focus.call(this,m,j,h);}.bind(this)),k=j.retrieve("roksprocket:pickers:blur",function(m){this.blur.call(this,m,j,h,e);
-}.bind(this));if(!h.get("value").test(/^-([a-z]{1,})-$/)){j.store("display_value",j.get("value")||"");h.store("user_value",h.get("value")||"");}e.addEvent("change",l);
-j.addEvent(a,g);j.addEvent("focus",f);},this);this.fireEvent("afterAttach",d);},detach:function(c){var d=(c?new Elements([c]).flatten():this.pickers);this.fireEvent("beforeDetach",d);
-d.each(function(g){var i=g.retrieve("roksprocket:pickers:change"),f=g.retrieve("roksprocket:pickers:input"),e=g.getElement("select"),h=g.getElement("[data-peritempickertags-display]");
-e.removeEvent("change",i);h.removeEvent(a,f);},this);if(!c){document.store("roksprocket:pickers:document",false).removeEvent("click",this.bounds.document);
-}this.fireEvent("afterDetach",d);},change:function(e,c){var g=c.get("value"),d=c.getParent(".peritempickertags-wrapper"),f=d.getElement("input[type=hidden]"),h=d.getElement("[data-peritempickertags-display]"),j=d.getElement(".sprocket-dropdown [data-toggle]"),i=j.getElement("span.name");
-RokSprocket.tags.reset(d.getElement("[data-tags]"));if(g.test(/^-([a-z]{1,})-$/)){d.addClass("peritempickertags-noncustom");i.set("text",c.getElement("[value="+g+"]").get("text"));
-h.set("value",c.get("value"));f.set("value",g);}else{d.removeClass("peritempickertags-noncustom");i.set("text","");if(h.get("value").test(/^-([a-z]{1,})-$/)){h.set("value",h.retrieve("display_value",""));
-f.set("value",f.retrieve("user_value",""));}this.keypress(false,h,f,c);}},keypress:function(e,g,d,c){var f=g.get("value");this.update(d,f);},focus:function(d,e,c){new b(c,e);
-},update:function(c,e){c=document.id(c);var d=c.getParent("[data-peritempickertags]"),g=d.getElement("[data-peritempickertags-display]"),f=g.get("value");
-g.set("value",f).store("display_value",f);c.set("value",f).store("juser_value",f);}});var b=new Class({Implements:[Options,Events],options:{},initialize:function(c,e,d){this.setOptions(d);
-this.input=document.id(c);this.display=document.id(e);this.wrapper=null;this.textarea=null;this.build();},build:function(){this.wrapper=new Element("div.peritempickertags-textarea-wrapper").adopt(new Element("span[data-peritempickertags-close].close",{html:"&times;"}),new Element("textarea.peritempickertags-textarea")).inject(document.body);
-this.wrapper.styles({position:"absolute"});this.textarea=this.wrapper.getElement("textarea");this.attach();this.show();return this;},destroy:function(){this.detach();
-this.wrapper.dispose();return this;},attach:function(){var c=this.wrapper.retrieve("roksprocket:pickers:textarea",function(e){this.keypress.call(this,e);
-}.bind(this)),d=this.wrapper.retrieve("roksprocket:pickers:close",function(e){this.keypress.call(this,e);this.destroy.call(this,e);}.bind(this));document.body.addEvent("keyup:keys(esc)",d);
-this.textarea.addEvent("keydown",c);this.wrapper.addEvents({"blur:relay(textarea)":d,"click:relay(.close)":d});return this;},detach:function(){var c=this.wrapper.retrieve("roksprocket:pickers:textarea"),d=this.wrapper.retrieve("roksprocket:pickers:close");
-document.body.removeEvent("keyup:keys(esc)",d);this.textarea.removeEvent("keydown",c);this.wrapper.removeEvents({"blur:relay(textarea)":d,"click:relay(.close)":d});
-return this;},keypress:function(d){var e=this.textarea.get("value");this.input.set("value",e);this.display.set("value",e);if(d&&d.type=="keydown"){if(d.key=="tab"){var c=this.input.getNext("[type!=hidden]");
-c.set("tabindex",0).focus();c.set("tabindex",null);}}return this;},show:function(){this.wrapper.styles({display:"block"}).position({relativeTo:this.display});
-this.textarea.set("value",this.display.get("value"));this.textarea.focus();return this;},hide:function(){this.wrapper.styles({display:"none"});return this;
-},toElement:function(){return this.wrapper;}});window.addEvent("domready",function(){this.RokSprocket.peritempickertags=new PerItemPickerTags();});})());
+((function(){
+    if (typeof this.RokSprocket == 'undefined') this.RokSprocket = {};
+    var OnInputEvent = (Browser.name == 'ie' && Browser.version <= 9) ? 'keypress' : 'input';
+
+    this.PerItemPickerTags = new Class({
+
+        Implements: [Options, Events],
+        options: {},
+
+        initialize: function(options){
+            this.setOptions(options);
+
+            this.attach();
+        },
+
+        getPickers: function(){
+            this.pickers = document.getElements('[data-peritempickertags]');
+
+            return this.pickers;
+        },
+
+        attach: function(picker){
+            var pickers = (picker ? new Elements([picker]).flatten() : this.getPickers());
+
+            this.fireEvent('beforeAttach', pickers);
+
+            pickers.each(function(picker){
+                var select = picker.getElement('select'),
+                    display = picker.getElement('[data-peritempickertags-display]'),
+                    input = picker.getElement('#' + picker.get('data-peritempickertags-id'));
+
+                var change = select.retrieve('roksprocket:pickers:change', function(event){
+                        this.change.call(this, event, select);
+                    }.bind(this)),
+                    keypress = display.retrieve('roksprocket:pickers:input', function(event){
+                        this.keypress.call(this, event, display, input, select);
+                    }.bind(this)),
+                    focus = display.retrieve('roksprocket:pickers:focus', function(event){
+                        this.focus.call(this, event, display, input);
+                    }.bind(this)),
+                    blur = display.retrieve('roksprocket:pickers:blur', function(event){
+                        this.blur.call(this, event, display, input, select);
+                    }.bind(this));
+
+                if (!input.get('value').test(/^-([a-z]{1,})-$/)){
+                    display.store('display_value', display.get('value') || '');
+                    input.store('user_value', input.get('value') || '');
+                }
+
+                select.addEvent('change', change);
+                display.addEvent(OnInputEvent, keypress);
+                display.addEvent('focus', focus);
+                //display.addEvent('blur', blur);
+                //display.twipsy({placement: 'above', offset: 5, html: false});
+
+            }, this);
+
+            this.fireEvent('afterAttach', pickers);
+        },
+
+        detach: function(picker){
+            var pickers = (picker ? new Elements([picker]).flatten() : this.pickers);
+
+            this.fireEvent('beforeDetach', pickers);
+
+            pickers.each(function(picker){
+                var change = picker.retrieve('roksprocket:pickers:change'),
+                    keypress = picker.retrieve('roksprocket:pickers:input'),
+                    select = picker.getElement('select'),
+                    display = picker.getElement('[data-peritempickertags-display]');
+
+                select.removeEvent('change', change);
+                display.removeEvent(OnInputEvent, keypress);
+
+            }, this);
+
+            if (!picker) document.store('roksprocket:pickers:document', false).removeEvent('click', this.bounds.document);
+
+            this.fireEvent('afterDetach', pickers);
+        },
+
+        change: function(event, select){
+            var value = select.get('value'),
+                parent = select.getParent('.peritempickertags-wrapper'),
+                hidden = parent.getElement('input[type=hidden]'),
+                display = parent.getElement('[data-peritempickertags-display]'),
+                dropdown = parent.getElement('.sprocket-dropdown [data-toggle]'),
+                title = dropdown.getElement('span.name');
+
+            RokSprocket.tags.reset(parent.getElement('[data-tags]'));
+
+            if (value.test(/^-([a-z]{1,})-$/)){
+                parent.addClass('peritempickertags-noncustom');
+                title.set('text', select.getElement('[value='+value+']').get('text'));
+
+                display.set('value', select.get('value'));
+                hidden.set('value', value);
+            } else {
+                parent.removeClass('peritempickertags-noncustom');
+                title.set('text', '');
+
+                if (display.get('value').test(/^-([a-z]{1,})-$/)){
+                    display.set('value', display.retrieve('display_value', ''));
+                    hidden.set('value', hidden.retrieve('user_value', ''));
+                }
+
+                this.keypress(false, display, hidden, select);
+            }
+
+        },
+
+        keypress: function(event, display, input, select){
+            var value = display.get('value');
+
+            this.update(input, value);
+        },
+
+        focus: function(event, display, input){
+            new TextArea(input, display);
+        },
+
+        update: function(input, settings){
+            input = document.id(input);
+
+            // RokSprocket.SiteURL is always available
+
+            var parent = input.getParent('[data-peritempickertags]'),
+                display = parent.getElement('[data-peritempickertags-display]'),
+                value = display.get('value');
+
+            display
+                .set('value', value).store('display_value', value);
+
+            input.set('value', value).store('juser_value', value);
+        }
+
+    });
+
+    var TextArea = new Class({
+        Implements: [Options, Events],
+        options: {},
+        initialize: function(input, display, options){
+            this.setOptions(options);
+
+            this.input = document.id(input);
+            this.display = document.id(display);
+            this.wrapper = null;
+            this.textarea = null;
+
+            this.build();
+        },
+
+        build: function(){
+            this.wrapper = new Element('div.peritempickertags-textarea-wrapper').adopt(
+                new Element('span[data-peritempickertags-close].close', {html: '&times;'}),
+                new Element('textarea.peritempickertags-textarea')
+            ).inject(document.body);
+
+            this.wrapper.styles({position: 'absolute'});
+            this.textarea = this.wrapper.getElement('textarea');
+
+            this.attach();
+            this.show();
+
+            return this;
+        },
+
+        destroy: function(){
+            this.detach();
+            this.wrapper.dispose();
+
+            return this;
+        },
+
+        attach: function(){
+            var keypress = this.wrapper.retrieve('roksprocket:pickers:textarea', function(event){
+                    this.keypress.call(this, event);
+                }.bind(this)),
+                close = this.wrapper.retrieve('roksprocket:pickers:close', function(event){
+                    this.keypress.call(this, event);
+                    this.destroy.call(this, event);
+                }.bind(this));
+
+            document.body.addEvent('keyup:keys(esc)', close);
+            this.textarea.addEvent('keydown', keypress);
+            this.wrapper.addEvents({
+                'blur:relay(textarea)': close,
+                'click:relay(.close)': close
+            });
+
+            return this;
+        },
+
+        detach: function(){
+            var keypress = this.wrapper.retrieve('roksprocket:pickers:textarea'),
+                close = this.wrapper.retrieve('roksprocket:pickers:close');
+
+            document.body.removeEvent('keyup:keys(esc)', close);
+            this.textarea.removeEvent('keydown', keypress);
+            this.wrapper.removeEvents({
+                'blur:relay(textarea)': close,
+                'click:relay(.close)': close
+            });
+
+            return this;
+        },
+
+        keypress: function(event){
+            var value = this.textarea.get('value');
+
+            this.input.set('value', value);
+            this.display.set('value', value);
+
+            if (event && event.type == 'keydown'){
+                if (event.key == 'tab'){
+                    var next = this.input.getNext('[type!=hidden]');
+                    next.set('tabindex', 0).focus();
+                    next.set('tabindex', null);
+                }
+            }
+
+            return this;
+        },
+
+        show: function(){
+            this.wrapper.styles({display: 'block'}).position({relativeTo: this.display});
+            this.textarea.set('value', this.display.get('value'));
+            this.textarea.focus()
+
+            return this;
+        },
+
+        hide: function(){
+            this.wrapper.styles({display: 'none'});
+
+            return this;
+        },
+
+        toElement: function(){
+            return this.wrapper;
+        }
+    });
+
+    window.addEvent('domready', function(){
+        this.RokSprocket.peritempickertags = new PerItemPickerTags();
+    });
+
+})());

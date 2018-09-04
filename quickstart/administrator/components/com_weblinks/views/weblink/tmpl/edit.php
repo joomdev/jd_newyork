@@ -1,9 +1,9 @@
 <?php
 /**
  * @package     Joomla.Administrator
- * @subpackage  com_weblinks
+ * @subpackage  Weblinks
  *
- * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -11,19 +11,22 @@ defined('_JEXEC') or die;
 
 JHtml::addIncludePath(JPATH_COMPONENT . '/helpers/html');
 
-JHtml::_('behavior.formvalidation');
-JHtml::_('formbehavior.chosen', 'select');
+JHtml::_('behavior.formvalidator');
+JHtml::_('formbehavior.chosen', 'select', null, array('disable_search_threshold' => 0 ));
 
-?>
-<script type="text/javascript">
+// Ignore Image fieldset for the layouts as we render it manually
+$this->ignore_fieldsets = array('images');
+
+JFactory::getDocument()->addScriptDeclaration("
 	Joomla.submitbutton = function(task)
 	{
-		if (task == 'weblink.cancel' || document.formvalidator.isValid(document.id('weblink-form'))) {
-			<?php echo $this->form->getField('description')->save(); ?>
+		if (task == 'weblink.cancel' || document.formvalidator.isValid(document.getElementById('weblink-form'))) {
+			" . $this->form->getField('description')->save() . "
 			Joomla.submitform(task, document.getElementById('weblink-form'));
 		}
-	}
-</script>
+	};
+");
+?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_weblinks&layout=edit&id=' . (int) $this->item->id); ?>" method="post" name="adminForm" id="weblink-form" class="form-validate">
 

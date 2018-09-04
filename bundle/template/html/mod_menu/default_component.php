@@ -49,6 +49,6 @@ switch ($item->browserNav)
 		break;
 }
 
-if(($module->position == 'offcanvas') && ($item->deeper)) {
+if((@$module->position == 'offcanvas') && ($item->deeper)) {
 	echo '<span class="offcanvas-menu-toggler collapsed" data-toggle="collapse" data-target="#collapse-menu-'. $item->id .'"><i class="open-icon fa fa-angle-down"></i><i class="close-icon fa fa-angle-up"></i></span>';
 }

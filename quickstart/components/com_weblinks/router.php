@@ -1,9 +1,9 @@
 <?php
 /**
- * @package     Joomla.Site
- * @subpackage  com_weblinks
+ * @package     Joomla.Administrator
+ * @subpackage  Weblinks
  *
- * @copyright   Copyright (C) 2005 - 2014 Open Source Matters, Inc. All rights reserved.
+ * @copyright   Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -12,9 +12,7 @@ defined('_JEXEC') or die;
 /**
  * Routing class from com_weblinks
  *
- * @package     Joomla.Site
- * @subpackage  com_weblinks
- * @since       3.3
+ * @since  3.3
  */
 class WeblinksRouter extends JComponentRouterBase
 {
@@ -261,7 +259,11 @@ class WeblinksRouter extends JComponentRouterBase
 /**
  * Weblinks router functions
  *
- * These functions are proxys for the new router interface
+ * @param   array  &$query  An array of URL arguments
+ *
+ * @return  array  The URL arguments to use to assemble the subsequent URL.
+ *
+ * Note. These functions are proxies for the new router interface
  * for old SEF extensions.
  *
  * @deprecated  4.0  Use Class based routers instead
@@ -273,6 +275,18 @@ function WeblinksBuildRoute(&$query)
 	return $router->build($query);
 }
 
+/**
+ * Weblinks router functions
+ *
+ * @param   array  $segments  The segments of the URL to parse.
+ *
+ * @return  array  The URL attributes to be used by the application.
+ *
+ * Note. These functions are proxies for the new router interface
+ * for old SEF extensions.
+ *
+ * @deprecated  4.0  Use Class based routers instead
+ */
 function WeblinksParseRoute($segments)
 {
 	$router = new WeblinksRouter;

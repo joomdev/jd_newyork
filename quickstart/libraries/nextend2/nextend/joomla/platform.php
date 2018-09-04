@@ -11,8 +11,7 @@ class N2Platform {
     public static function init() {
         self::$isJoomla = JVERSION;
         if (JFactory::getApplication()
-                    ->isAdmin()
-        ) {
+                    ->isAdmin()) {
             self::$isAdmin = true;
         }
     }
@@ -23,6 +22,16 @@ class N2Platform {
 
     public static function getPlatformName() {
         return 'Joomla';
+    }
+
+    public static function getPlatformVersion() {
+
+        return JVERSION;
+    }
+
+    public static function getSiteUrl() {
+
+        return JURI::root();
     }
 
     public static function getDate() {
@@ -42,6 +51,49 @@ class N2Platform {
         }
 
         return JPATH_SITE . '/media';
+    }
+
+    public static function getDebug() {
+        $debug = array();
+
+        $db    = JFactory::getDbo();
+        $query = $db->getQuery(true);
+        $query->select($db->quoteName(array(
+            'template',
+            'title'
+        )))
+              ->from($db->quoteName('#__template_styles'))
+              ->where('client_id = 0 AND home = 1');
+
+        $db->setQuery($query);
+        $result = $db->loadObject();
+        if (isset($result->template)) {
+            $debug[] = '';
+            $debug[] = 'Template: ' . $result->template . ' - ' . $result->title;
+        }
+
+        $query = $db->getQuery(true);
+        $query->select($db->quoteName(array(
+            'name',
+            'manifest_cache'
+        )))
+              ->from($db->quoteName('#__extensions'));
+
+        $db->setQuery($query);
+        $result = $db->loadObjectList();
+
+        $debug[] = '';
+        $debug[] = 'Extensions:';
+        foreach ($result as $extension) {
+            $decode = json_decode($extension->manifest_cache);
+            if (isset($extension->name) && isset($decode->version)) {
+                $debug[] = $extension->name . ' : ' . $decode->version;
+            } else if (isset($extension->name)) {
+                $debug[] = $extension->name;
+            }
+        }
+
+        return $debug;
     }
 
     public static function getUserEmail() {
@@ -97,9 +149,9 @@ class N2Platform {
 
         $tmpHandle = tmpfile();
         fwrite($tmpHandle, $fileRaw);
-        $metaData    = stream_get_meta_data($tmpHandle);
-        $tmpFilename = $metaData['uri'];
-        $files       = N2ZipReader::read($tmpFilename);
+        $metaData     = stream_get_meta_data($tmpHandle);
+        $tmpFilename  = $metaData['uri'];
+        $files        = N2ZipReader::read($tmpFilename);
         $updateFolder = N2Filesystem::getNotWebCachePath() . '/update/';
         self::recursive_extract($files, $updateFolder);
         fclose($tmpHandle);
@@ -115,10 +167,10 @@ class N2Platform {
 
         return true;
     }
-    
+
     private static function recursive_extract($files, $targetFolder) {
         foreach ($files AS $fileName => $file) {
-            if(empty($fileName) || $fileName == '.' || $fileName == '..') continue;
+            if (empty($fileName) || $fileName == '.' || $fileName == '..') continue;
             if (is_array($file)) {
                 if (N2Filesystem::createFolder($targetFolder . $fileName . '/')) {
                     self::recursive_extract($file, $targetFolder . $fileName . '/');
@@ -131,7 +183,13 @@ class N2Platform {
                 }
             }
         }
+
         return true;
+    }
+
+    public static function needStrongerCSS() {
+
+        return false;
     }
 
 }

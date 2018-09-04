@@ -164,7 +164,7 @@ abstract class KunenaForum
 	 */
 	public static function isDev()
 	{
-		if ('5.1.1' == '@' . 'kunenaversion' . '@')
+		if ('5.1.3' == '@' . 'kunenaversion' . '@')
 		{
 			return true;
 		}
@@ -295,7 +295,7 @@ abstract class KunenaForum
 	 */
 	protected static function buildVersion()
 	{
-		if ('5.1.1' == '@' . 'kunenaversion' . '@')
+		if ('5.1.3' == '@' . 'kunenaversion' . '@')
 		{
 			$file = JPATH_MANIFESTS . '/packages/pkg_kunena.xml';
 
@@ -306,17 +306,17 @@ abstract class KunenaForum
 			}
 			else
 			{
-				self::$version = strtoupper('5.1.1');
+				self::$version = strtoupper('5.1.3');
 			}
 		}
 		else
 		{
-			self::$version = strtoupper('5.1.1');
+			self::$version = strtoupper('5.1.3');
 		}
 
 		self::$version_major = substr(self::$version, 0, 3);
-		self::$version_date  = ('2018-06-10' == '@' . 'kunenaversiondate' . '@') ? Factory::getDate()->format('Y-m-d') : '2018-06-10';
-		self::$version_name  = ('Belinda' == '@' . 'kunenaversionname' . '@') ? 'Git Repository' : 'Belinda';
+		self::$version_date  = ('2018-08-19' == '@' . 'kunenaversiondate' . '@') ? Factory::getDate()->format('Y-m-d') : '2018-08-19';
+		self::$version_name  = ('Dione' == '@' . 'kunenaversionname' . '@') ? 'Git Repository' : 'Dione';
 	}
 
 	/**

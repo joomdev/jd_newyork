@@ -22,15 +22,16 @@ class N2SSPluginItemFactoryVimeo extends N2SSPluginItemFactoryAbstract {
 
     function getValues() {
         return array(
-            'vimeourl' => '75251217',
-            'image'    => '$system$/images/placeholder/video.png',
-            'autoplay' => 0,
-            'title'    => 1,
-            'byline'   => 1,
-            'portrait' => 0,
-            'color'    => '00adef',
-            'loop'     => 0,
-            'start'    => 0
+            'vimeourl'     => '75251217',
+            'image'        => '$system$/images/placeholder/video.png',
+            'autoplay'     => 0,
+            'title'        => 1,
+            'byline'       => 1,
+            'portrait'     => 0,
+            'color'        => '00adef',
+            'loop'         => 0,
+            'start'        => 0,
+            'scroll-pause' => 'partly-visible',
         );
     }
 
@@ -73,6 +74,14 @@ class N2SSPluginItemFactoryVimeo extends N2SSPluginItemFactoryAbstract {
             'style' => 'width:236px;'
         ));
 
+        new N2ElementList($settings, 'scroll-pause', n2_('Pause on scroll'), 'partly-visible', array(
+            'options' => array(
+                ''               => n2_('Never'),
+                'partly-visible' => n2_('When partly visible'),
+                'not-visible'    => n2_('When not visible'),
+            )
+        ));
+
         $misc = new N2ElementGroup($settings, 'item-vimeo-misc');
         new N2ElementColor($misc, 'color', n2_('Color'));
         new N2ElementList($misc, 'volume', n2_('Volume'), 1, array(
@@ -86,6 +95,10 @@ class N2SSPluginItemFactoryVimeo extends N2SSPluginItemFactoryAbstract {
             )
         ));
         new N2ElementOnOff($misc, 'autoplay', n2_('Autoplay'), 0);
+        new N2ElementOnOff($misc, 'loop', n2_('Loop'), 0);
+        new N2ElementOnOff($misc, 'reset', n2_('Reset when slide changes'), 0);
+        new N2ElementOnOff($misc, 'background', n2_('Remove controls'), 0);
+    
         new N2ElementOnOff($misc, 'title', n2_('Title'), 1);
         new N2ElementOnOff($misc, 'byline', n2_('Users byline'), 1);
         new N2ElementOnOff($misc, 'portrait', n2_('Portrait'), 1);
@@ -105,6 +118,24 @@ class N2SSPluginItemFactoryVimeo extends N2SSPluginItemFactoryAbstract {
             'unit' => 'sec',
             'wide' => 5
         ));
+        $playButton = new N2ElementGroup($settings, 'item-vimeo-playbutton', '', array(
+            'rowClass' => 'n2-expert'
+        ));
+        new N2ElementOnOff($playButton, 'playbutton', n2_('Play button'), 1);
+        new N2ElementNumber($playButton, 'playbuttonwidth', n2_('Width'), 48, array(
+            'unit' => 'px',
+            'wide' => 4
+        ));
+        new N2ElementNumber($playButton, 'playbuttonheight', n2_('Height'), 48, array(
+            'unit' => 'px',
+            'wide' => 4
+        ));
+
+        new N2ElementImage($playButton, 'playbuttonimage', n2_('Image'), '', array(
+            'fixed' => true,
+            'style' => 'width:236px;'
+        ));
+    
     }
 
 }

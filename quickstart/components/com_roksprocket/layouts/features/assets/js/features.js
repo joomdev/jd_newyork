@@ -1,5 +1,5 @@
 /*!
- * @version   $Id: features.js 30547 2018-03-08 21:14:11Z reggie $
+ * @version   $Id: features.js 30547 2017-03-08 21:14:11Z reggie $
  * @author    RocketTheme http://www.rockettheme.com
  * @copyright Copyright (C) 2007 - 2018 RocketTheme, LLC
  * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only

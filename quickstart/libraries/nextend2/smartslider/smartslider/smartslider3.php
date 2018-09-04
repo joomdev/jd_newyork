@@ -2,7 +2,11 @@
 
 class N2SS3 {
 
-    public static $version = '3.3.1';
+    public static $version = '3.3.7';
+
+    public static $revision = '2515';
+
+    public static $completeVersion;
 
     public static $plan = 'pro';
 
@@ -15,8 +19,12 @@ class N2SS3 {
     public static $forceDesktop = false;
 
     public static function shouldSkipLicenseModal() {
-        return true;
-    
+        static $shouldSkipLicenseModal;
+        if ($shouldSkipLicenseModal === null) {
+            $shouldSkipLicenseModal = false;
+        }
+
+        return $shouldSkipLicenseModal;
     }
 
     public static function applySource(&$params) {
@@ -64,12 +72,26 @@ class N2SS3 {
     }
 
     public static function api($_posts, $returnUrl = false) {
-        $isPro = 0;
+        $isPro = 1;
     
         $posts = array(
             'product' => self::$product,
             'pro'     => $isPro
         );
+        $posts['domain'] = parse_url(N2Uri::getFullUri(), PHP_URL_HOST);
+        if (empty($posts['domain'])) {
+            if (isset($_SERVER['HTTP_HOST'])) {
+
+                $posts['domain'] = $_SERVER['HTTP_HOST'];
+            }
+            if (empty($posts['domain']) && isset($_SERVER['SERVER_NAME'])) {
+
+                $posts['domain'] = $_SERVER['SERVER_NAME'];
+            }
+        }
+        $posts['license'] = N2SmartsliderLicenseModel::getInstance()
+                                                     ->getKey();
+    
 
         return N2::api($_posts + $posts, $returnUrl);
     }
@@ -112,14 +134,14 @@ class N2SS3 {
             case 'ERROR_HANDLED':
                 break;
             case '503':
-                N2Message::error('Licensing server is down, try again later!');
+                N2Message::error('Licensing server is down. Try: Global Settings -> Framework settings -> Secondary server -> On');
                 break;
             case null:
-                N2Message::error('Licensing server not reachable, try again later!');
+                N2Message::error('Licensing server not reachable. Try: Global Settings -> Framework settings -> Secondary server -> On');
                 break;
             default:
                 N2Message::error('Debug: ' . $status);
-                N2Message::error('Licensing server not reachable, try again later!');
+                N2Message::error('Licensing server not reachable. Try: Global Settings -> Framework settings -> Secondary server -> On');
                 break;
         }
 
@@ -133,6 +155,18 @@ class N2SS3 {
     }
 
     public static function initLicense() {
+        $model         = N2SmartsliderLicenseModel::getInstance();
+        $hasKey        = $model->hasKey();
+        $maybeActive   = $model->maybeActive();
+        $addLicenseUrl = N2Base::getApplication('smartslider')->router->createUrl(array('license/add'));
+        $buyLicenseUrl = N2SS3::getProUrlPricing(array(
+            'utm_source'   => 'smartslider3-pro',
+            'utm_medium'   => 'smartslider',
+            'utm_campaign' => 'forgot-license-buy'
+        ));
+        N2JS::addInline("new N2Classes.License('" . $hasKey . "', '" . $maybeActive . "','" . $addLicenseUrl . "','" . $buyLicenseUrl . "');");
+    
     }
 }
-N2SS3::$plan = 'free';
+
+N2SS3::$completeVersion = N2SS3::$version . 'r' . N2SS3::$revision;

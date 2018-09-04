@@ -3,7 +3,7 @@
 /**
  * @version   $Id: Joomla.php 19230 2014-02-27 01:33:55Z btowles $
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2016 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2018 RocketTheme, LLC
  * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only
  */
 class RokCommon_Platform_Definition_Joomla extends RokCommon_Platform_BaseDefinition

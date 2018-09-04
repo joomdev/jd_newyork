@@ -1,4 +1,6 @@
-/*
+/* ***** BEGIN LICENSE BLOCK *****
+ * Distributed under the BSD license:
+ *
  * Copyright (c) 2010, Ajax.org B.V.
  * All rights reserved.
  *
@@ -23,7 +25,9 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+ *
+ * ***** END LICENSE BLOCK ***** */
+
 ace.define('ace/ext/old_ie', ['require', 'exports', 'module' , 'ace/lib/useragent', 'ace/tokenizer', 'ace/ext/searchbox'], function(require, exports, module) {
 
 var MAX_TOKEN_COUNT = 1000;

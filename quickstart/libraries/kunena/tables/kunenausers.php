@@ -11,6 +11,7 @@
 defined('_JEXEC') or die();
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
 
 require_once __DIR__ . '/kunena.php';
 
@@ -407,6 +408,34 @@ class TableKunenaUsers extends KunenaTable
 	public $socialshare = null;
 
 	/**
+	 * odnoklassniki
+	 * @var integer
+	 * @since Kunena
+	 */
+	public $odnoklassniki = null;
+
+	/**
+	 * what's app
+	 * @var integer
+	 * @since Kunena
+	 */
+	public $whatsapp = null;
+
+	/**
+	 * Linkedin company
+	 * @var integer
+	 * @since Kunena
+	 */
+	public $linkedin_company = null;
+
+	/**
+	 * Youtube
+	 * @var integer
+	 * @since Kunena
+	 */
+	public $youtube = null;
+
+	/**
 	 * @param   JDatabaseDriver $db Database driver
 	 *
 	 * @since Kunena
@@ -530,17 +559,17 @@ class TableKunenaUsers extends KunenaTable
 	{
 		if (!$this->userid || !Factory::getUser($this->userid))
 		{
-			$this->setError(JText::sprintf('COM_KUNENA_LIB_TABLE_USERS_ERROR_USER_INVALID', (int) $this->userid));
+			$this->setError(Text::sprintf('COM_KUNENA_LIB_TABLE_USERS_ERROR_USER_INVALID', (int) $this->userid));
 		}
 
 		if ($this->status < 0 || $this->status > 3)
 		{
-			$this->setError(JText::_('COM_KUNENA_UNKNOWN_STATUS'));
+			$this->setError(Text::_('COM_KUNENA_UNKNOWN_STATUS'));
 		}
 
 		if (strlen($this->status) < 0 || strlen($this->status) > 255)
 		{
-			$this->setError(JText::_('COM_KUNENA_STATUS_TOOLONG'));
+			$this->setError(Text::_('COM_KUNENA_STATUS_TOOLONG'));
 		}
 
 		return $this->getError() == '';

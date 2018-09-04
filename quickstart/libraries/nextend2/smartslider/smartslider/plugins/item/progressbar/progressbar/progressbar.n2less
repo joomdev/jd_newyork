@@ -1,0 +1,22 @@
+(~'div#@{sliderid}') {
+  .n2-ss-item-progressbar {
+    width: 100%;
+  }
+
+  .n2-ss-item-progressbar-inner {
+    display: flex;
+    align-items: center;
+  }
+
+  .n2-ss-item-progressbar-counting {
+    margin: 0 10px 0 auto;
+  }
+
+  .n2-ss-item-progressbar-inner .n2-ss-item-progressbar-label {
+    white-space: nowrap;
+    flex: 1 1;
+    overflow: hidden;
+    margin: 0 10px;
+    text-overflow: clip;
+  }
+}

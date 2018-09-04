@@ -36,10 +36,18 @@ class N2ElementImage extends N2ElementText {
         if ($this->fixed) {
 
             $aviary = '';
+            if (N2ImageAviary::init()) {
+                $aviary = '<a id="' . $this->fieldID . '_edit" class="n2-button n2-button-normal n2-button-s n2-button-grey n2-radius-s n2-h6 n2-uc" href="#">' . n2_('Edit') . '</a>';
+            }
+        
             $html .= '<div id="' . $this->fieldID . '_preview" class="n2-form-element-preview n2-form-element-preview-fixed n2-border-radius" style="' . $this->getImageStyle() . '">
                 ' . $aviary . '
             </div><div></div>';
         } else {
+            if (N2ImageAviary::init()) {
+                $html .= '<a id="' . $this->fieldID . '_edit" class="n2-button n2-button-normal n2-button-m n2-radius-s n2-button-grey n2-h5 n2-uc" href="#">' . n2_('Edit') . '</a>';
+            }
+        
         }
 
         return $html;

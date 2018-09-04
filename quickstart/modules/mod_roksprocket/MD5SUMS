@@ -1,8 +1,5 @@
-8a3edb0428f11a404535d9134c90063f index.html
-70ee0f11fa0ce5aef89d506097df3318 language/en-GB/en-GB.mod_roksprocket.ini
-8a3edb0428f11a404535d9134c90063f language/en-GB/index.html
-8a3edb0428f11a404535d9134c90063f language/index.html
-6a461360b55dd50adeb445bec0f93ce1 lib/ModRokSprocket.php
-8a3edb0428f11a404535d9134c90063f lib/index.html
-85517b4e0ae726b8a2846f925c5942b1 mod_roksprocket.php
-c253c1eb25cb77033df0eb8ec1656fa9 mod_roksprocket.xml
+mod_roksprocket.php	64ffcee68c2414daa37c79dcbf89c85b
+mod_roksprocket.xml	3440baf63ae571e28f463a66fdce9ed5
+language/en-GB/en-GB.mod_roksprocket.ini	70ee0f11fa0ce5aef89d506097df3318
+lib/ModRokSprocket.php	13a506ac5c8696dd054f4435a32300a3
+MD5SUMS	d41d8cd98f00b204e9800998ecf8427e

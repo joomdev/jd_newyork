@@ -1,6 +1,8 @@
 <?php
 
 N2Loader::import('libraries.renderable.layers.itemFactory', 'smartslider');
+N2Loader::import('libraries.icons.icons');
+
 
 class N2SSItemButton extends N2SSItemAbstract {
 
@@ -28,11 +30,33 @@ class N2SSItemButton extends N2SSItemAbstract {
         $content = '<div>' . $owner->fill($this->data->get("content")) . '</div>';
 
         $attrs = array();
+        $icon = $this->data->get('icon');
+        if ($icon) {
+            $iconPlacement = $this->data->get('iconplacement', 'left');
+            $iconData      = N2Icons::render($icon);
+            if ($iconData) {
+                $iconStyle = 'font-size:' . $this->data->get('iconsize') . '%;';
+                if ($iconPlacement == 'right') {
+                    $iconStyle .= 'margin-left:' . ($this->data->get('iconspacing') / 100) . 'em;';
+                } else {
+                    $iconStyle .= 'margin-right:' . ($this->data->get('iconspacing') / 100) . 'em;';
+                }
+                $iconHTML = '<i class="n2i ' . $iconData['class'] . '" style="' . $iconStyle . '">' . $iconData['ligature'] . '</i>';
+                if ($iconPlacement == 'right') {
+                    $content = $content . $iconHTML;
+                } else {
+                    $content = $iconHTML . $content;
+                }
+
+                $attrs['data-iconplacement'] = $iconPlacement;
+            }
+        }
+    
 
         $style = $owner->addStyle($this->data->get('style'), 'heading');
 
-        $html  .= $this->getLink('<div>' . $content . '</div>', $attrs + array(
-                "class" => "{$style} n2-ow {$this->data->get('class', '')}"
+        $html .= $this->getLink('<div>' . $content . '</div>', $attrs + array(
+                "class" => "{$style} n2-ow " . $owner->fill($this->data->get('class', ''))
             ), true);
 
         $html .= N2Html::closeTag("div");

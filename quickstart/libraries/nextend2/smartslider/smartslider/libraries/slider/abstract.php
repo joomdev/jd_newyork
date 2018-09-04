@@ -30,11 +30,6 @@ abstract class N2SmartSliderAbstract extends N2SmartSliderRenderableAbstract {
     /** @var  N2Data */
     public $params;
 
-    /**
-     * @var N2SmartSliderFeatures
-     */
-    public $features;
-
     public $disableResponsive = false;
 
     protected $parameters = null;
@@ -50,8 +45,6 @@ abstract class N2SmartSliderAbstract extends N2SmartSliderRenderableAbstract {
      * @var N2SmartSliderSlide[]
      */
     public $slides;
-
-    public $isAdmin = false;
 
     public $firstSlideIndex = 0;
     /**
@@ -77,6 +70,13 @@ abstract class N2SmartSliderAbstract extends N2SmartSliderRenderableAbstract {
     public $isStaticEdited = false;
 
     private $sliderRow = null;
+
+    public $exposeSlideData = array(
+        'title'       => false,
+        'description' => false,
+        'thumbnail'   => false,
+        'thumbnailType' => false
+    );
 
     public function __construct($sliderId, $parameters) {
 
@@ -301,13 +301,37 @@ abstract class N2SmartSliderAbstract extends N2SmartSliderRenderableAbstract {
                 }
             }
 
-            $slider .= $this->sliderType->getScript();
+            $jsInlineMode = N2Settings::get('javascript-inline', 'head');
+            switch ($jsInlineMode) {
+                case 'body':
+                    $slider .= N2Html::script($this->sliderType->getScript());
+                    break;
+                case 'head':
+                default:
+                    N2JS::addInline($this->sliderType->getScript());
+                    break;
+            }
+
 
             $slider .= $this->features->fadeOnLoad->renderPlaceholder($this->assets->sizes);
         }
 
+        $alias = $this->data->get('alias', '');
+        if (intval($this->params->get('alias-id', 0)) && !empty($alias)) {
+            $aliasCode = '<div id="' . $alias . '" style="height:0; line-height:0; min-height:0; margin:0; padding:0;"></div>';
+            if (intval($this->params->get('alias-smoothscroll', 0))) {
+                $speed     = N2SmartSliderSettings::get('smooth-scroll-speed', 400);
+                $aliasCode .= '<script type="text/javascript">jQuery(document).ready(function(){jQuery("a[href=\'#' . $alias . '\']").click(function(){jQuery("html, body").animate({scrollTop:jQuery("#' . $alias . '").offset().top}, ' . $speed . ');});});</script>';
+            }
+            $slider = $aliasCode . $slider;
+        }
+
         if (intval($this->params->get('clear-both', 0))) {
             $slider = '<div class="n2-clear"></div>' . $slider;
+        }
+
+        if (!$this->params->get('optimize-jetpack-photon', 0)) {
+            N2AssetsManager::$image->add($this->images);
         }
 
         return $slider;

@@ -46,6 +46,14 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
         ));
 
         new N2ElementWidgetPosition($settings, 'widget-thumbnail-position', n2_('Position'));
+        new N2ElementRadio($settings, 'widget-thumbnail-action', n2_('Action'), '', array(
+            'rowClass' => 'n2-expert',
+            'options'  => array(
+                'click'      => n2_('Click'),
+                'mouseenter' => n2_('Hover')
+            )
+        ));
+    
 
         new N2ElementRadio($settings, 'widget-thumbnail-align-content', n2_('Align thumbnails'), '', array(
             'options' => array(
@@ -56,6 +64,10 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
                 'space-around'  => n2_('Space around')
             )
         ));
+        new N2ElementOnOff($settings, 'widget-thumbnail-invert-group-direction', n2_('Invert group direction'), '', array(
+            'rowClass' => 'n2-expert'
+        ));
+    
 
         $style = new N2ElementGroup($settings, 'widget-thumbnail-style', n2_('Style'));
 
@@ -144,6 +156,31 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
             'style' => 'width:40px;',
             'unit'  => 'px'
         ));
+        new N2ElementNumber($settings, 'widget-thumbnail-group', n2_('Group'), '', array(
+            'rowClass' => 'n2-expert',
+            'unit'     => n2_('thumbnails per group')
+        ));
+
+        new N2ElementRadio($settings, 'widget-thumbnail-orientation', n2_('Orientation'), '', array(
+            'rowClass' => 'n2-expert',
+            'options'  => array(
+                'auto'       => n2_('Auto'),
+                'horizontal' => n2_('Horizontal'),
+                'vertical'   => n2_('Vertical')
+            )
+        ));
+
+        $size = new N2ElementGroup($settings, 'widget-thumbnail-size', n2_('Size'), array(
+            'rowClass' => 'n2-expert'
+        ));
+
+        new N2elementText($size, 'widget-thumbnail-size', n2_('Width (horizontal) or Height (vertical)'), '', array(
+            'style' => 'width:150px;'
+        ));
+
+        new N2ElementOnOff($size, 'widget-thumbnail-overlay', n2_('Overlay'));
+
+    
     }
 
     public function getPath() {
@@ -178,11 +215,11 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
      * @return string
      */
     public function render($slider, $id, $params) {
-        $showImage       = intval($params->get(self::$key . 'show-image'));
+        $showThumbnail   = intval($params->get(self::$key . 'show-image'));
         $showTitle       = intval($params->get(self::$key . 'title'));
         $showDescription = intval($params->get(self::$key . 'description'));
 
-        if (!$showImage && !$showTitle && !$showDescription) {
+        if (!$showThumbnail && !$showTitle && !$showDescription) {
             // Nothing to show
             return '';
         }
@@ -192,6 +229,15 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
         $slider->addLess(N2Filesystem::translate(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'default' . DIRECTORY_SEPARATOR . 'style.n2less'), array(
             "sliderid" => $slider->elementId
         ));
+
+        $parameters = array(
+            'overlay'               => ($params->get(self::$key . 'position-mode') != 'simple' || $params->get(self::$key . 'overlay')) ? 1 : 0,
+            'area'                  => intval($params->get(self::$key . 'position-area')),
+            'action'                => $params->get(self::$key . 'action'),
+            'minimumThumbnailCount' => max(1, intval($params->get(self::$key . 'minimum-thumbnail-count'))) + 0.5,
+            'group'                 => max(1, intval($params->get(self::$key . 'group'))),
+            'invertGroupDirection'  => intval($params->get('widget-thumbnail-invert-group-direction', 0)),
+        );
 
         list($displayClass, $displayAttributes) = self::getDisplayAttributes($params, self::$key);
         list($style, $attributes) = self::getPosition($params, self::$key);
@@ -205,7 +251,7 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
 
 
         $captionPlacement = $slider->params->get(self::$key . 'caption-placement', 'overlay');
-        if (!$showImage) {
+        if (!$showThumbnail) {
             $captionPlacement = 'before';
         }
 
@@ -213,147 +259,93 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
             $captionPlacement = 'overlay';
         }
 
-        $captionSize = intval($slider->params->get(self::$key . 'caption-size', 100));
+        $parameters['captionSize'] = intval($slider->params->get(self::$key . 'caption-size', 100));
 
 
-        $showCaption = $showTitle || $showDescription;
+        $orientation               = $params->get(self::$key . 'orientation');
+        $orientation               = self::getOrientationByPosition($params->get(self::$key . 'position-mode'), $params->get(self::$key . 'position-area'), $orientation, 'vertical');
+        $parameters['orientation'] = $orientation;
 
-        if ($showCaption) {
-            $captionStyle = $slider->addStyle($params->get(self::$key . 'title-style'), 'simple');
-
-            if ($showTitle) {
-                $titleFont = $slider->addFont($params->get(self::$key . 'title-font'), 'simple');
-            }
-            if ($showDescription) {
-                $descriptionFont = $slider->addFont($params->get(self::$key . 'description-font'), 'simple');
-            }
-        }
-
-        $group = max(1, intval($params->get(self::$key . 'group')));
-
-        $orientation = $params->get(self::$key . 'orientation');
-        $orientation = self::getOrientationByPosition($params->get(self::$key . 'position-mode'), $params->get(self::$key . 'position-area'), $orientation, 'vertical');
-
-        $captionClass      = 'n2-caption-' . $captionPlacement;
         $captionExtraStyle = '';
         switch ($captionPlacement) {
             case 'before':
             case 'after':
                 switch ($orientation) {
                     case 'vertical':
-                        if (!$showImage) {
+                        if (!$showThumbnail) {
                             $width = 0;
                         }
-                        $containerStyle    = "width: " . ($width + $captionSize) . "px; height: {$height}px;";
-                        $captionExtraStyle .= "width: {$captionSize}px";
+                        $containerStyle    = "width: " . ($width + $parameters['captionSize']) . "px; height: {$height}px;";
+                        $captionExtraStyle .= "width: " . $parameters['captionSize'] . "px";
                         break;
                     default:
-                        if (!$showImage) {
+                        if (!$showThumbnail) {
                             $height = 0;
                         }
-                        $containerStyle    = "width: {$width}px; height: " . ($height + $captionSize) . "px;";
-                        $captionExtraStyle .= "height: {$captionSize}px";
+                        $containerStyle    = "width: {$width}px; height: " . ($height + $parameters['captionSize']) . "px;";
+                        $captionExtraStyle .= "height: " . $parameters['captionSize'] . "px";
                 }
                 break;
             default:
-                $containerStyle = "width: {$width}px; height: {$height}px;";
-                $captionSize    = 0;
+                $containerStyle            = "width: {$width}px; height: {$height}px;";
+                $parameters['captionSize'] = 0;
         }
 
-        $image = '';
-        $rows  = array();
-        $i     = 0;
 
-        $thumbnailCSS   = array(
-            'background-size',
-            'background-repeat',
-            'background-position'
-        );
-        $thumbnailStyle = json_decode(n2_base64_decode($params->get('widget-thumbnail-style-slides')));
-        if (!empty($thumbnailStyle) && !empty($thumbnailStyle->data[0]->extra)) {
-            $extraCSS      = $thumbnailStyle->data[0]->extra;
-            $thumbnailCode = '';
-            foreach ($thumbnailCSS AS $css) {
-                $currentCode = self::getStringBetween($extraCSS, $css . ':', ';');
-                if (!empty($currentCode)) {
-                    $thumbnailCode .= $css . ':' . $currentCode . ';';
+        $parameters['slideStyle']     = $slideStyle;
+        $parameters['containerStyle'] = $containerStyle;
+
+        if ($showThumbnail) {
+            $slider->exposeSlideData['thumbnail']     = true;
+            $slider->exposeSlideData['thumbnailType'] = true;
+
+            $thumbnailCSS   = array(
+                'background-size',
+                'background-repeat',
+                'background-position'
+            );
+            $thumbnailStyle = json_decode(n2_base64_decode($params->get('widget-thumbnail-style-slides')));
+            if (!empty($thumbnailStyle) && !empty($thumbnailStyle->data[0]->extra)) {
+                $extraCSS      = $thumbnailStyle->data[0]->extra;
+                $thumbnailCode = '';
+                foreach ($thumbnailCSS AS $css) {
+                    $currentCode = self::getStringBetween($extraCSS, $css . ':', ';');
+                    if (!empty($currentCode)) {
+                        $thumbnailCode .= $css . ':' . $currentCode . ';';
+                    }
                 }
-            }
-        } else {
-            $thumbnailCode = '';
-        }
-
-        $slides = '';
-        foreach ($slider->slides AS $slide) {
-            $active = '';
-            if ($slider->firstSlideIndex == $i) {
-                $active = 'n2-active ';
-            }
-            if ($orientation == 'horizontal') {
-                $row = $i % $group;
             } else {
-                $row = intval($i / $group);
-            }
-            if (!isset($rows[$row])) {
-                $rows[$row] = array();
+                $thumbnailCode = '';
             }
 
-            if ($showImage) {
-                $imgStyle = "width: {$width}px; height: {$height}px;";
-                $image    = N2Html::tag('div', array(
-                    'class' => 'n2-ss-thumb-image n2-ow',
-                    'style' => "background-image: URL('" . $slider->features->optimize->optimizeThumbnail($slide->getThumbnail()) . "');" . $imgStyle . $thumbnailCode
-                ), $slide->getThumbnailTypeHTML());
-            }
-
-            $inner = '';
-
-            if ($showCaption) {
-                $html = '';
-                if ($showTitle) {
-                    $html .= N2Html::tag('div', array(
-                        'class' => $titleFont . ' n2-ow'
-                    ), $slide->getTitle());
-                }
-                $description = $slide->getDescription();
-                if ($showDescription && !empty($description)) {
-                    $html .= N2Html::tag('div', array(
-                        'class' => $descriptionFont . ' n2-ow'
-                    ), N2SmartSlider::addCMSFunctions(N2Translation::_($description)));
-                }
-
-                $inner = N2Html::tag('div', array(
-                    'class' => $captionStyle . 'n2-ss-caption ' . $captionClass . ' n2-ow',
-                    'style' => $captionExtraStyle
-                ), $html);
-            }
-            switch ($captionPlacement) {
-                case 'before':
-                    $inner .= $image;
-                    break;
-                case 'after':
-                default:
-                    $inner = $image . $inner;
-            }
-
-            $slides .= N2Html::tag('div', array(
-                'class'    => $slideStyle . $active . ' n2-ow',
-                'style'    => $containerStyle,
-                'tabindex' => '0'
-            ), $inner);
-            $i++;
+            $parameters['thumbnail'] = array(
+                'width'  => $width,
+                'height' => $height,
+                'code'   => $thumbnailCode
+            );
         }
 
-        $parameters = array(
-            'overlay'               => $params->get(self::$key . 'position-mode') != 'simple' || $params->get(self::$key . 'overlay'),
-            'area'                  => intval($params->get(self::$key . 'position-area')),
-            'orientation'           => $orientation,
-            'group'                 => $group,
-            'action'                => $params->get(self::$key . 'action'),
-            'captionSize'           => intval($captionSize),
-            'minimumThumbnailCount' => max(1, intval($params->get(self::$key . 'minimum-thumbnail-count'))) + 0.5,
-            'invertGroupDirection'  => intval($params->get('widget-thumbnail-invert-group-direction', 0))
-        );
+        if ($showTitle || $showDescription) {
+            $parameters['caption'] = array(
+                'styleClass' => $slider->addStyle($params->get(self::$key . 'title-style'), 'simple'),
+                'placement'  => $captionPlacement,
+                'style'      => $captionExtraStyle
+            );
+        }
+
+        if ($showTitle) {
+            $slider->exposeSlideData['title'] = true;
+            $parameters['title']              = array(
+                'font' => $slider->addFont($params->get(self::$key . 'title-font'), 'simple'),
+            );
+        }
+
+        if ($showDescription) {
+            $slider->exposeSlideData['description'] = true;
+            $parameters['description']              = array(
+                'font' => $slider->addFont($params->get(self::$key . 'description-font'), 'simple')
+            );
+        }
 
         $slider->features->addInitCallback('new N2Classes.SmartSliderWidgetThumbnailDefault(this, ' . json_encode($parameters) . ');');
 
@@ -403,7 +395,7 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
                 'class' => 'nextend-thumbnail-inner n2-ow'
             ), N2Html::tag('div', array(
                 'class' => $barStyle . 'nextend-thumbnail-scroller n2-ow n2-align-content-' . $params->get('widget-thumbnail-align-content') . ($params->get('widget-thumbnail-invert-group-direction', 0) ? ' nextend-thumbnail-invert-group-dir' : ''),
-            ), $slides)));
+            ), '')));
     }
 
     public function prepareExport($export, $params) {
@@ -428,3 +420,74 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
 }
 
 N2SmartSliderWidgets::addWidget('thumbnail', new N2SSPluginWidgetThumbnailDefault);
+class N2SSPluginWidgetThumbnailDefaultHorizontal extends N2SSPluginWidgetThumbnailDefault {
+
+    protected $name = 'defaultHorizontal';
+
+    public function getDefaults() {
+        return array_merge(parent::getDefaults(), array(
+            'widget-thumbnail-style-bar'         => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMjQyNDI0ZmYiLCJwYWRkaW5nIjoiMHwqfDB8KnwwfCp8MHwqfHB4IiwiYm94c2hhZG93IjoiMHwqfDB8KnwwfCp8MHwqfDAwMDAwMGZmIiwiYm9yZGVyIjoiMHwqfHNvbGlkfCp8MDAwMDAwZmYiLCJib3JkZXJyYWRpdXMiOiIwIiwiZXh0cmEiOiIifV19',
+            'widget-thumbnail-style-slides'      => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwMDAiLCJwYWRkaW5nIjoiMHwqfDB8KnwwfCp8MHwqfHB4IiwiYm94c2hhZG93IjoiMHwqfDB8KnwwfCp8MHwqfDAwMDAwMGZmIiwiYm9yZGVyIjoiMHwqfHNvbGlkfCp8ZmZmZmZmMDAiLCJib3JkZXJyYWRpdXMiOiIwIiwiZXh0cmEiOiJvcGFjaXR5OiAwLjQ7XG50cmFuc2l0aW9uOiBhbGwgMC40cztcbmJhY2tncm91bmQtc2l6ZTogY292ZXI7In0seyJib3JkZXIiOiIwfCp8c29saWR8KnxmZmZmZmZjYyIsImV4dHJhIjoib3BhY2l0eTogMTsifV19',
+            'widget-thumbnail-title-style'       => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwMDAiLCJwYWRkaW5nIjoiM3wqfDEwfCp8M3wqfDEwfCp8cHgiLCJib3hzaGFkb3ciOiIwfCp8MHwqfDB8KnwwfCp8MDAwMDAwZmYiLCJib3JkZXIiOiIwfCp8c29saWR8KnwwMDAwMDBmZiIsImJvcmRlcnJhZGl1cyI6IjAiLCJleHRyYSI6ImJvdHRvbTogMDtcbmxlZnQ6IDA7In1dfQ==',
+            'widget-thumbnail-title'             => 1,
+            'widget-thumbnail-title'             => 1,
+            'widget-thumbnail-title-font'        => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siY29sb3IiOiJmZmZmZmZmZiIsInNpemUiOiIxNHx8cHgiLCJ0c2hhZG93IjoiMHwqfDB8KnwwfCp8MDAwMDAwYWIiLCJhZm9udCI6Ik1vbnRzZXJyYXQiLCJsaW5laGVpZ2h0IjoiMS40IiwiYm9sZCI6MCwiaXRhbGljIjowLCJ1bmRlcmxpbmUiOjAsImFsaWduIjoibGVmdCJ9LHsiY29sb3IiOiJmYzI4MjhmZiIsImFmb250IjoiZ29vZ2xlKEBpbXBvcnQgdXJsKGh0dHA6Ly9mb250cy5nb29nbGVhcGlzLmNvbS9jc3M/ZmFtaWx5PVJhbGV3YXkpOyksQXJpYWwiLCJzaXplIjoiMjV8fHB4In0se31dfQ==',
+            'widget-thumbnail-description'       => 1,
+            'widget-thumbnail-caption-placement' => 'after'
+        ));
+    }
+}
+
+N2SmartSliderWidgets::addWidget('thumbnail', new N2SSPluginWidgetThumbnailDefaultHorizontal);
+
+class N2SSPluginWidgetThumbnailDefaultHorizontalGallery extends N2SSPluginWidgetThumbnailDefault {
+
+    protected $name = 'defaultHorizontalGallery';
+
+    public function getDefaults() {
+        return array_merge(parent::getDefaults(), array(
+            'widget-thumbnail-title' => 0,
+            'widget-thumbnail-group' => 3
+        ));
+    }
+}
+
+N2SmartSliderWidgets::addWidget('thumbnail', new N2SSPluginWidgetThumbnailDefaultHorizontalGallery);
+
+class N2SSPluginWidgetThumbnailDefaultVertical extends N2SSPluginWidgetThumbnailDefault {
+
+    protected $name = 'defaultVertical';
+
+    public function getDefaults() {
+        return array_merge(parent::getDefaults(), array(
+            'widget-thumbnail-position-area' => 5,
+            'widget-thumbnail-title'         => 1,
+        ));
+    }
+}
+
+N2SmartSliderWidgets::addWidget('thumbnail', new N2SSPluginWidgetThumbnailDefaultVertical);
+
+class N2SSPluginWidgetThumbnailDefaultVerticalText extends N2SSPluginWidgetThumbnailDefault {
+
+    protected $name = 'defaultVerticalText';
+
+    public function getDefaults() {
+        return array_merge(parent::getDefaults(), array(
+            'widget-thumbnail-position-area'     => 5,
+            'widget-thumbnail-style-slides'      => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwMDAiLCJwYWRkaW5nIjoiMHwqfDB8KnwwfCp8MHwqfHB4IiwiYm94c2hhZG93IjoiMHwqfDB8KnwwfCp8MHwqfDAwMDAwMGZmIiwiYm9yZGVyIjoiMHwqfHNvbGlkfCp8ZmZmZmZmMDAiLCJib3JkZXJyYWRpdXMiOiIwIiwiZXh0cmEiOiJiYWNrZ3JvdW5kLXNpemU6IGNvdmVyO1xubWFyZ2luOiAxMHB4IDA7XG5vcGFjaXR5OiAwLjY7XG4ifSx7ImJhY2tncm91bmRjb2xvciI6IjAwMDAwMDAwIiwiZXh0cmEiOiJiYWNrZ3JvdW5kLXNpemU6IGNvdmVyO1xubWFyZ2luOiAxMHB4IDA7XG5vcGFjaXR5OiAxO1xuIn1dfQ==',
+            'widget-thumbnail-title-style'       => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwMDAiLCJwYWRkaW5nIjoiM3wqfDEwfCp8M3wqfDEwfCp8cHgiLCJib3hzaGFkb3ciOiIwfCp8MHwqfDB8KnwwfCp8MDAwMDAwZmYiLCJib3JkZXIiOiIwfCp8c29saWR8KnwwMDAwMDBmZiIsImJvcmRlcnJhZGl1cyI6IjAiLCJleHRyYSI6ImJvdHRvbTogMDtcbmxlZnQ6IDA7In1dfQ==',
+            'widget-thumbnail-title'             => 1,
+            'widget-thumbnail-title-font'        => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siY29sb3IiOiJmZmZmZmZlNiIsInNpemUiOiIxNHx8cHgiLCJ0c2hhZG93IjoiMHwqfDB8KnwwfCp8MDAwMDAwYWIiLCJhZm9udCI6Ik1vbnRzZXJyYXQiLCJsaW5laGVpZ2h0IjoiMS44IiwiYm9sZCI6MCwiaXRhbGljIjowLCJ1bmRlcmxpbmUiOjAsImFsaWduIjoibGVmdCIsImV4dHJhIjoiIn0seyJjb2xvciI6ImZjMjgyOGZmIiwiYWZvbnQiOiJnb29nbGUoQGltcG9ydCB1cmwoaHR0cDovL2ZvbnRzLmdvb2dsZWFwaXMuY29tL2Nzcz9mYW1pbHk9UmFsZXdheSk7KSxBcmlhbCIsInNpemUiOiIyNXx8cHgifSx7fV19',
+            'widget-thumbnail-description'       => 1,
+            'widget-thumbnail-description-font'  => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siY29sb3IiOiJmZmZmZmY3ZCIsInNpemUiOiIxMnx8cHgiLCJ0c2hhZG93IjoiMHwqfDB8KnwwfCp8MDAwMDAwYWIiLCJhZm9udCI6Ik1vbnRzZXJyYXQiLCJsaW5laGVpZ2h0IjoiMS4zIiwiYm9sZCI6MCwiaXRhbGljIjowLCJ1bmRlcmxpbmUiOjAsImFsaWduIjoibGVmdCJ9LHsiY29sb3IiOiJmYzI4MjhmZiIsImFmb250IjoiZ29vZ2xlKEBpbXBvcnQgdXJsKGh0dHA6Ly9mb250cy5nb29nbGVhcGlzLmNvbS9jc3M/ZmFtaWx5PVJhbGV3YXkpOyksQXJpYWwiLCJzaXplIjoiMjV8fHB4In0se31dfQ==',
+            'widget-thumbnail-caption-size'      => 200,
+            'widget-thumbnail-show-image'        => 0,
+            'widget-thumbnail-width'             => 100,
+            'widget-thumbnail-height'            => 60,
+            'widget-thumbnail-caption-placement' => 'after'
+        ));
+    }
+}
+
+N2SmartSliderWidgets::addWidget('thumbnail', new N2SSPluginWidgetThumbnailDefaultVerticalText);

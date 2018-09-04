@@ -2,7 +2,7 @@
 /**
  * @version   $Id: rokpad.php 16824 2013-12-12 03:04:52Z djamil $
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2015 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2018 RocketTheme, LLC
  * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only
  */
 defined('_JEXEC') or die;
@@ -20,7 +20,7 @@ class plgEditorRokPad extends JPlugin
 	/**
 	 * @var string
 	 */
-	protected $_version = '2.1.9';
+	protected $_version = '2.1.10';
 	/**
 	 * @var string
 	 */

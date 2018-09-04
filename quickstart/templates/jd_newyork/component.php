@@ -1,8 +1,8 @@
 <?php
 /**
- * @package Helix3 Framework
- * @author JoomShaper http://www.joomshaper.com
- * @copyright Copyright (c) 2010 - 2015 JoomShaper
+ * JD NewYork @package Helix3 Framework
+ * @author JoomDev https://www.joomdev.com
+ * @copyright Copyright (C) 2008 - 2018 JoomDev
  * @license http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 or later
 */
 //no direct accees

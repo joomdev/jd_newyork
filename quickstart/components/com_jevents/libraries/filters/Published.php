@@ -4,7 +4,7 @@
  *
  * @version     $Id: Published.php 3549 2012-04-20 09:26:21Z geraintedwards $
  * @package     JEvents
- * @copyright   Copyright (C) 2008-2017 GWE Systems Ltd
+ * @copyright   Copyright (C) 2008-2018 GWE Systems Ltd
  * @license     GNU/GPLv2, see http://www.gnu.org/licenses/gpl-2.0.html
  * @link        http://www.jevents.net
  */
@@ -58,7 +58,7 @@ class jevPublishedFilter extends jevFilter
 		// The default is only to show published events
 		if ($this->filter_value==0) return "ev.state=1";	
 		
-		// only show published events to non-logged in users
+		// Only show published events to non-logged in users
 		$user = JFactory::getUser();
 		if ($user->get('id')==0){
 			return "ev.state=1";
