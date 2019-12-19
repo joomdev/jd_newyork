@@ -1,20 +1,22 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
 ?><div class="iframedoc" id="iframedoc"></div>
 <form action="<?php echo hikashop_completeLink('discount'); ?>" method="post" name="adminForm" id="adminForm">
 
-<div class="hk-row">
-	<div class="hkc-md-5"><?php
-		echo $this->searchType->display('search', $this->pageInfo->search);
-	?></div>
-	<div class="hkc-md-7"><?php
+<div class="hk-row-fluid">
+	<div class="hkc-xs-6">
+<?php
+	echo $this->loadHkLayout('search', array());
+?>
+	</div>
+	<div class="hkc-xs-6 hikashop_listing_filters"><?php
 		echo $this->filter_type->display('filter_type', $this->pageInfo->filter->filter_type);
 	?></div>
 </div>
@@ -87,7 +89,7 @@ defined('_JEXEC') or die('Restricted access');
 <?php } ?>
 <?php
 	if(!empty($row->discount_code))
-		echo $this->escape($row->discount_code);
+		echo $row->discount_code;
 	else
 		echo '<em>'.JText::_('HIKA_NONE').'</em>';
 ?>
@@ -138,8 +140,8 @@ defined('_JEXEC') or die('Restricted access');
 		if(!empty($row->discount_zone_id)) {
 			$restrictions[] = '<strong>'.JText::_('ZONE').'</strong>:'.$row->discount_zone_id;
 		}
-		if(!empty($row->username)) {
-			$restrictions[] = '<strong>'.JText::_('HIKA_USER').'</strong>:'.$row->username;
+		if(!empty($row->discount_user_id)) {
+			$restrictions[] = '<strong>'.JText::_('HIKA_USER').'</strong>:'.$row->discount_user_id;
 		}
 
 

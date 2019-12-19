@@ -17,8 +17,6 @@ defined('_JEXEC') or die( 'Direct Access to '.basename(__FILE__).' is not allowe
 * @link https://virtuemart.net
 */
 
-
-defined('DS') or define('DS', DIRECTORY_SEPARATOR);
 if (!class_exists( 'VmConfig' )) require(JPATH_ROOT .'/administrator/components/com_virtuemart/helpers/config.php');
 
 VmConfig::loadConfig();
@@ -104,15 +102,11 @@ if(empty($products)) return false;
 
 $productModel->addImages($products);
 
-if (!class_exists('shopFunctionsF'))
-	require(JPATH_VM_SITE . DS . 'helpers' . DS . 'shopfunctionsf.php');
 shopFunctionsF::sortLoadProductCustomsStockInd($products,$productModel);
 if(empty($products)) return false;
 
 $totalProd = 		count( $products);
 
-if (!class_exists('CurrencyDisplay'))
-	require(VMPATH_ADMIN . DS . 'helpers' . DS . 'currencydisplay.php');
 $currency = CurrencyDisplay::getInstance( );
 
 ob_start();

@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -143,9 +143,14 @@ class UserViewUser extends hikashopView {
 			$fieldsClass->addJS($null,$null,$null);
 			$fieldsClass->jsToggle($fields['user'],$user,0);
 
-			$addresses = $this->addressClass->getByUser($user_id);
-			if(!empty($addresses)) {
-				 $this->addressClass->loadZone($addresses,'name','backend');
+			$addresses['billing'] = $this->addressClass->loadUserAddresses($user_id, 'billing');
+			if(!empty($addresses['billing'])) {
+				$this->addressClass->loadZone($addresses['billing'],'name','backend');
+				$fields['address'] =&  $this->addressClass->fields;
+			}
+			$addresses['shipping'] = $this->addressClass->loadUserAddresses($user_id, 'shipping');
+			if(!empty($addresses['shipping'])) {
+				$this->addressClass->loadZone($addresses['shipping'],'name','backend');
 				$fields['address'] =&  $this->addressClass->fields;
 			}
 
@@ -184,21 +189,15 @@ class UserViewUser extends hikashopView {
 		$affiliate_active = false;
 		$this->assignRef('affiliate_active', $affiliate_active);
 
-		if(!HIKASHOP_J16) {
-			$url_link = JRoute::_('index.php?option=com_users&task=edit&cid[]='.$user->user_cms_id );
-			$email_link = hikashop_completeLink('order&task=mail&user_id='.$user_id,true);
-		} else {
-			$url_link = JRoute::_('index.php?option=com_users&task=user.edit&id='.$user->user_cms_id );
-			$email_link = hikashop_completeLink('order&task=mail&user_id='.$user_id,true);
-		}
+		$url_link = JRoute::_('index.php?option=com_users&task=user.edit&id='.$user->user_cms_id );
+		$email_link = 'index.php?option=com_hikashop&ctrl=order&task=mail&tmpl=component&user_id='.$user_id;
 		$history_link = empty($this->user->user_email) ? '' : hikashop_completeLink('email_history&search='.$this->user->user_email);
 
 		$this->toolbar = array(
 			array('name' => 'link', 'icon' => 'upload', 'alt' => JText::_('JOOMLA_USER_OPTIONS'), 'url' => $url_link,'display'=>!empty($user->user_cms_id)),
 			array('name' => 'popup', 'icon' => 'send', 'alt' => JText::_('HIKA_EMAIL'), 'url' => $email_link,'display'=>!empty($user_id)),
 			array('name' => 'link', 'icon' => 'send', 'alt' => JText::_('EMAIL_HISTORY'), 'url' => $history_link,'display'=>!empty($user_id) && hikashop_level(2)),
-			'save',
-			'apply',
+			array('name' => 'group', 'buttons' => array( 'apply', 'save')),
 			'cancel',
 			'|',
 			array('name' => 'pophelp', 'target' => $this->ctrl.'-form')
@@ -208,7 +207,7 @@ class UserViewUser extends hikashopView {
 function updateCustomFeesPanel(active) {
 	var el = document.getElementById("custom_fees_panel");
 	if(!el) return;
-	el.style.display = (active == 1) ? "" : "none";;
+	el.style.display = (active == 1) ? "" : "none";
 }
 ';
 		$doc = JFactory::getDocument();
@@ -220,6 +219,7 @@ function updateCustomFeesPanel(active) {
 			$order_info = '&order_id=' . $order_id;
 		}
 
+		hikashop_loadJslib('tooltip');
 		hikashop_setTitle(JText::_($this->nameForm), $this->icon, $this->ctrl.'&task='.$task.'&user_id='.$user_id.$order_info);
 	}
 
@@ -230,12 +230,19 @@ function updateCustomFeesPanel(active) {
 		if(!empty($address_id)){
 			$class=hikashop_get('class.address');
 			$address = $class->get($address_id);
+		}else{
+			$type = hikaInput::get()->getCmd('type');
+			if(in_array($type, array('billing', '', 'both','shipping')))
+				$address->address_type = $type;
 		}
 		$extraFields=array();
 		$fieldsClass = hikashop_get('class.field');
 		$this->assignRef('fieldsClass',$fieldsClass);
 		$fieldsClass->skipAddressName=true;
-		$extraFields['address'] = $fieldsClass->getFields('backend',$address,'address','user&task=state');
+		$field_type = 'address';
+		if(!empty($address->address_type))
+			$field_type = $address->address_type.'_'.$field_type;
+		$extraFields['address'] = $fieldsClass->getFields('backend',$address,$field_type,'user&task=state');
 		$this->assignRef('extraFields',$extraFields);
 		$this->assignRef('user_id',$user_id);
 		$this->assignRef('address',$address);
@@ -273,8 +280,16 @@ function updateCustomFeesPanel(active) {
 		if(empty($field_type))
 			$field_type = 'address';
 
+		$id = hikaInput::get()->getInt('state_field_id', 0);
+		$field_options = '';
+		if($id){
+			$class = hikashop_get('class.field');
+			$field = $class->get($id);
+			$field_options = $field->field_options;
+		}
+
 		$class = hikashop_get('type.country');
-		echo $class->displayStateDropDown($namekey, $field_id, $field_namekey, $field_type);
+		echo $class->displayStateDropDown($namekey, $field_id, $field_namekey, $field_type, '', $field_options);
 
 		exit;
 	}
@@ -325,7 +340,7 @@ function updateCustomFeesPanel(active) {
 		);
 
 		if(!empty($users)) {
-			JArrayHelper::toInteger($users);
+			hikashop_toInteger($users);
 			$db = JFactory::getDBO();
 			$query = 'SELECT a.*, b.* FROM '.hikashop_table('user').' AS a LEFT JOIN '.hikashop_table('users', false).' AS b ON a.user_cms_id = b.id WHERE a.user_id IN ('.implode(',',$users).')';
 			$db->setQuery($query);

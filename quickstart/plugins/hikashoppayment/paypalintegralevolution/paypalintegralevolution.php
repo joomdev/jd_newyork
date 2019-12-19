@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -156,10 +156,15 @@ class plgHikashoppaymentPaypalintegralevolution extends hikashopPaymentPlugin {
 		$vars = array();
 		$data = array();
 		$filter = JFilterInput::getInstance();
+		$app = JFactory::getApplication();
 		foreach ($_REQUEST as $key => $value) {
 			$key = $filter->clean($key);
 			if (preg_match('#^[0-9a-z_-]{1,30}$#i', $key) && !preg_match('#^cmd$#i', $key)) {
-				$value = JRequest::getString($key);
+				if(!HIKASHOP_J30) {
+					$value = JRequest::getString($key);
+				} else {
+					$value = $app->input->getString($key);
+				}
 				$vars[$key] = $value;
 				$data[] = $key . '=' . urlencode($value);
 			}

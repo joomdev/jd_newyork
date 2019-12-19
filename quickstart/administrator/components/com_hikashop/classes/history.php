@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -26,7 +26,9 @@ class hikashopHistoryClass extends hikashopClass
 		$history = new stdClass();
 		$history->history_order_id = (int)$order->order_id;
 		$history->history_created = time();
-		$history->history_ip = hikashop_getIP();
+		$config = hikashop_config();
+		if($config->get('history_ip', 1))
+			$history->history_ip = hikashop_getIP();
 		$history->history_user_id = hikashop_loadUser();
 
 		if (!empty($order->order_status)) {
@@ -59,13 +61,13 @@ class hikashopHistoryClass extends hikashopClass
 			$elements = array($elements);
 		}
 
-		JArrayHelper::toInteger($elements);
+		hikashop_toInteger($elements);
 
 		$query = 'DELETE FROM ' . hikashop_table('history') . ' WHERE history_order_id IN (' . implode(',', $elements) . ')';
 
 		$db = JFactory::getDBO();
 		$db->setQuery($query);
-		$db->query();
+		$db->execute();
 
 		return true;
 	}

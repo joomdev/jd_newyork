@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -69,7 +69,7 @@ class hikashopCartHelper {
 		}
 		if(empty($this->config))
 			$this->config = hikashop_config();
-		return $this->config->get('product_quantity_display', 'show_default');
+		return $this->config->get('product_quantity_display', 'show_default_div');
 	}
 
 	public function displayButton($name, $map, &$params, $url = '', $ajax = '', $options = '', $max_quantity = 0, $min_quantity = 1, $classname = '', $inc = true) {
@@ -122,7 +122,7 @@ class hikashopCartHelper {
 						$type = 'button';
 					}
 					$app = JFactory::getApplication();
-					if($app->isAdmin()){
+					if(hikashop_isClient('administrator')){
 						$class = 'btn';
 					}else{
 						$class = HK_GRID_BTN;
@@ -360,6 +360,14 @@ function hikashopModifyQuantity(id,obj,add,form,type,moduleid){
 		}
 		var url = "'.$baseUrl.'from=module&product_id="+id+"&cart_type="+cart_type+"&hikashop_ajax=1&quantity="+qty+addStr+"'.$url_itemid.$addTo.'&return_url='.urlencode(base64_encode(urldecode($url))).'";
 		var completeFct = function(result) {
+			var resp = Oby.evalJSON(result);
+			var cart_id = (resp && (resp.ret || resp.ret === 0)) ? resp.ret : parseInt(result);
+			if(isNaN(cart_id))
+				return;
+			var triggers = window.Oby.fireAjax(cart_type+\'.updated\', {id: cart_id, el: el, product_id: id, type: cart_type, resp: resp});
+			if(triggers !== false && triggers.length > 0)
+				return true;
+
 			var hikaModule = false;
 			var checkmodule = false;
 			if(result == "notLogged"){ // if the customer is not logged and use add to wishlist, display a popup for the notice
@@ -450,6 +458,14 @@ function hikashopModifyQuantity(id,obj,add,form,type,moduleid){
 	}else{
 		var url = "'.$baseUrl.'from=module&product_id="+id+"&cart_type="+cart_type+"&hikashop_ajax=1&quantity="+qty+addStr+"'.$url_itemid.$addTo.'&return_url='.urlencode(base64_encode(urldecode($url))).'";
 		var completeFct = function(result) {
+			var resp = Oby.evalJSON(result);
+			var cart_id = (resp && (resp.ret || resp.ret === 0)) ? resp.ret : parseInt(result);
+			if(isNaN(cart_id))
+				return;
+			var triggers = window.Oby.fireAjax(cart_type+\'.updated\', {id: cart_id, el: el, product_id: id, type: cart_type, resp: resp});
+			if(triggers !== false && triggers.length > 0)
+				return true;
+
 			var hikaModule = false;
 			var checkmodule = false;
 			if(result == "notLogged"){

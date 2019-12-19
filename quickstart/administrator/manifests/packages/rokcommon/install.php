@@ -17,7 +17,7 @@ class Pkg_RokcommonInstallerScript
         ),
         'Joomla!' => array (
             '2.5' => '2.5.0',
-            '0' => '3.8.8' // Preferred version
+            '0' => '3.9.3' // Preferred version
         )
     );
     /**
@@ -77,6 +77,8 @@ class Pkg_RokcommonInstallerScript
 
     public function postflight($type, $parent)
     {
+        $this->removeOldLibrary();
+
         // Clear Joomla system cache.
         /** @var JCache|JCacheController $cache */
         $cache = JFactory::getCache();
@@ -106,6 +108,23 @@ class Pkg_RokcommonInstallerScript
     }
 
     // Internal functions
+
+    protected function removeOldLibrary()
+    {
+        $name = 'lib_rokcommon';
+
+        // Joomla 3.9 does not like libraries with prefix, because of this library manifest file was renamed.
+        $db = JFactory::getDbo();
+        $query = $db->getQuery(true);
+        $query->delete('#__extensions')->where("{$db->quoteName('element')}={$db->quote($name)}");
+        $db->setQuery($query);
+        $db->execute();
+
+        $filename = JPATH_ADMINISTRATOR . "/manifests/libraries/{$name}.xml";
+        if (file_exists($filename)) {
+            JFile::delete($filename);
+        }
+    }
 
     protected function prepareExtensions($manifest, $state = 1)
     {

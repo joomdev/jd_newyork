@@ -1,4 +1,11 @@
 <?php
+N2Localization::addJS(array(
+    'Group',
+    'Add to group',
+    'Move',
+    'Copy',
+));
+
 $slidersModel = new N2SmartsliderSlidersModel();
 
 if ($groupID > 0) {
@@ -102,22 +109,10 @@ $router = N2Base::getApplication('smartslider')
                 'class'       => 'n2-button n2-button-normal n2-button-m n2-radius-s n2-button-plain n2-h4'
             ));
         
-            $bulkActions .= N2Html::link(n2_('Add to group'), '#', array(
-                'data-action' => 'addToGroup',
-                'class'       => 'n2-button n2-button-normal n2-button-m n2-radius-s n2-button-plain n2-h4'
-            ));
-        
 
             echo N2HTML::tag('div', array(
                 'class' => 'n2-bulk-actions n2-ss-bulk-controls'
             ), $bulkActions);
-            if ($groupID == 0) {
-                echo N2Html::link(n2_('Create group'), '#', array(
-                    'id'    => 'n2-ss-create-group',
-                    'class' => 'n2-button n2-button-normal n2-button-m n2-radius-s n2-button-plain n2-h4 n2-right'
-                ));
-            }
-        
             ?>
         </div>
 
@@ -152,6 +147,15 @@ $router = N2Base::getApplication('smartslider')
         foreach ($sliders AS $sliderObj) {
             echo N2SmartsliderSlidersModel::box($sliderObj, $appType);
         }
+        if (!N2Base::getApplication('smartslider')->storage->get('free', 'promoUpgrade')) {
+            echo N2Html::tag('div', array(
+                'class' => 'n2-box n2-box-promo n2-box-promo-dark'
+            ), '<img src="' . N2ImageHelper::fixed('$ss$/admin/images/free/why-upgrade.png') . '" /><a href="' . $appType->router->createUrl(array(
+                    'sliders/hidePromoUpgrade',
+                    N2Form::tokenizeUrl()
+                )) . '" class="n2-close"></a><a class="n2-box-promo-overlay" href="' . N2SS3::getWhyProUrl(array('utm_source' => 'dashboard-why-upgrade')) . '" target="_blank"><div style="margin-top: 24px;margin-bottom: 70px;font-size: 16px;">' . n2_('Why upgrade to PRO?') . '</div><div class="n2-button n2-button-normal n2-button-s n2-radius-s n2-uc n2-h5" style="color: #0c92df;background: #fff;line-height: 32px;height: 32px;font-weight: bold;">' . n2_('See all features') . '</div></a></div>');
+        }
+    
         ?>
 
     </div>
@@ -163,9 +167,6 @@ $router = N2Base::getApplication('smartslider')
             <ul>
                 <li class="n2-ss-preview"><?php n2_e("Preview"); ?></li>
                 <?php ?>
-                <li class="n2-ss-add-to-group"><?php n2_e("Add to group"); ?></li>
-                <li class="n2-ss-remove-from-group"><?php n2_e("Remove from group"); ?></li>
-            <?php  ?>
                 <li class="n2-ss-duplicate"><?php n2_e("Duplicate"); ?></li>
                 <li class="n2-ss-delete"><?php n2_e("Delete"); ?></li>
             </ul>

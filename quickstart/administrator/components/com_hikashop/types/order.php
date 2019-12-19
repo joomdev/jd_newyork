@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -63,7 +63,7 @@ class hikashopOrderType {
 
 	}
 
-	function display($map, $value, $type, $options = 'class="inputbox" size="1"', $inherit = true) {
+	function display($map, $value, $type, $options = 'class="custom-select" size="1"', $inherit = true) {
 		$this->load($type, $value, $inherit);
 		return JHTML::_('select.genericlist', $this->values, $map, $options, 'value', 'text', $value);
 	}

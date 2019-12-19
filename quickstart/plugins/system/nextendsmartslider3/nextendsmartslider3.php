@@ -11,7 +11,7 @@ class plgSystemNextendSmartslider3 extends JPlugin {
         $application = JFactory::getApplication();
         if ($application->isSite()) {
             $request = $application->input->request;
-            if ($application->get('frontediting', 1) && !JFactory::getUser()->guest && $request->get('option') == 'com_content' && $request->get('view') == 'form' && $request->get('layout') == 'edit') {
+            if ($application->get('frontediting', 1) && !JFactory::getUser()->guest && $request->get('option') == 'com_content' && $request->get('view') == 'form' && $request->get('layout') == 'edit' && $application->input->getInt('a_id') > 0) {
                 return;
             }
 
@@ -24,12 +24,11 @@ class plgSystemNextendSmartslider3 extends JPlugin {
                 }
 
                 $bodyParts = explode('</head>', $body);
-
-                if (isset($bodyParts[0])) {
-                    $bodyParts[1] = preg_replace_callback('/smartslider3\[([0-9]+)\]/', 'plgSystemNextendSmartslider3::prepare', $bodyParts[1]);
-                } else {
-                    $bodyParts[0] = preg_replace_callback('/smartslider3\[([0-9]+)\]/', 'plgSystemNextendSmartslider3::prepare', $bodyParts[0]);
-                }
+                /**
+                 * Last part is not the head
+                 */
+                $lastPart             = count($bodyParts) - 1;
+                $bodyParts[$lastPart] = preg_replace_callback('/smartslider3\[([0-9]+)\]/', 'plgSystemNextendSmartslider3::prepare', $bodyParts[$lastPart]);
 
                 $application->setBody(implode('</head>', $bodyParts));
             }

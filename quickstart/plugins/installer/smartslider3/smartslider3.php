@@ -9,12 +9,8 @@ class plgInstallerSmartslider3 extends JPlugin {
             jimport("nextend2.nextend.joomla.library");
             N2Base::getApplication("smartslider")
                   ->getApplicationType('backend');
-            N2Loader::import(array(
-                'models.License',
-                'models.Update'
-            ), 'smartslider');
-            $license  = N2SmartsliderLicenseModel::getInstance();
-            $isActive = $license->isActive() == 'OK';
+            $isActive = true;
+        
 
             if (!$isActive) {
                 JFactory::getApplication()

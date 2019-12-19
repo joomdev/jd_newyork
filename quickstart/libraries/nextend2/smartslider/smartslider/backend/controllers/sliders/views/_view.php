@@ -1,6 +1,12 @@
 <?php
 N2Localization::addJS(array(
     'Smart Slider 3 activated!',
+    'Create group',
+    'Group name',
+    'Group',
+    'Add to group',
+    'Move',
+    'Copy',
 ));
 
 class N2SmartsliderBackendSlidersView extends N2ViewBase {
@@ -49,32 +55,6 @@ class N2SmartsliderBackendSlidersView extends N2ViewBase {
                 </script>
             <?php
         }
-        $licenseModel = N2SmartsliderLicenseModel::getInstance();
-        $class1       = '';
-        $class2       = '';
-        if ($licenseModel->hasKey()) {
-            $class1 = ' n2-ss-license-has-active-key ';
-        } else {
-            $class2 = ' n2-ss-license-no-active-key ';
-        }
-
-
-        $buttons .= N2Html::tag('a', array(
-            'data-label' => n2_('Add license'),
-            'href'       => '#',
-            'id'         => 'n2-ss-add-license',
-            'class'      => 'n2-box-add-license ' . $class1,
-            'onclick'    => "N2Classes.License.get().addLicense();return false;"
-        ), N2Html::tag('i', array('class' => 'n2-i n2-i-a-license')));
-
-        $buttons .= N2Html::tag('a', array(
-            'data-label' => n2_('Deauthorize license'),
-            'href'       => $app->router->createUrl(array('license/deauthorize')),
-            'id'         => 'n2-ss-deauthorize-license',
-            'class'      => 'n2-box-license-activated ' . $class2
-        ), N2Html::tag('i', array('class' => 'n2-i n2-i-a-deauthorize')));
-
-    
     
 
 

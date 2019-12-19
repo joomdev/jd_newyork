@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension type="package" version="2.5.5" method="upgrade">
+	<name>DJ-Events Package</name>
+	<packagename>dj-events</packagename>
+	<creationDate>May 2019</creationDate>
+	<author>DJ-Extensions.com</author>
+	<copyright>Copyright (C) 2019 DJ-Extensions.com, All rights reserved.</copyright>
+	<license>http://www.gnu.org/licenses GNU/GPL</license>
+	<authorEmail>contact@dj-extensions.com</authorEmail>
+	<authorUrl>http://dj-extensions.com</authorUrl>
+	<version>1.1.1</version>
+	<url>http://dj-extensions.com</url>
+	<packager></packager>
+	<packagerurl></packagerurl>
+	<description><![CDATA[
+		<style type="text/css">
+			.djex-info { padding: 20px 30px 10px; margin: 0 0 20px 0; background: #97c625; color: #fff; border: 1px solid #88b221; font-family: Arial, Helvetica, sans-serif; font-size: 13px; font-weight: normal; -webkit-border-radius: 4px; border-radius: 4px; }
+			.djex-title { text-transform: uppercase; font-weight: bold; font-size: 14px; }
+			.djex-info a:link, .djex-info a:visited, .djex-info a:hover { color:#fff; text-decoration:underline; font-weight: 600; }	
+			.djex-info img { float: left; margin: 0 30px 10px 0; }
+		</style>
+		<div class="djex-info">
+			<img src="components/com_djevents/assets/ex_events.png" alt="" />
+			<p class="djex-title">Thank you for installing DJ-Events!</p>
+			<p>The DJ-Events extension is great alternative for listing events on your website. It's very intuitive and easy to use for you and your users!
+			If you want to learn how to use DJ-Events please read <a target="_blank" href="http://dj-extensions.com/documentation">Documentation</a> and visit our <a target="_blank" href="http://dj-extensions.com/faq">FAQ Section</a></p>
+			<p>Check out our other extensions at <a target="_blank" href="http://dj-extensions.com">DJ-Extensions.com</a></p>
+		</div>
+		]]></description>
+	<files>
+		<file type="module" client="site" id="mod_djevents_search">mod_djevents_search.zip</file>
+		<file type="module" client="site" id="mod_djevents_calendar">mod_djevents_calendar.zip</file>
+		<file type="module" client="site" id="mod_djevents_tags">mod_djevents_tags.zip</file>
+		<file type="module" client="site" id="mod_djevents_items">mod_djevents_items.zip</file>
+		<file type="module" client="site" id="mod_djevents_map">mod_djevents_map.zip</file>
+		<file type="component" client="admin" id="com_djevents">com_djevents.zip</file>
+	</files>
+	<updateservers>
+		<server type="extension" priority="1" name="DJ-Events Package">http://dj-extensions.com/updates/djevents.xml</server>
+	</updateservers>
+</extension>

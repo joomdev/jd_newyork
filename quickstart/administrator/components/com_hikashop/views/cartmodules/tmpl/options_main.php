@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -23,7 +23,7 @@ $dropdown_style = (empty($this->element['small_cart']) || (int)$this->element['s
 					1 => JHTML::_('select.option', 1, JText::_('JYES')),
 					0 => JHTML::_('select.option', 0, JText::_('JNO')),
 					2 => JHTML::_('select.option', 2, JText::_('HIKA_CART_DROPDOWN')),
-					2 => JHTML::_('select.option', 3, JText::_('HIKA_CART_DROPDOWN_HOVER')),
+					3 => JHTML::_('select.option', 3, JText::_('HIKA_CART_DROPDOWN_HOVER')),
 				);
 				echo JHTML::_('hikaselect.radiolist', $values, $this->name.'[small_cart]', 'data-control="mini_cart"', 'value', 'text', (int)@$this->element['small_cart']);
 			?></dd>
@@ -80,10 +80,34 @@ $dropdown_style = (empty($this->element['small_cart']) || (int)$this->element['s
 		</dl>
 		<dl class="hika_options">
 			<dt class="hikashop_option_name"><?php
+				echo hikashop_hktooltip(JText::_('HIKA_CART_PAYMENT_DESC'), '', JText::_('HIKASHOP_CHECKOUT_PAYMENT'), '', 0);
+			?></dt>
+			<dd class="hikashop_option_value"><?php
+				echo JHTML::_('hikaselect.booleanlist', $this->name.'[show_payment]', '', @$this->element['show_payment']);
+			?></dd>
+		</dl>
+		<dl class="hika_options">
+			<dt class="hikashop_option_name"><?php
 				echo hikashop_hktooltip(JText::_('HIKA_CART_SHIPPING_DESC'), '', JText::_('HIKASHOP_CHECKOUT_SHIPPING'), '', 0);
 			?></dt>
 			<dd class="hikashop_option_value"><?php
 				echo JHTML::_('hikaselect.booleanlist', $this->name.'[show_shipping]', '', @$this->element['show_shipping']);
+			?></dd>
+		</dl>
+		<dl class="hika_options">
+			<dt class="hikashop_option_name"><?php
+				echo hikashop_hktooltip(JText::_('HIKA_CART_TAXES_DESC'), '', JText::_('TAXES'), '', 0);
+			?></dt>
+			<dd class="hikashop_option_value"><?php
+				echo JHTML::_('hikaselect.booleanlist', $this->name.'[show_taxes]', '', @$this->element['show_taxes']);
+			?></dd>
+		</dl>
+		<dl class="hika_options">
+			<dt class="hikashop_option_name"><?php
+				echo hikashop_hktooltip(JText::sprintf('HIKA_PRINT_BUTTON_DESC', $this->type), '', JText::_('HIKA_PRINT_BUTTON'), '', 0);
+			?></dt>
+			<dd class="hikashop_option_value"><?php
+				echo JHTML::_('hikaselect.booleanlist', $this->name.'[print_cart]', '', @$this->element['print_cart']);
 			?></dd>
 		</dl>
 		<dl class="hika_options">

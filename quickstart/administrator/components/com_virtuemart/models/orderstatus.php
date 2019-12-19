@@ -14,14 +14,11 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: orderstatus.php 9420 2017-01-12 09:35:36Z Milbo $
+ * @version $Id: orderstatus.php 10176 2019-10-14 13:08:12Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
-
-
-if(!class_exists('VmModel'))require(VMPATH_ADMIN.DS.'helpers'.DS.'vmmodel.php');
 
 /**
  * Model class for the order status
@@ -75,7 +72,7 @@ class VirtueMartModelOrderstatus extends VmModel {
 	 * @param char $_code Order status code
 	 * @return string The name of the order status
 	 */
-	public function getOrderStatusNames ($published = true) {
+	static public function getOrderStatusNames ($published = true) {
 		static $orderStatusNames=0;
 		if(empty($orderStatusNames)){
 			if($published){
@@ -83,17 +80,16 @@ class VirtueMartModelOrderstatus extends VmModel {
 			} else {
 				$published = '';
 			}
-			$q = 'SELECT `order_status_name`,`order_status_code` FROM `#__virtuemart_orderstates` '.$published.'order by `ordering` ';
+			$q = 'SELECT `order_status_name`,`order_status_code`,`order_stock_handle` FROM `#__virtuemart_orderstates` '.$published.' order by `ordering` ';
 			$db = JFactory::getDBO();
 			$db->setQuery($q);
 			$orderStatusNames = $db->loadAssocList('order_status_code');
 		}
 
 		return $orderStatusNames;
-
 	}
 
-	function renderOSList($value,$name = 'order_status',$multiple=FALSE,$attrs='',$langkey=''){
+	function renderOSList($value,$name = 'order_status',$multiple=FALSE,$attrs='',$langkey='',$empty=true){
 
 		$idA = $id = $name;
  		$attrs .= ' class="inputbox" ';
@@ -115,8 +111,11 @@ class VirtueMartModelOrderstatus extends VmModel {
 		$hash = md5($hashValue.$name.$attrs);
 		if (!isset($this->_renderStatusList[$hash])) {
 			$orderStates = $this->getOrderStatusNames();
-			$emptyOption = JHtml::_ ('select.option', -1, vmText::_ ($langkey), 'order_status_code', 'order_status_name');
-			array_unshift ($orderStates, $emptyOption);
+			if($empty){
+				$emptyOption = JHtml::_ ('select.option', -1, vmText::_ ($langkey), 'order_status_code', 'order_status_name');
+				array_unshift ($orderStates, $emptyOption);
+			}
+
 			if ($multiple) {
 				$attrs .=' size="'.count($orderStates).'" ';
 			}

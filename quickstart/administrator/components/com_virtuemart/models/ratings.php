@@ -13,15 +13,11 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: ratings.php 9500 2017-04-11 19:50:26Z Milbo $
+* @version $Id: ratings.php 10176 2019-10-14 13:08:12Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
-
-if (!class_exists ('VmModel')){
-	require(VMPATH_ADMIN . DS . 'helpers' . DS . 'vmmodel.php');
-}
 
 /**
  * Model for VirtueMart Products
@@ -344,11 +340,15 @@ class VirtueMartModelRatings extends VmModel {
 			$user = JFactory::getUser();
 			$userId = $user->id;
     	}
-		$q = 'SELECT * FROM `#__virtuemart_rating_votes` WHERE `virtuemart_product_id` = "'.(int)$product_id.'" AND `created_by` = "'.(int)$userId.'" ';
-		$db = JFactory::getDBO();
-		$db->setQuery($q);
-		return $db->loadObject();
 
+		if(!empty($userId)){
+			$q = 'SELECT * FROM `#__virtuemart_rating_votes` WHERE `virtuemart_product_id` = "'.(int)$product_id.'" AND `created_by` = "'.(int)$userId.'" ';
+			$db = JFactory::getDBO();
+			$db->setQuery($q);
+			return $db->loadObject();
+		} else {
+			return false;
+		}
     }
 
 	function getAverageVotesByProductId($prId){
@@ -359,10 +359,14 @@ class VirtueMartModelRatings extends VmModel {
 	}
 
 	function getVoteById($id){
-		$q = 'SELECT * FROM `#__virtuemart_rating_votes` WHERE `virtuemart_rating_vote_id` = "'.(int)$id.'"  ';
-		$db = JFactory::getDBO();
-		$db->setQuery($q);
-		return $db->loadObject();
+		if(!empty($userId)){
+			$q = 'SELECT * FROM `#__virtuemart_rating_votes` WHERE `virtuemart_rating_vote_id` = "'.(int)$id.'"  ';
+			$db = JFactory::getDBO();
+			$db->setQuery($q);
+			return $db->loadObject();
+		} else {
+			return false;
+		}
 	}
 
     /**
@@ -423,9 +427,6 @@ class VirtueMartModelRatings extends VmModel {
 				$data['vote'] = $maxrating;
 			}
 
-			if (!class_exists ('ShopFunctions')){
-				require(VMPATH_ADMIN . DS . 'helpers' . DS . 'shopfunctions.php');
-			}
 			$data['lastip'] = ShopFunctions::getClientIP();
 
 			$maskIP = VmConfig::get('maskIP','last');
@@ -499,14 +500,13 @@ class VirtueMartModelRatings extends VmModel {
 
 		if($allowReview and !empty($data['comment'])){
 			//if(!empty($data['comment'])){
-			$data['comment'] = substr($data['comment'], 0, VmConfig::get('vm_reviews_maximum_comment_length', 2000)) ;
 
-			// no HTML TAGS but permit all alphabet
-			$value =	preg_replace('@<[\/\!]*?[^<>]*?>@si','',$data['comment']);//remove all html tags
-			$value =	(string)preg_replace('#on[a-z](.+?)\)#si','',$value);//replace start of script onclick() onload()...
-			$value = trim(str_replace('"', ' ', $value),"'") ;
-			$data['comment'] =	(string)preg_replace('#^\'#si','',$value);//replace ' at start
-			$data['comment'] = nl2br($data['comment']);  // keep returns
+			$data['comment'] = vRequest::filter($data['comment'],FILTER_SANITIZE_STRING, array());
+			$data['comment'] = ShopfunctionsF::vmSubstr($data['comment'], 0, VmConfig::get('reviews_maximum_comment_length', 2000)) ;
+			$data['comment'] = nl2br($data['comment']);
+
+
+
 			//set to defaut value not used (prevent hack)
 			$data['review_ok'] = 0;
 			$data['review_rating'] = 0;
@@ -658,9 +658,6 @@ class VirtueMartModelRatings extends VmModel {
 							return $this->_productBought[$product_id];
 						}
 
-						if(!class_exists('vmCrypt')){
-							require(VMPATH_ADMIN.DS.'helpers'.DS.'vmcrypt.php');
-						}
 						$key = vmCrypt::encrypt('productBought'.$product_id);
 						$count = JFactory::getApplication()->input->cookie->getString($key, false);
 						if($count){

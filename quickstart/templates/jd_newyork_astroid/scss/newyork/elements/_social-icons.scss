@@ -1,0 +1,23 @@
+$social-icon-box-size: 40px;
+$social-icon-font-size: 20px;
+$social-icon-color: #fff;
+$social-icon-gap: 5px;
+
+.astroid-social-icons {
+   li {
+      margin: 0 $social-icon-gap;
+      a {
+         font-size: $social-icon-font-size;
+         text-align: center;
+         display: inline-block;
+         color: $social-icon-color;
+         border: 1px solid $social-icon-color;
+         width: $social-icon-box-size;
+         height: $social-icon-box-size;
+         line-height: $social-icon-box-size;
+         border-radius: $social-icon-box-size;
+         -webkit-transition: background-color .3s;
+         transition: background-color .3s;
+      }
+   }
+}

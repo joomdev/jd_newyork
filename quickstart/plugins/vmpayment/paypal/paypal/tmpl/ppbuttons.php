@@ -38,7 +38,7 @@ class vmPPButton {
 	 * @return string
 	 */
 
-    static function renderCheckoutButton($method){
+    static function renderCheckoutButton($method, $env = 'production'){
 
 		$link = JURI::root() . 'index.php?option=com_virtuemart&view=plugin&type=vmpayment&name=' . $method->payment_element . '&action=SetExpressCheckout&pm=' . $method->virtuemart_paymentmethod_id;
 
@@ -57,9 +57,80 @@ class vmPPButton {
 			$text = vmText::_('VMPAYMENT_PAYPAL_EXPCHECKOUT_BUTTON');
         }
 
-		$html = '<a href="'.$link.'" title="'.$text.'" >
+		//vmdebug('renderCheckoutButton',$method);
+		$locale = str_replace('-','_',VmLanguage::$jSelLangTag);
+
+		if(!empty($method->enable_smart_buttons)){
+
+			$colorOption = 'color: \''.$method->smbt_color.'\'';
+			$fundingIco= '';
+			$funding= '';
+			if($method->smbt_label=='credit'){
+				$colorOption = '';
+				//$fundingIco = 'fundingicons: \'true\'';
+				//As example for now
+				$funding= 'funding: {
+ allowed: [ paypal.FUNDING.CREDIT ]/*,
+ disallowed: [ paypal.FUNDING.CREDIT ]*/
+},';	//*/
+			}
+			vmJsApi::addJScript('https://www.paypalobjects.com/api/checkout.js',false, false, false, false, '');
+			$j = 'jQuery().ready(
+function($) {
+    paypal.Button.render({
+      env: \''.$env.'\', // Or \'sandbox\',
+      locale: \''.$locale.'\',
+      style: {
+			size: \''.$method->smbt_size.'\',
+			tagline: \'true\',
+			shape: \''.$method->smbt_shape.'\',
+			label: \''.$method->smbt_label.'\',
+			'.$colorOption.'
+			'.$fundingIco.'
+	  },
+	  '.$funding.'
+      payment: function (data, actions) {
+			return paypal.request.get(paypalLink.getAttribute(\'href\'), {
+				headers: {
+				\'Accept\': \'application/paypal-json-token\',
+				}
+		  })
+		  .then( function (response) {
+			 if (!response || !response.token) {
+				throw new Error(\'There was an error fetching the PayPal SmBtn  token\');
+			 }
+			 return response.token;
+		  })
+		  .catch( function (err) {
+			 throw err;
+		  });
+        },
+        onAuthorize: function (data, actions) {
+          return actions.redirect();
+        },
+        onCancel: function (data, actions) {
+          return actions.redirect();
+        },
+        onError: function (error) {
+          // You will want to handle this differently
+          return alert(error);
+        }
+    }, \'#paypal-button\');
+});
+    
+jQuery("#paypalLink").hide();
+
+';
+			vmJsApi::addJScript('PayPal-smbt',$j, true);
+
+			$html = '<a id="paypalLink" href="'.$link.'" title="'.$text.'" ></a>';
+			$html .= '<div id="paypal-button"></div>';
+		} else {
+			$html = '<a id="paypalLink" href="'.$link.'" title="'.$text.'" >
     <img class="'.$class.'" src="'.$img.'" align="left" alt="'.$text.'" title="'.$text.'" >
 </a>';
+		}
+
 		return $html;
     }
 

@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -14,9 +14,9 @@ $link = hikashop_contentLink('product&task=show&cid=' . (int)$this->row->product
 $haveLink = (int)$this->params->get('link_to_product_page', 1);
 
 if(!empty($this->row->extraData->top)) { echo implode("\r\n",$this->row->extraData->top); }
-
 ?>
 <div class="hikashop_listing_img" id="div_<?php echo $mainDivName . '_' . $this->row->product_id; ?>">
+	<meta itemprop="name" content="<?php echo $this->escape(strip_tags($this->row->product_name)); ?>"/>
 	<!-- PRODUCT IMG -->
 	<div class="hikashop_product_image">
 		<div class="hikashop_product_image_subdiv">
@@ -30,7 +30,19 @@ if(!empty($this->row->extraData->top)) { echo implode("\r\n",$this->row->extraDa
 		array('default' => true, 'forcesize' => $this->config->get('image_force_size', true), 'scale' => $this->config->get('image_scale_mode', 'inside'))
 	);
 	if($img->success) {
-		echo '<img class="hikashop_product_listing_image" title="'.$this->escape(@$this->row->file_description).'" alt="'.$this->escape(@$this->row->file_name).'" src="'.$img->url.'"/>';
+		$html = '<img class="hikashop_product_listing_image" title="'.$this->escape(@$this->row->file_description).'" alt="'.$this->escape(@$this->row->file_name).'" src="'.$img->url.'"/>';
+		if($this->config->get('add_webp_images', 1) && function_exists('imagewebp') && !empty($img->webpurl)) {
+			$html = '
+			<picture>
+				<source srcset="'.$img->webpurl.'" type="image/webp">
+				<source srcset="'.$img->url.'" type="image/'.$img->ext.'">
+				'.$html.'
+			</picture>
+			';
+		}
+		echo $html;
+?>		<meta itemprop="image" content=<?php echo $img->url; ?>/>
+<?php
 	}
 
 	if($this->params->get('display_badges', 1)) {
@@ -40,6 +52,7 @@ if(!empty($this->row->extraData->top)) { echo implode("\r\n",$this->row->extraDa
 <?php if($haveLink) { ?>
 			</a>
 <?php } ?>
+			<meta itemprop="url" content="<?php echo $link; ?>">
 		</div>
 	</div>
 	<!-- EO PRODUCT IMG -->
@@ -86,7 +99,7 @@ if(!empty($this->productFields)) {
 
 	<!-- PRODUCT VOTE -->
 <?php
-if($this->params->get('show_vote_product')) {
+if($this->params->get('show_vote')) {
 	$this->setLayout('listing_vote');
 	echo $this->loadTemplate();
 }
@@ -96,26 +109,8 @@ if($this->params->get('show_vote_product')) {
 	<!-- ADD TO CART BUTTON AREA -->
 <?php
 if($this->params->get('add_to_cart') || $this->params->get('add_to_wishlist')) {
-?>
-	<form action="<?php echo hikashop_completeLink('product&task=updatecart'); ?>" method="post" name="hikashop_product_form_<?php echo $this->row->product_id.'_'.$this->params->get('main_div_name'); ?>"><?php
-	$this->ajax='';
-	if(!$this->config->get('ajax_add_to_cart',0)) {
-		$this->ajax = 'return hikashopModifyQuantity(\''.$this->row->product_id.'\',field,1,\'hikashop_product_form_'.$this->row->product_id.'_'.$this->params->get('main_div_name').'\',\'cart\');';
-	}
-	$this->setLayout('quantity');
+	$this->setLayout('add_to_cart_listing');
 	echo $this->loadTemplate();
-
-	if(!empty($this->ajax) && $this->config->get('redirect_url_after_add_cart','stay_if_cart') == 'ask_user') {
-?>
-		<input type="hidden" name="popup" value="1"/>
-<?php } ?>
-		<input type="hidden" name="product_id" value="<?php echo $this->row->product_id; ?>" />
-		<input type="hidden" name="add" value="1"/>
-		<input type="hidden" name="ctrl" value="product"/>
-		<input type="hidden" name="task" value="updatecart"/>
-		<input type="hidden" name="return_url" value="<?php echo urlencode(base64_encode(urldecode($this->redirect_url))); ?>"/>
-	</form>
-<?php
 }
 ?>
 	<!-- EO ADD TO CART BUTTON AREA -->
@@ -142,12 +137,43 @@ if(hikaInput::get()->getVar('hikashop_front_end_main', 0) && hikaInput::get()->g
 }
 ?>
 	<!-- EO COMPARISON AREA -->
+
+	<!-- CONTACT US AREA -->
+<?php
+	$contact = (int)$this->config->get('product_contact', 0);
+	if(hikashop_level(1) && $this->params->get('product_contact_button', 0) && ($contact == 2 || ($contact == 1 && !empty($this->row->product_contact)))) {
+		$css_button = $this->config->get('css_button', 'hikabtn');
+?>
+	<a href="<?php echo hikashop_completeLink('product&task=contact&cid=' . (int)$this->row->product_id . $this->itemid); ?>" class="<?php echo $css_button; ?>"><?php
+		echo JText::_('CONTACT_US_FOR_INFO');
+	?></a>
+<?php
+	}
+?>
+
+	<!-- EO CONTACT US AREA -->
+
+	<!-- PRODUCT DETAILS BUTTON AREA -->
+<?php
+	$details_button = (int)$this->params->get('details_button', 0);
+	if($details_button) {
+		$css_button = $this->config->get('css_button', 'hikabtn');
+?>
+	<a href="<?php echo $link; ?>" class="<?php echo $css_button; ?>"><?php
+		echo JText::_('PRODUCT_DETAILS');
+	?></a>
+<?php
+	}
+?>
+
+	<!-- EO PRODUCT DETAILS BUTTON AREA -->
 </div>
 <?php
 
 if(!empty($this->row->extraData->bottom)) { echo implode("\r\n",$this->row->extraData->bottom); }
 
-if($this->rows[0]->product_id == $this->row->product_id) {
+$firstRow = reset($this->rows);
+if($firstRow->product_id == $this->row->product_id) {
 	$css = '';
 	if((int)$this->image->main_thumbnail_y>0){
 		$css .= '

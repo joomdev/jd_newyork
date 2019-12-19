@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -105,7 +105,7 @@ class plgHikashoppaymentEway extends hikashopPaymentPlugin
 				$history = new stdClass();
 				$history->notified=0;
 				$history->amount= round($order->cart->full_total->prices[0]->price_value_with_tax,2) . $this->currency->currency_code;
-				$history->data = '';
+				$history->data = 'Transaction number: '. $eway->getTrxnNumber();
 
 				$this->modifyOrder($order, $this->payment_params->verified_status, $history, true);
 				break;

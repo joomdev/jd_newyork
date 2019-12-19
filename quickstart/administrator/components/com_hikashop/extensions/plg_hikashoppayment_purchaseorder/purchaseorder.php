@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -31,11 +31,34 @@ class plgHikashoppaymentPurchaseorder extends hikashopPaymentPlugin
 
 		if($usable_method && $usable_method->payment_type == 'purchaseorder' && empty($_SESSION['hikashop_purchase_order_number'])) {
 			$app = JFactory::getApplication();
-			$app->enqueueMessage(JText::_('PLEASE_ENTER_A_PURCHASE_ORDER_NUMBER'));
+			$app->enqueueMessage(JText::_('PLEASE_ENTER_A_PURCHASE_ORDER_NUMBER'), 'error');
 			return false;
 		}
 
 		return $usable_method;
+	}
+
+	public function onAfterOrderProductsListingDisplay(&$order, $type) {
+		if(empty($order->order_id))
+			return;
+
+		if($order->order_payment_method != 'purchaseorder')
+			return;
+
+		$order_payment_params = $order->order_payment_params;
+		if(!empty($order_payment_params) && is_string($order_payment_params))
+			$order_payment_params = hikashop_unserialize($order_payment_params);
+		if(isset($order_payment_params->purchase_order)) {
+			echo JText::_('PURCHASE_ORDER_NUMBER') . $order_payment_params->purchase_order;
+			return;
+		}
+
+		$db = JFactory::getDBO();
+		$query = 'SELECT history_data FROM '.hikashop_table('history').
+			' WHERE history_order_id = '.(int)$order->order_id . ' AND history_type IN (\'\', '.$db->Quote('purchase order').') AND history_data != \'\' '.
+			' ORDER BY history_created ASC';
+		$db->setQuery($query);
+		echo $db->loadResult();
 	}
 
 	public function onBeforeOrderCreate(&$order, &$do) {
@@ -54,14 +77,21 @@ class plgHikashoppaymentPurchaseorder extends hikashopPaymentPlugin
 			$order->order_payment_params = new stdClass();
 		$order->order_payment_params->purchase_order = @$_SESSION['hikashop_purchase_order_number'];
 
-		$this->modifyOrder($order, $this->payment_params->order_status, $history, false);
+		$status = null;
+		if(!$this->payment_params->status_notif_email)
+			$status = $this->payment_params->order_status;
+		$this->modifyOrder($order, $status, $history, false);
 	}
 
 	public function onAfterOrderConfirm(&$order, &$methods, $method_id) {
-		$method =& $methods[$method_id];
+		parent::onAfterOrderConfirm($order, $methods, $method_id);
+
+		if($order->order_status != $this->payment_params->order_status)
+			$this->modifyOrder($order->order_id, $this->payment_params->order_status, (bool)@$this->payment_params->status_notif_email, false);
+
 		$this->removeCart = true;
 
-		$this->information = $method->payment_params->information;
+		$this->information = $this->payment->payment_params->information;
 		if(preg_match('#^[a-z0-9_]*$#i', $this->information)) {
 			$this->information = JText::_($this->information);
 		}

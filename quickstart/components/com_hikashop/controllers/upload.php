@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -37,8 +37,8 @@ class uploadController extends hikashopController {
 		if(!empty($controllerName)) {
 			if(substr($controllerName, 0, 4) == 'plg.') {
 				JPluginHelper::importPlugin('hikashop');
-				$dispatcher = JDispatcher::getInstance();
-				$dispatcher->trigger('onUploadControllerGet', array($controllerName, &$this->base_controller));
+				$app = JFactory::getApplication();
+				$app->triggerEvent('onUploadControllerGet', array($controllerName, &$this->base_controller));
 			} else
 				$this->base_controller = hikashop_get('controller.'.$controllerName, array(), true);
 
@@ -154,6 +154,7 @@ class uploadController extends hikashopController {
 				$js = '';
 
 				if($type == 'image') {
+					$imageHelper->autoRotate($file->file_path);
 					$img = $imageHelper->getThumbnail($file->file_path, array(100, 100), array('default' => true));
 					$r->thumbnail_url = $img->url;
 
@@ -288,11 +289,7 @@ class uploadController extends hikashopController {
 	}
 
 	public function upload() {
-		if(!HIKASHOP_J25) {
-			JRequest::checkToken() || die('Invalid Token');
-		} else {
-			JSession::checkToken() || die('Invalid Token');
-		}
+		JSession::checkToken() || die('Invalid Token');
 		$this->initController();
 
 		$config = hikashop_config();
@@ -371,6 +368,7 @@ class uploadController extends hikashopController {
 
 				}
 
+				$imageHelper->autoRotate($file->file_path);
 				$img = $imageHelper->getThumbnail($file->file_path, array(100, 100), array('default' => true));
 				$ret->thumbnail_url = $img->url;
 
@@ -432,7 +430,7 @@ class uploadController extends hikashopController {
 		$options['upload_url'] = ltrim(JPath::clean(html_entity_decode($options['upload_dir'])),DS);
 		$options['upload_url'] = str_replace(DS,'/',rtrim($options['upload_url'],DS).DS);
 		$app = JFactory::getApplication();
-		if($app->isAdmin()) {
+		if(hikashop_isClient('administrator')) {
 			$options['upload_url'] = '../'.$options['upload_url'];
 		} else {
 			$options['upload_url'] = rtrim(JURI::base(true),'/').'/'.$options['upload_url'];

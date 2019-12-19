@@ -1,8 +1,8 @@
 /**
  * @package    HikaShop for Joomla!
- * @version    3.2.1
+ * @version    4.2.2
  * @author     hikashop.com
- * @copyright  (C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright  (C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 (function() {
@@ -225,6 +225,8 @@ var Oby = {
 			target = d;
 		var typelist = ['input','select','textarea'];
 		for(var t in typelist) {
+			if(!typelist.hasOwnProperty(t))
+				continue;
 			t = typelist[t];
 			var inputs = target.getElementsByTagName(t);
 			for(var i = 0; i < inputs.length; i++) {
@@ -253,6 +255,7 @@ var Oby = {
 				if( (etype != 'file' && etype != 'submit') && evalue != null ) {
 					//if( ret != '' ) ret += '&';
 					//ret += encodeURI(inputs[i].name) + '=' + encodeURIComponent(evalue);
+
 					if(ret.hasOwnProperty(n)) {
 						if(typeof(ret[n]) != 'object')
 							ret[n] = [ ret[n] ];
@@ -276,6 +279,8 @@ var Oby = {
 			v = data[k];
 			if(typeof(v) == 'object') {
 				for(var i in v) {
+					if(!v.hasOwnProperty(i))
+						continue;
 					if( ret != '' ) ret += '&';
 					ret += encodeURI(k) + '=' + encodeURIComponent(v[i]);
 				}
@@ -361,7 +366,10 @@ if((typeof(window.Oby) == 'undefined') || window.Oby.version < Oby.version) {
 var oldHikaShop = window.hikashop || hikashop;
 
 var hikashop = {
+	translations: {},
+	translations_url: null,
 	submitFct: null,
+	filterRefreshTimer: false,
 	submitBox: function(data) {
 		var t = this, d = document, w = window;
 		if( t.submitFct ) {
@@ -406,6 +414,7 @@ var hikashop = {
 				elem.innerHTML = elem.innerHTML.replace(new RegExp('%7B'+k+'%7D','g'), extraData[k]);
 			}
 		}
+		return elem;
 	},
 	deleteRow: function(id) {
 		var t = this, d = document, el = id;
@@ -512,6 +521,7 @@ var hikashop = {
 			if (e != checkbox && e.type == checkbox.type && ((stub && e.id.indexOf(stub) == 0) || !stub)) {
 				e.checked = checkbox.checked;
 				o.fireEvent(e, 'change');
+				o.fireEvent(e, 'click');
 				c += (e.checked == true ? 1 : 0);
 			}
 		}
@@ -610,11 +620,13 @@ var hikashop = {
 	openBox_vex: function(elem, url) {
 		if(typeof(vex) == "undefined")
 			return false;
+		var href = elem.href || null;
 		if(url !== undefined && url !== null)
-			elem.href = url;
+			href = url;
+		if(!href) href = elem.getAttribute('href');
 		settings = window.Oby.evalJSON(elem.getAttribute('data-vex'));
-		if(settings.x && settings.y && elem.href) {
-			settings.content = '<iframe style="border:0;margin:0;padding:0;" name="hikashop_popup_iframe" width="'+settings.x+'px" height="'+settings.y+'px" src="'+elem.href+'"></iframe>';
+		if(settings.x && settings.y && href) {
+			settings.content = '<iframe style="border:0;margin:0;padding:0;" name="hikashop_popup_iframe" width="'+settings.x+'px" height="'+settings.y+'px" src="'+href+'"></iframe>';
 			settings.afterOpen = function(context) { context.width(settings.x + 'px'); };
 		}
 		vex.defaultOptions.className = 'vex-theme-default';
@@ -795,7 +807,7 @@ var hikashop = {
 		return false;
 	},
 	dlTitle: function(parent) {
-		var t = this, d = document;
+		var t = this, d = document, w = window;
 		if(parent && typeof(parent) == 'string')
 			parent = d.getElementById(parent);
 		if(!parent)
@@ -803,6 +815,16 @@ var hikashop = {
 		var dt = parent.getElementsByTagName('dt'), val = null,
 			hkTip = (typeof(hkjQuery) != "undefined" && hkjQuery().hktooltip);
 		for(var i = 0; i < dt.length; i++) {
+			if(dt[i].offsetWidth === 0) {
+				dt[i].dlTitleFct = function(evt){
+					t.dlTitle(this.parentNode);
+					if(hkTip)
+						hkjQuery(this).hktooltip('show');
+					this.removeEventListener('mouseover', this.dlTitleFct);
+					this.dlTitleFct = null;
+				};
+				dt[i].addEventListener('mouseover', dt[i].dlTitleFct);
+			}
 			if(dt[i].offsetWidth < dt[i].scrollWidth && !dt[i].getAttribute('title')) {
 				val = (dt[i].innerText !== undefined) ? dt[i].innerText : dt[i].textContent;
 
@@ -832,7 +854,8 @@ var hikashop = {
 				elems = parents[i].querySelectorAll(s);
 			if(!elems || !elems.length)
 				continue;
-			this.setConsistencyHeight(elems, 'min');
+			if(this.setConsistencyHeight(elems, 'min') === false)
+				continue;
 			parents[i].setAttribute('data-consistencyheight-done', s);
 			parents[i].removeAttribute('data-consistencyheight');
 		}
@@ -846,8 +869,11 @@ var hikashop = {
 				h = parseFloat( w.getComputedStyle(elems[i], '').getPropertyValue('height') );
 				h = Math.ceil(h);
 			} catch(e) {
-				h = (elems[i].currentStyle ? elems[i].currentStyle.height : 0) || elems[i].clientHeight;
+				h = NaN;
 			}
+			if(isNaN(h))
+				h = (elems[i].currentStyle ? elems[i].currentStyle.height : elems[i].clientHeight);
+
 			if(maxHeight > 0 && h < maxHeight) {
 				cpt++;
 			} else if(h > maxHeight) {
@@ -855,6 +881,9 @@ var hikashop = {
 				cpt++;
 			}
 		}
+		if(maxHeight <= 0)
+			return false;
+
 		if(cpt <= 1)
 			return;
 		for(var i = elems.length - 1; i >= 0; i--) {
@@ -863,6 +892,155 @@ var hikashop = {
 			else
 				elems[i].style.height = maxHeight + 'px';
 		}
+	},
+	refreshFilters: function (el, skipSelf) {
+		var d = document, t = this, o = window.Oby,
+		container = null, data = null, containerName = el.getAttribute('data-container-div');
+
+		if(containerName)
+			container = d.forms[containerName];
+
+		if(!container)
+			return false;
+
+		var url = container.getAttribute('action');
+		var scrollToTop = container.getAttribute('data-scroll');
+
+		// delay timer to avoid too many ajax calls
+		if(t.filterRefreshTimer !== false) clearTimeout(t.filterRefreshTimer);
+		t.filterRefreshTimer = setTimeout(function() {
+
+			data = o.getFormData(container);
+			data += '&tmpl=raw';
+			o.xRequest(url, {mode:'POST', data: data}, function(xhr) {
+				var resp = o.evalJSON(xhr.responseText);
+
+				if(resp.newURL) {
+					var urlInHistory = resp.newURL.replace('tmpl=raw&', '', 'g').replace('filter=1&', '', 'g').replace('&tmpl=raw', '', 'g').replace('&filter=1', '', 'g');
+					window.history.pushState(data, d.title, urlInHistory);
+
+					window.addEventListener('popstate', function(e) {
+						if(window.location.href.includes('hikashop_url_reload=1')) {
+							window.location.href.replace('&hikashop_url_reload=1','').reload();
+						}
+					});
+				}
+
+				var refreshAreas = document.querySelectorAll('.filter_refresh_div');
+
+				var triggers = o.fireAjax('filters.update', {el: el, refreshAreas : refreshAreas, resp: resp});
+				if(triggers !== false && triggers.length > 0)
+					return true;
+
+				var refreshUrl = null;
+				t.refreshCounter = 0;
+				for(let i = 0; i < refreshAreas.length; i++) {
+					var currentArea = refreshAreas[i];
+					if(skipSelf && currentArea.querySelector('#'+el.id))
+						continue;
+
+					if(resp.newURL && currentArea.getAttribute('data-use-url')) {
+						refreshUrl = resp.newURL;
+					} else {
+						refreshUrl = currentArea.getAttribute('data-refresh-url');
+						if(resp.params) {
+							refreshUrl += '&' + resp.params + '&return_url=' + encodeURIComponent(window.location.href);
+						}
+					}
+					if(!refreshUrl)
+						continue;
+					t.refreshCounter++;
+					var className = currentArea.getAttribute('data-refresh-class');
+					if(className) o.addClass(currentArea, className);
+					t.refreshOneArea(refreshUrl, currentArea, el, refreshAreas, resp);
+				}
+
+				if(scrollToTop) {
+					window.hikashop.smoothScroll();
+				}
+			});
+			t.filterRefreshTimer = false;
+		}, 300);
+		return false;
+	},
+	smoothScroll: function(target) {
+		var target = document.querySelector('div[id^="hikashop_category_information_menu_"]');
+		if(!target)
+			return;
+	    var currentScroll = document.documentElement.scrollTop || document.body.scrollTop;
+	    if (currentScroll > target.offsetTop) {
+	         window.requestAnimationFrame(window.hikashop.smoothScroll);
+	         window.scrollTo (target.offsetTop, currentScroll - (currentScroll/5));
+	    }
+	},
+	refreshOneArea: function(refreshUrl, currentArea, el, refreshAreas, resp) {
+		var d = document, t = this, o = window.Oby;
+		o.xRequest(refreshUrl, {mode:'GET'}, function (xhr2) {
+			var div = d.createElement('div');
+			var scripts = '';
+			var text = xhr2.responseText.replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, function(all, code){
+				if(all.indexOf('type="application/json"') != -1)
+					return '';
+				if(all.indexOf('type="application/ld+json"') != -1)
+					return '';
+				scripts += code + '\n';
+				return '';
+			});
+
+			var body = /<body.*?>([\s\S]*)<\/body>/.exec(text);
+			if(!body)
+				body = text;
+			else
+				body = body[1];
+			o.updateElem(div, body);
+			var newElem = div.querySelector('.filter_refresh_div');
+
+			// to avoid scroll in chrome
+			setTimeout(function(){
+				if(!currentArea) {
+					t.refreshCounter--;
+					return;
+				}
+				var className = currentArea.getAttribute('data-refresh-class');
+				if(className) o.removeClass(currentArea, className);
+				if(!newElem) {
+					t.refreshCounter--;
+					return;
+				}
+				var parentNode = currentArea.parentNode;
+				if(!parentNode) {
+					t.refreshCounter--;
+					return;
+				}
+				parentNode.replaceChild(newElem, currentArea);
+				if( scripts != '' ) {
+					var script = d.createElement('script');
+					script.setAttribute('type', 'text/javascript');
+					script.text = scripts;
+					d.head.appendChild(script);
+					d.head.removeChild(script);
+				}
+
+				if(!window.localPage) window.localPage = {};
+				window.localPage.infiniteScrollPage = 1;
+
+				setTimeout(function(){
+					var elems = parentNode.querySelectorAll('.hikashop_subcontainer');
+					if(elems && elems.length)
+						window.hikashop.setConsistencyHeight(elems, 'min');
+
+					if(window.hikaVotes)
+						initVote(currentArea);
+					if(hkjQuery && hkjQuery.hktooltip)
+						hkjQuery('[data-toggle="hk-tooltip"]').hktooltip({"html": true,"container": "body"});
+
+					t.refreshCounter--;
+					if(t.refreshCounter == 0) {
+						o.fireAjax('filters.updated', {el: el, refreshAreas : refreshAreas, resp: resp});
+					}
+				}, 200);
+			}, 0);
+		});
 	},
 	addToCart: function(el, type) {
 		var d = document, t = this, o = window.Oby,
@@ -893,20 +1071,13 @@ var hikashop = {
 		if(containerName && product_id)
 			container = d.forms['hikashop_product_form_' + product_id + '_' + containerName] || d.forms[containerName];
 
-		url += (url.indexOf('?') >= 0 ? '&' : '?') + 'tmpl=ajax';
+		url += (url.indexOf('?') >= 0 ? '&' : '?') + 'tmpl=raw';
 
 		if(container) {
-			if(window.FormData) {
+			if(window.FormData)
 				data = new FormData(container);
-				data.append('cart_type', cart_type);
-				if(dest_id)
-					data.append('cart_id', dest_id);
-			} else {
+			else
 				data = o.getFormData(container);
-				data += '&cart_type=' + cart_type;
-				if(dest_id)
-					data += '&cart_id+' + dest_id;
-			}
 			if(extraContainer) {
 				extraContainer = d.forms[extraContainer] || d.getElementById(extraContainer);
 				if(window.FormData) {
@@ -929,6 +1100,15 @@ var hikashop = {
 						data += '&' + extra;
 					data += '&product_id='+product_id;
 				}
+			}
+			if(window.FormData) {
+				data.append('cart_type', cart_type);
+				if(dest_id)
+					data.append('cart_id', dest_id);
+			} else {
+				data += '&cart_type=' + cart_type;
+				if(dest_id)
+					data += '&cart_id+' + dest_id;
 			}
 		} else {
 			data = 'cart_type=' + cart_type;
@@ -964,7 +1144,8 @@ var hikashop = {
 	checkQuantity: function(el) {
 		var value = parseInt(el.value), old = el.getAttribute('data-hk-qty-old'),
 			min = parseInt(el.getAttribute('data-hk-qty-min')),
-			max = parseInt(el.getAttribute('data-hk-qty-max'));
+			max = parseInt(el.getAttribute('data-hk-qty-max')),
+			allowZero = el.getAttribute('data-hk-allow-zero') == 'true';
 		if(old)
 			old = parseInt(old);
 		// No values - return
@@ -976,14 +1157,67 @@ var hikashop = {
 			el.value = value;
 		if(isNaN(min) || isNaN(max))
 			return false;
+		var triggers = window.Oby.fireAjax("quantity.checked", {el:el, value:value, max:max, min:min});
+		if(triggers !== false && triggers.length > 0)
+			return true;
+		if(value == 0 && allowZero)
+			return true;
 		if((value <= max || max == 0) && value >= min)
 			return true;
 		if(max > 0 && value > max) {
 			el.value = max;
+			if(hkjQuery.notify) {
+				this.translate(['QUANTITY_CHANGE_IMPOSSIBLE', 'MAXIMUM_FOR_PRODUCT_IS_X'], function(trans){
+					hkjQuery(el).notify({title:trans[0],text:trans[1].replace('%s', max), image:'<i class="fa fa-3x fa-exclamation-circle"></i>'},{style:"metro",className:"warning",arrowShow:true});
+				});
+			}
 		} else if(value < min) {
 			el.value = min;
+			if(hkjQuery.notify) {
+				this.translate(['QUANTITY_CHANGE_IMPOSSIBLE', 'MINIMUM_FOR_PRODUCT_IS_X'], function(trans){
+					hkjQuery(el).notify({title:trans[0],text:trans[1].replace('%s', min), image:'<i class="fa fa-3x fa-exclamation-circle"></i>'},{style:"metro",className:"warning",arrowShow:true});
+				});
+			}
 		}
 		return true;
+	},
+	translate: function(keys, callback) {
+		var t = this, trans = {}, missingKeys = [], o = window.Oby;
+
+		for(var c = 0; c < keys.length; c++) {
+			var key = keys[c];
+			if(!t.translations[key]) {
+				missingKeys.push(key);
+			} else {
+				trans[c] = t.translations[key];
+			}
+		}
+
+		if(!missingKeys.length) {
+			callback(trans);
+			return;
+		}
+
+		if(!t.translations_url) {
+			console.log('missing translations URL');
+			return;
+		}
+		o.xRequest(t.translations_url, {mode:'POST', data: 'translations=' + missingKeys.join(',')}, function(xhr) {
+			var resp = o.evalJSON(xhr.responseText);
+			foundKeys = Object.getOwnPropertyNames(resp);
+			for(var c = 0; c < foundKeys.length; c++) {
+				var key = foundKeys[c];
+				trans[keys.indexOf(key)] = resp[key];
+				t.translations[key] = resp[key];
+			}
+			callback(trans);
+		});
+	},
+	addTrans: function(data) {
+		for(var k in data) {
+			if(!data.hasOwnProperty(k)) continue;
+			this.translations[k] = data[k];
+		}
 	},
 	updateQuantity: function(el, dataInput, mod) {
 		var d = document, input = el;
@@ -1017,7 +1251,7 @@ var hikashop = {
 		if(!cart_type || cart_type == '')
 			return true;
 
-		url += (url.indexOf('?') >= 0 ? '&' : '?') + 'tmpl=ajax';
+		url += (url.indexOf('?') >= 0 ? '&' : '?') + 'tmpl=raw';
 		var cart_id = parseInt(el.getAttribute('data-cart-id')),
 			cart_product_id = parseInt(el.getAttribute('data-cart-product-id'));
 		if(cart_id === NaN || cart_product_id === NaN)
@@ -1037,7 +1271,7 @@ var hikashop = {
 				o.removeClass(container, "hikashop_checkout_loading");
 
 			var resp = Oby.evalJSON(xhr.responseText);
-			var cart_id = (resp && resp.ret) ? resp.ret : parseInt(xhr.responseText);
+			cart_id = (resp && resp.ret) ? resp.ret : ((resp && resp.empty && resp.empty == 'true') ? cart_id : parseInt(xhr.responseText));
 			if(cart_id === NaN)
 				return;
 			window.Oby.fireAjax(cart_type+'.updated', {id: cart_id, type: cart_type, resp: resp, notify: false});
@@ -1063,10 +1297,10 @@ var hikashop = {
 			container = d.getElementById(container);
 		if(window.FormData) {
 			data = new FormData(form);
-			data.append('tmpl', 'ajax');
+			data.append('tmpl', 'raw');
 		} else {
 			data = o.getFormData(form);
-			data += '&tmpl=ajax';
+			data += '&tmpl=raw';
 		}
 		form.processing = true;
 		if(container)
@@ -1081,38 +1315,46 @@ var hikashop = {
 		});
 		return false;
 	},
-	toggleOverlayBlock: function(el, type) {
+	toggleOverlayBlock: function(el, type, state) {
 		var t = this, d = document, w = window, o = w.Oby;
 		if(typeof(el) == 'string')
 			el = d.getElementById(el);
 		if(!el)
 			return false;
-		var open = el.style.display == 'none';
-		if(type != 'hover')
+		var open = !!el.toggleOpen; // (el.style.display != 'none');
+		if(type != 'hover' && type != 'toggle')
 			type = 'click';
+		if(type == 'hover' && (!state && open) || (state && !open))
+			return;
 		if(jQuery) {
 			jQuery(el).slideToggle('fast');
 		} else {
 			el.style.display = (el.style.display == 'none')?'block':'none';
 		}
+		el.toggleOpen = !el.toggleOpen;
 
-		if(!open) {
-			if(type == 'hover'){
-				el.onmouseleave = function(event) {
-					if(this != event.currentTarget)
-						return false;
-					window.hikashop.toggleOverlayBlock(this, 'hover');
-				};
-				return true;
+		if(open) {
+			if(type == 'hover') {
+				o.removeEvent(el, "mouseout", el.toggleFunctionHover);
+				el.toggleFunctionHover = null;
 			}
 			if(el.toggleFunction)
-				w.Oby.removeEvent(document, "click", el.toggleFunction);
+				o.removeEvent(document, "click", el.toggleFunction);
 			el.toggleFunction = null;
 			return true;
 		}
-		if(type == 'hover')
-			return true;
-
+		if(type == 'hover') {
+			el.toggleFunctionHover = function(event) {
+				if(event.target && this != event.target)
+					return false;
+				window.hikashop.toggleOverlayBlock(el, 'hover', true);
+			};
+			if(jQuery) {
+				jQuery(el).mouseleave(el.toggleFunctionHover);
+			} else {
+				o.addEvent(el, "mouseout", el.toggleFunctionHover);
+			}
+		}
 		var f = function(evt) {
 			if (!evt) var evt = window.event;
 			var trg = (window.event) ? evt.srcElement : evt.target;
@@ -1122,7 +1364,7 @@ var hikashop = {
 				trg = trg.parentNode;
 			}
 			t.toggleOverlayBlock(el);
-			w.Oby.removeEvent(document, "click", f);
+			o.removeEvent(document, "click", f);
 			el.toggleFunction = null;
 		};
 		el.toggleFunction = f;
@@ -1177,6 +1419,26 @@ var hikashop = {
 			return false;
 		return false;
 	},
+	clearSearch: function(el, id, all) {
+		if(el.form.limitstart)
+			el.form.limitstart.value = 0;
+		var search = document.getElementById(id);
+		if(search)
+			search.value = '';
+		if(all) {
+			var v, els = el.form.querySelectorAll('[data-search-clear]');
+			for(var i = els.length - 1; i >= 0; i--) {
+				v = els[i].getAttribute('data-search-clear');
+				els[i].value = v;
+			}
+		} else
+			all = false;
+		var triggers = window.Oby.fireAjax('search.cleared', {el: el, id: id, all: all});
+		if(triggers !== false && triggers.length > 0)
+			return false;
+		el.form.submit();
+		return true;
+	},
 	compareProducts: function(el, elems) {
 		var t = this, params = '',
 			url = el.getAttribute('data-compare-href');
@@ -1195,13 +1457,25 @@ var hikashop = {
 		el.href = url + ((url.indexOf('?') >= 0) ? '&' : '?') + params;
 		return true;
 	},
-	toggleField: function(new_value, namekey, field_type, id, prefix) {
+	toggleField: function(new_value, namekey, field_type, id, prefix, type) {
 		var d = document, checked = 0, size = 0, obj = null, specialField = false,
-			checkedGood = 0, count = 0, el = null,
+			checkedGood = [], count = [], el = null,
 			arr = d.getElementsByName('data['+field_type+']['+namekey+'][]');
 
 		if(!arr)
 			return false;
+
+		if( new_value === null) {
+			if(d.getElementById(type + namekey))
+				new_value = d.getElementById(type + namekey).value;
+			else {
+				inputs = d.getElementsByName('data['+field_type+']['+namekey+']');
+				for(var i = inputs.length - 1; i >= 0; i--) {
+					if(inputs[i].checked)
+						new_value = inputs[i].value;
+				}
+			}
+		}
 
 		if(!this.fields_data && window.hikashopFieldsJs) {
 			this.fields_data = window.hikashopFieldsJs;
@@ -1235,7 +1509,7 @@ var hikashop = {
 			if(obj.checked || obj.selected)
 				checked++;
 
-			if(obj.type && obj.type == 'checkbox')
+			if((obj.type && obj.type == 'checkbox') || obj.selected)
 				specialField = true;
 		}
 
@@ -1248,14 +1522,20 @@ var hikashop = {
 				if(typeof data[k][l] != 'string')
 					continue;
 
-				count++;
+				if (typeof count[k] == 'undefined') {
+					count[k] = 0;
+					checkedGood[k] = 0;
+				}
+				count[k]++;
 				newEl = d.getElementById(namekey + '_' + k);
-				if(newEl && (newEl.checked || newEl.selected))
-					checkedGood++;
+				if(newEl && (newEl.checked || newEl.selected)) {
+					checkedGood[k]++;
+					break;
+				}
 			}
 		}
 
-		specialField = specialField || (arr[0] && arr[0].length && count > 1);
+		specialField = specialField || (arr[0] && arr[0].length && count.length > 1);
 
 		for(var j in data) {
 			if(typeof data[j] != 'object')
@@ -1270,7 +1550,7 @@ var hikashop = {
 				el = document.getElementById(elementName);
 				if(!el)
 					continue;
-				if( !parentHidden && ((specialField && checkedGood == count && checkedGood == checked && new_value != '') || (!specialField && j == new_value) )) {
+				if( !parentHidden && ((specialField && checkedGood[j] == count[j] && new_value != '') || (!specialField && j == new_value) )) {
 					el.style.display = '';
 					this.toggleField(el.value, data[j][i], field_type, id, prefix);
 				} else {

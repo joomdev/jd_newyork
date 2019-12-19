@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="3.0.0" method="upgrade">
+	<name>com_djevents</name>
+	<creationDate>October 2017</creationDate>
+	<author>DJ-Extensions.com</author>
+	<copyright>Copyright (C) 2017 DJ-Extensions.com, All rights reserved.</copyright>
+	<license> http://www.gnu.org/licenses GNU/GPL</license>
+	<authorEmail>contact@dj-extensions.com</authorEmail>
+	<authorUrl>http://dj-extensions.com</authorUrl>
+	<version>1.1.1</version>
+	<scriptfile>djevents.script.php</scriptfile>
+	<install>
+		<sql>
+			<file charset="utf8" driver="mysql">install/install.sql</file>
+		</sql>
+	</install>
+	<uninstall>
+		<sql>
+			<file charset="utf8" driver="mysql">install/uninstall.sql</file>
+		</sql>
+	</uninstall>
+	<update>
+		<schemas>
+			<schemapath type="mysql">install/sqlupdates</schemapath>
+		</schemas>
+	</update>
+	<administration>
+		<menu img="components/com_djevents/assets/images/icon-16-djevents.png">COM_DJEVENTS</menu>
+		<files folder="administrator">
+			<filename>djevents.php</filename>
+			<filename>access.xml</filename>
+			<filename>controller.php</filename>
+			<filename>config.xml</filename>
+			<filename>index.html</filename>
+			<folder>assets</folder>
+			<folder>controllers</folder>
+			<folder>helpers</folder>
+			<folder>install</folder>
+			<folder>language</folder>
+			<folder>lib</folder>
+			<folder>models</folder>
+			<folder>tables</folder>
+			<folder>views</folder>
+		</files>
+	</administration>
+	<config>
+		<fields>
+			<fieldset>
+				
+			</fieldset>
+		</fields>
+	</config>
+	<files folder="site">
+		<filename>index.html</filename>
+		<filename>LICENSE.txt</filename>
+		<filename>djevents.php</filename>
+		<filename>controller.php</filename>
+		<filename>router.php</filename>
+		<folder>assets</folder>
+		<folder>controllers</folder>
+		<folder>helpers</folder>
+		<folder>language</folder>
+		<folder>layouts</folder>
+		<folder>lib</folder>
+		<folder>models</folder>
+		<folder>themes</folder>
+		<folder>views</folder>
+	</files>
+	<media destination="djevents" folder="media">
+		<folder>upload</folder>
+		<folder>djextensions</folder>
+		<filename>index.html</filename>
+	</media>
+</extension>

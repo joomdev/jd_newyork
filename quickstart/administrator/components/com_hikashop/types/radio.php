@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -73,29 +73,27 @@ $(document).ready(function() {
 
 		$this->init();
 
-		if($app->isAdmin()) {
-			$yes_text = JText::_('JYES');
-			$no_text = JText::_('JNO');
-			foreach($data as &$obj) {
-				if(!empty($obj->class))
-					continue;
+		$yes_text = JText::_('JYES');
+		$no_text = JText::_('JNO');
+		foreach($data as &$obj) {
+			if(!empty($obj->class))
+				continue;
 
-				$obj->class = 'hikabtn-primary';
-				if(($translate && $obj->$optText == 'JYES') || (!$translate && $obj->$optText == $yes_text))
-					$obj->class = 'hikabtn-success';
-				if(($translate && $obj->$optText == 'JNO') || (!$translate && $obj->$optText == $no_text))
-					$obj->class = 'hikabtn-danger';
-			}
-			unset($obj);
+			$obj->class = 'hikabtn-primary';
+			if(($translate && $obj->$optText == 'JYES') || (!$translate && $obj->$optText == $yes_text))
+				$obj->class = 'hikabtn-success';
+			if(($translate && $obj->$optText == 'JNO') || (!$translate && $obj->$optText == $no_text))
+				$obj->class = 'hikabtn-danger';
 		}
+		unset($obj);
 
 		if(is_array($attribs))	{
-			$attribs = JArrayHelper::toString($attribs);
+			$attribs = array_map('strval', $attribs);
 		}
 
 		$id_text = str_replace(array('[',']'),array('_',''),$idtag ? $idtag : $name);
 
-		$backend = false && $app->isAdmin();
+		$backend = false && hikashop_isClient('administrator');
 		$htmlLabels = '';
 		$html = '<div class="hikaradios" id="'.$id_text.'">';
 

@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -18,10 +18,12 @@ $name = 'quantity';
 if(!empty($this->row->quantityFieldName)){
 	$name = $this->row->quantityFieldName;
 }
+if(!isset($this->config))
+	$this->config = hikashop_config();
 
 if(isset($this->row) && isset($this->row->product_min_per_order)) {
-	$min_quantity = ($this->row->product_min_per_order || empty($this->element->main)) ? $this->row->product_min_per_order : $this->element->main->product_min_per_order;
-	$max_quantity = ($this->row->product_max_per_order || empty($this->element->main)) ? $this->row->product_max_per_order : $this->element->main->product_max_per_order;
+	$min_quantity = ($this->row->product_min_per_order || empty($this->element->main)) ? $this->row->product_min_per_order : @$this->element->main->product_min_per_order;
+	$max_quantity = ($this->row->product_max_per_order || empty($this->element->main)) ? $this->row->product_max_per_order : @$this->element->main->product_max_per_order;
 	if($this->row->product_quantity > 0) {
 		if($max_quantity > 0)
 			$max_quantity = min($max_quantity, $this->row->product_quantity);
@@ -37,8 +39,6 @@ if(isset($this->row) && isset($this->row->product_min_per_order)) {
 $html = $this->params->get('html');
 
 if(!isset($this->global_on_listing)){
-	if(!isset($this->config))
-		$this->config = hikashop_config();
 	$this->global_on_listing = $this->config->get('show_quantity_field') == 2;
 }
 if(!empty($this->global_on_listing))
@@ -47,11 +47,15 @@ if(!empty($this->global_on_listing))
 $current_quantity = hikaInput::get()->getInt('quantity', $min_quantity);
 
 if(!isset($this->quantityLayout)) {
-	$quantityLayout = $this->config->get('product_quantity_display', 'show_default');
+	$quantityLayout = $this->config->get('product_quantity_display', 'show_default_div');
 	if(isset($this->row))
 		$quantityLayout = $this->getProductQuantityLayout($this->row);
 } else
 	$quantityLayout = $this->quantityLayout;
+
+
+hikashop_loadJslib('notify');
+hikashop_loadJslib('translations');
 
 switch($quantityLayout) {
 	case 'show_none':
@@ -84,7 +88,7 @@ switch($quantityLayout) {
 	case 'show_select':
 		$increment = ($min_quantity ? $min_quantity : 1);
 		if(empty($max_quantity)){
-			$max_quantity = (int)$increment * 15;
+			$max_quantity = (int)$increment * $this->config->get('quantity_select_max_default_value', 15);
 		}
 ?>
 		<div class="hikashop_product_quantity_div hikashop_product_quantity_input_div_select"><?php
@@ -106,16 +110,22 @@ switch($quantityLayout) {
 	case 'show_select_price':
 		$increment = ($min_quantity ? $min_quantity : 1);
 		if(!$max_quantity){
-			$max_quantity = (int)$increment * 15;
+			$max_quantity = (int)$increment * $this->config->get('quantity_select_max_default_value', 15);
 		}
 ?>
 		<div class="hikashop_product_quantity_div hikashop_product_quantity_input_div_select"><?php
 				$values = array();
+				if(!isset($this->row->all_prices) && isset($this->row->prices))
+					$this->row->all_prices =& $this->row->prices;
 				if(!empty($this->row->all_prices)){
 					foreach($this->row->all_prices as $price) {
 						$price_min_qty = max((int)$price->price_min_quantity, $min_quantity);
 						$values[$price_min_qty] = $price_min_qty;
 					}
+					$min_quantity = min($values);
+					$max_quantity = max($values);
+					if($current_quantity < $min_quantity)
+						$current_quantity = $min_quantity;
 				}
 				if(empty($values)) {
 					$r = range($min_quantity, $max_quantity, $increment);

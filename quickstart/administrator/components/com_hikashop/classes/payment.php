@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -24,6 +24,8 @@ class hikashopPaymentClass extends hikashopClass {
 			if(!empty($result->payment_params)) {
 				$result->payment_params = hikashop_unserialize($result->payment_params);
 			}
+			if(!empty($result->payment_name))
+				$result->payment_name = hikashop_translate($result->payment_name);
 			$cachedElements[$id] = $result;
 		}
 
@@ -32,12 +34,12 @@ class hikashopPaymentClass extends hikashopClass {
 
 	function save(&$element, $reorder = true) {
 		JPluginHelper::importPlugin('hikashop');
-		$dispatcher = JDispatcher::getInstance();
+		$app = JFactory::getApplication();
 		$do = true;
 		if(empty($element->payment_id))
-			$dispatcher->trigger('onBeforeHikaPluginCreate', array('payment', &$element, &$do));
+			$app->triggerEvent('onBeforeHikaPluginCreate', array('payment', &$element, &$do));
 		else
-			$dispatcher->trigger('onBeforeHikaPluginUpdate', array('payment', &$element, &$do));
+			$app->triggerEvent('onBeforeHikaPluginUpdate', array('payment', &$element, &$do));
 
 		if(!$do)
 			return false;
@@ -79,13 +81,10 @@ class hikashopPaymentClass extends hikashopClass {
 			$query = 'SELECT payment_type FROM ' . hikashop_table('payment') . ' WHERE payment_id = ' . (int)$element->payment_id;
 			$db->setQuery($query);
 			$name = $db->loadResult();
-			if(!HIKASHOP_J16) {
-				$query = 'UPDATE '.hikashop_table('plugins',false).' SET published = 1 WHERE published = 0 AND element = ' . $db->Quote($name) . ' AND folder = ' . $db->Quote('hikashoppayment');
-			} else {
-				$query = 'UPDATE '.hikashop_table('extensions',false).' SET enabled = 1 WHERE enabled = 0 AND type = ' . $db->Quote('plugin') . ' AND element = ' . $db->Quote($name) . ' AND folder = ' . $db->Quote('hikashoppayment');
-			}
+
+			$query = 'UPDATE '.hikashop_table('extensions',false).' SET enabled = 1 WHERE enabled = 0 AND type = ' . $db->Quote('plugin') . ' AND element = ' . $db->Quote($name) . ' AND folder = ' . $db->Quote('hikashoppayment');
 			$db->setQuery($query);
-			$db->query();
+			$db->execute();
 		}
 		return $status;
 	}
@@ -104,20 +103,20 @@ class hikashopPaymentClass extends hikashopClass {
 		return $rates;
 	}
 
-	function &getPayments(&$order,$reset=false) {
+	function &getPayments(&$order, $reset = false) {
 		static $usable_methods = null;
 		static $errors = array();
-		if($reset){
+		if($reset) {
 			$usable_methods = null;
 			$errors = array();
 		}
-		if(!is_null($usable_methods)){
+		if(!is_null($usable_methods)) {
 			$this->errors = $errors;
 			return $usable_methods;
 		}
 
 		JPluginHelper::importPlugin('hikashoppayment');
-		$dispatcher = JDispatcher::getInstance();
+		$app = JFactory::getApplication();
 		$max = 0;
 		$payment = '';
 
@@ -143,7 +142,8 @@ class hikashopPaymentClass extends hikashopClass {
 		}
 
 		$zoneClass = hikashop_get('class.zone');
-		$zones = $zoneClass->getOrderZones($order);
+		$config = hikashop_config();
+		$zones = $zoneClass->getOrderZones($order, $config->get('payment_methods_zone_address_type','billing_address'));
 
 		foreach($methods as $k => $method) {
 			if(!empty($method->payment_zone_namekey) && !in_array($method->payment_zone_namekey, $zones)) {
@@ -206,27 +206,19 @@ class hikashopPaymentClass extends hikashopClass {
 			$already[$methods[$k]->ordering] = true;
 		}
 
-		$cartClass = hikashop_get('class.cart');
-		$paymentRecurringType = $cartClass->checkSubscription($order);
-
 		$order->paymentOptions = array(
-			'recurring' => ($paymentRecurringType == 'recurring'),
+			'recurring' => false,
 			'term' => false,
-			'recurring' => false
+			'refund' => false
 		);
 		$this->checkPaymentOptions($order);
 
 		$usable_methods = array();
-		$dispatcher->trigger('onPaymentDisplay', array(&$order, &$methods, &$usable_methods));
+		$app->triggerEvent('onPaymentDisplay', array(&$order, &$methods, &$usable_methods));
 
 		if(is_array($usable_methods) && !empty($usable_methods)) {
 			foreach($usable_methods as $k => $usable_method) {
-				if($paymentRecurringType == 'noRecurring' && (!empty($usable_method->features['recurring']) || (isset($usable_method->recurring) && $usable_method->recurring == 1))) {
-					unset($usable_methods[$k]);
-					continue;
-				}
-
-				if($paymentRecurringType == 'recurring' && empty($usable_method->features['recurring']) && (!isset($usable_method->recurring) || $usable_method->recurring != 1)) {
+				if(!empty($order->paymentOptions['recurring']) && empty($order->paymentOptions['recurring']['optional']) && empty($usable_method->features['recurring'])) {
 					unset($usable_methods[$k]);
 					continue;
 				}
@@ -244,7 +236,14 @@ class hikashopPaymentClass extends hikashopClass {
 		}
 
 		if(empty($usable_methods)) {
-			$errors[] = JText::_('NO_PAYMENT_METHODS_FOUND');
+			$message = 'NO_PAYMENT_METHODS_FOUND';
+			if(!empty($order->paymentOptions['recurring']) && empty($order->paymentOptions['recurring']['optional']))
+				$message = 'NO_RECURRING_PAYMENT_METHODS_FOUND';
+			elseif(!empty($order->paymentOptions['term']))
+				$message = 'NO_PAYMENT_METHODS_FOUND_SUPPORTING_AUTHORIZE_CAPTURE_MODE';
+			elseif(!empty($order->paymentOptions['refund']))
+				$message = 'NO_PAYMENT_METHODS_FOUND_SUPPORTING_REFUND_MODE';
+			$errors[] = JText::_($message);
 			$this->errors = $errors;
 			$usable_methods = false;
 			return $usable_methods;
@@ -295,7 +294,7 @@ class hikashopPaymentClass extends hikashopClass {
 		return;
 	}
 
-	function checkCartMethods(&$cart, $force_selection = false) {
+	public function checkCartMethods(&$cart, $force_selection = false) {
 		$cart_payment_ids = array();
 		$payment_modified = false;
 
@@ -333,17 +332,33 @@ class hikashopPaymentClass extends hikashopClass {
 		return false;
 	}
 
-	function checkPaymentOptions(&$order) {
-		$ret = null;
+	public function checkPaymentOptions(&$order) {
+		if(empty($order->paymentOptions)) {
+			$order->paymentOptions = array(
+				'recurring' => false,
+				'term' => false,
+				'refund' => false
+			);
+		}
 
 		JPluginHelper::importPlugin('hikashop');
-		$dispatcher = JDispatcher::getInstance();
-		$dispatcher->trigger('onCheckPaymentOptions', array( &$order->paymentOptions, &$order ) );
+		JPluginHelper::importPlugin('hikashoppayment');
+		$app = JFactory::getApplication();
+		$app->triggerEvent('onCheckPaymentOptions', array( &$order->paymentOptions, &$order ) );
+
+		if(!empty($order->paymentOptions['recurring'])) {
+			if(empty($order->order_payment_params))
+				$order->order_payment_params = new stdClass();
+
+			$order->order_payment_params->recurring = $order->paymentOptions['recurring'];
+		}
 
 		if(!empty($order->paymentOptions['term'])) {
 			if(empty($order->order_payment_params))
 				$order->order_payment_params = new stdClass();
+
 			$order->order_payment_params->need_authorization = true;
+
 			if(isset($order->order_full_price))
 				$order->order_payment_params->authorization_price = $order->order_full_price;
 			if(isset($order->full_total)) {
@@ -356,6 +371,7 @@ class hikashopPaymentClass extends hikashopClass {
 		if(!empty($order->paymentOptions['refund'])) {
 			if(empty($order->order_payment_params))
 				$order->order_payment_params = new stdClass();
+
 			if(isset($order->order_full_price))
 				$order->order_payment_params->original_price = $order->order_full_price;
 			if(isset($order->full_total)) {
@@ -364,11 +380,9 @@ class hikashopPaymentClass extends hikashopClass {
 					$order->order_payment_params->original_price = $order->full_total->prices[0]->price_value_with_tax;
 			}
 		}
-
-		return $ret;
 	}
 
-	function readCC() {
+	public function readCC() {
 		$app = JFactory::getApplication();
 
 		$payment = $app->getUserState(HIKASHOP_COMPONENT.'.payment_method');
@@ -441,7 +455,7 @@ class hikashopPaymentClass extends hikashopClass {
 		return $ret;
 	}
 
-	function fillListingColumns(&$rows, &$listing_columns, &$view) {
+	public function fillListingColumns(&$rows, &$listing_columns, &$view, $type = null) {
 		$listing_columns['price'] = array(
 			'name' => 'PRODUCT_PRICE',
 			'col' => 'col_display_price'
@@ -495,11 +509,27 @@ class hikashopPaymentClass extends hikashopClass {
 				$restrictions[] = JText::_('SHIPPING_SUFFIX') . ':' . $row->plugin_params->payment_zip_suffix;
 			if(!empty($row->payment_zone_namekey)) {
 				$zone = $view->zoneClass->get($row->payment_zone_namekey);
-				$restrictions[] = JText::_('ZONE') . ':' . $zone->zone_name_english;
+				if(!empty($zone))
+					$restrictions[] = JText::_('ZONE') . ':' . $zone->zone_name_english;
+				else
+					$restrictions[] = JText::_('ZONE') . ':' . 'INVALID';
 			}
-			$row->col_display_restriction = implode('<br/>', $restrictions);
 
-			unset($row);
+			if(!empty($row->payment_currency)) {
+				$null = null;
+				$currency_ids = explode(',', $row->payment_currency);
+				$currencies = $view->currencyClass->getCurrencies($currency_ids, $null);
+				if(count($currencies)) {
+					$list = array();
+					foreach($currencies as $c) {
+						$list[] = $c->currency_code;
+					}
+					$restrictions[] = JText::_('CURRENCY') . ': ' . implode(', ', $list);
+				}
+			}
+
+			$row->col_display_restriction = implode('<br/>', $restrictions);
 		}
+		unset($row);
 	}
 }

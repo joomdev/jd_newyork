@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -43,21 +43,37 @@ defined('_JEXEC') or die('Restricted access');
 		<dt><label for="discount_percent_amount"><?php
 			echo JText::_('DISCOUNT_PERCENT_AMOUNT');
 		?></label></dt>
-		<dd class="input_large">
-			<input type="text" name="data[discount][discount_percent_amount]" id="discount_percent_amount" class="inputbox" value="<?php echo $this->escape(@$this->element->discount_percent_amount); ?>" />
+		<dd>
+			<input type="text" name="data[discount][discount_percent_amount]" id="discount_percent_amount" class="inputbox" value="<?php echo $this->escape(@$this->element->discount_percent_amount); ?>" />%
 		</dd>
+		<dt data-discount-display="coupon"><label for="discount_shipping_percent"><?php
+			echo JText::_('DISCOUNT_SHIPPING_PERCENTAGE');
+		?></label></dt>
+		<dd data-discount-display="coupon">
+<?php if(hikashop_level(1)) { ?>
+			<input type="text" name="data[discount][discount_shipping_percent]" id="discount_shipping_percent" class="inputbox" value="<?php echo $this->escape(@$this->element->discount_shipping_percent); ?>" />%
+<?php } else {
+		echo hikashop_getUpgradeLink('essential');
+}?>
 
+		</dd>
 		<dt data-discount-display="coupon"><label><?php
-			echo JText::_('TAXATION_CATEGORY');
+			echo JText::_('AUTOMATIC_TAXES');
 		?></label></dt>
 		<dd data-discount-display="coupon"><?php
+			echo JHTML::_('hikaselect.booleanlist', 'data[discount][discount_tax]', 'onchange="hikashopToggleTax(this.value);"', @$this->element->discount_tax);
+		?></dd>
+		<dt data-discount-display="coupon" data-tax-display="1"><label><?php
+			echo JText::_('TAXATION_CATEGORY');
+		?></label></dt>
+		<dd data-discount-display="coupon" data-tax-display="1"><?php
 			echo $this->categoryType->display('data[discount][discount_tax_id]', @$this->element->discount_tax_id);
 		?></dd>
 
 		<dt><label for="discount_used_times"><?php
 			echo JText::_('DISCOUNT_USED_TIMES');
 		?></label></dt>
-		<dd class="input_large">
+		<dd>
 			<input type="text" name="data[discount][discount_used_times]" id="discount_used_times" class="inputbox" value="<?php echo $this->escape(@$this->element->discount_used_times); ?>" />
 		</dd>
 
@@ -79,14 +95,14 @@ defined('_JEXEC') or die('Restricted access');
 			echo JText::_('DISCOUNT_START_DATE');
 		?></label></dt>
 		<dd><?php
-			echo JHTML::_('calendar', (@$this->element->discount_start ? hikashop_getDate(@$this->element->discount_start, '%Y-%m-%d %H:%M') : ''), 'data[discount][discount_start]', 'discount_start', '%Y-%m-%d %H:%M', array('size' => '20'));
+			echo JHTML::_('calendar', (@$this->element->discount_start ? hikashop_getDate(@$this->element->discount_start, '%Y-%m-%d %H:%M') : ''), 'data[discount][discount_start]', 'discount_start', hikashop_getDateFormat('%d %B %Y %H:%M'), array('size' => '20'));
 		?></dd>
 
 		<dt><label><?php
 			echo JText::_('DISCOUNT_END_DATE');
 		?></label></dt>
 		<dd><?php
-			echo JHTML::_('calendar', (@$this->element->discount_end ? hikashop_getDate(@$this->element->discount_end, '%Y-%m-%d %H:%M') : ''), 'data[discount][discount_end]', 'discount_end', '%Y-%m-%d %H:%M', array('size' => '20'));
+			echo JHTML::_('calendar', (@$this->element->discount_end ? hikashop_getDate(@$this->element->discount_end, '%Y-%m-%d %H:%M') : ''), 'data[discount][discount_end]', 'discount_end', hikashop_getDateFormat('%d %B %Y %H:%M'), array('size' => '20'));
 		?></dd>
 
 <?php if(!hikashop_level(1)) { ?>
@@ -98,10 +114,10 @@ defined('_JEXEC') or die('Restricted access');
 
 <?php
 	JPluginHelper::importPlugin('hikashop');
-	$dispatcher = JDispatcher::getInstance();
+	$app = JFactory::getApplication();
 	$html = array();
 	$table = array();
-	$dispatcher->trigger('onDiscountBlocksDisplay', array(&$this->element, &$html));
+	$app->triggerEvent('onDiscountBlocksDisplay', array(&$this->element, &$html));
 	if(!empty($html)) {
 		foreach($html as $h) {
 			$h = trim($h);
@@ -130,7 +146,7 @@ if(!empty($table)) {
 <div class="clear_both"></div>
 
 <?php
-	if(hikashop_level(1)) { 
+	if(hikashop_level(1)) {
 		echo $this->loadTemplate('restrictions');
 	}
 ?>
@@ -144,5 +160,12 @@ if(!empty($table)) {
 </form>
 <script type="text/javascript">
 window.hikashop.ready(function(){ window.hikashop.dlTitle(); });
+function hikashopToggleTax(value) {
+	var elements = document.querySelectorAll("[data-tax-display]");
+	for(var i = elements.length - 1; i >= 0; i--) {
+		elements[i].style.display = (elements[i].getAttribute("data-tax-display") == value) ? "none" : "";
+	}
+}
+window.hikashop.ready( function(){ hikashopToggleTax('<?php echo (int) @$this->element->discount_tax; ?>'); });
 </script>
 </div>

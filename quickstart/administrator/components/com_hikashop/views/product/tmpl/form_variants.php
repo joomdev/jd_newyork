@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -13,11 +13,11 @@ if(!hikashop_acl('product/edit/variants') || empty($this->product->product_id))
 ?>
 <div>
 	<div style="float:right">
-		<button class="btn btn-success" onclick="return window.productMgr.addVariants(this, <?php echo (int)$this->product->product_id; ?>);"><img src="<?php echo HIKASHOP_IMAGES; ?>add.png" alt="" style="vertical-align:middle;"/> <?php echo JText::_('HIKA_ADD_VARIANTS'); ?></button>
+		<button class="btn btn-success" onclick="return window.productMgr.addVariants(this, <?php echo (int)$this->product->product_id; ?>);"><i class="fa fa-plus"></i> <?php echo JText::_('HIKA_ADD_VARIANTS'); ?></button>
 	</div>
 	<div id="hikashop_variant_bundle_toolbar" style="display:none;">
-		<button class="btn btn-danger" onclick="return window.productMgr.deleteVariants(this, <?php echo (int)$this->product->product_id; ?>);"><img src="<?php echo HIKASHOP_IMAGES; ?>cancel.png" alt="" style="vertical-align:middle;"/> <?php echo JText::_('HIKA_DELETE'); ?></button>
-		<button class="btn btn-info" onclick="return window.productMgr.duplicateVariants(this, <?php echo (int)$this->product->product_id; ?>);"><img src="<?php echo HIKASHOP_IMAGES; ?>copy.png" alt="" style="vertical-align:middle;"/> <?php echo JText::_('HIKA_DUPLICATE'); ?></button>
+		<button class="btn btn-danger" onclick="return window.productMgr.deleteVariants(this, <?php echo (int)$this->product->product_id; ?>);"><i class="fa fa-times"></i> <?php echo JText::_('HIKA_DELETE'); ?></button>
+		<button class="btn btn-info" onclick="return window.productMgr.duplicateVariants(this, <?php echo (int)$this->product->product_id; ?>);"><i class="fa fa-copy"></i> <?php echo JText::_('HIKA_DUPLICATE'); ?></button>
 	</div>
 	<div style="clear:both"></div>
 </div>
@@ -29,6 +29,7 @@ if(!hikashop_acl('product/edit/variants') || empty($this->product->product_id))
 				<input onchange="window.hikashop.checkAll(this, 'hikashop_product_variant_checkbox_');" type="checkbox" id="hikashop_product_variant_checkbox_general" value=""/>
 			</th>
 			<th style="width:25px"></th>
+			<th><?php echo JText::_('PRODUCT_CODE'); ?></th>
 <?php
 	$default_variants = array();
 	$characteristics = array();
@@ -47,6 +48,7 @@ if(!hikashop_acl('product/edit/variants') || empty($this->product->product_id))
 			<th><?php echo JText::_('PRODUCT_QUANTITY'); ?></th>
 			<th style="width:1%"><?php echo JText::_('HIKA_PUBLISHED'); ?></th>
 			<th style="width:1%"><?php echo JText::_('HIKA_DEFAULT'); ?></th>
+			<th style="width:1%"><?php echo JText::_('ID'); ?></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -60,7 +62,10 @@ if(!hikashop_acl('product/edit/variants') || empty($this->product->product_id))
 			<td style="text-align:center">
 				<input onchange="window.productMgr.checkVariant(this, <?php echo $variant->product_id; ?>);" type="checkbox" id="hikashop_product_variant_checkbox_<?php echo $variant->product_id; ?>" value="<?php echo $variant->product_id; ?>"/>
 			</td>
-			<td style="text-align:center"><a href="#edit:<?php echo $variant->product_id; ?>" onclick="return window.productMgr.editVariant(<?php echo $variant->product_id; ?>);"><img src="<?php echo HIKASHOP_IMAGES; ?>edit.png" alt="<?php echo JText::_('HIKA_EDIT'); ?>"/></a></td>
+			<td style="text-align:center"><a href="#edit:<?php echo $variant->product_id; ?>" onclick="return window.productMgr.editVariant(<?php echo $variant->product_id; ?>);"><i class="fas fa-pen"></i></a></td>
+			<td>
+				<?php echo $variant->product_code; ?>
+			</td>
 <?php
 		$cpt = 0;
 		foreach($this->product->characteristics as $characteristic) {
@@ -78,12 +83,17 @@ if(!hikashop_acl('product/edit/variants') || empty($this->product->product_id))
 			$default_found = true;
 		if(!HIKASHOP_J30)
 			$variant_default = ($variant_default == 'icon-publish') ? 'grid_true' : 'grid_false';
-?>			<td style="cursor:pointer" onclick="return window.productMgr.editVariant(<?php echo $variant->product_id; ?>);"><?php echo $this->currencyClass->displayPrices(@$variant->prices);?></td>
+		$field = 'price_value';
+		if($this->config->get('floating_tax_prices')){
+			$field = 'price_value_with_tax';
+		}
+?>			<td style="cursor:pointer" onclick="return window.productMgr.editVariant(<?php echo $variant->product_id; ?>);"><?php echo $this->currencyClass->displayPrices(@$variant->prices, $field);?></td>
 			<td style="cursor:pointer" onclick="return window.productMgr.editVariant(<?php echo $variant->product_id; ?>);"><?php echo (($variant->product_quantity == -1) ? JText::_('UNLIMITED') : $variant->product_quantity); ?></td>
 			<td style="text-align:center" href="#" onclick="return window.productMgr.publishVariant(event, <?php echo $variant->product_id; ?>);"><?php echo $this->toggleClass->display('product_published', $variant->product_published); ?></td>
 			<td style="text-align:center">
 				<div class="toggle_loading"><a class="<?php echo $variant_default; ?>" href="#" onclick="return window.productMgr.setDefaultVariant(event, <?php echo $variant->product_id; ?>);"></a></div>
 			</td>
+			<td><?php echo $variant->product_id; ?></td>
 		</tr>
 <?php
 		$k = 1 - $k;
@@ -109,14 +119,21 @@ window.productMgr.variantEdition = {
 	checked: null
 };
 window.productMgr.refreshVariantList = function() {
-	var w = window, o = w.Oby, t = this,
+	var w = window, d = document, o = w.Oby, t = this,
 		url_list = '<?php echo hikashop_completeLink('product&task=variants&product_id='.$this->product->product_id.'&'.hikashop_getFormToken().'=1',true,false,true); ?>';
 	o.xRequest(url_list, {update:'hikashop_product_variant_list'}, function(x,p) {
-		if(!t.variantEdition.current)
-			return;
 		setTimeout(function(){
-			var l = document.getElementById('hikashop_product_variant_line_' + t.variantEdition.current);
-			if(l) window.Oby.addClass(l, 'selectedVariant');
+			var message = d.getElementById('hikashop_variants_missing_error'), tr_found = d.querySelector('[id^="hikashop_product_variant_line_"]');
+			if(message){
+				if(tr_found)
+					message.style.display = 'none';
+				else
+					message.style.display = '';
+			}
+			if(!t.variantEdition.current)
+				return;
+			var l = d.getElementById('hikashop_product_variant_line_' + t.variantEdition.current);
+			if(l) o.addClass(l, 'selectedVariant');
 		},10);
 	});
 };

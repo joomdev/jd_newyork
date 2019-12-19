@@ -26,13 +26,6 @@ class N2SSPluginWidgetShadowShadow extends N2SSPluginWidgetAbstract {
             'isRequired' => true,
             'folder'     => N2Filesystem::translate($this->getPath() . 'shadow/')
         ));
-        new N2ElementImage($settings, 'widget-shadow-shadow-image', n2_('Shadow image'), '', array(
-            'rowClass' => 'n2-expert'
-        ));
-        new N2ElementText($settings, 'widget-shadow-width', n2_('Width'), '', array(
-            'rowClass' => 'n2-expert'
-        ));
-    
     }
 
     public function getPath() {
@@ -91,10 +84,10 @@ class N2SSPluginWidgetShadowShadow extends N2SSPluginWidgetAbstract {
         return N2Html::tag('div', $displayAttributes + $attributes + array(
                 'class' => $displayClass . "nextend-shadow n2-ow",
                 'style' => $style
-            ), N2Html::image(N2ImageHelper::fixed($shadow), 'Shadow', array(
-                'style' => 'display: block; width:100%;max-width:none;',
-                'class' => 'n2-ow nextend-shadow-image'
-            ) + N2Html::getExcludeLazyLoadAttributes()));
+            ), N2Html::image(N2ImageHelper::fixed($shadow), 'Shadow', N2HTML::addExcludeLazyLoadAttributes(array(
+            'style' => 'display: block; width:100%;max-width:none;',
+            'class' => 'n2-ow nextend-shadow-image'
+        ))));
     }
 
     public function prepareExport($export, $params) {

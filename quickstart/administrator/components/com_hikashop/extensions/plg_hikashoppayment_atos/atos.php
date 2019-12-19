@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -118,13 +118,13 @@ class plgHikashoppaymentAtos extends hikashopPaymentPlugin
 		$router = $this->app->getRouter();
 		$mode_sef = ($router->getMode() == JROUTER_MODE_SEF) ? true : false;
 
-		if(HIKASHOP_J16){
-			$db = JFactory::getDBO();
-			$query = 'SELECT * FROM '.hikashop_table('extensions', false).' WHERE name=\'plg_system_languagefilter\' AND folder=\'system\' AND enabled=1';
-			$db->setQuery($query);
-			$plugin = $db->loadResult();
-		}
-		if(HIKASHOP_J16 && !empty($plugin)){
+
+		$db = JFactory::getDBO();
+		$query = 'SELECT * FROM '.hikashop_table('extensions', false).' WHERE name=\'plg_system_languagefilter\' AND folder=\'system\' AND enabled=1';
+		$db->setQuery($query);
+		$plugin = $db->loadResult();
+
+		if(!empty($plugin)){
 			if($mode_sef) {
 				$vars["automatic_response_url"] = HIKASHOP_LIVE.'atos.php/'.$this->locale;
 				$vars["cancel_return_url"] = HIKASHOP_LIVE.'atos.php/'.$this->locale;
@@ -677,7 +677,7 @@ function insertCards(){
 				$app->enqueueMessage( $message['safe_mode_activated']);
 			$safe_mode_dir = ini_get('safe_mode_exec_dir');
 			$element->payment_params->safe=true;
-			if($app->isAdmin() && empty($element->payment_params->binaries_folder)){
+			if(hikashop_isClient('administrator') && empty($element->payment_params->binaries_folder)){
 				$app->enqueueMessage($message['cannot_run_binaries'].$safe_mode_dir, 'error');
 			}
 		}
@@ -716,7 +716,7 @@ function insertCards(){
 		$app = JFactory::getApplication();
 		jimport('joomla.filesystem.file');
 		jimport('joomla.filesystem.path');
-		$file = hikaInput::get()->files->get($name, array(), 'array');
+		$file = hikaInput::get()->files->getVar($name, array(), 'array');
 		$message=$this->_getLanguage();
 
 		if(empty($file['name'])){
@@ -1074,7 +1074,7 @@ include(\'index.php\');
 		if($fail)
 			return false;
 
-		$data=JFile::read($param_path.'pathfile');
+		$data=file_get_contents($param_path.'pathfile');
 		preg_match_all('#([a-z_]+)\!(.+)\!#iU',$data,$matches);
 		$i=0;
 		foreach($matches[1] as $match){

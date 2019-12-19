@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -18,12 +18,25 @@ class plgSystemReds_redirect extends JPlugin {
 	function onAfterRoute()
 	{
 		$app = JFactory::getApplication();
-		if( JRequest::getString('option') != 'com_redshop' || $app->isAdmin() )
+
+		if(version_compare(JVERSION,'4.0','>=') && $app->isClient('administrator'))
+			return true;
+		if(version_compare(JVERSION,'4.0','<') && $app->isAdmin())
 			return true;
 
-		$redsProdId = JRequest::getInt('pid');
-		$redsCatId = JRequest::getInt('cid');
-		$redsOrderId= JRequest::getInt('oid');
+		if(version_compare(JVERSION,'3.0','>=')) {
+			$option = $app->input->getVar('option');
+			$redsProdId = $app->input->getInt('pid');
+			$redsCatId = $app->input->getInt('cid');
+			$redsOrderId = $app->input->getInt('oid');
+		} else {
+			$option = JRequest::getVar('option');
+			$redsProdId = JRequest::getInt('pid');
+			$redsCatId = JRequest::getInt('cid');
+			$redsOrderId = JRequest::getInt('oid');
+		}
+		if($option != 'com_redshop' )
+			return true;
 
 		$url = null; //HIKASHOP_LIVE;
 		$db = JFactory::getDBO();

@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -164,7 +164,7 @@ class plgHikashopMassaction_category extends JPlugin
 		$params->action_id = $k;
 		$js = '';
 		$app = JFactory::getApplication();
-		if($app->isAdmin() && hikaInput::get()->getVar('ctrl','massaction') == 'massaction'){
+		if(hikashop_isClient('administrator') && hikaInput::get()->getVar('ctrl','massaction') == 'massaction'){
 			echo hikashop_getLayout('massaction','results',$params,$js);
 		}
 
@@ -180,7 +180,7 @@ class plgHikashopMassaction_category extends JPlugin
 			ob_get_clean();
 		}
 		$app = JFactory::getApplication();
-		if($app->isAdmin() || (!$app->isAdmin() && !empty($path))){
+		if(hikashop_isClient('administrator') || (!hikashop_isClient('administrator') && !empty($path))){
 			$params->action['category']['category_id'] = 'category_id';
 			unset($action['formatExport']);
 			$params = $this->massaction->_displayResults('category',$elements,$action,$k);
@@ -224,7 +224,7 @@ class plgHikashopMassaction_category extends JPlugin
 		$possibleTables = array($current);
 		if(!isset($this->massaction))$this->massaction = hikashop_get('class.massaction');
 		$value = $this->massaction->updateValuesSecure($action,$possibleTables,$queryTables);
-		JArrayHelper::toInteger($ids);
+		hikashop_toInteger($ids);
 		$db = JFactory::getDBO();
 
 		$max = 500;
@@ -237,14 +237,14 @@ class plgHikashopMassaction_category extends JPlugin
 				$query .= 'SET hk_'.$alias[0].'.'.$action['type'].' = '.$value.' ';
 				$query .= 'WHERE hk_'.$current.'.'.$current.'_id IN ('.implode(',',$id).')';
 				$db->setQuery($query);
-				$db->query();
+				$db->execute();
 			}
 		}else{
 			$query = 'UPDATE '.hikashop_table($current).' AS hk_'.$current.' ';
 			$query .= 'SET hk_'.$alias[0].'.'.$action['type'].' = '.$value.' ';
 			$query .= 'WHERE hk_'.$current.'.'.$current.'_id IN ('.implode(',',$ids).')';
 			$db->setQuery($query);
-			$db->query();
+			$db->execute();
 		}
 	}
 	function onProcessCategoryMassActiondeleteElements(&$elements,&$action,$k){

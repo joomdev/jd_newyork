@@ -77,8 +77,6 @@ class N2SmartsliderBackendSettingsView extends N2ViewBase {
                 'async'  => n2_('Async'),
             )
         ));
-        new N2ElementOnOff($css, 'icon-fa', n2_('Load Font Awesome on frontend when required'), 1);
-    
 
         $request = new N2Tab($form, 'requests', n2_('API requests'));
         new N2ElementOnOff($request, 'curl', 'Curl', 1);
@@ -96,24 +94,6 @@ class N2SmartsliderBackendSettingsView extends N2ViewBase {
                 " . json_encode($values) . "
             );
         ");
-    }
-
-    public function renderAviaryConfigurationForm() {
-        $values = N2ImageAviary::loadSettings();
-
-        $form = new N2Form($this->appType);
-        $form->loadArray($values);
-
-        $aviary = new N2Tab($form, 'aviary', 'Adobe Creative SDK - Aviary');
-        new N2ElementToken($aviary);
-        new N2ElementText($aviary, 'public', n2_('API Key'), '', array(
-            'style' => 'width: 250px;'
-        ));
-        new N2ElementText($aviary, 'secret', n2_('Client secret'), '', array(
-            'style' => 'width: 250px;'
-        ));
-
-        $form->render('aviary');
     }
 
     public function renderFontsConfigurationForm() {

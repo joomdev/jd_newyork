@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="1.6.0" client="site" method="upgrade">
+	<name>mod_djevents_search</name>
+	<creationDate>May 2016</creationDate>
+	<author>DJ-Extensions.com LTD</author>
+	<copyright>Copyright (C) 2016 DJ-Extensions.com LTD, All rights	reserved.</copyright>
+	<license> http://www.gnu.org/licenses GNU/GPL</license>
+	<authorEmail>contact@dj-extensions.com</authorEmail>
+	<authorUrl>http://dj-extensions.com</authorUrl>
+	<version>1.0.1</version>
+	<description>MOD_DJEVENTS_SEARCH</description>
+	<files>
+		<filename module="mod_djevents_search">mod_djevents_search.php</filename>
+		<filename>index.html</filename>
+		<folder>language</folder>
+		<folder>tmpl</folder>
+	</files>
+	<config>
+		<fields name="params">
+
+			<fieldset name="basic">
+				
+				<field name="search_layout" type="list" default="0" label="MOD_DJEVENTS_SEARCH_LAYOUT">
+					<option value="0">MOD_DJEVENTS_SEARCH_VERTICAL</option>
+					<option value="1">MOD_DJEVENTS_SEARCH_HORIZONTAL</option>
+				</field>
+				
+				<field name="show_input" type="radio" class="btn-group" default="1" label="MOD_DJEVENTS_SEARCH_SHOW_INPUT">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_category" type="radio" class="btn-group" default="1" label="MOD_DJEVENTS_SEARCH_SHOW_CATEGORY">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_city" type="radio" class="btn-group" default="1" label="MOD_DJEVENTS_SEARCH_SHOW_CITY">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_from" type="radio" class="btn-group" default="1" label="MOD_DJEVENTS_SEARCH_SHOW_FROM">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_to" type="radio" class="btn-group" default="1" label="MOD_DJEVENTS_SEARCH_SHOW_TO">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				
+			</fieldset>
+
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" default=""
+					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" />
+
+			</fieldset>
+		</fields>
+	</config>
+</extension>

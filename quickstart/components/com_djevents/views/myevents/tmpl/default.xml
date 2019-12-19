@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_DJEVENTS_MY_EVENTS_VIEW">
+	</layout>
+	<fields name="params">
+		<fieldset name="global" label="COM_DJEVENTS_CONFIG_GLOBAL_SETTINGS" addfieldpath="/administrator/components/com_djevent/models/fields">
+			
+			<field name="evlist_limit" type="text" default="" label="COM_DJEVENTS_CONFIG_LIST_LIMIT" description="COM_DJEVENTS_CONFIG_LIST_LIMIT_DESC" />
+			
+		</fieldset>
+	</fields>
+</metadata>

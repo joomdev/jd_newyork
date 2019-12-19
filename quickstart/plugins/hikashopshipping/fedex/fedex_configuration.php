@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -88,7 +88,7 @@ defined('_JEXEC') or die('Restricted access');
 					JHTML::_('select.option', 'res', JText::_('Residential Address') ),
 					JHTML::_('select.option', 'com', JText::_('Commercial Address') ),
 				);
-				echo JHTML::_('hikaselect.genericlist', $arr, "data[shipping][shipping_params][destination_type]", 'class="inputbox" size="1"', 'value', 'text', @$this->element->shipping_params->destination_type);
+				echo JHTML::_('hikaselect.genericlist', $arr, "data[shipping][shipping_params][destination_type]", 'class="custom-select" size="1"', 'value', 'text', @$this->element->shipping_params->destination_type);
 			?>
 	</tr>
 	<tr>
@@ -239,7 +239,7 @@ defined('_JEXEC') or die('Restricted access');
 					JHTML::_('select.option', '12', '12 Hour' ),
 					JHTML::_('select.option', '24', '24 Hour' ),
 				);
-				echo JHTML::_('hikaselect.genericlist', $arr, "data[shipping][shipping_params][show_eta_format]", 'class="inputbox" size="1"', 'value', 'text', @$this->element->shipping_params->show_eta_format);
+				echo JHTML::_('hikaselect.genericlist', $arr, "data[shipping][shipping_params][show_eta_format]", 'class="custom-select" size="1"', 'value', 'text', @$this->element->shipping_params->show_eta_format);
 			?>
 	</tr>
 	<tr>
@@ -270,7 +270,20 @@ defined('_JEXEC') or die('Restricted access');
 		</td>
 		<td>
 			<?php
-			$options = array("FEDEX_BOX"=>"FedEx Box", "FEDEX_PAK"=>"FedEx Pak", "FEDEX_TUBE"=>"FedEx Tube", "YOUR_PACKAGING"=>JText::_( 'SHIPPING_YOUR_PACKAGING'));
+			$options = array(
+							"YOUR_PACKAGING"=>JText::_( 'SHIPPING_YOUR_PACKAGING'),
+							"FEDEX_PAK"=>"FedEx pak",
+							"FEDEX_TUBE"=>"FedEx tube",
+							"FEDEX_BOX"=>"FedEx box",
+							"FEDEX_SMALL_BOX"=>"FedEx small box",
+							"FEDEX_MEDIUM_BOX"=>"FedEx medium box",
+							"FEDEX_LARGE_BOX"=>"FedEx large box",
+							"FEDEX_EXTRA_LARGE_BOX"=>"FedEx extra large box",
+							"FEDEX_10KG_BOX"=>"FedEx 10KG box",
+							"FEDEX_25KG_BOX"=>"FedEx 25 box",
+							"FEDEX_ENVELOPE"=>"FedEx envelope"
+						);
+
 			$opts = array();
 			foreach($options as $key=>$value){
 				$opts[] = @JHTML::_('select.option',$key,$value);

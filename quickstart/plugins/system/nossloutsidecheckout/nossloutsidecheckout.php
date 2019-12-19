@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -14,19 +14,20 @@ class plgSystemNossloutsidecheckout extends JPlugin
 		parent::__construct($subject, $config);
 		if(!isset($this->params)){
 			$plugin = JPluginHelper::getPlugin('system', 'nossloutsidecheckout');
-			if(version_compare(JVERSION,'2.5','<')) {
-				jimport('joomla.html.parameter');
-				$this->params = new JParameter(@$plugin->params);
-			} else {
-				$this->params = new JRegistry(@$plugin->params);
-			}
+			$this->params = new JRegistry(@$plugin->params);
 		}
 	}
 
 
 	function onAfterRoute(){
 		$app = JFactory::getApplication();
-		if ($app->isAdmin() || @$_REQUEST['tmpl']=='component') return true;
+
+		if(version_compare(JVERSION,'4.0','>=') && $app->isClient('administrator'))
+			return true;
+		if(version_compare(JVERSION,'4.0','<') && $app->isAdmin())
+			return true;
+
+		if (@$_REQUEST['tmpl']=='component') return true;
 
 		if(empty($_REQUEST['ctrl'])) $_REQUEST['ctrl'] = @$_REQUEST['view'];
 		if(empty($_REQUEST['task'])) $_REQUEST['task'] = @$_REQUEST['layout'];

@@ -1,8 +1,8 @@
 <?php
 /**
- * @version   3.2.6 August 21, 2018
+ * @version   3.2.8 September 26, 2019
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2018 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2019 RocketTheme, LLC
  * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only
  *
  * derived from JoomlaRTCacheDriver with original copyright and license

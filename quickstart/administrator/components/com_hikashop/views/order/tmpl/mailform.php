@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -38,7 +38,7 @@ window.hikashop.toggleCC = function(type,hide) {
 	document.getElementById('hikashop_'+type+'_input').focus();
 }
 
-window.hikashop.ready(function(){ 
+window.hikashop.ready(function(){
 	window.hikashop.toggleCC('cc',<?php echo $hide_cc; ?>);
 	window.hikashop.toggleCC('bcc',<?php echo $hide_bcc; ?>);
 });
@@ -135,5 +135,6 @@ window.hikashop.ready(function(){
 							</td>
 						</tr>
 					</table>
+					<input type="hidden" name="data[order][mail][reply_email]" value="<?php echo $this->element->mail->reply_email;?>" />
 					<input type="hidden" name="data[order][mail][html]" value="<?php echo $this->element->mail->html;?>" />
-					<input type="hidden" name="data[order][mail][mail_name]" value="<?php echo $this->element->mail->mail_name;?>" />
+					<input type="hidden" name="data[order][mail][mail_name]" value="<?php echo @$this->element->mail->mail_name;?>" />

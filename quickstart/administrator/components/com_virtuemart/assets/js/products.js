@@ -59,6 +59,7 @@ Virtuemart.customfields = jQuery(function($) {
 			$(this).autocomplete( 'option' , 'source' , Virtuemart.jsonLink+'&type=relatedproducts&row='+Virtuemart.nextCustom )
 		},
 		minLength:1,
+		delay: 400,
 		html: true
 	});
 	$('input#relatedcategoriesSearch').autocomplete({
@@ -71,6 +72,7 @@ Virtuemart.customfields = jQuery(function($) {
 			$(this).autocomplete( 'option' , 'source' , Virtuemart.jsonLink+'&type=relatedcategories&row='+Virtuemart.nextCustom )
 		},
 		minLength:1,
+		delay: 400,
 		html: true
 	});
 
@@ -129,7 +131,7 @@ Virtuemart.prdcustomer = jQuery(function($) {
 		});
 		jQuery('select#order_status').chosen({enable_select_all:true, select_some_options_text:vm2string.select_some_options_text}).change(function () {
 			populate_customer_list(jQuery(this).val());
-		})
+		});
 		jQuery('.mailing .button2-left').click(function () {
 
 			email_type = jQuery("input:radio[name=customer_email_type]:checked").val();
@@ -209,12 +211,12 @@ Virtuemart.prdcustomer = jQuery(function($) {
 			jQuery('#notify_particulars').show();
 			jQuery('#customer-mail-list').hide();
 			jQuery('#customer-mail-notify-list').show();
-			jQuery("input:radio[name=customer_email_type]").val()
+			jQuery("input:radio[name=customer_email_type]").val();
 			if (jQuery('input:checkbox[name=notification_template]').is(':checked')) jQuery('#customer-mail-content').hide();
 			else  jQuery('#customer-mail-content').show();
 
 		}
-		else if (email_type = 'customer') {
+		else if (email_type == 'customer') {
 			jQuery('#notify_particulars').hide();
 			jQuery('#customer-mail-content').show();
 			jQuery('#customer-mail-list').show();

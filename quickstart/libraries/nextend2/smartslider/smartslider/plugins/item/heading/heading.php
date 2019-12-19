@@ -15,21 +15,23 @@ class N2SSPluginItemFactoryHeading extends N2SSPluginItemFactoryAbstract {
 
     public function __construct() {
         $this->title = n2_x('Heading', 'Slide item');
-        $this->group = n2_('Content');
+        $this->group = n2_x('Content', 'Layer group');
     }
 
     function getValues() {
         self::initDefault();
 
         return array(
-            'priority'  => 'div',
-            'fullwidth' => 1,
-            'nowrap'    => 0,
-            'heading'   => n2_('Heading layer'),
-            'title'     => '',
-            'link'      => '#|*|_self',
-            'font'      => $this->font,
-            'style'     => $this->style,
+            'priority'    => 'div',
+            'fullwidth'   => 1,
+            'nowrap'      => 0,
+            'heading'     => n2_('Heading layer'),
+            'title'       => '',
+            'href'        => '#',
+            'href-target' => '_self',
+            'href-rel'    => '',
+            'font'        => $this->font,
+            'style'       => $this->style,
 
             'split-text-transform-origin'    => '50|*|50|*|0',
             'split-text-backface-visibility' => 1,
@@ -48,23 +50,44 @@ class N2SSPluginItemFactoryHeading extends N2SSPluginItemFactoryAbstract {
         return dirname(__FILE__) . DIRECTORY_SEPARATOR . $this->type . DIRECTORY_SEPARATOR;
     }
 
-    public static function getFilled($slide, $data) {
+    public function upgradeData($data) {
+        $linkV1 = $data->get('link', '');
+        if (!empty($linkV1)) {
+            list($link, $target, $rel) = array_pad((array)N2Parse::parse($linkV1), 3, '');
+            $data->un_set('link');
+            if (is_array($link)) {
+                $data->set('href', implode('', $link));
+            } else {
+                $data->set('href', $link);
+            }
+            $data->set('href-target', $target);
+            $data->set('href-rel', $rel);
+        }
+    }
+
+    public function getFilled($slide, $data) {
+        $data = parent::getFilled($slide, $data);
+
         $data->set('heading', $slide->fill($data->get('heading', '')));
-        $data->set('link', $slide->fill($data->get('link', '#|*|')));
+        $data->set('href', $slide->fill($data->get('href', '#|*|')));
 
         return $data;
     }
 
     public function prepareExport($export, $data) {
+        parent::prepareExport($export, $data);
+
         $export->addVisual($data->get('font'));
         $export->addVisual($data->get('style'));
-        $export->addLightbox($data->get('link'));
+        $export->addLightbox($data->get('href'));
     }
 
     public function prepareImport($import, $data) {
+        $data = parent::prepareImport($import, $data);
+
         $data->set('font', $import->fixSection($data->get('font')));
         $data->set('style', $import->fixSection($data->get('style')));
-        $data->set('link', $import->fixLightbox($data->get('link')));
+        $data->set('href', $import->fixLightbox($data->get('href')));
 
         return $data;
     }
@@ -110,26 +133,12 @@ class N2SSPluginItemFactoryHeading extends N2SSPluginItemFactoryAbstract {
             'fieldStyle' => 'width: 230px;resize: vertical;'
         ));
 
-        $link = new N2ElementMixed($settings, 'link', '', '|*|_self|*|');
-        new N2ElementUrl($link, 'link-1', n2_('Link'), '', array(
+        $link = new N2ElementGroup($settings, 'link', '');
+        new N2ElementUrl($link, 'href', n2_('Link'), '', array(
             'style' => 'width:236px;'
         ));
-        new N2ElementList($link, 'link-2', n2_('Target window'), '', array(
-            'options' => array(
-                '_self'  => n2_('Self'),
-                '_blank' => n2_('New')
-            )
-        ));
-        new N2ElementList($link, 'link-3', 'Rel', '', array(
-            'options' => array(
-                ''           => '',
-                'nofollow'   => 'nofollow',
-                'noreferrer' => 'noreferrer',
-                'author'     => 'author',
-                'external'   => 'external',
-                'help'       => 'help'
-            )
-        ));
+        new N2ElementLinkTarget($link, 'href-target', n2_('Target window'));
+        new N2ElementLinkRel($link, 'href-rel', n2_('Rel'));
 
         $other = new N2ElementGroup($settings, 'item-heading-other');
         new N2ElementList($other, 'priority', 'Tag', 'div', array(
@@ -145,11 +154,6 @@ class N2SSPluginItemFactoryHeading extends N2SSPluginItemFactoryAbstract {
         ));
         new N2ElementOnOff($other, 'fullwidth', n2_('Full width'), 1);
         new N2ElementOnOff($other, 'nowrap', n2_('No wrap'), 0);
-        new N2ElementText($settings, 'title', n2_('Title'), '', array(
-            'style'    => 'width:174px;',
-            'rowClass' => 'n2-expert'
-        ));
-    
 
         new N2ElementFont($settings, 'font', n2_('Font') . ' - ' . n2_('Heading'), '', array(
             'previewMode' => 'hover',
@@ -165,58 +169,6 @@ class N2SSPluginItemFactoryHeading extends N2SSPluginItemFactoryAbstract {
             'font'        => 'item_headingfont',
             'rowClass'    => 'n2-hidden'
         ));
-        $splitText = new N2ElementGroup($settings, 'item-heading-splittext');
-        new N2ElementSplitTextAnimation($splitText, 'split-text-animation-in', n2_('Split text - in'), '', array(
-            'group'           => 'in',
-            'relatedFont'     => 'item_headingfont',
-            'relatedStyle'    => 'item_headingstyle',
-            'transformOrigin' => 'item_headingsplit-text-transform-origin',
-            'preview'         => '<div style="width:{nextend.activeLayer.prop(\'style\').width};"><div class="{styleClassName}"><span class="{fontClassName}">{$(\'#item_headingheading\').val().replace(/\\n/g, "<br />");}</span></div></div>'
-        ));
-        new N2ElementNumber($splitText, 'split-text-delay-in', n2_('Delay'), 0, array(
-            'unit'  => 'ms',
-            'min'   => 0,
-            'style' => 'width:40px;'
-        ));
-
-        new N2ElementSplitTextAnimation($splitText, 'split-text-animation-out', n2_('Split text - out'), '', array(
-            'group'           => 'out',
-            'relatedFont'     => 'item_headingfont',
-            'relatedStyle'    => 'item_headingstyle',
-            'transformOrigin' => 'item_headingsplit-text-transform-origin',
-            'preview'         => '<div style="width:{nextend.activeLayer.prop(\'style\').width};"><div class="{styleClassName}"><span class="{fontClassName}">{$(\'#item_headingheading\').val().replace(/\\n/g, "<br />");}</span></div></div>'
-        ));
-        new N2ElementNumber($splitText, 'split-text-delay-out', n2_('Delay'), 0, array(
-            'unit'  => 'ms',
-            'min'   => 0,
-            'style' => 'width:40px;'
-        ));
-
-        new N2ElementOnOff($splitText, 'split-text-backface-visibility', n2_('Backface visibility'), 1);
-
-        $transformOrigin = new N2ElementMixed($splitText, 'split-text-transform-origin', n2_('Transform origin'), '50|*|50|*|0');
-        new N2ElementNumber($transformOrigin, 'split-text-transform-origin-x', false, '', array(
-            'sublabel' => 'X',
-            'unit'     => '%',
-            'style'    => 'width: 22px;'
-        ));
-        new N2ElementNumber($transformOrigin, 'split-text-transform-origin-y', false, '', array(
-            'sublabel' => 'Y',
-            'unit'     => '%',
-            'style'    => 'width: 22px;'
-        ));
-        new N2ElementNumber($transformOrigin, 'split-text-transform-origin-z', false, '', array(
-            'sublabel' => 'Z',
-            'unit'     => 'px',
-            'style'    => 'width: 22px;'
-        ));
-
-
-        new N2ElementText($settings, 'class', n2_('CSS class'), '', array(
-            'style'    => 'width:174px;',
-            'rowClass' => 'n2-expert'
-        ));
-    
 
     }
 

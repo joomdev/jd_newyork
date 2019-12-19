@@ -1,8 +1,8 @@
 /**
  * @package    HikaShop for Joomla!
- * @version    3.2.1
+ * @version    4.2.2
  * @author     hikashop.com
- * @copyright  (C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright  (C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 var hikaVote = function(el,opt) {
@@ -58,6 +58,10 @@ hikaVote.vote = function(val, from){
 	var hikashop_vote_comment = "", pseudo_comment = 0, email_comment = 0, recaptcha_comment = '';
 	if(d.getElementById("hikashop_vote_comment")) {
 		hikashop_vote_comment = d.getElementById("hikashop_vote_comment").value;
+
+		// don't submit the votes alone when the vote and comment are connected
+		if(hikaVote.options.both == '1' && hikashop_vote_comment == '' && val != 0)
+			return;
 		pseudo_comment = d.getElementById("pseudo_comment").value;
 		email_comment = d.getElementById("email_comment").value;
 		if(d.getElementById("g-recaptcha-response")){
@@ -104,6 +108,8 @@ hikaVote.vote = function(val, from){
 			data += "&main_ctrl="+String(type);
 			window.Oby.xRequest(hikaVote.options.urls.show, {mode: "POST", data: data}, function(xhr) {
 				section.innerHTML = xhr.response;
+				if(hkjQuery().chosen)
+					hkjQuery('#' + section.id + ' select').chosen();
 			});
 		}
 		if(response.values) {
@@ -134,7 +140,11 @@ hikaVote.useful = function(vote_id, val) {
 
 	data = "data_id=" + parseInt(hikaVote.options.itemId) + "&main_ctrl=" + encodeURIComponent(type) + "&content_type=listing";
 	window.Oby.xRequest(hikaVote.options.urls.show, {mode: "POST", data: data}, function(xhr) {
-		setTimeout(function(){ section.innerHTML = xhr.response;}, 5000);
+		setTimeout(function(){
+			section.innerHTML = xhr.response;
+			if(hkjQuery().chosen)
+				hkjQuery('#' + section.id + ' select').chosen();
+		}, 5000);
 	});
 };
 
@@ -402,7 +412,7 @@ var initVote = function(mainDiv){
 		return;
 	for(var i=0; i < voteContainers.length; i++) {
 		el = d.getElementById(voteContainers[i].id);
-		if(!el.getAttribute("data-votetype"))
+		if(!el || !el.getAttribute("data-votetype"))
 			continue;
 		r = new hikaVote(el, {
 			id : 'hikashop_vote_rating_'+el.getAttribute("data-votetype")+'_'+el.getAttribute("data-ref"),

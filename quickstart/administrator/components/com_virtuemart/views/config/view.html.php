@@ -1,26 +1,23 @@
 <?php
 /**
-*
-* Description
-*
-* @package	VirtueMart
-* @subpackage Config
-* @author RickG
-* @link https://virtuemart.net
-* @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
-* @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
-* VirtueMart is free software. This version may have been modified pursuant
-* to the GNU General Public License, and as distributed it includes or
-* is derivative of works licensed under the GNU General Public License or
-* other free or open source software licenses.
-* @version $Id: view.html.php 9797 2018-03-14 12:46:12Z Milbo $
-*/
+ *
+ * Description
+ *
+ * @package	VirtueMart
+ * @subpackage Config
+ * @author RickG
+ * @link https://virtuemart.net
+ * @copyright Copyright (c) 2004 - 2019 VirtueMart Team. All rights reserved.
+ * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * VirtueMart is free software. This version may have been modified pursuant
+ * to the GNU General Public License, and as distributed it includes or
+ * is derivative of works licensed under the GNU General Public License or
+ * other free or open source software licenses.
+ * @version $Id: view.html.php 10167 2019-10-09 07:51:46Z Milbo $
+ */
 
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
-
-// Load the view framework
-if(!class_exists('VmViewAdmin'))require(VMPATH_ADMIN.DS.'helpers'.DS.'vmviewadmin.php');
 
 /**
  * HTML View class for the configuration maintenance
@@ -33,19 +30,10 @@ class VirtuemartViewConfig extends VmViewAdmin {
 
 	function display($tpl = null) {
 
-		if (!class_exists('VmImage'))
-			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'image.php');
-
-		if (!class_exists('VmHTML'))
-			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'html.php');
-
-		if(!class_exists('JFolder'))
-			require(VMPATH_LIBS.DS.'joomla'.DS.'filesystem'.DS.'folder.php');
-
 		$model = VmModel::getModel();
 		$usermodel = VmModel::getModel('user');
 
-		JToolBarHelper::title( vmText::_('COM_VIRTUEMART_CONFIG') , 'head vm_config_48');
+		JToolbarHelper::title( vmText::_('COM_VIRTUEMART_CONFIG') , 'head vm_config_48');
 
 		$this->addStandardEditViewCommands();
 
@@ -91,7 +79,7 @@ class VirtuemartViewConfig extends VmViewAdmin {
 
 		$this->currConverterList = $model->getCurrencyConverterList();
 
-		$this->activeShopLanguage = $model->getActiveLanguages( VmConfig::get('vmDefLang'), 'vmDefLang', false, 'COM_VIRTUEMART_ADMIN_CFG_POOS_GLOBAL' );
+		$this->activeShopLanguage = $model->getActiveLanguages( VmConfig::get('vmDefLang'), 'vmDefLang', false, vmText::sprintf('COM_VIRTUEMART_ADMIN_CFG_POOS_GLOBAL', vmConfig::$jDefLangTag) );
 		$this->activeLanguages = $model->getActiveLanguages( VmConfig::get('active_languages') );
 
 		$this->orderByFieldsProduct = $model->getProductFilterFields('browse_orderby_fields');
@@ -116,7 +104,6 @@ class VirtuemartViewConfig extends VmViewAdmin {
 
 		$this->aclGroups = $usermodel->getAclGroupIndentedTree();
 
-		if(!class_exists('VmTemplate')) require(VMPATH_SITE.DS.'helpers'.DS.'vmtemplate.php');
 		$this->vmtemplate = VmTemplate::loadVmTemplateStyle();
 		$this->imagePath = shopFunctions::getAvailabilityIconUrl($this->vmtemplate);
 
@@ -126,7 +113,8 @@ class VirtuemartViewConfig extends VmViewAdmin {
 		$this->orderDirs[] = JHtml::_('select.option', 'ASC' , vmText::_('Ascending')) ;
 		$this->orderDirs[] = JHtml::_('select.option', 'DESC' , vmText::_('Descending')) ;
 
-		shopFunctions::checkSafePath();
+		//shopFunctions::checkSafePathBase();
+		shopFunctions::getSafePathFor(1,'invoice');
 		$this -> checkTCPDFinstalled();
 		$this -> checkVmUserVendor();
 		$this -> checkMysqliUsed();
@@ -188,10 +176,7 @@ WHERE published="1"';
 	}
 
 	private function checkTCPDFinstalled(){
-
-		if(!file_exists(VMPATH_LIBS.DS.'tcpdf'.DS.'tcpdf.php')){
-			vmWarn('COM_VIRTUEMART_TCPDF_NINSTALLED');
-		}
+		return vmDefines::tcpdf();
 	}
 
 	private function checkClientIP(){
@@ -199,15 +184,24 @@ WHERE published="1"';
 		if(!empty($revproxvar)) vmdebug('My server variable ',$_SERVER);
 	}
 
+	public static function getTip($label){
+		$lang = vmLanguage::getLanguage();
+		if($lang->hasKey($label.'_TIP')){
+			return $label.'_TIP';
+		} else if ($lang->hasKey($label.'_EXPLAIN')) {
+			return $label.'_EXPLAIN';
+		} else {
+			return '';
+		}
+	}
+
 	static $options = array();
 	static public function rowShopFrontSet($params, $label, $name, $name2, $name3 = 0, $default = 1){
 
-		$lang =JFactory::getLanguage();
-		if($lang->hasKey($label.'_TIP')){
-			$label = '<span class="hasTip" title="'.htmlentities(vmText::_($label.'_TIP')).'">'.vmText::_($label).'</span>' ;
-		} //Fallback
-		else if($lang->hasKey($label.'_EXPLAIN')){
-			$label = '<span class="hasTip" title="'.htmlentities(vmText::_($label.'_EXPLAIN')).'">'.vmText::_($label).'</span>' ;
+		//$lang =vmLanguage::getLanguage();
+		$tip = self::getTip($label);
+		if($tip){
+			$label = '<span class="hasTip" title="'.htmlentities(vmText::_($tip)).'">'.vmText::_($label).'</span>' ;
 		} else {
 			$label = vmText::_($label);
 		}
@@ -237,32 +231,39 @@ WHERE published="1"';
 	 */
 	static function writePriceConfigLine ($array, $name, $langkey) {
 
-		if (!class_exists ('VmHTML')) {
-			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'html.php');
-		}
 		if(is_object($array)) $array = get_object_vars($array);
 		if(!isset($array[$name])) $array[$name] = 0;
 		if(!isset($array[$name . 'Text'])) $array[$name . 'Text'] = 0;
 		if(!isset($array[$name . 'Rounding'])) $array[$name . 'Rounding'] = -1;
+
+		$tip = self::getTip($langkey);
 		$html =
 		'<tr>
-				<td class="key">
-					<span class="editlinktip hasTip" title="' . vmText::_ ($langkey . '_EXPLAIN') . '">
-						<label>' . vmText::_ ($langkey) .
-		'</label>
-					</span>
-				</td>
+			<td class="key">';
+		if ($tip){
+			$html .= '
+				<span class="editlinktip hasTip" title="' . vmText::_ ($tip) . '">
+					<label>' . vmText::_ ($langkey) . '</label>
+				</span>';
+		} else {
+			$html .= '
+				<span class="editlinktip noTip">
+					<label>' . vmText::_ ($langkey) . '</label>
+				</span>';
+		}
+		$html .='
+			</td>
 
-				<td>' .
+			<td>' .
 		VmHTML::checkbox ($name, $array[$name]) . '
-				</td>
-				<td align="center">' .
+			</td>
+			<td align="center">' .
 		VmHTML::checkbox ($name . 'Text', $array[$name . 'Text']) . '
-				</td>
-				<td align="center">
-				<input type="text" value="' . $array[$name . 'Rounding'] . '" class="inputbox" size="4" name="' . $name . 'Rounding">
-				</td>
-			</tr>';
+			</td>
+			<td align="center">
+			<input type="text" value="' . $array[$name . 'Rounding'] . '" class="inputbox" size="4" name="' . $name . 'Rounding">
+			</td>
+		</tr>';
 		return $html;
 	}
 }

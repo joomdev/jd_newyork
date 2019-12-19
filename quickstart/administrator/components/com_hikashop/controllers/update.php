@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -20,7 +20,7 @@ class updateController extends HikashopBridgeController {
 	}
 
 	function install(){
-		hikashop_setTitle('HikaShop','install','update');
+		hikashop_setTitle('HikaShop','heartbeat','update');
 		$newConfig = new stdClass();
 		$newConfig->installcomplete = 1;
 		$config = hikashop_config();
@@ -42,11 +42,7 @@ class updateController extends HikashopBridgeController {
 			$app = JFactory::getApplication();
 			$app->redirect(hikashop_completeLink('update&task=wizard', false, true));
 		}
-		if (!HIKASHOP_PHP5) {
-			$bar =& JToolBar::getInstance('toolbar');
-		}else{
-			$bar = JToolBar::getInstance('toolbar');
-		}
+		$bar = JToolBar::getInstance('toolbar');
 		$bar->appendButton( 'Link', 'dashboard', JText::_('HIKASHOP_CPANEL'), hikashop_completeLink('dashboard') );
 		$this->_iframe(HIKASHOP_UPDATEURL.'install&fromversion='.hikaInput::get()->getCmd('fromversion'));
 	}
@@ -57,21 +53,20 @@ class updateController extends HikashopBridgeController {
 			hikashop_display(JText::_('RESSOURCE_NOT_ALLOWED'),'error');
 			return false;
 		}
-		hikashop_setTitle(JText::_('UPDATE_ABOUT'),'install','update');
-		if (!HIKASHOP_PHP5) {
-			$bar =& JToolBar::getInstance('toolbar');
-		}else{
-			$bar = JToolBar::getInstance('toolbar');
-		}
+		hikashop_setTitle(JText::_('UPDATE_ABOUT'),'sync','update');
+		$bar = JToolBar::getInstance('toolbar');
 		$bar->appendButton( 'Link', 'dashboard', JText::_('HIKASHOP_CPANEL'), hikashop_completeLink('dashboard') );
 		return $this->_iframe(HIKASHOP_UPDATEURL.'update');
 	}
 	function _iframe($url){
-		$config =& hikashop_config();
-		$menu_style = $config->get('menu_style','title_bottom');
-		if(HIKASHOP_J30) $menu_style = 'content_top';
-		if($menu_style=='content_top'){
-			echo hikashop_getMenu('',$menu_style);
+		$app = JFactory::getApplication();
+		if(hikashop_isClient('administrator')){
+			$config =& hikashop_config();
+			$menu_style = $config->get('menu_style','title_bottom');
+			if(HIKASHOP_J30) $menu_style = 'content_top';
+			if($menu_style=='content_top'){
+				echo hikashop_getMenu('',$menu_style);
+			}
 		}
 
 		if(hikashop_isSSL())
@@ -83,9 +78,13 @@ class updateController extends HikashopBridgeController {
 <?php
 	}
 	function wizard(){
+		$app = JFactory::getApplication();
+		if(!hikashop_isClient('administrator')){
+			return;
+		}
 		$lang = JFactory::getLanguage();
 		$code = $lang->getTag();
-		$path = JLanguage::getLanguagePath(JPATH_ROOT).DS.$code.DS.$code.'.com_hikashop.ini';
+		$path = hikashop_getLanguagePath(JPATH_ROOT).DS.$code.DS.$code.'.com_hikashop.ini';
 		jimport('joomla.filesystem.file');
 		if(!JFile::exists($path)){
 			$url = HIKASHOP_UPDATEURL.'languageload&raw=1&code='.$code;
@@ -162,7 +161,7 @@ class updateController extends HikashopBridgeController {
 			}elseif(preg_match('#module#',$key)){ // module
 				if(preg_match('#categories#',$key)){
 					$db->setQuery('UPDATE '.hikashop_table('modules',false).' SET `published` = 1 WHERE `title` = '.$db->Quote('Categories on 2 levels'));
-					$db->query();
+					$db->execute();
 				}
 			}
 		}
@@ -179,12 +178,12 @@ class updateController extends HikashopBridgeController {
 		$zoneClass = hikashop_get('class.zone');
 		$zone = $zoneClass->get($main_zone);
 		$db->setQuery('REPLACE INTO '.hikashop_table('config').' (config_namekey, config_value) VALUES ("main_tax_zone", '.$db->Quote($zone->zone_id).'), ("store_address", '.$db->Quote($shopAddress).'), ("main_currency", '.$db->Quote($currency).'), ("default_params", '.$db->Quote($defaultParams).')');
-		$db->query();
+		$db->execute();
 
 		$db->setQuery('UPDATE '.hikashop_table('field').' SET `field_default` = '.$db->Quote($addressState).' WHERE field_namekey = "address_state"');
-		$db->query();
+		$db->execute();
 		$db->setQuery('UPDATE '.hikashop_table('field').' SET `field_default` = '.$db->Quote($addressCountry).' WHERE field_namekey = "address_country"');
-		$db->query();
+		$db->execute();
 
 		$import_language = hikaInput::get()->getVar('import_language');
 		if($import_language != '0'){
@@ -195,7 +194,7 @@ class updateController extends HikashopBridgeController {
 			}
 			$updateHelper = hikashop_get('helper.update');
 			foreach($languages as $code){
-				$path = JLanguage::getLanguagePath(JPATH_ROOT).DS.$code.DS.$code.'.com_hikashop.ini';
+				$path = hikashop_getLanguagePath(JPATH_ROOT).DS.$code.DS.$code.'.com_hikashop.ini';
 				jimport('joomla.filesystem.file');
 				if(!JFile::exists($path)) {
 					$url = str_replace('https://','http://',HIKASHOP_UPDATEURL.'languageload&raw=1&code='.$code);
@@ -227,7 +226,11 @@ class updateController extends HikashopBridgeController {
 				else
 					jimport('joomla.filesystem.archive');
 
-				$archiveClass = new JArchive();
+				if(HIKASHOP_J40)
+					$archiveClass = new Joomla\Archive\Archive();
+				else
+					$archiveClass = new JArchive();
+
 				$zip = $archiveClass->getAdapter('zip');
 
 				$path = JPath::clean($tmp_dest . DS . 'eu_taxes' . DS); // pathinfo(realpath($file), PATHINFO_DIRNAME);
@@ -268,7 +271,7 @@ class updateController extends HikashopBridgeController {
 		if(isset($taxRate) && (!empty($taxRate) || $taxRate != '0')){
 			$taxRate = (float)$taxRate / 100;
 			$db->setQuery('REPLACE INTO '.hikashop_table('tax').' (tax_namekey,tax_rate) VALUES ('.$db->Quote($taxName).','.(float)$taxRate.')');
-			$db->query();
+			$db->execute();
 
 			$db->setQuery('SELECT `taxation_id` FROM '.hikashop_table('taxation').' ORDER BY `taxation_id` DESC LIMIT 0,1');
 			$maxId = $db->loadResult();
@@ -302,7 +305,7 @@ class updateController extends HikashopBridgeController {
 			$query = 'INSERT INTO '.hikashop_table('taxation').' ('.implode(',',array_keys($tax)).') VALUES ('.implode(',',$tax).')';
 
 			$db->setQuery($query);
-			$db->query();
+			$db->execute();
 		}
 
 		if(isset($paypalEmail) && !empty($paypalEmail)){
@@ -336,14 +339,14 @@ class updateController extends HikashopBridgeController {
 				$forceShipping = 0;
 			}
 			$db->setQuery('REPLACE INTO '.hikashop_table('config').' (config_namekey, config_value) VALUES ("force_shipping", '.(int)$forceShipping.')');
-			$db->query();
+			$db->execute();
 			if($productType == 'virtual'){
 				$product_type = 'virtual';
 			}else{
 				$product_type = 'shippable';
 			}
 			$db->setQuery('REPLACE INTO '.hikashop_table('config').' (config_namekey, config_value) VALUES ("default_product_type", '.(int)$product_type.')');
-			$db->query();
+			$db->execute();
 		}
 
 		if ($dataExample==1) //Install data sample
@@ -457,7 +460,10 @@ class updateController extends HikashopBridgeController {
 				}else{
 					jimport('joomla.filesystem.archive');
 				}
-				$archiveClass = new JArchive();
+				if(HIKASHOP_J40)
+					$archiveClass = new Joomla\Archive\Archive();
+				else
+					$archiveClass = new JArchive();
 				$zip = $archiveClass->getAdapter('zip');
 
 				if(!$zip->extract($destination,$path))
@@ -515,9 +521,9 @@ class updateController extends HikashopBridgeController {
 				{
 					if (!empty($d))
 					{
-						$db->setQuery($d);
 						try {
-							$db->query();
+							$db->setQuery($d);
+							$db->execute();
 						} catch(Exception $e) {
 							echo 'Fail query : '.$e->getMessage();
 							$error = true;
@@ -530,14 +536,14 @@ class updateController extends HikashopBridgeController {
 				if (!empty($paypalEmail))
 				{
 					$db->setQuery("UPDATE `#__hikashop_payment` SET `payment_published` = '0'");
-					$db->query();
+					$db->execute();
 					$db->setQuery("UPDATE `#__hikashop_payment` SET `payment_published` = '1' WHERE `payment_id` = '1'");
-					$db->query();
+					$db->execute();
 				}
 				else
 				{
 					$db->setQuery("UPDATE `#__hikashop_payment` SET `payment_published` = '1'");
-					$db->query();
+					$db->execute();
 				}
 
 				$categoryClass = hikashop_get('class.category');

@@ -1,0 +1,399 @@
+/**
+ * @package DJ-Events
+ * @copyright Copyright (C) DJ-Extensions.com, All rights reserved.
+ * @license DJ-Extensions.com Proprietary Use License
+ * @author url: http://dj-extensions.com
+ * @author email contact@dj-extensions.com
+ * @developer Szymon Woronowski - szymon.woronowski@design-joomla.eu
+ */
+ 
+ /**
+  * clearing
+  */
+
+.djev_clearfix:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
+.djev_clearfix {
+	min-width: 0;
+	display: inline-block; /* \*/
+	display: block;
+} /* trigger hasLayout for IE7. Hide from IE Mac */
+* html .djev_clearfix {
+	height: 1%;
+} /* Hide from IE Mac */
+
+/**
+ * Preven modals from covering tooltips
+ */
+.tip-wrap {
+	z-index: 2000 !important;
+}
+
+
+/**
+  * EVENT VIEW
+  */
+.djev_event {
+	margin: 1em 0;
+}
+.djev_event .djev_event_info {
+	float: left;
+	margin: 10px 30px 10px 0;
+	max-width: 100%;
+}
+.djev_event .djev_event_info:empty {
+	display: none;
+}
+.djev_event .djev_gallery {
+	margin-bottom: 20px;
+}
+.djev_event .djev_poster,
+.djev_event .djev_thumb {
+	position: relative;
+	margin: 5px 5px 0 0;
+}
+.djev_event .djev_thumb {
+	float: left;
+}
+
+.djev_event .djev_media_link {
+	position: relative;
+}
+
+.djev_event .djev_thumb i,
+.djev_event .djev_poster i {
+	position: absolute;
+	font-size: 20px;
+	line-height: 50px;
+	width: 50px;
+	height: 50px;
+	top: 50%;
+	left: 50%;
+	margin: -25px 0 0 -25px;
+	text-align: center;
+	color: rgba(240,240,240,0.7);
+}
+.djev_event .djev_poster i {
+	font-size: 50px;
+}
+.djev_event .djev_thumb a:hover i,
+.djev_event .djev_poster a:hover i {
+	color: rgba(240,240,240,1);
+}
+
+.djev_event .djev_title {
+	margin: 0.5em;
+}
+
+.djev_event .djev_social {
+	overflow: auto;
+}
+
+.djev_event .djev_infoline {
+	font-size: 1.2em;
+	color: #666;
+	margin: 0.5em 0;
+}
+.djev_event .djev_infoline > span:first-child {
+	min-width: 1em;
+	text-align: center;
+	margin-right: 5px;
+	color: #999;
+}
+.djev_event .djev_category {
+	display: inline-block;
+	padding: 5px 12px;
+	margin: 1em 0;
+	border-radius: 4px;
+}
+
+.djev_event .djev_category a {
+	text-decoration: none;
+	color: #ffffff;
+}
+.djev_event .djev_category img {
+	max-height: 1.5em;
+}
+
+.djev_event .djev_info_wrap {
+	margin: 2em 0;
+}
+
+@media (max-width: 768px) {
+	.djev_event .djev_event_info {
+		float: none;
+		margin: 1em auto;
+	}
+	.djev_event .djev_thumb {
+		display: inline-block;
+		width: auto;
+	}
+}
+
+/**
+  * EVENT FORM VIEW
+  */
+
+.djev_eventform {
+	margin: 1.5em 0;
+}
+
+.djvideo_preview {
+	margin: 10px 0 0;
+}
+.djvideo_preview img {
+	margin: 0 0 0 10px;
+	vertical-align: top;
+}
+.djev-ajax-loader {
+	display: inline-block;
+	background: url(../images/ajax-loader.gif);
+	width: 16px;
+	height: 16px;
+	vertical-align: middle;
+	margin-left: 5px;
+}
+
+/* Gallery */
+.djev_eventform .albumItem {
+	position: relative;
+	display: inline-block;
+	margin: 0 10px 10px 0;
+	overflow: hidden;
+	width: 200px;
+	border: 1px solid #ddd;
+	padding: 1px;
+	cursor: move;
+}
+.djev_eventform .albumItem img {
+	max-width: 100%;
+	float: none;
+	margin: 0;
+	padding: 0;
+}
+.djev_eventform .albumItem .editTitle {
+	width: 100%;
+    box-sizing: border-box;
+    padding: 5px;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+	height: calc(1.5em + 10px);
+}
+.djev_eventform .albumItem .delBtn {
+	position: absolute;
+	top: 2px;
+	right: 2px;
+	display: block;
+	width: 32px;
+	height: 32px;
+	background: url(../images/delete.png) no-repeat;
+	cursor: pointer;
+	opacity: 0;
+	-webkit-transition: opacity 0.2s ease-out;
+	transition: opacity 0.2s ease-out;
+	background-color: rgba(0,0,0,0.2);
+}
+.djev_eventform .albumItem:hover .delBtn {
+	opacity: 0.5;
+}
+.djev_eventform .albumItem .delBtn:hover,
+.djev_eventform .albumItem .delBtn:focus {
+	opacity: 1;
+}
+.djev_eventform .albumItem label {
+	position: absolute;
+	top: 5px;
+	left: 5px;
+	color: #fff;
+}
+.djev_eventform .albumItem label span {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s ease-out;
+	transition: opacity 0.2s ease-out;
+}
+.djev_eventform .albumItem:hover label span {
+	opacity: 1;
+}
+.djev_eventform .albumItem:hover label input {
+	margin: 0;
+}
+
+/**
+  * EVENT LISTING VIEW
+  */
+
+.djev_list {
+	margin: 1em 0;
+}
+.djev_list .djev_item {
+	padding: 15px 20px;
+	border: 1px solid #f5f5f5;
+	margin-bottom: 15px;
+}
+.djev_list .djev_image_wrap {
+	float: left;
+	margin: 5px 30px 5px 0;
+}
+.djev_list .djev_item_title {
+	margin-top: 0;
+}
+.djev_list .djev_time {
+	color: #666;
+}
+.djev_list .djev_info {
+	padding: 10px 0 0;
+}
+.djev_list .djev_city, .djev_list .djev_category {
+	float: left;
+	padding: 5px 12px;
+	margin: 0 20px 0 0;
+	border-radius: 4px;
+}
+.djev_list .djev_category a {
+	text-decoration: none;
+	color: #ffffff;
+}
+.djev_list .djev_category img {
+	max-height: 1.5em;
+}
+.djev_list .djev_city {
+	border: 1px solid #f5f5f5;
+}
+
+.djev_list .djev_items_featured {
+	
+}
+.djev_list .djev_item.djev_featured {
+	background: rgba(36,97,165, 0.1);
+}
+
+/**
+  * ITEMS MODULE
+  */
+.djev_mod_items {
+	margin: 1em 0;
+}
+.djev_mod_items .djev_item {
+	position: relative;
+	margin: 0 0 30px;
+	border-bottom: 2px solid #f5f5f5;
+}
+.djev_mod_items .djev_image_wrap {
+}
+.djev_mod_items .djev_item_content {
+	padding: 15px 0;
+}
+.djev_mod_items .djev_item_title {
+	margin: 0 0 10px;
+}
+.djev_mod_items .djev_time {
+	color: #666;
+}
+.djev_mod_items .djev_info {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	padding: 10px;
+	box-sizing: border-box;
+}
+.djev_mod_items .noimage .djev_info {
+	position: static;
+	padding: 10px 0 0;
+}
+.djev_mod_items .djev_city, .djev_mod_items .djev_category {
+	float: left;
+	padding: 5px 12px;
+	border-radius: 4px;
+}
+.djev_mod_items .djev_category {
+	float: right;
+}
+.djev_mod_items .djev_category a {
+	text-decoration: none;
+	color: #ffffff;
+}
+.djev_mod_items .djev_category img {
+	max-height: 1.5em;
+}
+.djev_mod_items .djev_city {
+	background: #ffffff;
+	border: 1px solid #f5f5f5;
+}
+.djev_mod_items .djev_readmore {
+	margin: 10px 0 0;
+}
+.djev_mod_items .djev_featured {
+	background: rgba(36,97,165, 0.1);
+}
+.djev_mod_items .djev_featured .djev_item_content {
+	padding: 15px;
+}
+
+/**
+  * MAP MODULE
+  */
+.djev_mod_map {}
+.djev_mod_map .djev_map_items {
+	margin: 5px 0;
+}
+.djev_mod_map .djev_item {
+	padding: 10px;
+	border-top: 1px solid #f5f5f5;
+}
+.djev_mod_map .djev_item.djev_featured {
+	background: rgba(36,97,165, 0.1);
+	border: 0;
+}
+.djev_mod_map .djev_image_link {
+	float: left;
+	margin: 0 15px 5px 0;
+}
+.djev_mod_map .djev_time {
+	color: #666;
+}
+.djev_mod_map .djev_category {
+	float: left;
+	padding: 5px 12px;
+	border-radius: 4px;
+}
+.djev_mod_map .djev_category {
+	float: right;
+}
+.djev_mod_map .djev_category a {
+	text-decoration: none;
+	color: #ffffff;
+}
+.djev_mod_map .djev_category img {
+	max-height: 1.5em;
+}
+
+@media (min-width: 768px) {
+	.djev_mod_map .djev_map_items {
+		min-width: 480px;
+	}
+}
+
+/**
+  * SEARCH MODULE
+  */
+.djev_search {}
+
+.djev_search_horz .djev_search_el {
+	display: inline-block;
+}
+.djev_search_horz .djev_search_button {
+	vertical-align: middle;
+	margin-bottom: 9px;
+}
+
+/* MY EVENTS VIEW */
+.djev_list #filter-bar .pull-left + .pull-left {
+	margin-left: 5px;
+}

@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -20,6 +20,13 @@ class hikashopModuleHelper {
 			if(isset($data->$type) && is_object($data->$type)) {
 				foreach($data->$type as $k => $v) {
 					$obj->params->set($k,$v);
+				}
+			} else {
+				$data = $obj->params->get('hk_'.$obj->ctrl);
+				if(!empty($data) && is_array($data)) {
+					foreach($data as $k => $v) {
+						$obj->params->set($k,$v);
+					}
 				}
 			}
 		}
@@ -68,12 +75,14 @@ class hikashopModuleHelper {
 
 		if($params->get('margin', '') == '') {
 			$defaultParams = $config->get('default_params');
-			$params->set('margin', (int)$defaultParams['margin']);
+			$params->set('margin', $defaultParams['margin']);
 		}
 
-		$margin = (int)$params->get('margin', 0);
-		$css .= '
-#'.$main_div_name.' div.hikashop_container { margin:'.$margin.'px '.$margin.'px; }';
+		$margin = $params->get('margin', '');
+		if(strlen($margin)) {
+			$css .= '
+#'.$main_div_name.' div.hikashop_container { margin:'.(int)$margin.'px '.(int)$margin.'px; }';
+		}
 
 		if((int)$params->get('rounded_corners', -1) == -1) {
 			$defaultParams = $config->get('default_params');
@@ -99,10 +108,17 @@ class hikashopModuleHelper {
 		if(!is_array($modules)) {
 			$modules = explode(',', $modules);
 		}
-		JArrayHelper::toInteger($modules);
+		hikashop_toInteger($modules);
+
+		$filters = array('id IN ('.implode(',', $modules).')');
 
 		$database = JFactory::getDBO();
-		$query = 'SELECT * FROM '.hikashop_table('modules', false).' WHERE id IN ('.implode(',', $modules).');';
+		if(HIKASHOP_J30) {
+			$lang = JFactory::getLanguage();
+			$tag = $lang->getTag();
+			$filters[] = "language IN ('*', '', ".$database->Quote($tag).")";
+		}
+		$query = 'SELECT * FROM '.hikashop_table('modules', false).' WHERE '.implode(' AND ', $filters);
 		$database->setQuery($query);
 		$modulesData = $database->loadObjectList('id');
 
@@ -130,15 +146,30 @@ class hikashopModuleHelper {
 	}
 
 	public function _getParams(&$obj) {
-		if(!empty($obj->params)) {
-			$obj->module = true;
-			return true;
-		}
-
 		global $Itemid;
 		$app = JFactory::getApplication();
 		$menus	= $app->getMenu();
 		$menu	= $menus->getActive();
+
+		if(!empty($obj->params)) {
+			$obj->module = true;
+
+			if($obj->params->get('content_synchronize')){
+				$id = null;
+				if(HIKASHOP_J30 && isset($menu)) {
+					$productParams = $menu->params->get('hk_product',false);
+					if($productParams && isset($productParams->category))
+						$id = $productParams->category;
+					$categoryParams = $menu->params->get('hk_category', false);
+					if($categoryParams && isset($categoryParams->category))
+						$id = $categoryParams->category;
+				}
+				if($id)
+					$obj->params->set('selectparentlisting', $id);
+			}
+			return true;
+		}
+
 
 		if(!empty($Itemid) && !empty($menu) && !empty($menuData->link) && strpos($menu->link,'option='.HIKASHOP_COMPONENT)!==false && (strpos($menu->link,'view=category')!==false || strpos($menu->link,'view=')===false)){
 			$app->setUserState(HIKASHOP_COMPONENT.'.category_item_id',$Itemid);
@@ -171,11 +202,7 @@ class hikashopModuleHelper {
 
 			$obj->params = new HikaParameter( $menu->params );
 			$obj->params->set('id',$menu->id);
-			if(!HIKASHOP_J16) {
-				$obj->params->set('title',$menu->name);
-			} else {
-				$obj->params->set('title',$menu->title);
-			}
+			$obj->params->set('title',$menu->title);
 
 			if(HIKASHOP_J30) {
 				$productParams = $menu->params->get('hk_product',false);

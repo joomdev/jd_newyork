@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -131,8 +131,8 @@ class plgHikashopshippingCANADAPOST extends hikashopShippingPlugin {
 	}
 
 	function onShippingDisplay(&$order, &$dbrates, &$usable_rates, &$messages) {
-		if(!hikashop_loadUser())
-			return false;
+		if(empty($order->shipping_address))
+			return true;
 		$local_usable_rates = array();
 		$local_messages = array();
 		$ret = parent::onShippingDisplay($order, $dbrates, $local_usable_rates, $local_messages);
@@ -208,7 +208,7 @@ class plgHikashopshippingCANADAPOST extends hikashopShippingPlugin {
 			}
 
 			foreach($receivedMethods as $method) {
-				$r = (!HIKASHOP_PHP5) ? $rate : clone($rate);
+				$r = clone($rate);
 				$r->shipping_price += $method['value'];
 				$selected_method = '';
 				$name = '';
@@ -336,11 +336,7 @@ function checkAllBox(id, type) {
 }
 ';
 
-		if(!HIKASHOP_PHP5) {
-			$doc =& JFactory::getDocument();
-		} else {
-			$doc = JFactory::getDocument();
-		}
+		$doc = JFactory::getDocument();
 		$doc->addScriptDeclaration( "<!--\n".$js."\n//-->\n" );
 	}
 
@@ -581,7 +577,8 @@ function checkAllBox(id, type) {
 				$divide = $product['x'] + $product['y'] + $product['z'];
 				if(!$divide || $divide > $limit_value)
 					return false;
-				return (int)floor($limit_value / $divide);
+				$current_limit_value = max(0.0, $limit_value - (float)($package['z'] + $package['y'] + $package['x']));
+				return (int)floor($current_limit_value / $divide);
 				break;
 			case 'length_girth':
 				$max_qty = (($limit_value - $product['z']) / 2 - $product['y']) / $product['x'];

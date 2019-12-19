@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -123,6 +123,20 @@ defined('_JEXEC') or die('Restricted access');
 		)
 	);
 		?></dd>
+<?php
+	$displayBlock = in_array($this->field->field_table, array('address')) ? '' : ' style="display:none"';
+?>
+		<dt<?php echo $displayBlock; ?>><label><?php
+			echo JText::_('HIKASHOP_ADDRESS_TYPE');
+		?></label></dt>
+		<dd<?php echo $displayBlock; ?>><?php
+	$values = array(
+		JHTML::_('select.option', '', JText::_('WIZARD_BOTH')),
+		JHTML::_('select.option', 'billing', JText::_('HIKASHOP_BILLING_ADDRESS')),
+		JHTML::_('select.option', 'shipping', JText::_('HIKASHOP_SHIPPING_ADDRESS')),
+	);
+	echo JHTML::_('select.genericlist',   $values, 'data[field][field_address_type]', 'class="custom-select" size="1"', 'value', 'text', @$this->field->field_address_type );
+		?></dd>
 
 		<dt data-hk-display="limit_to"><label><?php
 			echo JText::_('DISPLAY_LIMITED_TO');
@@ -177,7 +191,7 @@ defined('_JEXEC') or die('Restricted access');
 <?php } ?>
 	</dl>
 </div></div>
-
+<div class="hkc-lg-clear"></div>
 <div class="hkc-xl-4 hkc-lg-6 hikashop_tile_block hikashop_field_edit_attributes"><div>
 	<div class="hikashop_tile_title"><?php echo JText::_('MAIN_ATTRIBUTES'); ?></div>
 	<dl class="hika_options large">
@@ -224,16 +238,14 @@ defined('_JEXEC') or die('Restricted access');
 			echo JHTML::_('hikaselect.booleanlist', 'field_options[inline]', '', @$this->field->field_options['inline']);
 		?></dd>
 
-<?php if(!empty($this->field->field_type) && $this->field->field_type == 'link') { ?>
-		<dt data-hk-display="target"><label for="field_placeholder"><?php
+		<dt data-hk-display="target_blank"><label for="field_target_blank"><?php
 			echo JText::_('FIELD_TARGET_BLANK');
 		?></label></dt>
-		<dd data-hk-display="target"><?php
+		<dd data-hk-display="target_blank"><?php
 			if(!isset($this->field->field_options['target_blank']))
 				$this->field->field_options['target_blank'] = 1;
 			echo JHTML::_('hikaselect.booleanlist', 'field_options[target_blank]' , '', (int)$this->field->field_options['target_blank']);
 		?></dd>
-<?php } ?>
 
 		<dt data-hk-display="default"><label><?php
 			echo JText::_('FIELD_DEFAULT');
@@ -246,7 +258,7 @@ defined('_JEXEC') or die('Restricted access');
 	</dl>
 </div></div>
 <?php
-	$filters = array('cols','filtering','maxlength','rows','zone','pleaseselect','size','format','customtext','allow','readonly');
+	$filters = array('cols','filtering','maxlength','rows','zone','pleaseselect','size','format','customtext','allow','readonly','allowed_extensions');
 	if(!empty($this->field->field_table) && in_array($this->field->field_table, array('product', 'category')))
 		$filters[] = 'translatable';
 	if(!empty($this->fieldtype->externalOptions)) {
@@ -265,6 +277,7 @@ defined('_JEXEC') or die('Restricted access');
 		}
 	}
 ?>
+<div class="hkc-xl-clear"></div>
 <div class="hkc-xl-4 hkc-lg-6 hikashop_tile_block hikashop_field_edit_display" data-hk-displays="<?php echo implode(',', $filters); ?>"><div>
 	<div class="hikashop_tile_title"><?php echo JText::_('EXTRA_ATTRIBUTES'); ?></div>
 	<dl class="hika_options large">
@@ -346,6 +359,13 @@ defined('_JEXEC') or die('Restricted access');
 		<dd data-hk-display="allow"><?php
 			echo $this->allowType->display('field_options[allow]', @$this->field->field_options['allow']);
 		?></dd>
+
+		<dt data-hk-display="allowed_extensions"><label><?php
+			echo JText::_('ALLOWED_FILES');
+		?></label></dt>
+		<dd data-hk-display="allowed_extensions">
+			<input type="text" name="field_options[allowed_extensions]" value="<?php echo $this->escape(@$this->field->field_options['allowed_extensions']); ?>"/>
+		</dd>
 
 		<dt data-hk-display="readonly"><label><?php
 			echo JText::_('READONLY');
@@ -449,7 +469,7 @@ defined('_JEXEC') or die('Restricted access');
 				<td><input type="text" name="field_values[title][]" value="<?php echo $this->escape($title); ?>" style="width:auto;"/></td>
 				<td><input type="text" name="field_values[value][]" value="<?php echo $this->escape($value->value); ?>" style="width:auto;"/></td>
 				<td>
-					<select name="field_values[disabled][]" class="no-chzn inputbox" style="width:auto;">
+					<select name="field_values[disabled][]" class="custom-select no-chzn inputbox" style="width:auto;">
 						<option <?php echo $no_selected; ?> value="0"><?php echo JText::_('HIKASHOP_NO'); ?></option>
 						<option <?php echo $yes_selected; ?> value="1"><?php echo JText::_('HIKASHOP_YES'); ?></option>
 					</select>
@@ -468,7 +488,7 @@ defined('_JEXEC') or die('Restricted access');
 				<td><input type="text" name="field_values[title][]" value="" style="width:auto;"/></td>
 				<td><input type="text" name="field_values[value][]" value="" style="width:auto;"/></td>
 				<td>
-					<select name="field_values[disabled][]" class="no-chzn inputbox" style="width:auto;">
+					<select name="field_values[disabled][]" class="custom-select no-chzn inputbox" style="width:auto;">
 						<option selected="selected" value="0"><?php echo JText::_('HIKASHOP_NO'); ?></option>
 						<option value="1"><?php echo JText::_('HIKASHOP_YES'); ?></option>
 					</select>
@@ -481,7 +501,7 @@ defined('_JEXEC') or die('Restricted access');
 				<td><input type="text" name="{TITLE}" value="" style="width:auto;"/></td>
 				<td><input type="text" name="{VALUE}" value="" style="width:auto;"/></td>
 				<td>
-					<select name="{DISABLED}" class="inputbox no-chzn" style="width:auto;">
+					<select name="{DISABLED}" class="custom-select no-chzn" style="width:auto;">
 						<option selected="selected" value="0"><?php echo JText::_('HIKASHOP_NO'); ?></option>
 						<option value="1"><?php echo JText::_('HIKASHOP_YES'); ?></option>
 					</select>
@@ -511,14 +531,14 @@ defined('_JEXEC') or die('Restricted access');
 	<div class="hikashop_tile_title"><?php echo JText::_('DISPLAY'); ?></div>
 	<dl class="hika_options large">
 
-		<dt><label><?php
+		<dt><label<?php echo $this->docFieldTip('frontcomp');?>><?php
 			echo JText::_('DISPLAY_FRONTCOMP');
 		?></label></dt>
 		<dd><?php
 			echo JHTML::_('hikaselect.booleanlist', 'data[field][field_frontcomp]', '', @$this->field->field_frontcomp);
 		?></dd>
 
-		<dt><label><?php
+		<dt><label<?php echo $this->docFieldTip('back_form');?>><?php
 			echo JText::_('DISPLAY_BACKEND_FORM');
 		?></label></dt>
 		<dd><?php
@@ -526,7 +546,7 @@ defined('_JEXEC') or die('Restricted access');
 		?></dd>
 
 <?php if(!in_array($this->field->field_table, array('address'))) { ?>
-		<dt><label><?php
+		<dt><label<?php echo $this->docFieldTip('back_list');?>><?php
 			echo JText::_('DISPLAY_BACKEND_LISTING');
 		?></label></dt>
 		<dd><?php

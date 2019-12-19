@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="1.6.0" client="site" method="upgrade">
+	<name>MOD_DJEVENTS_CALENDAR</name>
+	<creationDate>May 2016</creationDate>	
+	<author>DJ-Extensions.com</author>
+	<copyright>Copyright (C) 2016 DJ-Extensions.com, All rights reserved.</copyright>
+	<license> http://www.gnu.org/licenses GNU/GPL</license>
+	<authorEmail>contact@dj-extensions.com</authorEmail>
+	<authorUrl>http://dj-extensions.com</authorUrl>
+	<version>1.0.0</version>
+	<description>MOD_DJEVENTS_CALENDAR</description>
+	<files>
+		<filename module="mod_djevents_calendar">mod_djevents_calendar.php</filename>
+		<filename>mod_djevents_calendar.xml</filename>
+		<filename>helper.php</filename>
+		<filename>index.html</filename>
+		<folder>tmpl</folder>
+		<folder>assets</folder>
+		<folder>language</folder>
+	</files>
+	
+	<config>
+		<fields name="params">
+			<fieldset name="basic" addfieldpath="/administrator/components/com_djevents/models/fields">
+				<field
+					name="layout"
+					type="modulelayout"
+					label="JFIELD_ALT_LAYOUT_LABEL"
+					description="JFIELD_ALT_MODULE_LAYOUT_DESC"
+					default="_:month" />
+					
+				<field name="days" type="text" default="3" label="MOD_DJEVENTS_CALENDAR_DAYS_LIMIT" />
+				<field name="events_limit" type="text" default="5" label="MOD_DJEVENTS_CALENDAR_EVENTS_LIMIT" />
+				<field name="show_link" type="radio" class="btn-group" default="0" label="MOD_DJEVENTS_CALENDAR_SHOW_LINK" description="MOD_DJEVENTS_CALENDAR_SHOW_LINK_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				
+				<field type="djeventsspacer" class="djtitle" label="COM_DJEVENTS_FILTERING_SETTINGS" />
+				
+				<field name="categories" type="djeventscategory" label="COM_DJEVENTS_CATEGORIES" multiple="true" skip_default="true" />
+				<field name="cities" type="djeventscity" label="COM_DJEVENTS_CITIES" multiple="true" skip_default="true" skip_new="true" />
+				
+				<field name="follow_category" type="radio" class="btn-group" default="0" label="COM_DJEVENTS_FOLLOW_CATEGORY" >
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				
+				<field name="follow_city" type="radio" class="btn-group" default="0" label="COM_DJEVENTS_FOLLOW_CITY" >
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				
+				<field name="featured_only" type="radio" class="btn-group" default="0" label="COM_DJEVENTS_FEATURED_ONLY" >
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field type="djeventsspacer" class="djtitle" label="MOD_DJEVENTS_CALENDAR_TOOLTIP_SETTINGS" />
+				
+				<field name="tooltip_position" type="radio" class="btn-group" default="top" label="MOD_DJEVENTS_CALENDAR_TOOLTIP_POSITION" >
+					<option value="top">MOD_DJEVENTS_CALENDAR_TOOLTIP_TOP</option>
+					<option value="bottom">MOD_DJEVENTS_CALENDAR_TOOLTIP_BOTTOM</option>
+					<option value="left">MOD_DJEVENTS_CALENDAR_TOOLTIP_LEFT</option>
+					<option value="right">MOD_DJEVENTS_CALENDAR_TOOLTIP_RIGHT</option>
+				</field>
+
+				<field name="tooltip_open" type="radio" class="btn-group" default="mouseenter" label="MOD_DJEVENTS_CALENDAR_TOOLTIP_OPEN" >
+					<option value="mouseenter">MOD_DJEVENTS_CALENDAR_TOOLTIP_MOUSEENTER</option>
+					<option value="click">MOD_DJEVENTS_CALENDAR_TOOLTIP_CLICK</option>
+				</field>
+
+				<field name="tooltip_close" type="radio" class="btn-group" default="click" label="MOD_DJEVENTS_CALENDAR_TOOLTIP_CLOSE" >
+					<option value="mouseleave">MOD_DJEVENTS_CALENDAR_TOOLTIP_MOUSELEAVE</option>
+					<option value="click">MOD_DJEVENTS_CALENDAR_TOOLTIP_CLICK</option>
+				</field>
+
+			</fieldset>
+			
+			<fieldset name="advanced">
+				
+				<field
+					name="moduleclass_sfx"
+					type="text"
+					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+					description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field
+					name="cache"
+					type="list"
+					default="1"
+					label="COM_MODULES_FIELD_CACHING_LABEL"
+					description="COM_MODULES_FIELD_CACHING_DESC">
+					<option
+						value="1">JGLOBAL_USE_GLOBAL</option>
+					<option
+						value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field
+					name="cache_time"
+					type="text"
+					default="900"
+					label="COM_MODULES_FIELD_CACHE_TIME_LABEL"
+					description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+				
+			</fieldset>
+			
+		</fields>
+	</config>
+	
+</extension>

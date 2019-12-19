@@ -7,7 +7,7 @@
  * @version $Id: paypal.php 7217 2013-09-18 13:42:54Z alatak $
  * @package VirtueMart
  * @subpackage payment
- * Copyright (C) 2004 - 2017 Virtuemart Team. All rights reserved.
+ * Copyright (C) 2004 - 2018 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -24,14 +24,24 @@ $paypalInterface = $viewData['paypalInterface'];
 
 vmJsApi::css(  'paypal','plugins/vmpayment/paypal/paypal/assets/css/');
 
+
 ?>
 
 <div class="pp-wrap">
 		<?php
+		$env = 'production';
 		if ($viewData['sandbox'] ) { ?>
 	<span style="color:red;font-weight:bold">Sandbox (<?php echo $viewData['virtuemart_paymentmethod_id'] ?>)</span>
 		<?php
+			$env = 'sandbox';
 		}
+		if(!empty($viewData['method']->enable_smart_buttons)){
+
+            echo '<div class="pp-smbt">';
+			echo vmPPButton::renderCheckoutButton($viewData['method'],$env);
+			//echo '<div class="paypal-button"></div>';
+			echo '</div>';
+		} else
 		if(empty($viewData['offer_credit'])){ ?>
 	<div class="pp-express">
 		<?php echo vmPPButton::renderCheckoutButton($viewData['method']); ?>
@@ -58,9 +68,10 @@ vmJsApi::css(  'paypal','plugins/vmpayment/paypal/paypal/assets/css/');
 </div>
 <div class="clear"></div>
 <?php
-$fcredit = 'var ppframeCredit = jQuery("<div></div>")';
-$fcredit .= ".html('<iframe id=\"paypal_offer_frame_credit\" style=\"border: 0px;\" src=\"' + ppurlcredit + '\" width=\"100%\" height=\"100%\"></iframe>')";
-$fcredit .= '.dialog({
+if(!empty($viewData['method']->enable_smart_buttons)){
+	$fcredit = 'var ppframeCredit = jQuery("<div></div>")';
+	$fcredit .= ".html('<iframe id=\"paypal_offer_frame_credit\" style=\"border: 0px;\" src=\"' + ppurlcredit + '\" width=\"100%\" height=\"100%\"></iframe>')";
+	$fcredit .= '.dialog({
 	   autoOpen: false,
 	   closeOnEscape: true,
 	   modal: true,
@@ -68,7 +79,7 @@ $fcredit .= '.dialog({
 	   width: widthsiz,
 	   title: "Paypal Credit offer"
    });';
-$j = '
+	$j = '
 jQuery(document).ready( function() {
 	var page = Virtuemart.vmSiteurl + "index.php?option=com_virtuemart&view=plugin&vmtype=vmpayment&name=paypal&tmpl=component";
 	var heightsiz = jQuery(window).height() * 0.9;
@@ -94,4 +105,5 @@ jQuery(document).ready( function() {
 });
 ';
 
-vmJsApi::addJScript('paypal_offer',$j);
+	vmJsApi::addJScript('paypal_offer',$j);
+}

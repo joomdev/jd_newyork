@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<element type="content">
+   <title>Content</title>
+   <icon>media/jdbuilder/images/icons/elements/content.svg</icon>
+   <creationDate>March 2019</creationDate>
+   <author>JoomDev</author>
+   <authorEmail>info@joomdev.com</authorEmail>
+   <authorUrl>https://www.joomdev.com</authorUrl>
+   <copyright>Copyright (C) 2019 Joomdev, Inc. All rights reserved.</copyright>
+   <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+   <version>1.0</version>
+   <description>Element Description Here</description>
+
+   <form>
+      <fields>
+         <fieldset name="general" label="JDB_GENERAL_TITLE">
+            <field type="group" name="basic" label="JDB_BASIC_TITLE"></field>
+            <field type="group" name="typography" label="JDB_CONTENT_CONTENT_TYPOGRAPHY"></field>
+            <!-- Element Options -->
+            <field type="editor" language="html" name="content" label="JDB_CONTENT_CONTENT" default="" group="basic" />
+
+            <field name="contentTypography" type="typography" label="JDB_TYPOGRAPHY" group="typography" default="" responsive="true">
+            </field>
+
+            <field name="dropcap" type="switch" label="JDB_CONTENT_DROP_CAP" default="false" group="typography">
+            </field>
+
+            <field type="spacer" showon="params.dropcap==true" label="JDB_CONTENT_DROP_CAP_OPTIONS_SPACER" group="typography"></field>
+
+            <field type="color" showon="params.dropcap==true" name="dropcapColor" label="JDB_COLOR_LABEL" default="" width="6" group="typography">
+            </field>
+
+            <field type="color" showon="params.dropcap==true" name="dropcapBackground" label="JDB_BACKGROUND_LABEL" default="" width="6" group="typography">
+            </field>
+
+            <field type="typography" showon="params.dropcap==true" responsive="true" name="dropcapTypography" label="JDB_TYPOGRAPHY_LABEL" default='{"family":"", "size":72, "sizeUnit":"px", "alignment":"center", "weight":"", "transform":"", "style":"", "decoration":"", "lineHeight":60, "lineHeightUnit": "px", "letterSpacing":"", "letterSpacingUnit": "px"}' group="typography">
+            </field>
+         </fieldset>
+      </fields>
+   </form>
+</element>

@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -141,16 +141,16 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 		{
 			$sql =  "UPDATE `#__hikashop_config` SET config_value=(config_value+1) WHERE config_namekey = 'mijo_import_state'; ";
 			$this->db->setQuery($sql);
-			$this->db->query();
+			$this->db->execute();
 			$sql = "UPDATE `#__hikashop_config` SET config_value=0 WHERE config_namekey = 'mijo_import_current';";
 			$this->db->setQuery($sql);
-			$this->db->query();
+			$this->db->execute();
 		}
 		else if( $current != $this->options->current )
 		{
 			$sql =  "UPDATE `#__hikashop_config` SET config_value=".$this->options->current." WHERE config_namekey = 'mijo_import_current';";
 			$this->db->setQuery($sql);
-			$this->db->query();
+			$this->db->execute();
 		}
 
 		return $ret;
@@ -159,7 +159,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 
 	function loadConfiguration()
 	{
-		$this->options = null;
+		$this->options = new stdClass();
 
 		if (defined('DIR_IMAGE')) {
 			if(strpos(DIR_IMAGE, HIKASHOP_ROOT) === false)
@@ -314,7 +314,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 				",('mijo_import_last_mijo_manufacturer',".$this->options->last_mijo_manufacturer.",".$this->options->last_mijo_manufacturer.")".
 				';';
 			$this->db->setQuery($sql);
-			$this->db->query();
+			$this->db->execute();
 		}
 	}
 
@@ -334,9 +334,9 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 		if ($create)
 		{
 			$this->db->setQuery("CREATE TABLE IF NOT EXISTS `#__hikashop_mijo_prod` (`mijo_id` int(11) unsigned NOT NULL DEFAULT '0', `hk_id` int(11) unsigned NOT NULL DEFAULT '0', PRIMARY KEY (`mijo_id`)) ENGINE=MyISAM");
-			$this->db->query();
+			$this->db->execute();
 			$this->db->setQuery("CREATE TABLE IF NOT EXISTS `#__hikashop_mijo_cat` (`mijo_cat_id` INT(11) unsigned NOT NULL AUTO_INCREMENT, `mijo_id` int(11) unsigned NOT NULL DEFAULT '0', `hk_id` int(11) unsigned NOT NULL DEFAULT '0', `category_type` varchar(255) NULL, PRIMARY KEY (`mijo_cat_id`)) ENGINE=MyISAM");
-			$this->db->query();
+			$this->db->execute();
 
 			$databaseHelper = hikashop_get('helper.database');
 			$databaseHelper->addColumns('address','`address_mijo_order_info_id` INT(11) NULL');
@@ -372,7 +372,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			'WHERE mjt.tax_rate_id > ' . (int)$this->options->last_mijo_taxrate;
 
 		$this->db->setQuery($sql);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Imported taxes: ' . $total . '</p>';
 
@@ -394,14 +394,14 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			'WHERE mtc.tax_class_id > ' . (int)$this->options->last_mijo_taxclass;
 
 		$this->db->setQuery($sql);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Imported Taxes Categories: ' . $total . '</p>';
 
 		if( $total > 0 ) {
 			$this->options->max_hk_cat += $total;
 			$this->db->setQuery("UPDATE `#__hikashop_config` SET config_value = ".$this->options->max_hk_cat." WHERE config_namekey = 'mijo_import_max_hk_cat'; ");
-			$this->db->query();
+			$this->db->execute();
 			$this->importRebuildTree();
 		}
 
@@ -425,7 +425,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			'WHERE mjtra.tax_rate_id > ' . (int)$this->options->last_mijo_taxrate;
 
 		$this->db->setQuery($sql);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Imported Taxations: ' . $total . '</p>';
 
@@ -448,7 +448,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 		'ORDER BY mjm.manufacturer_id ASC;';
 
 		$this->db->setQuery($sql1);
-		$this->db->query();
+		$this->db->execute();
 		$datas = $this->db->loadObjectList();
 
 		$sql2 = 'INSERT INTO `#__hikashop_category` (`category_id`,`category_parent_id`,`category_type`,`category_name`,`category_published`,'.
@@ -549,7 +549,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			$sql2 .= ';';
 			$sql4 .= ';';
 			$this->db->setQuery($sql2);
-			$this->db->query();
+			$this->db->execute();
 			$total = $this->db->getAffectedRows();
 			echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Imported Manufacturers : ' . $total . '</p>';
 		}
@@ -563,13 +563,13 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			$rebuild = true;
 			$this->options->max_hk_cat += $total + 1;
 			$this->db->setQuery("UPDATE `#__hikashop_config` SET config_value = ".$this->options->max_hk_cat." WHERE config_namekey = 'mijo_import_max_hk_cat'; ");
-			$this->db->query();
+			$this->db->execute();
 		}
 
 		if ($doSql3)
 		{
 			$this->db->setQuery($sql3);
-			$this->db->query();
+			$this->db->execute();
 			$total = $this->db->getAffectedRows();
 			echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Fallback links : ' . $total . '</p>';
 		}
@@ -577,7 +577,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 		if($doSql4)
 		{
 			$this->db->setQuery($sql4);
-			$this->db->query();
+			$this->db->execute();
 			$total = $this->db->getAffectedRows();
 			echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Manufacturers files : ' . $total . '</p>';
 		}
@@ -623,7 +623,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 		if( $data->category_keywords != 'C' ) {
 			foreach($statuses as $k => $v) {
 				$this->db->setQuery("UPDATE `#__hikashop_category` SET category_keywords = '".$k."' WHERE category_type = 'status' AND category_name = '".$v."'; ");
-				$this->db->query();
+				$this->db->execute();
 			}
 		}
 
@@ -655,7 +655,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			}
 
 			$this->db->setQuery($sql0);
-			$this->db->query();
+			$this->db->execute();
 			$total = $this->db->getAffectedRows();
 
 			if( $total > 0 ) {
@@ -663,7 +663,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 				$rebuild = true;
 				$this->options->max_hk_cat += $total;
 				$this->db->setQuery("UPDATE `#__hikashop_config` SET config_value = ".$this->options->max_hk_cat." WHERE config_namekey = 'mijo_import_max_hk_cat'; ");
-				$this->db->query();
+				$this->db->execute();
 				$sql0 = '';
 			}
 			else
@@ -680,7 +680,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 		'ORDER BY mjc.parent_id ASC, mjc.category_id ASC;';
 
 		$this->db->setQuery($sql1);
-		$this->db->query();
+		$this->db->execute();
 		$datas = $this->db->loadObjectList();
 
 		$sql2 = 'INSERT IGNORE INTO `#__hikashop_category` (`category_id`,`category_parent_id`,`category_type`,`category_name`,`category_description`,`category_published`,'.
@@ -791,7 +791,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			$sql2 .= ';';
 			$sql4 .= ';';
 			$this->db->setQuery($sql2);
-			$this->db->query();
+			$this->db->execute();
 			$total = $this->db->getAffectedRows();
 			echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Imported Categories : ' . $total . '</p>';
 		}
@@ -805,13 +805,13 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			$rebuild = true;
 			$this->options->max_hk_cat += $total + 1;
 			$this->db->setQuery("UPDATE `#__hikashop_config` SET config_value = ".$this->options->max_hk_cat." WHERE config_namekey = 'mijo_import_max_hk_cat'; ");
-			$this->db->query();
+			$this->db->execute();
 		}
 
 		if ($doSql3)
 		{
 			$this->db->setQuery($sql3);
-			$this->db->query();
+			$this->db->execute();
 			$total = $this->db->getAffectedRows();
 			echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Fallback links : ' . $total . '</p>';
 		}
@@ -819,7 +819,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 		if($doSql4)
 		{
 			$this->db->setQuery($sql4);
-			$this->db->query();
+			$this->db->execute();
 			$total = $this->db->getAffectedRows();
 			echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Categories files : ' . $total . '</p>';
 		}
@@ -952,13 +952,13 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 		if (empty($data))
 		{
 			$this->db->setQuery('ALTER TABLE `#__mijoshop_product` ADD COLUMN `hika_sku` VARCHAR(255) NOT NULL;');
-			$this->db->query();
+			$this->db->execute();
 		}
 
 		$this->db->setQuery('UPDATE `#__mijoshop_product` AS mjp SET mjp.hika_sku = mjp.sku;');
-		$this->db->query();
+		$this->db->execute();
 		$this->db->setQuery("UPDATE `#__mijoshop_product` AS mjp SET mjp.hika_sku = CONCAT(mjp.model,'_',mjp.product_id) WHERE mjp.hika_sku='';");
-		$this->db->query();
+		$this->db->execute();
 
 		$this->db->setQuery('SELECT hika_sku FROM `#__mijoshop_product` GROUP BY hika_sku HAVING COUNT(hika_sku)>1');
 		$data = $this->db->loadObjectList();
@@ -968,7 +968,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			foreach ($data as $d)
 			{
 				$this->db->setQuery("UPDATE `#__mijoshop_product` AS mjp SET mjp.hika_sku = CONCAT(mjp.hika_sku,'_',mjp.product_id) WHERE mjp.hika_sku = '".$d->hika_sku."';");
-				$this->db->query();
+				$this->db->execute();
 			}
 		}
 
@@ -1023,29 +1023,29 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			'WHERE mjp.manufacturer_id > '.$this->options->last_mijo_manufacturer.' OR mjp.product_id > '.$this->options->last_mijo_prod.';';
 
 		$this->db->setQuery($sql1);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Inserted products: ' . $total . '</p>';
 
 		$this->db->setQuery($sql2);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Fallback links: ' . $total . '</p>';
 
 		if($main_image){
 			$this->db->setQuery($sql40);
-			$this->db->query();
+			$this->db->execute();
 			$total = $this->db->getAffectedRows();
 			echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Inserted products files: ' . $total . '</p>';
 		}
 
 		$this->db->setQuery($sql4);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Inserted products images: ' . $total . '</p>';
 
 		$this->db->setQuery($sql5);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Updating products manufacturers: ' . $total . '</p>';
 
@@ -1086,7 +1086,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Prices imported : 0</p>';
 		}
 
-		$ret = $this->db->query();
+		$ret = $this->db->execute();
 		$cpt = $this->db->getAffectedRows();
 
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Prices imported : ' . $cpt .'</p>';
@@ -1116,7 +1116,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			'WHERE hmjp.mijo_id > ' . (int)$this->options->last_mijo_prod . ' OR hmjc.mijo_id > ' . (int)$this->options->last_mijo_cat;
 
 		$this->db->setQuery($sql);
-		$ret = $this->db->query();
+		$ret = $this->db->execute();
 
 		$total = $this->db->getAffectedRows();
 		$this->importRebuildTree();
@@ -1181,31 +1181,31 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 		$sql6 = 'UPDATE `#__hikashop_address` AS a SET a.address_published = 1 WHERE address_published > 1;';
 
 		$this->db->setQuery($sql0);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Imported Users: ' . $total . '</p>';
 
 		$this->db->setQuery($sql1);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Imported addresses: ' . $total . '</p>';
 
 		$this->db->setQuery($sql2);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Imported addresses countries: ' . $total . '</p>';
 
 		$this->db->setQuery($sql3);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Imported addresses states: ' . $total . '</p>';
 
 		$this->db->setQuery($sql4);
-		$this->db->query();
+		$this->db->execute();
 		$this->db->setQuery($sql5);
-		$this->db->query();
+		$this->db->execute();
 		$this->db->setQuery($sql6);
-		$this->db->query();
+		$this->db->execute();
 
 
 		$ret = true;
@@ -1321,45 +1321,45 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			'WHERE hko.order_mijo_id > ' . (int)$this->options->last_mijo_order;
 
 		$this->db->setQuery($sql1);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Imported orders: ' . $total . '</p>';
 
 		$this->db->setQuery($sql1_1);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Updating discount orders: ' . $total . '</p>';
 
 		$this->db->setQuery($sql2_1);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Imported orders addresses: ' . $total . '</p>';
 
 		$this->db->setQuery($sql3);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Updating billing addresses: ' . $total . '</p>';
 
 		$this->db->setQuery($sql4);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Updating shipping addresses: ' . $total . '</p>';
 
 		$this->db->setQuery($sql5);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Updating order payments: ' . $total . '</p>';
 
 		$this->db->setQuery($sql2_2);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Updating orders: ' . $total;
 		$this->db->setQuery($sql2_3);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '/' . $total;
 		$this->db->setQuery($sql2_4);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '/' . $total . '</p>';
 
@@ -1394,7 +1394,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			'WHERE mjop.order_id > ' . (int)$this->options->last_mijo_order . ';';
 
 		$this->db->setQuery($sql);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Orders Items : '. $total .'</p>';
@@ -1416,11 +1416,6 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 		$offset = $this->options->current;
 		if( $offset == 0 )
 			$offset = $this->options->last_mijo_pfile;
-
-		$sql = "SELECT `config_value` FROM `#__hikashop_config` WHERE config_namekey = 'download_number_limit';";
-		$this->db->setQuery($sql);
-		$data = $this->db->loadObjectList();
-		$dl_limit = $data[0]->config_value;
 
 		$sql = 'SELECT mjd.download_id, mjd.filename FROM `#__mijoshop_download` AS mjd WHERE mjd.download_id > '.$offset.' ORDER BY mjd.download_id ASC LIMIT '.$count.';'; //Why no Mask FFS
 		$this->db->setQuery($sql);
@@ -1467,15 +1462,14 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			'WHERE mjd.download_id > '.$this->options->last_mijo_pfile;
 
 		$this->db->setQuery($sql);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Downloable files imported : ' . $total . '</p>';
 
 		$data = array(
 			'file_id' => 'hkf.file_id',
-			'order_id' => 'hko.order_id',
-			'download_number' => '(' . $dl_limit . '- mjd.remaining)' //$dl_limit ?
+			'order_id' => 'hko.order_id'
 		);
 
 		$sql = 'INSERT IGNORE INTO `#__hikashop_download` (`'.implode('`,`',array_keys($data)).'`) '.
@@ -1488,7 +1482,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			'WHERE mjd.download_id > '.$this->options->last_mijo_pfile;
 
 		$this->db->setQuery($sql);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 
 
@@ -1496,6 +1490,46 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 
 		$ret = true;
 		return $ret;
+	}
+
+	function copyFile($dir, $fsrc, $dst, $debug = false){
+		if ($debug){
+			echo 'Source folder : '.$dir.'<br/>';
+			echo 'File source name : '.$fsrc.'<br/>';
+			echo 'From "'.$dir.$fsrc.'" to folder/file : "'.$dst.'"<br/>';
+			echo '#####<br/>';
+		}
+		$src = $fsrc;
+		if( file_exists($dir.$fsrc) )
+			$src = $dir.$fsrc;
+		else if( file_exists(HIKASHOP_ROOT.$fsrc) )
+			$src = HIKASHOP_ROOT.$fsrc;
+
+		if( !file_exists($src) ) {
+			$files = JFolder::files($dir, $fsrc, true, true);
+			if($files) {
+				$dst = reset($files);
+			}
+			if( !file_exists($src) ) {
+				echo '<span '.$this->copywarning.'>File is not found "' . $dir.$fsrc . '"</span><br/>';
+				return false;
+			}
+		}
+
+		if( !file_exists($dst) ){
+			$ret = JFile::copy($src, $dst);
+			if( !$ret ){
+				echo '<span '.$this->copywarning.'>The file "' . $src . '" could not be copied to "' . $dst . '"</span><br/>';
+			}else{
+				return true;
+			}
+		}
+		else{
+			echo '<span '.$this->copywarning.'>File already exists "' .$dst . '" ("' . $src . '")</span><br/>';
+			return true;
+		}
+
+		return false;
 	}
 
 
@@ -1517,7 +1551,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			'discount_quota_per_user' => 'uses_customer',
 			'discount_published' => 'status',
 			'discount_code' => 'code',
-			'discount_currency_id' => $main_currency,
+			'discount_currency_id' => $this->db->Quote($main_currency),
 			'discount_flat_amount' => "case when type = 'F' then discount else 0 end",
 			'discount_percent_amount' => "case when type = 'P' then discount else 0 end",
 			'discount_quota' => '0'
@@ -1527,7 +1561,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			'SELECT '.implode(',',$data).' FROM #__mijoshop_coupon WHERE coupon_id > ' . (int)$this->options->last_mijo_coupon;
 
 		$this->db->setQuery($sql);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Discount codes/coupons imported : ' . $total . '</p>';
 
@@ -1535,7 +1569,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 		$data = array(
 			'discount_type' => "'coupon'",
 			'discount_code' => 'code',
-			'discount_currency_id' => $main_currency,
+			'discount_currency_id' => $this->db->Quote($main_currency),
 			'discount_flat_amount' => 'amount',
 			'discount_percent_amount' => '0',
 			'discount_published' => 'status',
@@ -1545,7 +1579,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 				'SELECT '.implode(',',$data).' FROM #__mijoshop_voucher WHERE voucher_id > ' . (int)$this->options->last_mijo_voucher;
 
 		$this->db->setQuery($sql);
-		$this->db->query();
+		$this->db->execute();
 		$total = $this->db->getAffectedRows();
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Vouchers imported : ' . $total . '</p>';
 
@@ -1564,7 +1598,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			'SET hkcur.currency_rate = mjc.value';
 		$this->db->setQuery($query);
 
-		$ret = $this->db->query();
+		$ret = $this->db->execute();
 		$cpt = $this->db->getAffectedRows();
 
 		echo '<p '.$this->pmarginstyle.'><span'.$this->bullstyle.'>&#149;</span> Currencies values imported : ' . $cpt .'</p>';
@@ -1639,7 +1673,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 				",('mijo_import_last_mijo_manufacturer',".$this->options->last_mijo_manufacturer.",".$this->options->last_mijo_manufacturer.")".
 				';';
 		$this->db->setQuery($query);
-		$this->db->query();
+		$this->db->execute();
 
 		echo '<p'.$this->titlefont.'>Import finished !</p>';
 
@@ -1651,11 +1685,7 @@ class hikashopImportmijoHelper extends hikashopImportHelper
 			$pkey = reset($pluginsClass->pkeys);
 			if(!empty($infos->$pkey))
 			{
-				if(version_compare(JVERSION,'1.6','<'))
-					$url = JRoute::_('index.php?option=com_plugins&view=plugin&client=site&task=edit&cid[]='.$infos->$pkey);
-				else
-					$url = JRoute::_('index.php?option=com_plugins&view=plugin&layout=edit&extension_id='.$infos->$pkey);
-
+				$url = JRoute::_('index.php?option=com_plugins&view=plugin&layout=edit&extension_id='.$infos->$pkey);
 				echo '<p>You can publish the <a'.$this->linkstyle.' href="'.$url.'">Mijoshop Fallback Redirect Plugin</a> so that your old Mijoshop links are automatically redirected to HikaShop pages and thus not loose the ranking of your content on search engines.</p>';
 			}
 		}

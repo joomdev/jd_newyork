@@ -7,21 +7,18 @@
  * @package    VirtueMart
  * @subpackage CreditCard
  * @author RickG
- * @author Valerie Isaksen
+ * @author Valerie Isaksen, Max Milbers
  * @link https://virtuemart.net
- * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
+ * @copyright Copyright (c) 2004 - 2019 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: creditcard.php 9413 2017-01-04 17:20:58Z Milbo $
+ * @version $Id: creditcard.php 10167 2019-10-09 07:51:46Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
-
-if (!class_exists('VmModel'))
-	require(VMPATH_ADMIN . DS . 'helpers' . DS . 'vmmodel.php');
 
 /**
  * Model class for shop credit cards
@@ -132,7 +129,8 @@ class Creditcard {
 		$tmp = 0;
 
 		//Add the numbers not doubled earlier ( odd placement )
-		for ($i = 0; $i <= strlen($card_temp); $i = $i + 2) {
+		$l = strlen($card_temp);
+		for ($i = 0; $i < $l; $i = $i + 2) {
 			$tmp = substr($card_temp, $i, 1) + $tmp;
 		}
 

@@ -1,19 +1,36 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
 ?><?php
-function HikashopBuildRoute( &$query )
+
+$jversion = preg_replace('#[^0-9\.]#i','',JVERSION);
+if(version_compare($jversion,'4.0.0','>=')) {
+	class hikashopRouter extends Joomla\CMS\Component\Router\RouterBase {
+
+		public function build(&$query) {
+			return _HikashopBuildRoute($query);
+		}
+
+		public function parse(&$segments) {
+			return _HikashopParseRoute($segments);
+		}
+	}
+}
+
+function HikashopBuildRoute( &$query ) { return _HikashopBuildRoute($query, ':'); }
+
+function _HikashopBuildRoute( &$query, $separator = '-' )
 {
 	$segments = array();
 	if(!defined('DS'))
 		define('DS', DIRECTORY_SEPARATOR);
-	if(function_exists('hikashop_config') || include_once(rtrim(JPATH_ADMINISTRATOR,DS).DS.'components'.DS.'com_hikashop'.DS.'helpers'.DS.'helper.php')){
+	if(function_exists('hikashop_config') || include_once(rtrim(JPATH_ADMINISTRATOR,DS).DS.'components'.DS.'com_hikashop'.DS.'helpers'.DS.'helper.php')) {
 		$config =& hikashop_config();
 		if($config->get('activate_sef',1)){
 			$categorySef=$config->get('category_sef_name','category');
@@ -71,6 +88,7 @@ function HikashopBuildRoute( &$query )
 	}
 
 	if (isset($query['ctrl'])) {
+		$ctrl = $query['ctrl'];
 		$segments[] = $query['ctrl'];
 		unset( $query['ctrl'] );
 		if (isset($query['task'])) {
@@ -78,10 +96,13 @@ function HikashopBuildRoute( &$query )
 			unset( $query['task'] );
 		}
 	}elseif(isset($query['view'])){
+		$ctrl = $query['view'];
 		unset( $query['view'] );
 		if(isset($query['layout'])){
 			unset( $query['layout'] );
 		}
+	}else{
+		$ctrl = '';
 	}
 
 	if(isset($query['product_id'])){
@@ -89,7 +110,7 @@ function HikashopBuildRoute( &$query )
 		unset($query['product_id']);
 	}
 	if(isset($query['cid']) && isset($query['name'])){
-		if($config->get('sef_remove_id',0) && !empty($query['name'])){
+		if($config->get('sef_remove_id',0) && !empty($query['name']) && in_array($ctrl, array('product','category', ''))) {
 			$int_at_the_beginning = (int)$query['name'];
 			if($int_at_the_beginning){
 				$query['name'] = $config->get('alias_prefix','p').$query['name'];
@@ -99,7 +120,7 @@ function HikashopBuildRoute( &$query )
 			if(is_numeric($query['name'])){
 				$query['name']=$query['name'].'-';
 			}
-			$segments[] = $query['cid'].':'.$query['name'];
+			$segments[] = $query['cid'].$separator.$query['name'];
 		}
 		unset($query['cid']);
 		unset($query['name']);
@@ -109,7 +130,7 @@ function HikashopBuildRoute( &$query )
 		foreach($query as $name => $value){
 			if(!in_array($name,array('option','Itemid','start','format','limitstart','lang'))){
 					if(is_array($value)) $value = implode('-',$value);
-					$segments[] = $name.':'.$value;
+					$segments[] = $name.$separator.$value;
 				unset($query[$name]);
 			}
 		}
@@ -118,7 +139,9 @@ function HikashopBuildRoute( &$query )
 	return $segments;
 }
 
-function HikashopParseRoute( $segments )
+function HikashopParseRoute( $segments ) { return _HikashopParseRoute($segments, ':'); }
+
+function _HikashopParseRoute( &$segments, $separator = '-' )
 {
 	$vars = array();
 	$check = false;
@@ -135,6 +158,7 @@ function HikashopParseRoute( $segments )
 		foreach($segments as $name){
 			hikashop_retrieve_url_id($vars,$name);
 		}
+		$segments = array();
 		return $vars;
 	}
 
@@ -167,17 +191,22 @@ function HikashopParseRoute( $segments )
 		}
 
 		$i = 0;
-		foreach($segments as $k => $name){
-			if(strpos($name,':')){
-				if(empty($productSef) && !$check){
+
+		foreach($segments as $k => $name) {
+			if(strpos($name, $separator)) {
+				if(empty($productSef) && !$check) {
 					$vars['ctrl']='product';
 					$vars['task']='show';
 				}
-				list($arg,$val) = explode(':',$name,2);
+				list($arg,$val) = explode($separator,$name,2);
 				if($arg=='task' && ($val == 'step' || $val =='show')){
 					$vars['ctrl']='checkout';
 				}
-				if(is_numeric($arg) && !is_numeric($val)){
+				if($arg=='cid' && is_numeric($val) && count($segments) < 2){
+					$vars['ctrl']='checkout';
+					$vars['task']='show';
+					$vars['cid'] = $val;
+				}elseif(is_numeric($arg) && !is_numeric($val)){
 					$vars['cid'] = $arg;
 					$vars['name'] = $val;
 				}elseif(is_numeric($arg)){
@@ -219,14 +248,14 @@ function HikashopParseRoute( $segments )
 				$check=true;
 			}
 		}
-
+		$segments = array();
 		return $vars;
 	}
 
 	$i = 0;
 	foreach($segments as $name) {
-		if(strpos($name,':')){
-			list($arg,$val) = explode(':',$name,2);
+		if(strpos($name,$separator)){
+			list($arg,$val) = explode($separator,$name,2);
 			if(is_numeric($arg) && !is_numeric($val)){
 				$vars['cid'] = $arg;
 				$vars['name'] = $val;
@@ -249,6 +278,7 @@ function HikashopParseRoute( $segments )
 		$vars['category_pathway']=$vars[$category_pathway];
 	}
 
+	$segments = array();
 	return $vars;
 }
 

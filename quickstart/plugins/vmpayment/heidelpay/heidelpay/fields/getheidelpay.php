@@ -82,7 +82,7 @@ class JFormFieldGetHeidelpay extends JFormField {
 		$lang = $this->getLang();
 
 		$html .= '<div id="heidelpay_getheidelpay_show_hide" align=""' . $display . ' >';
-		$url = "http://demoshops.heidelpay.de/contactform/?campaign=vituemart&shop=vituemart&lang=" . $lang;
+		$url = "https://demoshops.heidelpay.de/contactform/?campaign=vituemart&shop=vituemart&lang=" . $lang;
 		$html .= '<iframe src="' . $url . '" scrolling="yes" style="x-overflow: none;" frameborder="0" height="1400px" width="300px"></iframe>';
 		$html .= "</div>";
 		return $html;

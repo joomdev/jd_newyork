@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Restricted access');
 		if(empty($btn['url']))
 			$btn['url'] = hikashop_completeLink($btn['link']);
 		if(empty($btn['icon']))
-			$btn['icon'] = 'icon-48-' . $btn['image'];
+			$btn['icon'] = $btn['image'];
 
 		if($btn['level'] > 0 && !hikashop_level($btn['level']))
 			$btn['url'] = 'javascript:void(0);';

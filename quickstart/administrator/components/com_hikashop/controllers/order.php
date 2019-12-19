@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -35,7 +35,7 @@ class OrderController extends hikashopController {
 			'product_create','customer_set','customer_save'
 		));
 		$this->display = array_merge($this->display, array(
-			'invoice','address','export','download','remove_history_data'
+			'invoice','address','export','download','remove_history_data', 'findList'
 		));
 		$this->modify = array_merge($this->modify, array(
 			'savechangestatus','saveproduct','saveproduct_delete','copy',
@@ -92,7 +92,7 @@ class OrderController extends hikashopController {
 		$fieldClass = hikashop_get('class.field');
 		$field = $fieldClass->getField($field_namekey, $field_table);
 
-		if(empty($field) || ($field->field_type != 'ajaxfile' && $field->field_type != 'ajaximage'))
+		if(empty($field) || !in_array($field->field_type, array('ajaxfile', 'ajaximage')))
 			return false;
 
 		$map = hikaInput::get()->getString('field_map', '');
@@ -103,6 +103,9 @@ class OrderController extends hikashopController {
 		$options = array(
 			'upload_dir' => $config->get('uploadsecurefolder')
 		);
+
+		if(!empty($field->field_options['allowed_extensions']))
+			$options['allowed_extensions'] = trim($field->field_options['allowed_extensions'], ', ');
 
 		$type = ($field->field_type == 'ajaxfile') ? 'file' : 'image';
 
@@ -184,7 +187,7 @@ class OrderController extends hikashopController {
 		$quantities = hikaInput::get()->get('quantity', array(), 'array');
 		$rows = array();
 		if(!empty($product_ids)){
-			JArrayHelper::toInteger($product_ids);
+			hikashop_toInteger($product_ids);
 			$database	= JFactory::getDBO();
 			$query = 'SELECT * FROM '.hikashop_table('product').' WHERE product_id IN ('.implode(',',$product_ids).')';
 			$database->setQuery($query);
@@ -309,7 +312,7 @@ class OrderController extends hikashopController {
 
 					$query = 'UPDATE '.hikashop_table('cart').' SET user_id = '.$user_id.' WHERE cart_id = '.hikaInput::get()->getString('cart_id','0');
 					$db->setQuery($query);
-					$db->query();
+					$db->execute();
 					hikaInput::get()->set('user_id', $user_id);
 					$element = new stdClass();
 					$element->user_id = $user_id;
@@ -590,7 +593,12 @@ class OrderController extends hikashopController {
 
 		$tmpl = hikaInput::get()->getVar('tmpl', '');
 		if($tmpl == 'component') {
-			return $this->show();
+			if(hikaInput::get()->get('fail', null)){
+				hikaInput::get()->set('task', 'edit');
+				return $this->edit();
+			}else{
+				return $this->show();
+			}
 		}
 		return $this->listing();
 	}
@@ -632,6 +640,13 @@ class OrderController extends hikashopController {
 			$tmpl = hikaInput::get()->getVar('tmpl', '');
 			if($tmpl == 'component') {
 				ob_end_clean();
+				$app = JFactory::getApplication();
+				$messageQueue = $app->getMessageQueue();
+				if(!empty($messageQueue)) {
+					foreach( $messageQueue as $message) {
+						hikashop_display($message['message'], $message['type']);
+					}
+				}
 				parent::display();
 				exit;
 			}
@@ -699,5 +714,23 @@ class OrderController extends hikashopController {
 		if($tmpl == 'component')
 			return $this->show_products();
 		return $this->show();
+	}
+
+	public function findList() {
+		$search = hikaInput::get()->getVar('search', '');
+		$start = hikaInput::get()->getInt('start', 0);
+		$displayFormat = hikaInput::get()->getVar('displayFormat', '');
+
+		$options = array();
+
+		if(!empty($displayFormat))
+			$options['displayFormat'] = $displayFormat;
+		if($start > 0)
+			$options['page'] = $start;
+
+		$nameboxType = hikashop_get('type.namebox');
+		$elements = $nameboxType->getValues($search, 'order', $options);
+		echo json_encode($elements);
+		exit;
 	}
 }

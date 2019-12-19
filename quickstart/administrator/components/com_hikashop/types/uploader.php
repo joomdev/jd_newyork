@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -73,9 +73,9 @@ class HikashopUploaderType {
 		if(!isset($options['classes']['contentClass']))
 			$options['classes']['contentClass'] = '';
 		if(empty($options['classes']['btn_upload']))
-			$options['classes']['btn_upload'] = 'hika_upload_btn';
+			$options['classes']['btn_upload'] = 'fa fa-upload';
 		if(empty($options['classes']['btn_add']))
-			$options['classes']['btn_add'] = 'hika_add_btn';
+			$options['classes']['btn_add'] = 'fa fa-plus';
 
 		$maxPostSize = min(hikashop_bytes(ini_get('upload_max_filesize')), hikashop_bytes(ini_get('post_max_size')));
 		if(empty($options['maxPostSize'])) {
@@ -124,7 +124,7 @@ class HikashopUploaderType {
 					'HIKA_UPLOAD_IMAGE',
 					$options['uploadUrls'][0],
 					$id.'_uploadpopup',
-					750, 460, 'onclick="return window.hkUploaderList[\''.$id.'\'].uploadFile(this);"'.$opt, '', 'link'
+					750, 460, 'class="hikabtn hikabtn-primary" onclick="return window.hkUploaderList[\''.$id.'\'].uploadFile(this);"'.$opt, '', 'link'
 				).
 				'<input id="'.$id.'" type="file"/></span>';
 
@@ -141,13 +141,13 @@ class HikashopUploaderType {
 				'HIKA_ADD_IMAGE',
 				$options['browseUrl'],
 				$id.'_addpopup',
-				750, 460, 'onclick="return window.hkUploaderList[\''.$id.'\'].browseImage(this);"'.$opt, '', 'link'
+				750, 460, 'class="hikabtn hikabtn-primary" onclick="return window.hkUploaderList[\''.$id.'\'].browseImage(this);"'.$opt, '', 'link'
 			);
 		}
 
 		if(!empty($options['buttons'])){
 			foreach($options['buttons'] as $button){
-				$opt = '';
+				$opt = 'class="hikabtn hikabtn-primary"';
 				if(!empty($button['tooltip']))
 					$opt .= ' data-toggle="hk-tooltip" data-title="'.$button['tooltip'].'"';
 				if(!empty($button['onclick']))
@@ -214,7 +214,7 @@ class HikashopUploaderType {
 				'HIKA_UPLOAD_IMAGE',
 				$options['uploadUrls'][0],
 				$id.'_uploadpopup',
-				750, 460, 'onclick="return window.hkUploaderList[\''.$id.'\'].uploadFile(this);"'.$opt, '', 'link'
+				750, 460, 'class="hikabtn hikabtn-primary" onclick="return window.hkUploaderList[\''.$id.'\'].uploadFile(this);"'.$opt, '', 'link'
 			);
 		}
 
@@ -228,13 +228,13 @@ class HikashopUploaderType {
 				'HIKA_ADD_IMAGE',
 				$options['browseUrl'],
 				$id.'_addpopup',
-				750, 460, 'onclick="return window.hkUploaderList[\''.$id.'\'].browseImage(this);"'.$opt, '', 'link'
+				750, 460, 'class="hikabtn hikabtn-primary" onclick="return window.hkUploaderList[\''.$id.'\'].browseImage(this);"'.$opt, '', 'link'
 			);
 		}
 
 		if(!empty($options['buttons'])){
 			foreach($options['buttons'] as $button){
-				$opt = '';
+				$opt = 'class="hikabtn hikabtn-primary"';
 				if(!empty($button['tooltip']))
 					$opt .= ' data-toggle="hk-tooltip" data-title="'.$button['tooltip'].'"';
 				if(!empty($button['onclick']))
@@ -281,8 +281,8 @@ class HikashopUploaderType {
 		}
 
 		$js = '';
-		if(!empty($options['uploadUrls'])) {
-			$js .= "\r\n" . 'var hkUploader_'.$id.' = new hkUploaderMgr("'.$id.'", {mode: \'listImg\', url:\''.$options['uploadUrls'][1].'\', formData:'.$options['formData'].', options: {maxPostSize:'.(int)$options['maxPostSize'].', imgClasses:[\''.$options['classes']['firstImg'].'\',\''.$options['classes']['otherImg'].'\']} })';
+		if(!empty($options['uploadUrls']) || !empty($options['buttons'])) {
+			$js .= "\r\n" . 'var hkUploader_'.$id.' = new hkUploaderMgr("'.$id.'", {mode: \'listImg\', url:\''.@$options['uploadUrls'][1].'\', formData:'.$options['formData'].', options: {maxPostSize:'.(int)$options['maxPostSize'].', imgClasses:[\''.$options['classes']['firstImg'].'\',\''.$options['classes']['otherImg'].'\']} })';
 		}
 
 		if(!empty($js)) {
@@ -321,7 +321,7 @@ class HikashopUploaderType {
 					'HIKA_UPLOAD_FILE',
 					$options['uploadUrls'][0],
 					$id.'_uploadpopup',
-					750, 460, 'onclick="return window.hkUploaderList[\''.$id.'\'].uploadFile(this);"'.$opt, '', 'link'
+					750, 460, 'class="hikabtn hikabtn-primary" onclick="return window.hkUploaderList[\''.$id.'\'].uploadFile(this);"'.$opt, '', 'link'
 				).
 				'<input id="'.$id.'" type="file"/></span>';
 
@@ -378,7 +378,7 @@ class HikashopUploaderType {
 					'HIKA_UPLOAD_FILE',
 					$options['uploadUrls'][0],
 					$id.'_uploadpopup',
-					750, 460, 'onclick="return window.hkUploaderList[\''.$id.'\'].uploadFile(this);"'.$opt, '', 'link'
+					750, 460, 'class="hikabtn hikabtn-primary" onclick="return window.hkUploaderList[\''.$id.'\'].uploadFile(this);"'.$opt, '', 'link'
 				).
 				'<input id="'.$id.'" type="file"/></span>';
 

@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: product_edit_status.php 9413 2017-01-04 17:20:58Z Milbo $
+* @version $Id: product_edit_status.php 10165 2019-10-09 07:18:53Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -28,22 +28,16 @@ defined('_JEXEC') or die('Restricted access'); ?>
 		<td width="20%">
 			<input  type="text" class="inputbox js-change-stock"  name="product_in_stock" value="<?php echo $this->product->product_in_stock; ?>" size="10" />
 
-			<?php 
-			/*if (isset($this->waitinglist) && count($this->waitinglist) > 0) { 
-				$link=JROUTE::_('index.php?option=com_virtuemart&view=product&task=sentproductemailtoshoppers&virtuemart_product_id='.$this->product->virtuemart_product_id.'&'.JSession::getFormToken().'=1' );
+            <?php if($this->product->product_parent_id!=0 and !$this->product_childs){
+				echo VmHtml::checkbox('shared_stock',$this->product->shared_stock);
+				echo vmText::_('COM_VIRTUEMART_PRODUCT_FORM_STOCK_SHARED');
+            } ?>
 
-
-					<a href="<?php echo $link ?>">
-					<span class="icon-nofloat vmicon icon-16-messages"></span><?php echo vmText::_('COM_VIRTUEMART_PRODUCT_NOTIFY_USER'); ?>
-					</a>
-
-
-			}*/ ?>
-		</td>
- 			<th style="text-align:right;" width="20%">
+        </td>
+ 		<th style="text-align:right;" width="20%">
 			<?php echo vmText::_('COM_VIRTUEMART_PRODUCT_FORM_ORDERED_STOCK') ?>
 		</th>
-		<td colspan="2">
+		<td colspan="1">
 			<input type="text" class="inputbox js-change-stock"  name="product_ordered" value="<?php echo $this->product->product_ordered; ?>" size="10" />
 		</td>
 	</tr>
@@ -119,8 +113,9 @@ defined('_JEXEC') or die('Restricted access'); ?>
 			<?php echo JHtml::_('list.images', 'image', $this->product->product_availability, " ", $this->imagePath); ?>
 			<span class="icon-nofloat vmicon vmicon-16-info tooltip" title="<?php echo '<b>'.vmText::_('COM_VIRTUEMART_AVAILABILITY').'</b><br/ >'.vmText::sprintf('COM_VIRTUEMART_PRODUCT_FORM_AVAILABILITY_TOOLTIP2',  $this->imagePath ) ?>"></span>
 		</td>
-		<td><img border="0" id="imagelib" alt="<?php echo vmText::_('COM_VIRTUEMART_PREVIEW'); ?>" name="imagelib" src="<?php if ($this->product->product_availability) echo JURI::root(true).$this->imagePath.$this->product->product_availability;?>"/></td>
-
+		<td>
+		    <img border="0" id="imagelib" alt="<?php echo vmText::_('COM_VIRTUEMART_PREVIEW'); ?>" name="imagelib" src="<?php if ($this->product->product_availability and file_exists(JPATH_ROOT . '/' . $this->imagePath.$this->product->product_availability)) echo JURI::root(true).$this->imagePath.$this->product->product_availability;?>"/>
+		</td>
 	</tr>
 </table>
 </fieldset>

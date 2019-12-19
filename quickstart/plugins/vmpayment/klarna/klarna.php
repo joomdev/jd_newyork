@@ -3,12 +3,12 @@
 defined ('_JEXEC') or die();
 
 /**
- * @version $Id: klarna.php 9560 2017-05-30 14:13:21Z Milbo $
+ * @version $Id: klarna.php 10150 2019-09-16 12:22:07Z Milbo $
  *
  * @author Valérie Isaksen
  * @package VirtueMart
  * @link https://virtuemart.net
- * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
+ * @copyright Copyright (c) 2004 - 2019 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -210,13 +210,14 @@ class plgVmPaymentKlarna extends vmPSPlugin {
 				$cart->STsameAsBT = 1;
 				$cart->setCartIntoSession ();
 			}
-		} elseif ($cart->BT == 0 or empty($cart->BT)) {
-			$st = $cart->BT;
-			$type = 'BT';
-		} else {
+		} else if(empty($cart->STsameAsBT)){
 			$st = $cart->ST;
 			$type = 'ST';
+		} else {
+			$st = $cart->BT;
+			$type = 'BT';
 		}
+
 		return $st;
 	}
 
@@ -1661,9 +1662,7 @@ class plgVmPaymentKlarna extends vmPSPlugin {
 			$db->setQuery ($q);
 			$taxrules = $db->loadAssocList ();
 		}
-		if (!class_exists ('calculationHelper')) {
-			require(JPATH_VM_ADMINISTRATOR . DS . 'helpers' . DS . 'calculationh.php');
-		}
+
 		$calculator = calculationHelper::getInstance ();
 		if (count ($taxrules) > 0) {
 			$calculator->setRevert (TRUE);

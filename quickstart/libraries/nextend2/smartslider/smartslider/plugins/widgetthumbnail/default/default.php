@@ -18,6 +18,11 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
             'widget-thumbnail-style-bar'               => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMjQyNDI0ZmYiLCJwYWRkaW5nIjoiM3wqfDN8KnwzfCp8M3wqfHB4IiwiYm94c2hhZG93IjoiMHwqfDB8KnwwfCp8MHwqfDAwMDAwMGZmIiwiYm9yZGVyIjoiMHwqfHNvbGlkfCp8MDAwMDAwZmYiLCJib3JkZXJyYWRpdXMiOiIwIiwiZXh0cmEiOiIifV19',
             'widget-thumbnail-style-slides'            => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwMDAiLCJwYWRkaW5nIjoiMHwqfDB8KnwwfCp8MHwqfHB4IiwiYm94c2hhZG93IjoiMHwqfDB8KnwwfCp8MHwqfDAwMDAwMGZmIiwiYm9yZGVyIjoiMHwqfHNvbGlkfCp8ZmZmZmZmMDAiLCJib3JkZXJyYWRpdXMiOiIwIiwiZXh0cmEiOiJvcGFjaXR5OiAwLjQ7XG5tYXJnaW46IDNweDtcbnRyYW5zaXRpb246IGFsbCAwLjRzO1xuYmFja2dyb3VuZC1zaXplOiBjb3ZlcjsifSx7ImJvcmRlciI6IjB8Knxzb2xpZHwqfGZmZmZmZmNjIiwiZXh0cmEiOiJvcGFjaXR5OiAxOyJ9XX0=',
             'widget-thumbnail-arrow'                   => 1,
+            'widget-thumbnail-arrow-image'             => '',
+            'widget-thumbnail-arrow-width'             => 26,
+            'widget-thumbnail-arrow-offset'            => 0,
+            'widget-thumbnail-arrow-prev-alt'          => 'previous arrow',
+            'widget-thumbnail-arrow-next-alt'          => 'next arrow',
             'widget-thumbnail-title-style'             => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwYWIiLCJwYWRkaW5nIjoiM3wqfDEwfCp8M3wqfDEwfCp8cHgiLCJib3hzaGFkb3ciOiIwfCp8MHwqfDB8KnwwfCp8MDAwMDAwZmYiLCJib3JkZXIiOiIwfCp8c29saWR8KnwwMDAwMDBmZiIsImJvcmRlcnJhZGl1cyI6IjAiLCJleHRyYSI6ImJvdHRvbTogMDtcbmxlZnQ6IDA7In1dfQ==',
             'widget-thumbnail-title'                   => 0,
             'widget-thumbnail-title-font'              => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siY29sb3IiOiJmZmZmZmZmZiIsInNpemUiOiIxMnx8cHgiLCJ0c2hhZG93IjoiMHwqfDB8KnwwfCp8MDAwMDAwYWIiLCJhZm9udCI6Ik1vbnRzZXJyYXQiLCJsaW5laGVpZ2h0IjoiMS4yIiwiYm9sZCI6MCwiaXRhbGljIjowLCJ1bmRlcmxpbmUiOjAsImFsaWduIjoibGVmdCJ9LHsiY29sb3IiOiJmYzI4MjhmZiIsImFmb250IjoiZ29vZ2xlKEBpbXBvcnQgdXJsKGh0dHA6Ly9mb250cy5nb29nbGVhcGlzLmNvbS9jc3M/ZmFtaWx5PVJhbGV3YXkpOyksQXJpYWwiLCJzaXplIjoiMjV8fHB4In0se31dfQ==',
@@ -46,14 +51,6 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
         ));
 
         new N2ElementWidgetPosition($settings, 'widget-thumbnail-position', n2_('Position'));
-        new N2ElementRadio($settings, 'widget-thumbnail-action', n2_('Action'), '', array(
-            'rowClass' => 'n2-expert',
-            'options'  => array(
-                'click'      => n2_('Click'),
-                'mouseenter' => n2_('Hover')
-            )
-        ));
-    
 
         new N2ElementRadio($settings, 'widget-thumbnail-align-content', n2_('Align thumbnails'), '', array(
             'options' => array(
@@ -64,10 +61,6 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
                 'space-around'  => n2_('Space around')
             )
         ));
-        new N2ElementOnOff($settings, 'widget-thumbnail-invert-group-direction', n2_('Invert group direction'), '', array(
-            'rowClass' => 'n2-expert'
-        ));
-    
 
         $style = new N2ElementGroup($settings, 'widget-thumbnail-style', n2_('Style'));
 
@@ -86,7 +79,6 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
         ));
 
         new N2ElementStyle($style, 'widget-thumbnail-style-slides', n2_('Thumbnail'), '', array(
-            'rowClass'    => 'n2-expert',
             'previewMode' => 'dot',
             'set'         => 1900,
             'style2'      => 'sliderwidget-thumbnail-style-bar',
@@ -100,7 +92,36 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
             </div>'
         ));
 
-        new N2ElementOnOff($settings, 'widget-thumbnail-arrow', n2_('Show arrow'));
+
+        $arrowGroup = new N2ElementGroup($settings, 'widget-thumbnail-arrow-group', n2_('Arrow'), array(
+            'rowClass' => 'n2-expert'
+        ));
+        new N2ElementOnOff($arrowGroup, 'widget-thumbnail-arrow', n2_('Show arrow'), '', array(
+            'relatedFields' => array(
+                'sliderwidget-thumbnail-arrow-image',
+                'sliderwidget-thumbnail-arrow-width',
+                'sliderwidget-thumbnail-arrow-offset',
+                'sliderwidget-thumbnail-arrow-prev-alt',
+                'sliderwidget-thumbnail-arrow-next-alt'
+            )
+        ));
+        new N2ElementNumber($arrowGroup, 'widget-thumbnail-arrow-width', n2_('Size'), 26, array(
+            'style' => 'width:30px;',
+            'unit'  => 'px'
+        ));
+        new N2ElementNumber($arrowGroup, 'widget-thumbnail-arrow-offset', n2_('Offset'), 0, array(
+            'style' => 'width:30px;',
+            'unit'  => 'px'
+        ));
+        new N2ElementText($arrowGroup, 'widget-thumbnail-arrow-prev-alt', n2_('Previous arrow alt tag'), 'previous arrow', array(
+            'style' => 'width:100px;'
+        ));
+        new N2ElementText($arrowGroup, 'widget-thumbnail-arrow-next-alt', n2_('Next arrow alt tag'), 'next arrow', array(
+            'style' => 'width:100px;'
+        ));
+        new N2ElementImage($arrowGroup, 'widget-thumbnail-arrow-image', n2_('Next image'), '', array(
+            'tip' => n2_('The previous arrow image will be mirrored.')
+        ));
 
         $caption = new N2ElementGroup($settings, 'widget-thumbnail-caption', n2_('Caption'));
 
@@ -117,7 +138,7 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
         ));
         new N2ElementOnOff($title, 'widget-thumbnail-title', n2_('Title'), '', array(
             'relatedFields' => array(
-                'widget-thumbnail-title-font'
+                'sliderwidget-thumbnail-title-font'
             )
         ));
         new N2ElementFont($title, 'widget-thumbnail-title-font', n2_('Font'), '', array(
@@ -132,7 +153,7 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
         ));
         new N2ElementOnOff($description, 'widget-thumbnail-description', n2_('Description'), '', array(
             'relatedFields' => array(
-                'widget-thumbnail-description-font'
+                'sliderwidget-thumbnail-description-font'
             )
         ));
         new N2ElementFont($description, 'widget-thumbnail-description-font', n2_('Font'), '', array(
@@ -156,31 +177,6 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
             'style' => 'width:40px;',
             'unit'  => 'px'
         ));
-        new N2ElementNumber($settings, 'widget-thumbnail-group', n2_('Group'), '', array(
-            'rowClass' => 'n2-expert',
-            'unit'     => n2_('thumbnails per group')
-        ));
-
-        new N2ElementRadio($settings, 'widget-thumbnail-orientation', n2_('Orientation'), '', array(
-            'rowClass' => 'n2-expert',
-            'options'  => array(
-                'auto'       => n2_('Auto'),
-                'horizontal' => n2_('Horizontal'),
-                'vertical'   => n2_('Vertical')
-            )
-        ));
-
-        $size = new N2ElementGroup($settings, 'widget-thumbnail-size', n2_('Size'), array(
-            'rowClass' => 'n2-expert'
-        ));
-
-        new N2elementText($size, 'widget-thumbnail-size', n2_('Width (horizontal) or Height (vertical)'), '', array(
-            'style' => 'width:150px;'
-        ));
-
-        new N2ElementOnOff($size, 'widget-thumbnail-overlay', n2_('Overlay'));
-
-    
     }
 
     public function getPath() {
@@ -367,11 +363,46 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
         $previous  = $next = '';
         $showArrow = intval($slider->params->get(self::$key . 'arrow', 1));
         if ($showArrow) {
-            $previous = N2Html::image('data:image/svg+xml;base64,' . n2_base64_encode(N2Filesystem::readFile(N2ImageHelper::fixed('$ss$/plugins/widgetthumbnail/default/default/thumbnail-up-arrow.svg', true))), 'Arrow', array(
-                'class' => 'nextend-thumbnail-button nextend-thumbnail-previous n2-ow'
+            $arrowImagePrevious = $arrowImageNext = N2ImageHelper::fixed($slider->params->get(self::$key . 'arrow-image', ''));
+            $arrowWidth         = intval($slider->params->get(self::$key . 'arrow-width', 26));
+            $commonStyle        = '';
+            if (!empty($arrowWidth)) {
+                $commonStyle = 'width:' . $arrowWidth . 'px;';
+                $arrowOffset = intval($slider->params->get(self::$key . 'arrow-offset', 0));
+                $marginValue = -($arrowWidth / 2) + $arrowOffset;
+                switch ($orientation) {
+                    case 'vertical':
+                        $commonStyle .= 'margin-left:' . $marginValue . 'px!important;';
+                        break;
+                    default:
+                        $commonStyle .= 'margin-top:' . $marginValue . 'px!important;';
+                }
+            }
+            $previousStyle = $nextStyle = $commonStyle;
+            if (empty($arrowImagePrevious)) {
+                $arrowImagePrevious = 'data:image/svg+xml;base64,' . n2_base64_encode(N2Filesystem::readFile(N2ImageHelper::fixed('$ss$/plugins/widgetthumbnail/default/default/thumbnail-up-arrow.svg', true)));
+            } else {
+                switch ($orientation) {
+                    case 'vertical':
+                        $previousStyle .= 'transform:rotateY(180deg) rotateX(180deg);';
+                        break;
+                    default:
+                        $previousStyle .= 'transform:rotateZ(180deg) rotateX(180deg);';
+                }
+            }
+            if (empty($arrowImageNext)) {
+                $arrowImageNext = 'data:image/svg+xml;base64,' . n2_base64_encode(N2Filesystem::readFile(N2ImageHelper::fixed('$ss$/plugins/widgetthumbnail/default/default/thumbnail-down-arrow.svg', true)));
+            } else {
+                $nextStyle .= 'transform:none;';
+            }
+
+            $previous = N2Html::image($arrowImagePrevious, $slider->params->get(self::$key . 'arrow-prev-alt', 'previous arrow'), array(
+                'class' => 'nextend-thumbnail-button nextend-thumbnail-previous n2-ow',
+                'style' => $previousStyle
             ));
-            $next     = N2Html::image('data:image/svg+xml;base64,' . n2_base64_encode(N2Filesystem::readFile(N2ImageHelper::fixed('$ss$/plugins/widgetthumbnail/default/default/thumbnail-down-arrow.svg', true))), 'Arrow', array(
-                'class' => 'nextend-thumbnail-button nextend-thumbnail-next n2-ow n2-active'
+            $next     = N2Html::image($arrowImageNext, $slider->params->get(self::$key . 'arrow-next-alt', 'next arrow'), array(
+                'class' => 'nextend-thumbnail-button nextend-thumbnail-next n2-ow n2-active',
+                'style' => $nextStyle
             ));
         }
 
@@ -394,7 +425,7 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
             ), $previous . $next . N2Html::tag('div', array(
                 'class' => 'nextend-thumbnail-inner n2-ow'
             ), N2Html::tag('div', array(
-                'class' => $barStyle . 'nextend-thumbnail-scroller n2-ow n2-align-content-' . $params->get('widget-thumbnail-align-content') . ($params->get('widget-thumbnail-invert-group-direction', 0) ? ' nextend-thumbnail-invert-group-dir' : ''),
+                'class' => $barStyle . 'nextend-thumbnail-scroller n2-ow n2-align-content-' . $params->get('widget-thumbnail-align-content'),
             ), '')));
     }
 
@@ -420,74 +451,3 @@ class N2SSPluginWidgetThumbnailDefault extends N2SSPluginWidgetAbstract {
 }
 
 N2SmartSliderWidgets::addWidget('thumbnail', new N2SSPluginWidgetThumbnailDefault);
-class N2SSPluginWidgetThumbnailDefaultHorizontal extends N2SSPluginWidgetThumbnailDefault {
-
-    protected $name = 'defaultHorizontal';
-
-    public function getDefaults() {
-        return array_merge(parent::getDefaults(), array(
-            'widget-thumbnail-style-bar'         => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMjQyNDI0ZmYiLCJwYWRkaW5nIjoiMHwqfDB8KnwwfCp8MHwqfHB4IiwiYm94c2hhZG93IjoiMHwqfDB8KnwwfCp8MHwqfDAwMDAwMGZmIiwiYm9yZGVyIjoiMHwqfHNvbGlkfCp8MDAwMDAwZmYiLCJib3JkZXJyYWRpdXMiOiIwIiwiZXh0cmEiOiIifV19',
-            'widget-thumbnail-style-slides'      => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwMDAiLCJwYWRkaW5nIjoiMHwqfDB8KnwwfCp8MHwqfHB4IiwiYm94c2hhZG93IjoiMHwqfDB8KnwwfCp8MHwqfDAwMDAwMGZmIiwiYm9yZGVyIjoiMHwqfHNvbGlkfCp8ZmZmZmZmMDAiLCJib3JkZXJyYWRpdXMiOiIwIiwiZXh0cmEiOiJvcGFjaXR5OiAwLjQ7XG50cmFuc2l0aW9uOiBhbGwgMC40cztcbmJhY2tncm91bmQtc2l6ZTogY292ZXI7In0seyJib3JkZXIiOiIwfCp8c29saWR8KnxmZmZmZmZjYyIsImV4dHJhIjoib3BhY2l0eTogMTsifV19',
-            'widget-thumbnail-title-style'       => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwMDAiLCJwYWRkaW5nIjoiM3wqfDEwfCp8M3wqfDEwfCp8cHgiLCJib3hzaGFkb3ciOiIwfCp8MHwqfDB8KnwwfCp8MDAwMDAwZmYiLCJib3JkZXIiOiIwfCp8c29saWR8KnwwMDAwMDBmZiIsImJvcmRlcnJhZGl1cyI6IjAiLCJleHRyYSI6ImJvdHRvbTogMDtcbmxlZnQ6IDA7In1dfQ==',
-            'widget-thumbnail-title'             => 1,
-            'widget-thumbnail-title'             => 1,
-            'widget-thumbnail-title-font'        => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siY29sb3IiOiJmZmZmZmZmZiIsInNpemUiOiIxNHx8cHgiLCJ0c2hhZG93IjoiMHwqfDB8KnwwfCp8MDAwMDAwYWIiLCJhZm9udCI6Ik1vbnRzZXJyYXQiLCJsaW5laGVpZ2h0IjoiMS40IiwiYm9sZCI6MCwiaXRhbGljIjowLCJ1bmRlcmxpbmUiOjAsImFsaWduIjoibGVmdCJ9LHsiY29sb3IiOiJmYzI4MjhmZiIsImFmb250IjoiZ29vZ2xlKEBpbXBvcnQgdXJsKGh0dHA6Ly9mb250cy5nb29nbGVhcGlzLmNvbS9jc3M/ZmFtaWx5PVJhbGV3YXkpOyksQXJpYWwiLCJzaXplIjoiMjV8fHB4In0se31dfQ==',
-            'widget-thumbnail-description'       => 1,
-            'widget-thumbnail-caption-placement' => 'after'
-        ));
-    }
-}
-
-N2SmartSliderWidgets::addWidget('thumbnail', new N2SSPluginWidgetThumbnailDefaultHorizontal);
-
-class N2SSPluginWidgetThumbnailDefaultHorizontalGallery extends N2SSPluginWidgetThumbnailDefault {
-
-    protected $name = 'defaultHorizontalGallery';
-
-    public function getDefaults() {
-        return array_merge(parent::getDefaults(), array(
-            'widget-thumbnail-title' => 0,
-            'widget-thumbnail-group' => 3
-        ));
-    }
-}
-
-N2SmartSliderWidgets::addWidget('thumbnail', new N2SSPluginWidgetThumbnailDefaultHorizontalGallery);
-
-class N2SSPluginWidgetThumbnailDefaultVertical extends N2SSPluginWidgetThumbnailDefault {
-
-    protected $name = 'defaultVertical';
-
-    public function getDefaults() {
-        return array_merge(parent::getDefaults(), array(
-            'widget-thumbnail-position-area' => 5,
-            'widget-thumbnail-title'         => 1,
-        ));
-    }
-}
-
-N2SmartSliderWidgets::addWidget('thumbnail', new N2SSPluginWidgetThumbnailDefaultVertical);
-
-class N2SSPluginWidgetThumbnailDefaultVerticalText extends N2SSPluginWidgetThumbnailDefault {
-
-    protected $name = 'defaultVerticalText';
-
-    public function getDefaults() {
-        return array_merge(parent::getDefaults(), array(
-            'widget-thumbnail-position-area'     => 5,
-            'widget-thumbnail-style-slides'      => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwMDAiLCJwYWRkaW5nIjoiMHwqfDB8KnwwfCp8MHwqfHB4IiwiYm94c2hhZG93IjoiMHwqfDB8KnwwfCp8MHwqfDAwMDAwMGZmIiwiYm9yZGVyIjoiMHwqfHNvbGlkfCp8ZmZmZmZmMDAiLCJib3JkZXJyYWRpdXMiOiIwIiwiZXh0cmEiOiJiYWNrZ3JvdW5kLXNpemU6IGNvdmVyO1xubWFyZ2luOiAxMHB4IDA7XG5vcGFjaXR5OiAwLjY7XG4ifSx7ImJhY2tncm91bmRjb2xvciI6IjAwMDAwMDAwIiwiZXh0cmEiOiJiYWNrZ3JvdW5kLXNpemU6IGNvdmVyO1xubWFyZ2luOiAxMHB4IDA7XG5vcGFjaXR5OiAxO1xuIn1dfQ==',
-            'widget-thumbnail-title-style'       => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwMDAiLCJwYWRkaW5nIjoiM3wqfDEwfCp8M3wqfDEwfCp8cHgiLCJib3hzaGFkb3ciOiIwfCp8MHwqfDB8KnwwfCp8MDAwMDAwZmYiLCJib3JkZXIiOiIwfCp8c29saWR8KnwwMDAwMDBmZiIsImJvcmRlcnJhZGl1cyI6IjAiLCJleHRyYSI6ImJvdHRvbTogMDtcbmxlZnQ6IDA7In1dfQ==',
-            'widget-thumbnail-title'             => 1,
-            'widget-thumbnail-title-font'        => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siY29sb3IiOiJmZmZmZmZlNiIsInNpemUiOiIxNHx8cHgiLCJ0c2hhZG93IjoiMHwqfDB8KnwwfCp8MDAwMDAwYWIiLCJhZm9udCI6Ik1vbnRzZXJyYXQiLCJsaW5laGVpZ2h0IjoiMS44IiwiYm9sZCI6MCwiaXRhbGljIjowLCJ1bmRlcmxpbmUiOjAsImFsaWduIjoibGVmdCIsImV4dHJhIjoiIn0seyJjb2xvciI6ImZjMjgyOGZmIiwiYWZvbnQiOiJnb29nbGUoQGltcG9ydCB1cmwoaHR0cDovL2ZvbnRzLmdvb2dsZWFwaXMuY29tL2Nzcz9mYW1pbHk9UmFsZXdheSk7KSxBcmlhbCIsInNpemUiOiIyNXx8cHgifSx7fV19',
-            'widget-thumbnail-description'       => 1,
-            'widget-thumbnail-description-font'  => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siY29sb3IiOiJmZmZmZmY3ZCIsInNpemUiOiIxMnx8cHgiLCJ0c2hhZG93IjoiMHwqfDB8KnwwfCp8MDAwMDAwYWIiLCJhZm9udCI6Ik1vbnRzZXJyYXQiLCJsaW5laGVpZ2h0IjoiMS4zIiwiYm9sZCI6MCwiaXRhbGljIjowLCJ1bmRlcmxpbmUiOjAsImFsaWduIjoibGVmdCJ9LHsiY29sb3IiOiJmYzI4MjhmZiIsImFmb250IjoiZ29vZ2xlKEBpbXBvcnQgdXJsKGh0dHA6Ly9mb250cy5nb29nbGVhcGlzLmNvbS9jc3M/ZmFtaWx5PVJhbGV3YXkpOyksQXJpYWwiLCJzaXplIjoiMjV8fHB4In0se31dfQ==',
-            'widget-thumbnail-caption-size'      => 200,
-            'widget-thumbnail-show-image'        => 0,
-            'widget-thumbnail-width'             => 100,
-            'widget-thumbnail-height'            => 60,
-            'widget-thumbnail-caption-placement' => 'after'
-        ));
-    }
-}
-
-N2SmartSliderWidgets::addWidget('thumbnail', new N2SSPluginWidgetThumbnailDefaultVerticalText);

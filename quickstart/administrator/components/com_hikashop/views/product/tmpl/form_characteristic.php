@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Restricted access');
 				echo JText::_('HIKA_NAME');
 			?></th>
 			<th style="width:40px;text-align:center">
-				<a href="#" onclick="return window.productMgr.newCharacteristic();"><img src="<?php echo HIKASHOP_IMAGES; ?>plus.png" alt="<?php echo JText::_('ADD'); ?>"></a>
+				<a href="#" onclick="return window.productMgr.newCharacteristic();" title="<?php echo JText::_('ADD'); ?>"><i class="fa fa-plus"></i></a>
 			</th>
 		</tr>
 	</thead>
@@ -57,9 +57,9 @@ defined('_JEXEC') or die('Restricted access');
 					?></dd>
 				</dl>
 				<div style="float:right">
-					<button onclick="return window.productMgr.addCharacteristic();" class="btn btn-success"><img src="<?php echo HIKASHOP_IMAGES; ?>save.png" alt="" style="vertical-align:middle;"/> <?php echo JText::_('HIKA_SAVE'); ;?></button>
+					<button onclick="return window.productMgr.addCharacteristic();" class="btn btn-success"><i class="fa fa-save"></i> <?php echo JText::_('HIKA_SAVE'); ;?></button>
 				</div>
-				<button onclick="return window.productMgr.cancelNewCharacteristic();" class="btn btn-danger"><img src="<?php echo HIKASHOP_IMAGES; ?>cancel.png" alt="" style="vertical-align:middle;"/> <?php echo JText::_('HIKA_CANCEL'); ;?></button>
+				<button onclick="return window.productMgr.cancelNewCharacteristic();" class="btn btn-danger"><i class="fa fa-times"></i> <?php echo JText::_('HIKA_CANCEL'); ;?></button>
 				<div style="clear:both"></div>
 			</td>
 		</tr>
@@ -84,7 +84,7 @@ foreach($this->product->characteristics as $characteristic) {
 					echo ' - ' . $characteristic->characteristic_alias;
 			?></td>
 			<td style="text-align:center">
-				<a href="#delete" onclick="return window.productMgr.deleteCharacteristic(this, <?php echo (int)$characteristic->characteristic_id; ?>); return false;"><img src="<?php echo HIKASHOP_IMAGES; ?>delete.png" alt="<?php echo JText::_('HIKA_DELETE'); ?>"></a>
+				<a href="#delete" onclick="return window.productMgr.deleteCharacteristic(this, <?php echo (int)$characteristic->characteristic_id; ?>); return false;"><i class="fas fa-trash"></i></a>
 				<input type="hidden" name="data[characteristics][]" value="<?php echo (int)$characteristic->characteristic_id; ?>"/>
 			</td>
 		</tr>
@@ -96,7 +96,7 @@ foreach($this->product->characteristics as $characteristic) {
 			<td class="column_move"><img src="<?php echo HIKASHOP_IMAGES; ?>move.png"/></td>
 			<td>{NAME}</td>
 			<td style="text-align:center">
-				<a href="#delete" onclick="return window.productMgr.deleteCharacteristic(this, {ID}); return false;"><img src="<?php echo HIKASHOP_IMAGES; ?>delete.png" alt="<?php echo JText::_('HIKA_DELETE'); ?>"></a>
+				<a href="#delete" onclick="return window.productMgr.deleteCharacteristic(this, {ID}); return false;"><i class="fas fa-trash"></i></a>
 				<input type="hidden" name="{INPUT_NAME}" value="{ID}"/>
 				<input type="hidden" name="{INPUT_NAME_2}" value="{ID_2}"/>
 			</td>

@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -45,8 +45,7 @@ $vars = array(
 );
 
 if(!empty($data->product)) {
-	$vars['PRODUCT_DETAILS'] = '<a href="'.$admin_product_url.'">'.strip_tags($data->product->product_name.' ('.$data->product->product_code.')').'</a>';
-	$vars['FRONT_PRODUCT_DETAILS'] = '<a href="'.$front_product_url.'">'.strip_tags($data->product->product_name.' ('.$data->product->product_code.')').'</a>';
+	$vars['PRODUCT_DETAILS'] = '<p>'.strip_tags($data->product->product_name.' ('.$data->product->product_code.')').' <a href="'.$admin_product_url.'">'.JText::_('BACKEND_EDITON_PAGE').'</a> <a href="'.$front_product_url.'">'.JText::_('FRONTEND_DETAILS_PAGE').'</a></p>';
 }
 
 if(hikashop_level(1)) {
@@ -56,6 +55,7 @@ if(hikashop_level(1)) {
 	if(!empty($contactFields)){
 		foreach($contactFields as $field){
 			$namekey = $field->field_namekey;
+			if(!isset($data->element->$namekey)) continue;
 			if(empty($data->element->$namekey) && !strlen($data->element->$namekey)) continue;
 			$vars['PRODUCT_DETAILS'] .= '<p>'.$fieldsClass->getFieldName($field).': '.$fieldsClass->show($field, $data->element->$namekey, 'admin_email').'</p>';
 		}

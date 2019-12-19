@@ -8,7 +8,7 @@
  * @version $Id: paypal.php 7217 2013-09-18 13:42:54Z alatak $
  * @package VirtueMart
  * @subpackage payment
- * Copyright (C) 2004 - 2018 Virtuemart Team. All rights reserved.
+ * Copyright (C) 2004 - 2019 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -102,7 +102,7 @@ class PaypalHelperPayPalExp extends PaypalHelperPaypal {
 
 		$post_variables['USER'] = $this->api_login_id;
 		$post_variables['PWD'] = $this->api_password;
-		$post_variables['BUTTONSOURCE'] = self::BNCODE;;
+		$post_variables['BUTTONSOURCE'] = self::BNCODE;
 		if ($this->api_signature) {
 			$post_variables['SIGNATURE'] = $this->api_signature;
 		}
@@ -294,12 +294,14 @@ class PaypalHelperPayPalExp extends PaypalHelperPaypal {
 		// THIS IS A DIFFERENT URL FROM VM2
 	//	$post_variables['RETURNURL'] = JURI::root() . 'index.php?option=com_virtuemart&view=plugin&type=vmpayment&name=' . $this->_method->payment_element . '&action=SetExpressCheckout&SetExpressCheckout=done&pm=' . $this->_method->virtuemart_paymentmethod_id;
 
-		$post_variables['RETURNURL'] = JURI::root() . 'index.php?option=com_virtuemart&view=cart&task=setpayment&expresscheckout=done&pm=' . $this->_method->virtuemart_paymentmethod_id . '&Itemid=' . vRequest::getInt('Itemid') . '&lang=' . vRequest::getCmd('lang', '');
+		$post_variables['RETURNURL'] = JURI::root() . 'index.php?option=com_virtuemart&view=cart&task=setpayment&expresscheckout=done&virtuemart_paymentmethod_id=' . $this->_method->virtuemart_paymentmethod_id . '&Itemid=' . vRequest::getInt('Itemid') . '&lang=' . vRequest::getCmd('lang', '');
 
 		$post_variables['CANCELURL'] = JURI::root() . 'index.php?option=com_virtuemart&view=cart&expresscheckout=cancel&Itemid=' . vRequest::getInt('Itemid') . '&lang=' . vRequest::getCmd('lang', '');
 
-		if(!empty($this->_method->offer_credit)){
-			$post_variables['USERSELECTEDFUNDINGSOURCE'] = 'Finance';
+		if(!empty($this->_method->offer_credit) or !empty($this->_method->enable_smart_buttons)){
+			if(!empty($this->_method->offer_credit)){
+				$post_variables['USERSELECTEDFUNDINGSOURCE'] = 'Finance';
+			}
 			$post_variables['version'] = "116.0";
 		}
 
@@ -359,6 +361,12 @@ class PaypalHelperPayPalExp extends PaypalHelperPaypal {
 
 	public function getExpressCheckoutDetails () {
 
+		$result = null;
+
+		if(isset($result)){
+			return $result;
+		}
+
 		$post_variables = $this->initPostVariables('GetExpressCheckoutDetails');
 		$this->addAcceleratedOnboarding($post_variables);
 
@@ -377,13 +385,15 @@ class PaypalHelperPayPalExp extends PaypalHelperPaypal {
 			$this->storeAddresses();
 			VmInfo('VMPAYMENT_PAYPAL_PROCEED_CHECKOUT');
 
-			if (!class_exists('VirtueMartCart')) require(VMPATH_SITE .'/helpers/cart.php');
+			//Leads to killerlopp, should not be necessary, because the cart is usually updated after the redirect
 			$cart = VirtueMartCart::getCart();
-			$cart->checkoutData(true);
-			return true;
+			$cart -> setupAddressFieldsForCart(true);
+			//$cart->checkoutData(false);
+			$result = true;
 		} else {
-			return false;
+			$result = false;
 		}
+		return $result;
 	}
 
 	public function ManageLogin () {
@@ -760,7 +770,7 @@ class PaypalHelperPayPalExp extends PaypalHelperPaypal {
 		$addressST['shipto_virtuemart_state_id'] = !empty($this->response['SHIPTOSTATE'])? ShopFunctions::getStateIDByName($this->response['SHIPTOSTATE']): '0';
 		$addressST['shipto_virtuemart_country_id'] = ShopFunctions::getCountryIDByName($this->response['SHIPTOCOUNTRYCODE']);
 		$this->cart->STsameAsBT = 0;
-		$this->cart->setCartIntoSession();
+		//$this->cart->setCartIntoSession();
 		$this->cart->saveAddressInCart($addressST, 'ST', true,'shipto_');
 
 
@@ -871,9 +881,6 @@ class PaypalHelperPayPalExp extends PaypalHelperPaypal {
 		$expressCheckout = vRequest::getVar('expresscheckout', '');
 		if ($expressCheckout == 'cancel') {
 			$this->customerData->clear();
-			if (!class_exists('VirtueMartCart')) {
-				require(JPATH_VM_SITE . DS . 'helpers' . DS . 'cart.php');
-			}
 			$cart = VirtueMartCart::getCart();
 			$cart->virtuemart_paymentmethod_id = 0;
 			$cart->setCartIntoSession();

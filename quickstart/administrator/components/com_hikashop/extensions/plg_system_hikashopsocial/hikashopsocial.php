@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -20,19 +20,31 @@ class plgSystemHikashopsocial extends JPlugin {
 	function onAfterRender() {
 		$app = JFactory::getApplication();
 
-		$option = JRequest::getVar('option');
-		$ctrl = JRequest::getVar('ctrl');
-		$task = JRequest::getVar('task');
-		if($app->isAdmin() || !in_array($option, array('com_hikashop', 'com_hikamarket', '')) || !in_array($ctrl, array('product', 'category', 'vendor')) || !in_array($task, array('show', 'listing')))
+		if(version_compare(JVERSION,'3.0','>=')) {
+			$option = $app->input->getVar('option');
+			$ctrl = $app->input->getVar('ctrl');
+			$task = $app->input->getVar('task');
+		} else {
+			$option = JRequest::getVar('option');
+			$ctrl = JRequest::getVar('ctrl');
+			$task = JRequest::getVar('task');
+		}
+		if(version_compare(JVERSION,'4.0','>=')) {
+			$admin = $app->isClient('administrator');
+		} else {
+			$admin = $app->isAdmin();
+		}
+
+		if($admin || !in_array($option, array('com_hikashop', 'com_hikamarket', '')) || !in_array($ctrl, array('product', 'category', 'vendor')) || !in_array($task, array('show', 'listing')))
 			return;
 
 		if(!defined('HIKASHOP_COMPONENT'))
 			return;
 
-		$body = JResponse::getBody();
+		if(class_exists('JResponse'))
+			$body = JResponse::getBody();
 		$alternate_body = false;
 		if(empty($body)){
-			$app = JFactory::getApplication();
 			$body = $app->getBody();
 			$alternate_body = true;
 		}
@@ -86,13 +98,16 @@ class plgSystemHikashopsocial extends JPlugin {
 				$styles .= 'width:100%';
 		}
 
-		$html = '<div id="hikashop_social" style="'.$styles.'">' . implode('', $html) . '</div>';
+		$html = implode('', $html);
+
+		if(!empty($html))
+			$html = '<div id="hikashop_social" style="'.$styles.'">' . $html . '</div>';
 
 		$body = str_replace('{hikashop_social}', $html, $body);
 
 		if(!empty($plugin->params['display_fb'])) {
 			$body = str_replace('<html ', '<html xmlns:fb="https://www.facebook.com/2008/fbml" xmlns:og="http://ogp.me/ns# " xmlns:fb="http://ogp.me/ns/fb#" ', $body);
-			if($plugin->params['fb_tag'] == "xfbml") {
+			if($plugin->params['fb_tag'] == "xfbml" && $plugin->params['display_fb'] != 2) {
 				$mainLang = JFactory::getLanguage();
 				$tag = str_replace('-', '_', $mainLang->get('tag'));
 				$fb = '
@@ -210,7 +225,7 @@ class plgSystemHikashopsocial extends JPlugin {
 			$url = hikashop_cleanURL($element->url_canonical);
 		else
 			$url = hikashop_currentURL('',false);
-		$description = $this->_cleanDescription($element->description);
+		$description = $this->_cleanDescription($element->description, 500);
 		return '<span class="hikashop_social_pinterest'.$c.'"><a href="//pinterest.com/pin/create/button/?url='.urlencode($url).'&media='.urlencode($imageUrl).'&description='.rawurlencode($description).'" class="pin-it-button" count-layout="'.$count.'"><img border="0" src="//assets.pinterest.com/images/PinExt.png" title="Pin It" /></a></span>';
 	}
 
@@ -268,7 +283,7 @@ function twitterPop(str) {
 
 	function _addFacebookButton(&$plugin) {
 		if(empty($plugin->params['display_fb']))
-			return;
+			return '';
 
 		$element = $this->_getElementInfo();
 		if(empty($element))
@@ -345,32 +360,36 @@ function twitterPop(str) {
 		else
 			$url = hikashop_currentURL('', false);
 
-		$html = '<span class="hikashop_social_fb">';
-		if($plugin->params['position'] == 1)
-			$html = '<span class="hikashop_social_fb_right">';
+		$html = '';
 
-		$url_options = array();
-		if($plugin->params['fb_tag'] == 'iframe') {
+		if($plugin->params['display_fb'] != 2) {
+			$html = '<span class="hikashop_social_fb">';
+			if($plugin->params['position'] == 1)
+				$html = '<span class="hikashop_social_fb_right">';
 
-			foreach($options as $k => $v) {
-				$url_options[] = $k . '=' . urlencode($v);
+			$url_options = array();
+			if($plugin->params['fb_tag'] == 'iframe') {
+
+				foreach($options as $k => $v) {
+					$url_options[] = $k . '=' . urlencode($v);
+				}
+
+				$html .= '<iframe '.
+					'src="//www.facebook.com/plugins/like.php?href='.urlencode($url).'&amp;send=false&amp;'.implode('&amp;', $url_options).'&amp;height=30" '.
+					'scrolling="no" frameborder="0" allowTransparency="true" '.
+					'style="border:none; overflow:hidden;" class="hikashop_social_fb_'.$classname.'"></iframe>';
+			} else {
+				foreach($xfbml_options as $k => $v) {
+					$url_options[] = 'data-' . $k . '="' . urlencode($v) . '"';
+				}
+				if(empty($plugin->params['fb_mode'])){
+					$plugin->params['fb_mode'] = 'fb-like';
+				}
+				$html .= '<div class="'.$plugin->params['fb_mode'].'" data-href="'.$url.'" '.implode(' ', $url_options).'></div>';
 			}
 
-			$html .= '<iframe '.
-				'src="//www.facebook.com/plugins/like.php?href='.urlencode($url).'&amp;send=false&amp;'.implode('&amp;', $url_options).'&amp;height=30" '.
-				'scrolling="no" frameborder="0" allowTransparency="true" '.
-				'style="border:none; overflow:hidden;" class="hikashop_social_fb_'.$classname.'"></iframe>';
-		} else {
-			foreach($xfbml_options as $k => $v) {
-				$url_options[] = 'data-' . $k . '="' . urlencode($v) . '"';
-			}
-			if(empty($plugin->params['fb_mode'])){
-				$plugin->params['fb_mode'] = 'fb-like';
-			}
-			$html .= '<div class="'.$plugin->params['fb_mode'].'" data-href="'.$url.'" '.implode(' ', $url_options).'></div>';
+			$html .= '</span>';
 		}
-
-		$html .= '</span>';
 
 		$this->meta['property="og:title"'] = '<meta property="og:title" content="'.htmlspecialchars($element->name, ENT_COMPAT,'UTF-8').'"/> ';
 
@@ -422,9 +441,16 @@ function twitterPop(str) {
 	}
 
 	function _getElementInfo() {
-		$option = JRequest::getVar('option');
-		$ctrl = JRequest::getVar('ctrl');
-		$task = JRequest::getVar('task');
+		if(version_compare(JVERSION,'3.0','>=')) {
+			$app = JFactory::getApplication();
+			$option = $app->input->getVar('option');
+			$ctrl = $app->input->getVar('ctrl');
+			$task = $app->input->getVar('task');
+		} else {
+			$option = JRequest::getVar('option');
+			$ctrl = JRequest::getVar('ctrl');
+			$task = JRequest::getVar('task');
+		}
 
 		$ret = new stdClass();
 
@@ -532,12 +558,15 @@ function twitterPop(str) {
 		return $imageUrl;
 	}
 
-	function _cleanDescription($description){
+	function _cleanDescription($description, $max = 0){
 		$description = preg_replace('#\{(load)?(module|position|modulepos) +[a-z_0-9]+\}#i','',$description);
 
-		$description = preg_replace('#\{(slider|tab|modal|tip|article)(-[a-z_0-9]+)? +[a-z_ 0-9\|]+\}.*\{\/(slider|tab|modal|tip|article)s?(-[a-z_0-9]+)?\}#Usi','',$description);
+		$description = preg_replace('#\{(slider|tab|modal|tip|article|snippet)(-[a-z_0-9]+)? +[a-z_ 0-9\|]+\}.*\{\/(slider|tab|modal|tip|article|snippet)s?(-[a-z_0-9]+)?\}#Usi','',$description);
 
 		$description = htmlspecialchars(strip_tags($description), ENT_COMPAT,'UTF-8');
+
+		if($max && strlen($description) > $max)
+			$description = substr($description, 0, $max-4).'...';
 		return $description;
 	}
 }

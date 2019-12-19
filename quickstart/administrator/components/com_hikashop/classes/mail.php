@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -19,6 +19,8 @@ class hikashopMailClass {
 	}
 
 	public function get($name, &$data) {
+		$app = JFactory::getApplication();
+
 		$this->mailer = JFactory::getMailer();
 
 		$mail = new stdClass();
@@ -28,7 +30,8 @@ class hikashopMailClass {
 
 		$mail->body = $this->loadEmail($mail, $data);
 		$mail->altbody = $this->loadEmail($mail, $data, 'text');
-		$mail->preload = $this->loadEmail($mail, $data, 'preload');
+		if(hikashop_isClient('administrator'))
+			$mail->preload = $this->loadEmail($mail, $data, 'preload');
 		$mail->data =& $data;
 
 		if($data !== true)
@@ -47,6 +50,7 @@ class hikashopMailClass {
 			'order_creation_notification',
 			'order_status_notification',
 			'order_notification',
+			'payment_notification',
 			'user_account',
 			'user_account_admin_notification',
 			'out_of_stock',
@@ -56,13 +60,14 @@ class hikashopMailClass {
 			'new_comment',
 			'contact_request',
 			'subscription_eot',
-			'massaction_notification'
+			'massaction_notification',
+			'wishlist_share'
 		);
 
 		$plugin_files = array();
 		JPluginHelper::importPlugin('hikashop');
-		$dispatcher = JDispatcher::getInstance();
-		$dispatcher->trigger('onMailListing', array(&$plugin_files));
+		$app = JFactory::getApplication();
+		$app->triggerEvent('onMailListing', array(&$plugin_files));
 		if(!empty($plugin_files)) {
 			$files = array_merge($files, $plugin_files);
 		}
@@ -107,6 +112,25 @@ class hikashopMailClass {
 		}
 	}
 
+	 public function getPreviewMaker($mail_name) {
+	 	$class_name = $mail_name.'PreviewMaker';
+
+		if(strpos($class_name, '.'))
+			$class_name = str_replace('.', '_', $class_name);
+
+		if(!class_exists($class_name)) {
+		 	$path = $this->getMailPath($mail_name, 'preview');
+			if(empty($path))
+				return false;
+
+			include_once($path);
+		}
+		if(!class_exists($class_name))
+			return false;
+
+		return new $class_name;
+	 }
+
 	public function saveForm() {
 	}
 
@@ -130,7 +154,7 @@ class hikashopMailClass {
 
 		if($data === true) {
 			jimport('joomla.filesystem.file');
-			return JFile::read($path);
+			return file_get_contents($path);
 		}
 
 		$preload = $this->getMailPath($mail->mail_name, 'preload');
@@ -141,10 +165,10 @@ class hikashopMailClass {
 			if(!empty($pathWithStatus)) $path = $pathWithStatus;
 
 			$preloadWithStatus = $this->getMailPath($mail->mail_name.'.'.$data->order_status, 'preload');
-			if(!empty($pathWithStatus)) $preload = $preloadWithStatus;
+			if(!empty($preloadWithStatus)) $preload = $preloadWithStatus;
 
 			$postloadWithStatus = $this->getMailPath($mail->mail_name.'.'.$data->order_status, 'postload');
-			if(!empty($pathWithStatus)) $postload = $postloadWithStatus;
+			if(!empty($postloadWithStatus)) $postload = $postloadWithStatus;
 		}
 
 		$currencyClass = hikashop_get('class.currency');
@@ -169,7 +193,7 @@ class hikashopMailClass {
 			include $postload;
 		} else if($useTemplating || !empty($vars) || !empty($texts) || !empty($templates)) {
 
-			if(!empty($mail->template)) {
+			if(!empty($mail->template) && $type == 'html') {
 				$tpl_path = $this->getTemplatePath($mail->template, $mail->mail_name, $type);
 				if(empty($tpl_path))
 					$tpl_path = $this->getTemplatePath('default', $mail->mail_name, $type);
@@ -196,8 +220,8 @@ class hikashopMailClass {
 		$content = ob_get_clean();
 
 		JPluginHelper::importPlugin('hikashop');
-		$dispatcher = JDispatcher::getInstance();
-		$dispatcher->trigger('onHkProcessMailTemplate', array(&$mail, &$data, &$content, &$vars, &$texts, &$templates));
+		$app = JFactory::getApplication();
+		$app->triggerEvent('onHkProcessMailTemplate', array(&$mail, &$data, &$content, &$vars, &$texts, &$templates));
 
 		if(!empty($templates)) {
 			foreach($templates as $key => $templateVariables) {
@@ -338,13 +362,13 @@ class hikashopMailClass {
 
 			$plugin_files = array();
 			JPluginHelper::importPlugin('hikashop');
-			$dispatcher = JDispatcher::getInstance();
-			$dispatcher->trigger('onMailListing', array(&$plugin_files));
+			$app = JFactory::getApplication();
+			$app->triggerEvent('onMailListing', array(&$plugin_files));
 			if(!empty($plugin_files)) {
 				$mail_folder = '';
 				$mail_file = '';
 				foreach($plugin_files as $plugin_file) {
-					if($plugin_file['file'] == $mail_name) {
+					if($plugin_file['file'] == $mail_name || $plugin_file['filename'] == $mail_name) {
 						$mail_folder = @$plugin_file['folder'];
 						$mail_file = $plugin_file['filename'];
 						break;
@@ -355,15 +379,17 @@ class hikashopMailClass {
 						$mail_folder = $this->mail_folder;
 
 					$path = $mail_folder . $mail_file . '.' . $type . '.modified.php';
-					if(!file_exists($path)) {
-						$path = $mail_folder . $mail_file . '.' . $type . '.php';
-						if(!file_exists($path)) {
-							return '';
-						}
+					if(file_exists($path))
+						return $path;
+					$path = $mail_folder . $mail_file . '.' . $type . '.php';
+					if(file_exists($path)) {
 						if($getModifiedFile)
 							return $path = $mail_folder . $mail_file . '.' . $type . '.modified.php';
+						return $path;
 					}
-					return $path;
+					if($type == 'text' && $getModifiedFile && file_exists($mail_folder . $mail_file . '.html.php'))
+						return $path = $mail_folder . $mail_file . '.' . $type . '.modified.php';
+					return '';
 				}
 			}
 		}
@@ -411,8 +437,8 @@ class hikashopMailClass {
 
 		$external_template_files = array();
 		JPluginHelper::importPlugin('hikashop');
-		$dispatcher = JDispatcher::getInstance();
-		$dispatcher->trigger('onMailTemplateListing', array(&$external_template_files, $mail_name));
+		$app = JFactory::getApplication();
+		$app->triggerEvent('onMailTemplateListing', array(&$external_template_files, $mail_name));
 		if(empty($external_template_files))
 			return false;
 
@@ -440,24 +466,7 @@ class hikashopMailClass {
 		return false;
 	}
 
-	public function sendMail(&$mail) {
-		if(empty($mail))
-			return false;
-		if(isset($mail->published) && !$mail->published)
-			return true;
-
-		$do = true;
-		JPluginHelper::importPlugin('hikashop');
-		$dispatcher = JDispatcher::getInstance();
-		$mail->mail_success = false;
-		$dispatcher->trigger('onBeforeMailPrepare', array(&$mail, &$this->mailer, &$do) );
-		if(!$do) {
-			if($mail->mail_success == true)
-				$this->mail_success = true;
-			else
-				$this->mail_success = false;
-			return false;
-		}
+	public function preProcessMail(&$mail){
 
 		$config =& hikashop_config();
 
@@ -522,46 +531,36 @@ class hikashopMailClass {
 
 		}
 
-		if(preg_match_all('#\{([-._A-Z0-9a-z]+)\}#', $mail->subject, $matches)) {
-			foreach($matches[0] as $k => $match) {
-				$var = $matches[1][$k];
-				$val = '';
-				$table = '';
-				if(strpos($var, '.')) {
-					list($table, $var) = explode('.', $var, 2);
-					if(!empty($table) && !empty($var)){
-						if(!empty($mail->data->cart->$table->$var) && is_string($mail->data->cart->$table->$var)){
-							$val = $mail->data->cart->$table->$var;
-						}elseif(!empty($mail->data->$table->$var) && is_string($mail->data->cart->$table->$var)){
-							$val = $mail->data->$table->$var;
-						}
-					}
-				} elseif(!empty($var) && !empty($mail->data->cart->$var) && is_string($mail->data->cart->$var)) {
-					$val = $mail->data->cart->$var;
-				} elseif(!empty($var) && !empty($mail->data->$var) && is_string($mail->data->$var)) {
-					$val = $mail->data->$var;
-				}
-				$mail->subject = str_replace($match, $val, $mail->subject);
-			}
-		}
+		$this->processMailSubject($mail);
 
 		$this->mailer->setSubject($mail->subject);
 		$this->mailer->IsHTML(@$mail->html);
 		if(!empty($mail->html)){
-			$style = '';
-			if(isset($mail->htmlStyle)) {
-				$style = '<style type="text/css">'."\r\n".$mail->htmlStyle."\r\n".'</style>';
+			if(empty($mail->full_body)) {
+				$style = '';
+				if(isset($mail->htmlStyle)) {
+					$style = '<style type="text/css">'."\r\n".$mail->htmlStyle."\r\n".'</style>';
+				}
+				$htmlExtra = '';
+				$lang = JFactory::getLanguage();
+				if($lang->isRTL()) {
+					$htmlExtra = ' dir="rtl"';
+				}
+
+				$mail->body = preg_replace_callback('#class="w([0-9]+)[a-z_ ]*"(.+?)(?=>)#i', function ($matches){
+					if(strpos($matches[2], 'width') !== false)
+						return $matches[0];
+					return 'width="'.$matches[1].'" '.$matches[0];
+				}, $mail->body);
+
+				$this->mailer->Body = '<html><head>'.
+					'<meta http-equiv="Content-Type" content="text/html; charset='.$this->mailer->CharSet.'">'.
+					'<title>'.$mail->subject.'</title>'.$style.
+					'<meta name="viewport" content="width=device-width, initial-scale=1.0">'.
+					'</head><body class="hikashop_mail"'.$htmlExtra.'>'.hikashop_absoluteURL($mail->body).'</body></html>';
+			}else{
+				$this->mailer->Body = $mail->body;
 			}
-			$htmlExtra = '';
-			$lang = JFactory::getLanguage();
-			if($lang->isRTL()) {
-				$htmlExtra = ' dir="rtl"';
-			}
-			$this->mailer->Body = '<html><head>'.
-				'<meta http-equiv="Content-Type" content="text/html; charset='.$this->mailer->CharSet.'">'.
-				'<title>'.$mail->subject.'</title>'.$style.
-				'<meta name="viewport" content="width=device-width, initial-scale=1.0">'.
-				'</head><body class="hikashop_mail"'.$htmlExtra.'>'.hikashop_absoluteURL($mail->body).'</body></html>';
 			if($config->get('multiple_part',false)){
 				if(empty($mail->altbody)){
 					$this->mailer->AltBody = $this->textVersion($mail->body);
@@ -601,11 +600,36 @@ class hikashopMailClass {
 				}
 			}
 		}
+
+		$app = JFactory::getApplication();
+		$app->triggerEvent('onBeforeMailSend', array(&$mail, &$this->mailer) );
+	}
+
+	public function sendMail(&$mail) {
+		if(empty($mail))
+			return false;
+		if(isset($mail->published) && !$mail->published)
+			return true;
+
+		$do = true;
+		JPluginHelper::importPlugin('hikashop');
+		$app = JFactory::getApplication();
+		$mail->mail_success = false;
+		$app->triggerEvent('onBeforeMailPrepare', array(&$mail, &$this->mailer, &$do) );
+		if(!$do) {
+			if($mail->mail_success == true)
+				$this->mail_success = true;
+			else
+				$this->mail_success = false;
+			return false;
+		}
+
+		$this->preProcessMail($mail);
+
+		$config = hikashop_config();
 		if((bool)$config->get('embed_images',0)){
 			$this->embedImages();
 		}
-
-		$dispatcher->trigger('onBeforeMailSend', array(&$mail, &$this->mailer) );
 
 		if(strtoupper($this->mailer->CharSet) != 'UTF-8'){
 			$encodingHelper = hikashop_get('helper.encoding');
@@ -616,7 +640,15 @@ class hikashopMailClass {
 		}
 		$this->mailer->Body = str_replace(" ",' ',$this->mailer->Body);
 
-		$result = $this->mailer->Send();
+		$result = true;
+		try {
+			$result = $this->mailer->Send();
+		} catch( Exception $e) {
+			$result = false;
+			if(hikashop_isClient('administrator')) {
+				$app->enqueueMessage($e->getMessage(), 'error');
+			}
+		}
 		if(!$result || !empty($result->message)) {
 			$this->mail_success = false;
 		}
@@ -624,6 +656,31 @@ class hikashopMailClass {
 		}
 
 		return $result;
+	}
+
+	public function processMailSubject(&$mail) {
+		if(preg_match_all('#\{([-._A-Z0-9a-z]+)\}#', $mail->subject, $matches)) {
+			foreach($matches[0] as $k => $match) {
+				$var = $matches[1][$k];
+				$val = '';
+				$table = '';
+				if(strpos($var, '.')) {
+					list($table, $var) = explode('.', $var, 2);
+					if(!empty($table) && !empty($var)){
+						if(!empty($mail->data->cart->$table->$var) && is_string($mail->data->cart->$table->$var)){
+							$val = $mail->data->cart->$table->$var;
+						}elseif(!empty($mail->data->$table->$var) && is_string($mail->data->cart->$table->$var)){
+							$val = $mail->data->$table->$var;
+						}
+					}
+				} elseif(!empty($var) && !empty($mail->data->cart->$var) && is_string($mail->data->cart->$var)) {
+					$val = $mail->data->cart->$var;
+				} elseif(!empty($var) && !empty($mail->data->$var) && is_string($mail->data->$var)) {
+					$val = $mail->data->$var;
+				}
+				$mail->subject = str_replace($match, $val, $mail->subject);
+			}
+		}
 	}
 
 	public function loadAttachments($name) {
@@ -737,17 +794,5 @@ class hikashopMailClass {
 			}
 		}
 		return $result;
-	}
-
-	public function sendMailEot(&$order, &$vars) {
-		$infos = new stdClass();
-		$infos->order =& $order;
-		$infos->vars =& $vars;
-		$mail = $this->get('subscription_eot',$infos);
-		$mail->subject = JText::sprintf($mail->subject, HIKASHOP_LIVE);
-
-		$mail->dst_email = $vars['payer_email']; // for paypal
-		$this->sendMail($mail);
-		return;
 	}
 }

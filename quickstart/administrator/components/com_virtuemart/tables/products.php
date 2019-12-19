@@ -13,13 +13,10 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: products.php 9413 2017-01-04 17:20:58Z Milbo $
+* @version $Id: products.php 10165 2019-10-09 07:18:53Z Milbo $
 */
 
 defined('_JEXEC') or die('Restricted access');
-
-if(!class_exists('VmTable'))require(VMPATH_ADMIN.DS.'helpers'.DS.'vmtable.php');
-
 
 class TableProducts extends VmTable {
 
@@ -96,6 +93,8 @@ class TableProducts extends VmTable {
 	var $layout = '';
        /** @var int published or unpublished */
 	var $published = 1;
+	/** @var int product_canon_category_id used to force a canonical category useful for items in more than one category */
+	var $product_canon_category_id = null;
 
 
 	function __construct($db) {
@@ -114,7 +113,7 @@ class TableProducts extends VmTable {
 				    				'min_order_level'=>array(null,'float'),
 				    				'max_order_level'=>array(null,'float'),
 				    				'step_order_level'=>array(null,'float'),
-									//'product_packaging'=>array(null,'float'),
+									'shared_stock'=>array(0,'int'),
 									'product_box'=>array(null,'float')
 									);
 

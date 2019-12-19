@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -70,7 +70,7 @@ defined('_JEXEC') or die('Restricted access');
 				$this->user->$fieldName,
 				'data[user]['.$fieldName.']',
 				false,
-				' '.$onWhat.'="hikashopToggleFields(this.value,\''.$fieldName.'\',\'user\',0);"',
+				' '.$onWhat.'="window.hikashop.toggleField(this.value,\''.$fieldName.'\',\'user\',0);"',
 				false,
 				$this->fields['user'],
 				$this->user
@@ -86,11 +86,20 @@ defined('_JEXEC') or die('Restricted access');
 
 <div class="hkc-lg-6 hikashop_tile_block hikashop_user_addresses_general"><div>
 	<div class="hikashop_tile_title"><?php echo JText::_('ADDRESSES'); ?></div>
-
+	<div class="hk-row-fluid">
+		<div class="hkc-lg-6">
 <?php
+$this->type = 'billing';
 echo $this->loadTemplate('address');
 ?>
-
+		</div>
+		<div class="hkc-lg-6">
+<?php
+$this->type = 'shipping';
+echo $this->loadTemplate('address');
+?>
+		</div>
+	</div>
 </div></div>
 
 <?php

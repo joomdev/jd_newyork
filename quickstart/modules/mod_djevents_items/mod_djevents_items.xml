@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="1.6.0" client="site" method="upgrade">
+	<name>MOD_DJEVENTS_ITEMS</name>
+	<creationDate>August 2017</creationDate>	
+	<author>DJ-Extensions.com</author>
+	<copyright>Copyright (C) 2017 DJ-Extensions.com, All rights reserved.</copyright>
+	<license> http://www.gnu.org/licenses GNU/GPL</license>
+	<authorEmail>contact@dj-extensions.com</authorEmail>
+	<authorUrl>http://dj-extensions.com</authorUrl>
+	<version>1.0.2</version>
+	<description>MOD_DJEVENTS_ITEMS_DESC</description>
+	<files>
+		<filename module="mod_djevents_items">mod_djevents_items.php</filename>
+		<filename>mod_djevents_items.xml</filename>
+		<filename>helper.php</filename>
+		<filename>index.html</filename>
+		<folder>tmpl</folder>
+		<folder>assets</folder>
+		<folder>language</folder>
+	</files>
+	
+	<config>
+		<fields name="params">
+			<fieldset name="basic" addfieldpath="/administrator/components/com_djevents/models/fields">
+				
+				<field type="djeventsspacer" class="djtitle" label="COM_DJEVENTS_FILTERING_SETTINGS" />
+				
+				<field name="type" type="radio" class="btn-group" default="upcoming" label="COM_DJEVENTS_TYPE_OF_EVENTS" >
+					<option value="upcoming">COM_DJEVENTS_UPCOMING</option>
+					<option value="past">COM_DJEVENTS_PAST</option>
+				</field>
+				
+				<field name="range" type="text" default="" label="COM_DJEVENTS_RANGE" description="COM_DJEVENTS_RANGE_DESC" class="input-mini" />
+				<field name="limit" type="text" default="5" label="MOD_DJEVENTS_ITEMS_LIMIT" description="MOD_DJEVENTS_ITEMS_LIMIT_DESC" class="input-mini" />
+				
+				<field name="categories" type="djeventscategory" label="COM_DJEVENTS_CATEGORIES" multiple="true" skip_default="true" />
+				<field name="cities" type="djeventscity" label="COM_DJEVENTS_CITIES" multiple="true" skip_default="true" skip_new="true" />
+				
+				<field name="follow_category" type="radio" class="btn-group" default="0" label="COM_DJEVENTS_FOLLOW_CATEGORY" >
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				
+				<field name="follow_city" type="radio" class="btn-group" default="0" label="COM_DJEVENTS_FOLLOW_CITY" >
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				
+				<field name="featured_only" type="radio" class="btn-group" default="0" label="COM_DJEVENTS_FEATURED_ONLY" >
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				
+				<field type="spacer" hr="true" />
+				
+				<field name="hide_on" type="list" multiple="true" class="btn-group" default="0" label="MOD_DJEVENTS_ITEMS_HIDE_MODULE_ON" description="MOD_DJEVENTS_ITEMS_HIDE_MODULE_ON_DESC">
+					<option value="event">MOD_DJEVENTS_ITEMS_EVENT_VIEW</option>
+					<option value="eventform">MOD_DJEVENTS_ITEMS_EVENT_FORM_VIEW</option>
+					<option value="eventslist">MOD_DJEVENTS_ITEMS_EVENTS_LIST_VIEW</option>
+					<option value="eventsweek">MOD_DJEVENTS_ITEMS_EVENTS_WEEK_VIEW</option>
+				</field>
+				
+				<field type="djeventsspacer" class="djtitle" label="COM_DJEVENTS_IMAGES_SETTINGS" />
+				<field name="thumb_width" type="text" default="200" size="10" label="COM_DJEVENTS_THUMB_WIDTH" />
+				<field name="thumb_height" type="text" default="200" size="10" label="COM_DJEVENTS_THUMB_HEIGHT" />
+				<field name="thumb_resizing" type="list" default="crop" label="COM_DJEVENTS_THUMB_RESIZING">
+					<option value="crop">COM_DJEVENTS_CROP</option>
+					<option value="toWidth">COM_DJEVENTS_FIT_TO_WIDTH</option>
+					<option value="toHeight">COM_DJEVENTS_FIT_TO_HEIGHT</option>
+				</field>
+				<field name="thumb_quality" type="text" default="75" size="10" label="COM_DJEVENTS_THUMB_QUALITY" />
+				
+				<field type="djeventsspacer" class="djtitle" label="COM_DJEVENTS_ELEMENTS_SETTINGS" />
+				
+				<field name="columns" default="1" type="list" label="MOD_DJEVENTS_COLUMNS" description="MOD_DJEVENTS_COLUMNS_DESC">
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="6">6</option>
+					<option value="12">12</option>
+				</field>
+				<field name="title" type="radio" class="btn-group" default="1" label="MOD_DJEVENTS_ITEMS_SHOW_TITLE">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="title_limit" type="text" default="50" label="MOD_DJEVENTS_ITEMS_TITLE_LIMIT" class="input-mini" />
+				<field name="intro" type="radio" class="btn-group" default="1" label="MOD_DJEVENTS_ITEMS_SHOW_INTRO">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="intro_limit" type="text" default="100" label="MOD_DJEVENTS_ITEMS_INTRO_LIMIT" class="input-mini" />
+				<field name="image" type="radio" class="btn-group" default="1" label="MOD_DJEVENTS_ITEMS_SHOW_IMAGE">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="time" type="radio" class="btn-group" default="1" label="MOD_DJEVENTS_ITEMS_SHOW_TIME">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="date_format" type="text" default="" label="COM_DJEVENTS_CONFIG_DATE_FORMAT" description="COM_DJEVENTS_CONFIG_DATE_FORMAT_DESC" HINT="COM_DJEVENTS_USE_GLOBAL" />
+			    <field name="time_format" type="list" default="" label="COM_DJEVENTS_CONFIG_TIME_FORMAT" description="COM_DJEVENTS_CONFIG_TIME_FORMAT_DESC">
+			    	<option value="">COM_DJEVENTS_USE_GLOBAL</option>
+			    	<option value="G:i">COM_DJEVENTS_CONFIG_TIME_FORMAT_24H</option>
+			    	<option value="g:i a">COM_DJEVENTS_CONFIG_TIME_FORMAT_12H</option>
+			    	<option value="H:i">COM_DJEVENTS_CONFIG_TIME_FORMAT_24H_ZERO</option>
+			    	<option value="h:i a">COM_DJEVENTS_CONFIG_TIME_FORMAT_12H_ZERO</option>
+			    </field>
+				<field name="city" type="radio" class="btn-group" default="1" label="MOD_DJEVENTS_ITEMS_SHOW_CITY">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="category" type="radio" class="btn-group" default="1" label="MOD_DJEVENTS_ITEMS_SHOW_CATEGORY">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="readmore" type="radio" class="btn-group" default="1" label="MOD_DJEVENTS_ITEMS_SHOW_READMORE">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				
+				<field name="show_link" type="radio" class="btn-group" default="0" label="MOD_DJEVENTS_ITEMS_SHOW_LINK" description="MOD_DJEVENTS_ITEMS_SHOW_LINK_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				
+			</fieldset>
+			
+			<fieldset name="advanced">
+				
+				<field
+					name="layout"
+					type="modulelayout"
+					label="JFIELD_ALT_LAYOUT_LABEL"
+					description="JFIELD_ALT_MODULE_LAYOUT_DESC" />
+					
+				<field
+					name="moduleclass_sfx"
+					type="text"
+					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+					description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field
+					name="cache"
+					type="list"
+					default="1"
+					label="COM_MODULES_FIELD_CACHING_LABEL"
+					description="COM_MODULES_FIELD_CACHING_DESC">
+					<option
+						value="1">JGLOBAL_USE_GLOBAL</option>
+					<option
+						value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field
+					name="cache_time"
+					type="text"
+					default="900"
+					label="COM_MODULES_FIELD_CACHE_TIME_LABEL"
+					description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+				
+			</fieldset>
+			
+		</fields>
+	</config>
+	
+</extension>

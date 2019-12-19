@@ -1,0 +1,46 @@
+.jdpb--bar {
+   height: 100%;
+}
+
+.jdpb .jdpb-bar:not(:last-child) {
+   margin-bottom: 20px;
+}
+.jdpb .jdpb-bar .jdpb--bar {
+   display: flex;
+   align-items: center;
+   padding: 0 15px;
+}
+.jdpb .jdpb-bar-values {
+   display: flex;
+   width: 100%;
+   justify-content: space-between;
+}
+.jdpb-bar-values .jdpb-bar-title,
+.jdpb-bar-values .jdpb-bar-percentage {
+   font-size: 16px;
+   line-height: 1;
+}
+/** Outside Text **/
+.jdpb-bar-values.outside {
+   margin-bottom: 10px;
+}
+
+/** Bar Type Striped **/
+.jdpb.jdpb-bar.striped .jdpb--bar {
+   background-image: linear-gradient(45deg,rgba(255,255,255,.3) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.3) 50%,rgba(255,255,255,.3) 75%,transparent 75%,transparent);
+   background-size: 16px 16px;
+}
+.jdpb.jdpb-bar.animated_striped .jdpb--bar {
+   -webkit-animation: jdpb-strip 1s linear infinite;
+   animation: jdpb-strip 1s linear infinite;
+}
+
+@keyframes jdpb-strip {
+   from {
+      background-position: 1rem 0;
+   }
+
+   to {
+      background-position: 0 0;
+   }
+}

@@ -1,8 +1,8 @@
 /**
  * @package    HikaShop for Joomla!
- * @version    3.2.1
+ * @version    4.2.2
  * @author     hikashop.com
- * @copyright  (C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright  (C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 div.hikashop_footer{
@@ -143,11 +143,6 @@ img.hikashop_child_image{
 #hikashop_product_top_part h1{font-size:16px; color: #555555; font-weight: bold; border-bottom:1px solid #ddd; padding-bottom:4px; margin-bottom:20px}
 #hikashop_product_description_main{color:#666}
 
-span.hikashop_product_name{
-	text-align: left;
-	display:block;
-	margin-bottom:5px;
-}
 .hikashop_product_name a{color:#666; text-decoration:none; font-weight:bold; display:block}
 .hikashop_product_name a:hover{color:#2C8296;}
 
@@ -156,10 +151,6 @@ span.hikashop_product_name{
 .hikashop_category_name a {color:#666; text-decoration:none; font-weight:bold; margin-top:10px; display:block}
 .hikashop_category_name a:hover{color:#2C8296;}
 
-span.hikashop_product_price_before_discount{
-	text-decoration:line-through;
-	white-space:nowrap;
-}
 span.hikashop_product_price,
 .hikashop_checkout_cart_additional,
 .hikashop_checkout_cart_payment,
@@ -393,7 +384,6 @@ a.hikashop_compare_button, a.hikashop_compare_button:hover{
 
 .hikashop_checkout_login{
 	clear:both;
-	width:690px;
 	margin:auto;
 }
 .hikashop_checkout_login_left_part{
@@ -489,7 +479,6 @@ a.hikashop_compare_button, a.hikashop_compare_button:hover{
 }
 
 .hikashop_address_listing_div{
-	width: 300px ;
 	margin-left: auto ;
 	margin-right: auto ;
 }
@@ -509,21 +498,6 @@ div.hikashop_uploader_file_add {
 	position:absolute;
 	top:5px;
 	right:5px;
-}
-div.hikashop_uploader_image_add span,
-div.hikashop_uploader_file_add span {
-	display:inline-block;
-	width:32px;
-	height:32px;
-}
-div.hikashop_uploader_image_add span.hika_add_btn {
-
-	background-image:url(../images/gallery.png);
-}
-div.hikashop_uploader_image_add span.hika_upload_btn,
-div.hikashop_uploader_file_add span.hika_upload_btn {
-
-	background-image:url(../images/upload2.png);
 }
 
 ul.hikashop_uploader_images .ui-sortable-placeholder {
@@ -638,13 +612,7 @@ background: linear-gradient(top, #ffffff, #f8f8f8);}
 	text-align:center;
 	width: 50%;
 }
-#hikashopcpanel span {
-	display:block;
-	text-align:center;
-	color:#666;
-	background-repeat: no-repeat;
-	background-position: center;
-}
+
 .hikashop_cpanel_icon_image_span{
 	background-repeat: no-repeat;
 	background-position: center;
@@ -657,7 +625,6 @@ background: linear-gradient(top, #ffffff, #f8f8f8);}
 
 .hikashop_cpanel_button_description{
 	color:#666; font-size:14px}
-.hikashop_cpanel_button_text{display:none !important}
 
 #hikashopcpanel td{
 	text-align: center;
@@ -1322,17 +1289,6 @@ a.hikashop_filter_list_selected:hover { color:black; font-weight:bold; text-deco
 	padding: 1px;
 	text-align:center;
 }
-.hika_comment_listing_useful{
-	background-color: transparent !important;
-	width: 16px !important;
-	height: 14px !important;
-	background-image:url(../images/icons/vote_plus.png) !important;
-	background-size:16px 14px !important;
-	background-repeat:no-repeat !important;
-	background-position: right !important;
-	cursor: pointer !important;
-}
-
 .hika_comment_listing_useful.hide{
 	width: 16px;
 	height: 14px;
@@ -1350,17 +1306,6 @@ a.hikashop_filter_list_selected:hover { color:black; font-weight:bold; text-deco
 
 .hika_comment_listing_useful.locked:hover, .hika_comment_listing_useless.locked:hover{
 	opacity: 1;
-}
-
-.hika_comment_listing_useless{
-	background-color: transparent !important;
-	width: 16px !important;
-	height: 14px !important;
-	background-image:url(../images/icons/vote_minus.png) !important;
-	background-size:16px 14px !important;
-	background-repeat:no-repeat !important;
-	background-position: right !important;
-	cursor: pointer !important;
 }
 .hika_comment_listing_useless.locked{
 	opacity: 0.5;
@@ -1711,9 +1656,6 @@ div.modal-body iframe {
 	}
 	.hikashop_cpanel_icon_table {
 		width: auto !important;
-	}
-	.hikashop_filter_main {
-		width: 100% !important;
 	}
 }
 @media only screen and (max-width: 480px) {
@@ -2486,9 +2428,7 @@ p.jRatingInfos span.maxRate {
 
 
 
-legend{width:auto !important; line-height:normal !important; border:none !important}
 .hikashop_product_quantity_field{padding:2px !important; margin:0px 5px !important;}
-form {margin:0px !important}
 .hikashop_product_stock .hikashop_product_quantity_field{margin:0px !important;}
 
 

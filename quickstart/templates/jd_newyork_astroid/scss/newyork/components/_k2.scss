@@ -1,0 +1,79 @@
+// Common
+
+.k2ReadMore {
+   @extend .btn;
+   @extend .btn-primary;
+}
+
+// Category View
+div.catItemImageBlock,
+span.catItemImage {
+   margin: 0;
+}
+
+div.catItemLinks {
+   display: flex;
+   color: $text-muted;
+   font-size: 14px;
+   margin: 0 0 5px;
+   > span {
+      margin-right: 5px;
+   }
+}
+div.catItemView {
+   border: 1px solid #ddd;
+   padding: 0;
+}
+div.catItemImageBlock {
+   padding: 0;
+}
+div.catItemBody {
+   padding: 20px;
+}
+div.catItemHeader h3.catItemTitle {
+   padding: 0;
+   margin-bottom: 10px;
+   font-size: 24px;
+}
+
+// List View
+
+// Pagination
+
+div.k2Pagination {
+   ul {
+      text-align: center;
+      display: inline-block;
+      margin: 0;
+      li {
+         a {
+            margin: 0 -1px;
+            border-radius: 0;
+         }
+      }
+   }
+   .k2PaginationCounter {
+      color: $text-muted;
+      font-size: 14px;
+   }
+}
+
+div.itemAuthorBlock {
+   .itemAuthorName {
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+   }
+   img.itemAuthorAvatar {
+      border-radius: 0;
+   }
+   div.itemAuthorDetails {
+      overflow: hidden;
+   }
+}
+
+// Search Module
+
+div.k2SearchBlock form input.inputbox {
+   width: 100%;
+   padding: 5px 10px;
+}

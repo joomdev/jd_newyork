@@ -29,23 +29,6 @@ class N2SSPluginWidgetAutoplayImage extends N2SSPluginWidgetAbstract {
 
     public function renderFields($form) {
         $settings = new N2Tab($form, 'widget-autoplay');
-        $responsive = new N2ElementGroup($settings, 'autoplay-responsive-scale', n2_('Responsive scale'), array(
-            'rowClass' => 'n2-expert'
-        ));
-        new N2ElementNumber($responsive, 'widget-autoplay-responsive-desktop', n2_('Desktop'), '', array(
-            'style' => 'width:40px;'
-        ));
-        new N2ElementNumber($responsive, 'widget-autoplay-responsive-tablet', n2_('Tablet'), '', array(
-            'style' => 'width:40px;'
-        ));
-        new N2ElementNumber($responsive, 'widget-autoplay-responsive-mobile', n2_('Mobile'), '', array(
-            'style' => 'width:40px;'
-        ));
-
-        new N2ElementImage($settings, 'widget-autoplay-play-image', n2_('Play image'), '', array(
-            'rowClass' => 'n2-expert'
-        ));
-    
 
         $play = new N2ElementGroup($settings, 'autoplay-play', n2_('Play'));
         new N2ElementImageListFromFolder($play, 'widget-autoplay-play', n2_('Shape'), '', array(
@@ -64,30 +47,6 @@ class N2SSPluginWidgetAutoplayImage extends N2SSPluginWidgetAbstract {
         ));
 
         new N2ElementWidgetPosition($settings, 'widget-autoplay-position', n2_('Position'));
-        new N2ElementOnoff($settings, 'widget-autoplay-mirror', n2_('Mirror'), '', array(
-            'rowClass'      => 'n2-expert',
-            'isEnable'      => false,
-            'relatedFields' => array(
-                'widget-arrow-next-image',
-                'arrow-next'
-            )
-        ));
-
-        new N2ElementImage($settings, 'widget-autoplay-pause-image', n2_('Pause image'), '', array(
-            'rowClass' => 'n2-expert'
-        ));
-
-        $pause = new N2ElementGroup($settings, 'autoplay-pause', n2_('Pause'));
-        new N2ElementImageListFromFolder($pause, 'widget-autoplay-pause', n2_('Shape'), '', array(
-            'folder'     => N2Filesystem::translate($this->getPath() . 'pause/'),
-            'post'       => 'break',
-            'isRequired' => true
-        ));
-        new N2ElementColor($pause, 'widget-autoplay-pause-color', n2_('Color'), '', array(
-            'alpha' => true
-        ));
-
-    
     }
 
     public function getPath() {
@@ -186,14 +145,13 @@ class N2SSPluginWidgetAutoplayImage extends N2SSPluginWidgetAbstract {
                     'class'      => $displayClass . $styleClass . 'nextend-autoplay n2-ow nextend-autoplay-image' . ($isNormalFlow ? '' : ' n2-ib'),
                     'style'      => $style,
                     'role'       => 'button',
-                    'aria-label' => 'Pause autoplay'
-                ), N2Html::image($play, 'Play', array(
-                        'class'    => 'nextend-autoplay-play n2-ow',
-                        'tabindex' => '0'
-                    ) + N2Html::getExcludeLazyLoadAttributes()) . N2Html::image($pause, 'Pause', array(
-                        'class'    => 'nextend-autoplay-pause n2-ow',
-                        'tabindex' => '0'
-                    ) + N2Html::getExcludeLazyLoadAttributes()));
+                    'aria-label' => n2_('Pause autoplay'),
+                    'tabindex'   => '0'
+                ), N2Html::image($play, 'Play', N2HTML::addExcludeLazyLoadAttributes(array(
+                    'class' => 'nextend-autoplay-play n2-ow'
+                ))) . N2Html::image($pause, 'Pause', N2HTML::addExcludeLazyLoadAttributes(array(
+                    'class' => 'nextend-autoplay-pause n2-ow'
+                ))));
         }
 
         return $html;
@@ -217,16 +175,3 @@ class N2SSPluginWidgetAutoplayImage extends N2SSPluginWidgetAbstract {
 }
 
 N2SmartSliderWidgets::addWidget('autoplay', new N2SSPluginWidgetAutoplayImage);
-class N2SSPluginWidgetAutoplayImageBlue extends N2SSPluginWidgetAutoplayImage {
-
-    protected $name = 'imageBlue';
-
-    public function getDefaults() {
-        return array_merge(parent::getDefaults(), array(
-            'widget-autoplay-position-area' => 11,
-            'widget-autoplay-style'         => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwYWIiLCJwYWRkaW5nIjoiMTB8KnwxMHwqfDEwfCp8MTB8KnxweCIsImJveHNoYWRvdyI6IjB8KnwwfCp8MHwqfDB8KnwwMDAwMDBmZiIsImJvcmRlciI6IjB8Knxzb2xpZHwqfDAwMDAwMGZmIiwiYm9yZGVycmFkaXVzIjoiMyIsImV4dHJhIjoiIn0seyJiYWNrZ3JvdW5kY29sb3IiOiIwMGMxYzRmZiJ9XX0='
-        ));
-    }
-}
-
-N2SmartSliderWidgets::addWidget('autoplay', new N2SSPluginWidgetAutoplayImageBlue);

@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -24,6 +24,15 @@ if(defined('JDEBUG') && JDEBUG){
 
 $config =& hikashop_config();
 if($config->get('store_offline')) {
+	$tmpl = hikaInput::get()->getCmd('tmpl', '');
+	if(in_array($tmpl, array('ajax', 'raw'))) {
+		$ret = array(
+			'ret' => 0,
+			'message' => JText::_('SHOP_IN_MAINTENANCE')
+		);
+		echo json_encode($ret);
+		exit;
+	}
 	$app = JFactory::getApplication();
 	$app->enqueueMessage(JText::_('SHOP_IN_MAINTENANCE'));
 	return;
@@ -64,8 +73,12 @@ $taskGroup = hikaInput::get()->getCmd('ctrl','category');
 $className = ucfirst($taskGroup).'Controller';
 
 if(!class_exists($className) && (!file_exists(HIKASHOP_CONTROLLER.$taskGroup.'.php') || !@include(HIKASHOP_CONTROLLER.$taskGroup.'.php'))) {
-	if(!hikashop_getPluginController($taskGroup))
-		return JError::raiseError(404, 'Page not found : '.$taskGroup);
+	if(!hikashop_getPluginController($taskGroup)){
+		header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found", true, 404);
+		$app = JFactory::getApplication();
+		$app->enqueueMessage('Page not found : '.$taskGroup, 'warning');
+		return;
+	}
 }
 if($taskGroup != 'checkout') {
 	$app = JFactory::getApplication();

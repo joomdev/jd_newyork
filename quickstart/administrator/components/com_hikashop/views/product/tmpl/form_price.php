@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -22,7 +22,7 @@ if(!empty($this->editing_variant))
 				echo JText::_('RESTRICTIONS');
 			?></th>
 			<th style="width:60px;text-align:center">
-				<a href="#" onclick="return window.productMgr.editPrice('<?php echo $form_key ?>', 0);"><img src="<?php echo HIKASHOP_IMAGES; ?>plus.png" alt="<?php echo JText::_('ADD'); ?>"/></a>
+				<button href="#" class="hikabtn btn-primary" onclick="return window.productMgr.editPrice('<?php echo $form_key ?>', 0);" title="<?php echo JText::_('ADD'); ?>"><i class="fa fa-plus"></i></button>
 			</th>
 		</tr>
 	</thead>
@@ -78,11 +78,21 @@ if(!empty($this->editing_variant))
 			}
 			$restrictions[] = '<strong>'.JText::_('ACCESS_LEVEL').'</strong>: '.implode(', ', $text);
 		}
+		if(!empty($price->price_start_date) && (int)$price->price_start_date > 0 && hikashop_level(2)) {
+			$price->price_start_date = hikashop_getDate($price->price_start_date, '%d %B %Y %H:%M');
+			$restrictions[] = '<strong>'.JText::_('START_DATE').'</strong>: '. $price->price_start_date;
+		}
+		if(!empty($price->price_end_date) && (int)$price->price_end_date > 0 && hikashop_level(2)) {
+			$price->price_end_date = hikashop_getDate($price->price_end_date, '%d %B %Y %H:%M');
+			$restrictions[] = '<strong>'.JText::_('END_DATE').'</strong>: '. $price->price_end_date;
+		}
 		if(!empty($price->price_site_id))
 			$restrictions[] = '<strong>'.JText::_('SITE_ID').'</strong>: '.$price->price_site_id;
 		echo implode('<br/>',$restrictions);
 ?>
 			<input type="hidden" name="<?php echo $form_key.'['.$i.'][price_access]'; ?>" value="<?php echo $price->price_access; ?>"/>
+			<input type="hidden" name="<?php echo $form_key.'['.$i.'][price_end_date]'; ?>" value="<?php echo @$price->price_end_date; ?>"/>
+			<input type="hidden" name="<?php echo $form_key.'['.$i.'][price_start_date]'; ?>" value="<?php echo @$price->price_start_date; ?>"/>
 			<input type="hidden" name="<?php echo $form_key.'['.$i.'][price_users]'; ?>" value="<?php echo $price->price_users; ?>"/>
 			<input type="hidden" name="<?php echo $form_key.'['.$i.'][price_min_quantity]'; ?>" value="<?php echo $qty; ?>"/>
 			<input type="hidden" name="<?php echo $form_key.'['.$i.'][price_site_id]'; ?>" value="<?php echo $price->price_site_id; ?>"/>
@@ -91,8 +101,8 @@ if(!empty($this->editing_variant))
 			<input type="hidden" name="<?php echo $form_key.'['.$i.'][price_value]'; ?>" value="<?php if($this->config->get('floating_tax_prices',0)){ echo @$price->price_value_with_tax; }else{ echo @$price->price_value; } ?>" />
 			</td>
 			<td style="text-align:center">
-				<a href="#edit" onclick="window.productMgr.editPrice('<?php echo $form_key ?>', <?php echo $price->price_id;?>); return false;"><img src="<?php echo HIKASHOP_IMAGES; ?>edit.png" alt="<?php echo JText::_('HIKA_EDIT'); ?>"></a>
-				<a href="#delete" onclick="window.hikashop.deleteRow(this); return false;"><img src="<?php echo HIKASHOP_IMAGES; ?>delete.png" alt="<?php echo JText::_('HIKA_DELETE'); ?>"></a>
+				<a href="#edit" onclick="window.productMgr.editPrice('<?php echo $form_key ?>', <?php echo $price->price_id;?>); return false;" title="<?php echo JText::_('HIKA_EDIT'); ?>"><i class="fas fa-pen"></i></a>
+				<a href="#delete" onclick="window.hikashop.deleteRow(this); return false;" title="<?php echo JText::_('HIKA_DELETE'); ?>"><i class="fas fa-trash"></i></a>
 			</td>
 		</tr>
 <?php
@@ -106,6 +116,8 @@ if(!empty($this->editing_variant))
 			<td>
 				{RESTRICTIONS}
 				<input type="hidden" name="{PRICE_ACCESS_INPUT_NAME}" value="{PRICE_ACCESS_VALUE}"/>
+				<input type="hidden" name="{PRICE_START_DATE_INPUT_NAME}" value="{PRICE_START_DATE_VALUE}"/>
+				<input type="hidden" name="{PRICE_END_DATE_INPUT_NAME}" value="{PRICE_END_DATE_VALUE}"/>
 				<input type="hidden" name="{PRICE_USERS_INPUT_NAME}" value="{PRICE_USERS_VALUE}"/>
 				<input type="hidden" name="{PRICE_QTY_INPUT_NAME}" value="{PRICE_QTY_VALUE}"/>
 				<input type="hidden" name="{PRICE_SITE_INPUT_NAME}" value="{PRICE_SITE_VALUE}"/>
@@ -115,7 +127,7 @@ if(!empty($this->editing_variant))
 			</td>
 			<td style="text-align:center;">
 				{EDIT_BUTTON}
-				<a href="#delete" onclick="window.hikashop.deleteRow(this); return false;"><img src="<?php echo HIKASHOP_IMAGES; ?>delete.png" alt="<?php echo JText::_('HIKA_DELETE'); ?>"/></a>
+				<a href="#delete" onclick="window.hikashop.deleteRow(this); return false;" title="<?php echo JText::_('HIKA_DELETE'); ?>"><i class="fas fa-trash"></i></a>
 			</td>
 		</tr>
 	</tbody>
@@ -157,6 +169,14 @@ window.productMgr.editPrice = function(formkey, pid) {
 			o.updateElem(td, x.responseText);
 			if(hkjQuery().chosen)
 				hkjQuery('.hika_options select').chosen();
+
+			var elements, i;
+			elements = document.querySelectorAll(".field-calendar");
+			for (i = 0; i < elements.length; i++) {
+				if(typeof(JoomlaCalendar) != "undefined")
+					JoomlaCalendar.init(elements[i]);
+			}
+
 		} else {
 			o.updateElem(td, x.responseText);
 		}
@@ -189,7 +209,8 @@ window.productMgr.cancelNewPrice = function(formkey) {
 };
 window.productMgr.addPrice = function(formkey) {
 	var w = window, d = document, o = w.Oby, id = null, qty = null, site = '', i = null,
-		el = null, value = null, curr = null, row_id = false, users = null, userid = [], username = '', access = null, edit = '', price = '', restrictions = [];
+		el = null, value = null, curr = null, row_id = false, users = null, userid = [],
+		username = '', access = null, start_date = null, end_date = null, edit = '', price = '', restrictions = [];
 
 	el = d.getElementById('hikashop_' + formkey + '_site_edit');
 	if(el) site = el.value;
@@ -217,6 +238,10 @@ window.productMgr.addPrice = function(formkey) {
 	}
 	el = d.getElementById('hikashop_' + formkey + '_acl_edit');
 	if(el) access = el.value;
+	el = d.getElementById('hikashop_' + formkey + '_start_date_edit');
+	if(el) start_date = el.getAttribute('data-alt-value');
+	el = d.getElementById('hikashop_' + formkey + '_end_date_edit');
+	if(el) end_date = el.getAttribute('data-alt-value');
 
 	el = d.getElementById('hikashop_' + formkey + '_edit');
 	if(el) {
@@ -259,6 +284,10 @@ window.productMgr.addPrice = function(formkey) {
 
 	if(names.length)
 		restrictions.push('<strong><?php echo JText::_('USERS', true); ?></strong>: ' + names.join(', '));
+	if(start_date != '')
+		restrictions.push('<strong><?php echo JText::_('START_DATE', true); ?></strong>: ' + start_date);
+	if(end_date != '')
+		restrictions.push('<strong><?php echo JText::_('END_DATE', true); ?></strong>: ' + end_date);
 	if(access && access != 'all'){
 		var groups = access.split(",");
 		var length = groups.length;
@@ -281,6 +310,8 @@ window.productMgr.addPrice = function(formkey) {
 		PRICE: price, RESTRICTIONS: restrictions.join('<br/>'),
 		PRICE_USERS_INPUT_NAME: formkey + '[' + i + '][price_users]', PRICE_USERS_VALUE: userid.join(','),
 		PRICE_ACCESS_INPUT_NAME: formkey + '[' + i + '][price_access]', PRICE_ACCESS_VALUE: access,
+		PRICE_START_DATE_INPUT_NAME: formkey + '[' + i + '][price_start_date]', PRICE_START_DATE_VALUE: start_date,
+		PRICE_END_DATE_INPUT_NAME: formkey + '[' + i + '][price_end_date]', PRICE_END_DATE_VALUE: end_date,
 		PRICE_QTY_INPUT_NAME: formkey + '[' + i + '][price_min_quantity]', PRICE_QTY_VALUE: qty,
 		PRICE_SITE_INPUT_NAME: formkey + '[' + i + '][price_site_id]', PRICE_SITE_VALUE: site,
 		PRICE_CURRENCY_INPUT_NAME: formkey + '[' + i + '][price_currency_id]', PRICE_CURRENCY_VALUE: currid,

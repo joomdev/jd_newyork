@@ -430,9 +430,6 @@ class PaypalHelperPayPalApi extends PaypalHelperPaypal {
 
 	function validate ($enqueueMessage = true) {
 
-		if (!class_exists('Creditcard')) {
-			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'creditcard.php');
-		}
 		$html = '';
 		$cc_valid = true;
 		$errormessages = array();
@@ -460,21 +457,21 @@ class PaypalHelperPayPalApi extends PaypalHelperPaypal {
 			$errormessages[] = 'VMPAYMENT_PAYPAL_CC_CARD_DATE_INVALID';
 			$cc_valid = false;
 		}
-		if (!$cc_valid) {
+
+		if (!$cc_valid && $enqueueMessage) {
 			foreach ($errormessages as $msg) {
 				$html .= vmText::_($msg) . "<br/>";
 			}
-		}
-		if (!$cc_valid && $enqueueMessage) {
 			$app = JFactory::getApplication();
 			$app->enqueueMessage($html, 'error');
 		}
+
 		$displayInfoMsg = "";
 		if (!$cc_valid) {
 			$displayInfoMsg = false;
 			return false;
 		} else {
-			return parent::validate($displayInfoMsg);
+			return true;//parent::validate($displayInfoMsg);
 		}
 	}
 

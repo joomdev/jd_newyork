@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -23,8 +23,8 @@ if($this->identified) {
 		$leftClass = 'hikashop_checkout_address_left_part';
 	}
 	if(HIKASHOP_RESPONSIVE) {
-		$mainClass .= ' '.HK_GRID_ROW;
-		$leftClass .= ' '.HK_GRID_COL_6;
+		$mainClass .= ' hk-row-fluid';
+		$leftClass .= ' hkc-md-6';
 	}
 ?>
 <div id="<?php echo $mainId; ?>" class="<?php echo $mainClass; ?>">

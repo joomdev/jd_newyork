@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -214,8 +214,13 @@ class plgHikashoppaymentMoneybookers extends hikashopPaymentPlugin
 			}
 			return false;
 		 }
+		if($vars['status'] == 2) {
+			$status = $element->payment_params->verified_status;
+		} else {
+			$status = $element->payment_params->pending_status;
+		}
 
-		$this->modifyOrder($order_id, $vars['status'],true,true);
+		$this->modifyOrder($order_id, $status,true,true);
 
 		return true;
 	}

@@ -14,14 +14,14 @@ class N2SSSlideComponentContent extends N2SSSlideComponent {
     protected $localStyle = array(
         array(
             "group"    => "normal",
-            "selector" => '',
+            "selector" => '-inner',
             "css"      => array(
                 'transition' => 'transition:all .3s;transition-property:border,background-image,background-color,border-radius,box-shadow;'
             )
         ),
         array(
             "group"    => "hover",
-            "selector" => ':HOVER',
+            "selector" => '-inner:HOVER',
             "css"      => array()
         ),
     );
@@ -102,7 +102,11 @@ class N2SSSlideComponentContent extends N2SSSlideComponent {
         }
 
         return '';
+    }
 
+    protected function addUniqueClass($class) {
+        $this->attributes['class']    .= ' ' . $class;
+        $this->colAttributes['class'] .= ' ' . $class . '-inner';
     }
 
     protected function admin() {
@@ -112,7 +116,6 @@ class N2SSSlideComponentContent extends N2SSSlideComponent {
         $this->createProperty('bgimage', '');
         $this->createProperty('bgimagex', 50);
         $this->createProperty('bgimagey', 50);
-        $this->createProperty('bgimageparallax', '0');
 
         $this->createColorProperty('bgcolor', '00000000');
         $this->createProperty('bgcolorgradient', 'off');

@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -115,6 +115,14 @@ class VoteViewvote extends HikaShopView {
 				$scores = $db->loadObjectList();
 				$elts = array();
 
+				$query = 'SELECT product_id FROM '.hikashop_table('product').' WHERE product_parent_id = '.(int)$hikashop_vote_ref_id.'';
+				$db->setQuery($query);
+				$product_ids = $db->loadColumn();
+
+				if(empty($product_ids))
+					$product_ids =  array();
+				$product_ids[] = (int)$hikashop_vote_ref_id;
+
 				foreach ($scores as $hikashop_vote) {
 					$elts[$i] = clone($hikashop_vote);
 					$elts[$i]->total_vote_useful = 0;	//know the total of useful vote for this post
@@ -129,32 +137,24 @@ class VoteViewvote extends HikaShopView {
 					$elts[$i]->already_vote = $db->loadResult();
 
 					if (!empty ($hikashop_vote->vote_comment) && $type_item){
-						$purchased = '';
-						$query = 'SELECT order_id FROM '.hikashop_table('order').' WHERE order_user_id = '.$db->quote($hikashop_vote->vote_user_id).'';
-						$db->setQuery($query);
-						if(!HIKASHOP_J25){
-							$order_ids = $db->loadResultArray();
-						} else {
+						$statuses = explode(',', $config->get('invoice_order_statuses', 'confirmed,shipped'));
+						if(count($statuses)) {
+							foreach($statuses as &$status){
+								$status = $db->Quote($status);
+							}
+							unset($status);
+							$query = 'SELECT order_id FROM '.hikashop_table('order').' WHERE order_user_id = '.$db->quote($hikashop_vote->vote_user_id).' AND order_status IN ('.implode(',', $statuses).')';
+							$db->setQuery($query);
 							$order_ids = $db->loadColumn();
-						}
-						if(!empty($order_ids)){
-							$query = 'SELECT product_id FROM '.hikashop_table('product').' WHERE product_parent_id = '.(int)$hikashop_vote_ref_id.'';
-							$db->setQuery($query);
-							if(!HIKASHOP_J25){
-								$product_ids = $db->loadResultArray();
-							} else {
-								$product_ids = $db->loadColumn();
+
+							if(!empty($order_ids)){
+								$query = 'SELECT order_product_id FROM '.hikashop_table('order_product').' WHERE order_id IN ('.implode(',',$order_ids).') AND product_id IN ('.implode(',',$product_ids).')';
+								$db->setQuery($query);
+								$result = $db->loadResult();
+								if(!empty($result))
+									$elts[$i]->purchased = true;
 							}
-							if(empty($product_ids)){
-								$product_ids =  array(0 => 0);	//if the article has no variants
-							}
-							$query = 'SELECT order_product_id FROM '.hikashop_table('order_product').' WHERE order_id IN ('.implode(',',$order_ids).') AND product_id = '.(int)$hikashop_vote_ref_id.' OR product_id IN ('.implode(',',$product_ids).')';
-							$db->setQuery($query);
-							$result = $db->loadResult();
-							if(!empty($result))
-								$purchased = 1;
 						}
-						$elts[$i]->purchased = $purchased;
 					}
 					if($elts[$i]->vote_useful >10){
 						$row->top_ranked = $elts[$i]->vote_id;
@@ -181,6 +181,14 @@ class VoteViewvote extends HikaShopView {
 		$this->assignRef('rows', $row);
 		$this->assignRef('elts', $elts);
 		$this->assignRef('itemType', $type_item);
+
+		$this->microData = false;
+		if(($config->get('enable_status_vote',0)=='comment' || $config->get('enable_status_vote',0)=='two' || $config->get('enable_status_vote',0)=='both' )){
+			$productClass = hikashop_get('class.product');
+			$product = $productClass->get($hikashop_vote_ref_id);
+			if($product->product_total_vote > 0)
+				$this->microData = true;
+		}
 	}
 	function form(){
 		$doc = JFactory::getDocument();
@@ -247,19 +255,13 @@ class VoteViewvote extends HikaShopView {
 		if($vote_if_bought == 1 && !empty($hikashop_vote_user_id) && $type_item == 'product'){
 			$query = 'SELECT order_id FROM '.hikashop_table('order').' WHERE order_user_id = '.$db->quote($hikashop_vote_user_id).'';
 			$db->setQuery($query);
-			if(!HIKASHOP_J25){
-				$order_ids = $db->loadResultArray();
-			} else {
-				$order_ids = $db->loadColumn();
-			}
+			$order_ids = $db->loadColumn();
+
 			if(!empty($order_ids)){
 				$query = 'SELECT product_id FROM '.hikashop_table('product').' WHERE product_parent_id = '.(int)$hikashop_vote_ref_id.'';
 				$db->setQuery($query);
-				if(!HIKASHOP_J25){
-					$product_ids = $db->loadResultArray();
-				} else {
-					$product_ids = $db->loadColumn();
-				}
+				$product_ids = $db->loadColumn();
+
 				if(empty($product_ids)){
 					$product_ids =  array(0 => 0);	//if the article has no variants
 				}
@@ -300,11 +302,7 @@ class VoteViewvote extends HikaShopView {
 			return;
 		}
 
-		if(!HIKASHOP_PHP5) {
-			$doc =& JFactory::getDocument();
-		} else {
-			$doc = JFactory::getDocument();
-		}
+		$doc = JFactory::getDocument();
 		$type_item = hikaInput::get()->getCmd('ctrl');
 		$class = hikashop_get('class.vote');
 		$class->loadJS();

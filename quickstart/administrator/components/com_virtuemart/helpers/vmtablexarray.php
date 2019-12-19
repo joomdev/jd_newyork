@@ -22,8 +22,6 @@
 
 defined('_JEXEC') or die();
 
-if(!class_exists('VmTable'))require(VMPATH_ADMIN.DS.'helpers'.DS.'vmtable.php');
-
 class VmTableXarray extends VmTable {
 
 	/** @var int Primary key */
@@ -32,7 +30,8 @@ class VmTableXarray extends VmTable {
 	protected $_orderable = false;
     protected $_skey = '';
     protected $_skeyForm = '';
-	protected $_pvalue = '';
+	protected $_pvalue = 0;
+	protected $_svalue = 0;
 
 //    function setOrderable($key='ordering', $auto=true){
 //    	$this->_orderingKey = $key;
@@ -90,7 +89,7 @@ class VmTableXarray extends VmTable {
 			if (!$db->execute())
 			{
 				$err = $db->getErrorMsg();
-				JError::raiseError( 500, get_class( $this ).':: move '. $err );
+				vmError( get_class( $this ).':: move '. $err, get_class( $this ).':: move error' );
 			}
 		}
 	}
@@ -108,9 +107,6 @@ class VmTableXarray extends VmTable {
     		return false;
     	}
 
-		$pkey = $this->_pkey;
-		$this->$pkey = $oid;
-
     	if(empty($db)) $db = JFactory::getDBO();
 
 		if($this->_orderable){
@@ -118,10 +114,15 @@ class VmTableXarray extends VmTable {
 		} else {
 			$orderby = '';
 		}
-		$hash = md5((int)$oid. $this->_skey . $this->_tbl . $this->_pkey . $orderby);
+
+		$pkey = $this->_pkey;
+		$skey = $this->_skey;
+		$this->{$pkey} = $oid;
+
+		$hash = md5((int)$oid. $skey . $this->_tbl . $pkey . $orderby);
 
 		if (!isset (self::$_cache['ar'][$hash])) {
-			$q = 'SELECT `'.$this->_skey.'` FROM `'.$this->_tbl.'` WHERE `'.$this->_pkey.'` = "'.(int)$oid.'" '.$orderby;
+			$q = 'SELECT `'.$skey.'` FROM `'.$this->_tbl.'` WHERE `'.$pkey.'` = "'.(int)$oid.'" '.$orderby;
 			$db->setQuery($q);
 			$result = $db->loadColumn();
 			if(!$result){
@@ -134,8 +135,7 @@ class VmTableXarray extends VmTable {
 			}
 		}
 
-		$skey = $this->_skey;
-		$this->$skey = self::$_cache['ar'][$hash];
+		$this->{$skey} = self::$_cache['ar'][$hash];
 
 		return self::$_cache['ar'][$hash];
 
@@ -168,6 +168,7 @@ class VmTableXarray extends VmTable {
 
 	}
 
+
     /**
      *
      * @author Max Milbers, George Kostopoulos
@@ -181,10 +182,13 @@ class VmTableXarray extends VmTable {
 
         $pkey = $this->_pkey;
         $skey = $this->_skey;
+        $pvalue = $this->_pvalue;
+		$svalue = $this->_svalue;
+
         $tblkey = $this->_tbl_key;
 
         // We select all database rows based on our _pkey
-        $q  = 'SELECT * FROM `'.$this->_tbl.'` WHERE `'.$this->_pkey.'` = "'. $this->_pvalue.'" ';
+        $q  = 'SELECT * FROM `'.$this->_tbl.'` WHERE `'.$pkey.'` = "'. $pvalue.'" ';
         $db->setQuery($q);
         $objList = $db->loadObjectList();
 
@@ -198,9 +202,9 @@ class VmTableXarray extends VmTable {
 
         // We make another database object list with the values that we want to insert into the database
         $newArray = array();
-		if(!empty($this->_svalue)){
-	            if(!is_array($this->_svalue)) $this->_svalue = array($this->_svalue);
-	            foreach($this->_svalue as $value) $newArray[] = array($pkey=>$this->_pvalue, $skey=>$value);
+		if(!empty($svalue)){
+	            if(!is_array($svalue)) $svalue = array($svalue);
+	            foreach($svalue as $value) $newArray[] = array($pkey=>$pvalue, $skey=>$value);
 		}
 
         // Inserts and Updates
@@ -234,7 +238,7 @@ class VmTableXarray extends VmTable {
         }
         else {
             // There are zero new rows, so the user asked for all the rows to be deleted
-            $q  = 'DELETE FROM `'.$this->_tbl.'` WHERE `' . $pkey.'` = "'. $this->_pvalue .'" ';
+            $q  = 'DELETE FROM `'.$this->_tbl.'` WHERE `' . $pkey.'` = "'. $pvalue .'" ';
             $db->setQuery($q);
 
             if(!$db->execute()){

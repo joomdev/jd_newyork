@@ -1,27 +1,23 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
-?><fieldset>
-	<div class="toolbar" id="toolbar" style="float: right;">
-		<button class="btn" type="button" onclick="window.hikashop.submitform('galleryselect','adminForm');"><img style="vertical-align: middle" src="<?php echo HIKASHOP_IMAGES; ?>save.png"/><?php echo JText::_('OK'); ?></button>
-	</div>
-</fieldset>
+?><div class="title" style="float: left;"><h1><?php echo JText::_('HIKA_SELECT_IMAGE'); ?></h1></div>
+<div class="toolbar" id="toolbar" style="float: right;">
+	<button class="btn btn-success" type="button" onclick="window.hikashop.submitform('galleryselect','adminForm');"><i class="fa fa-save"></i> <?php echo JText::_('OK'); ?></button>
+</div>
 <form action="<?php echo hikashop_completeLink('upload&task=galleryimage', true); ?>" method="post" name="adminForm" id="adminForm">
 	<table width="100%" height="100%" class="adminlist" style="width:100%;height:100%;">
 		<thead>
 			<tr>
 				<th></th>
 				<th>
-					<?php echo JText::_('FILTER');?>:
-					<input type="text" name="search" value="<?php echo $this->escape($this->pageInfo->search);?>" class="text_area" onchange="document.adminForm.submit();" />
-					<button class="btn" onclick="document.adminForm.limitstart.value=0;this.form.submit();"><?php echo JText::_( 'GO' ); ?></button>
-					<button class="btn" onclick="document.adminForm.limitstart.value=0;document.getElementById('search').value='';this.form.submit();"><?php echo JText::_( 'RESET' ); ?></button>
+					<?php echo $this->loadHkLayout('search', array()); ?>
 				</th>
 			</tr>
 		</thead>
@@ -35,8 +31,8 @@ defined('_JEXEC') or die('Restricted access');
 			</tr>
 		</tfoot>
 		<tr>
-			<td width="130px" height="100%" style="width:130px;vertical-align:top;">
-				<div style="width:130px;height:100%;overflow:auto;">
+			<td width="180px" height="100%" style="width:180px;vertical-align:top;">
+				<div style="width:180px;height:100%;overflow:auto;">
 <?php
 echo $this->treeContent;
 ?>

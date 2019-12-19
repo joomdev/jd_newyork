@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_DJEVENTS_EVENTS_LIST_VIEW">
+	</layout>
+	<fields name="request">
+		<fieldset name="request"
+		addfieldpath="/administrator/components/com_djevents/models/fields"
+		 >
+			<field name="cid" type="djeventscategory" label="COM_DJEVENTS_CATEGORY" />
+			<field name="city" type="djeventscity" label="COM_DJEVENTS_CITY" skip_new="true" />
+		</fieldset>
+	</fields>
+	<fields name="params">
+		<fieldset name="global" label="COM_DJEVENTS_CONFIG_GLOBAL_SETTINGS" addfieldpath="/administrator/components/com_djevent/models/fields">
+			
+			<field name="evlist_limit" type="text" default="" label="COM_DJEVENTS_CONFIG_LIST_LIMIT" description="COM_DJEVENTS_CONFIG_LIST_LIMIT_DESC" />
+			<field name="evlist_featured_limit" type="text" default="" label="COM_DJEVENTS_CONFIG_FEATURED_LIST_LIMIT" description="COM_DJEVENTS_CONFIG_FEATURED_LIST_LIMIT_DESC" />
+			
+		</fieldset>
+	</fields>
+</metadata>

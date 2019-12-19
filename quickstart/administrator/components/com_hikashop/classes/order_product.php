@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -165,7 +165,7 @@ class hikashopOrder_productClass extends hikashopClass {
 
 		$query = 'INSERT IGNORE INTO '.hikashop_table('order_product').' ('.implode(',', $fields).') VALUES '.implode(',', $items);
 		$this->database->setQuery($query);
-		$this->database->query();
+		$this->database->execute();
 
 		$query = 'SELECT * FROM '.hikashop_table('order_product').' WHERE order_id = '.$order_id;
 		$this->database->setQuery($query);
@@ -189,7 +189,7 @@ class hikashopOrder_productClass extends hikashopClass {
 					' SET order_product_option_parent_id = ' . (int)@$newProducts[$k]->order_product_id .
 					' WHERE order_product_option_parent_id IN (' . implode(',', $v) . ') AND order_id = ' . $order_id;
 				$this->database->setQuery($query);
-				$this->database->query();
+				$this->database->execute();
 			}
 		}
 
@@ -199,7 +199,7 @@ class hikashopOrder_productClass extends hikashopClass {
 		if(!empty($keep))
 			$query .= ' AND order_product_option_parent_id NOT IN (' . implode(',', $keep) . ')';
 		$this->database->setQuery($query);
-		$this->database->query();
+		$this->database->execute();
 
 		if(!empty($discounts)) {
 			$discountUpdates = array();
@@ -213,7 +213,7 @@ class hikashopOrder_productClass extends hikashopClass {
 					' SET discount_used_times = discount_used_times + ' . (int)$k.
 					' WHERE discount_code IN (' . implode(',', $update) . ')';
 				$this->database->setQuery($query);
-				$this->database->query();
+				$this->database->execute();
 			}
 		}
 
@@ -228,20 +228,16 @@ class hikashopOrder_productClass extends hikashopClass {
 		return $ret;
 	}
 
-	protected function updateQuantityAndSales(&$updates, $cancel = false){
+	protected function updateQuantityAndSales(&$updates, $cancel = false) {
+		$config = hikashop_config();
+		$authorize_restock = (int)$config->get('authorize_restock', 1);
+
 		foreach($updates as $k => $update) {
 			$localCancel = $cancel;
 			if($k < 0) {
 				$k = -$k;
 				$localCancel = !$cancel;
 			}
-			if($localCancel) {
-				$query = 'UPDATE '.hikashop_table('product').' SET product_quantity = product_quantity + '.(int)$k.' WHERE product_id IN ('.implode(',',$update).') AND product_quantity > -1';
-			} else {
-				$query = 'UPDATE '.hikashop_table('product').' SET product_quantity = GREATEST(0, product_quantity - '.(int)$k.') WHERE product_id IN ('.implode(',',$update).') AND product_quantity >= 0';
-			}
-			$this->database->setQuery($query);
-			$this->database->query();
 
 			if($localCancel) {
 				$query = 'UPDATE '.hikashop_table('product').' SET product_sales = (GREATEST('.(int)$k.', product_sales) - '.(int)$k.') WHERE product_id IN ('.implode(',',$update).')';
@@ -249,7 +245,18 @@ class hikashopOrder_productClass extends hikashopClass {
 				$query = 'UPDATE '.hikashop_table('product').' SET product_sales = product_sales + '.(int)$k.' WHERE product_id IN ('.implode(',',$update).')';
 			}
 			$this->database->setQuery($query);
-			$this->database->query();
+			$this->database->execute();
+
+			if(!$authorize_restock && (($localCancel && $k > 0) || (!$localCancel && $k < 0)))
+				continue;
+
+			if($localCancel) {
+				$query = 'UPDATE '.hikashop_table('product').' SET product_quantity = product_quantity + '.(int)$k.' WHERE product_id IN ('.implode(',',$update).') AND product_quantity > -1';
+			} else {
+				$query = 'UPDATE '.hikashop_table('product').' SET product_quantity = GREATEST(0, product_quantity - '.(int)$k.') WHERE product_id IN ('.implode(',',$update).') AND product_quantity >= 0';
+			}
+			$this->database->setQuery($query);
+			$this->database->execute();
 		}
 	}
 

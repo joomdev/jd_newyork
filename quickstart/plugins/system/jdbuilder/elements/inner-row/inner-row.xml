@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<element type="inner-row">
+   <title>Inner Row</title>
+   <icon>media/jdbuilder/images/icons/elements/innerrow.svg</icon>
+   <creationDate>March 2019</creationDate>
+   <author>JoomDev</author>
+   <authorEmail>info@joomdev.com</authorEmail>
+   <authorUrl>https://www.joomdev.com</authorUrl>
+   <copyright>Copyright (C) 2019 Joomdev, Inc. All rights reserved.</copyright>
+   <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+   <version>1.0</version>
+   <description>Element Description Here</description>
+   <form>
+      <fields>
+         <!-- General Options -->
+         <fieldset name="general" label="JDB_GENERAL_TITLE">
+            <!--  Layout Options -->
+            <field type="list" name="guttersType" label="JDB_COLUMN_GAP" default="" group="basic">
+               <option value="">JDB_INHERIT</option>
+               <option value="none">JDB_COLUMN_NO_GAP</option>
+               <option value="custom">JDB_CUSTOM</option>
+            </field>
+            <field type="slider" name="guttersSize" label="JDB_COLUMN_GAP_SIZE" showon="params.guttersType=='custom'" default="15" min="5" max="100" unit="px" group="basic" responsive="true">
+            </field>
+            <field type="spacer" label="JDB_COLUMN_DIRECTION" group="basic">
+            </field>
+            <field type="switch" name="columnReverseMedium" label="JDB_REVERSE_COLUMNS_TABLET" default="false" group="basic">
+            </field>
+            <field type="switch" name="columnReverseSmall" label="JDB_REVERSE_COLUMNS_MOBILE" default="false" group="basic">
+            </field>
+         </fieldset>
+      </fields>
+   </form>
+</element>

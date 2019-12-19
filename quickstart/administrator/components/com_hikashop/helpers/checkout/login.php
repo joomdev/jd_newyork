@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -11,6 +11,40 @@ defined('_JEXEC') or die('Restricted access');
 include_once HIKASHOP_HELPER . 'checkout.php';
 
 class hikashopCheckoutLoginHelper extends hikashopCheckoutHelperInterface {
+	protected $params = array(
+		'show_submit' =>  array(
+			'name' => 'SHOW_SUBMIT_BUTTON',
+			'type' => 'boolean',
+			'default' => 1,
+			'tooltip' => 'login_submit',
+		),
+		'address_on_registration' =>  array(
+			'name' => 'ASK_ADDRESS_ON_REGISTRATION',
+			'type' => 'boolean',
+			'default' => 1,
+			'tooltip' => 'address_on_registration',
+		),
+		'same_address' =>  array(
+			'name' => 'SHOW_SHIPPING_SAME_ADDRESS_CHECKBOX',
+			'type' => 'boolean',
+			'default' => 1,
+			'showon' => array(
+				'key' => 'address_on_registration',
+				'values' => array(1)
+			)
+		),
+		'same_address_pre_checked' =>  array(
+			'name' => 'SAME_ADDRESS_CHECKBOX_PRE_CHECKED',
+			'type' => 'boolean',
+			'default' => 1,
+			'showon' => array(
+				'key' => 'same_address',
+				'values' => array(1)
+			)
+		),
+	);
+
+
 	public function check(&$controller, &$params) {
 		$checkoutHelper = hikashopCheckoutHelper::get();
 		return $checkoutHelper->isLoggedUser();
@@ -34,6 +68,13 @@ class hikashopCheckoutLoginHelper extends hikashopCheckoutHelperInterface {
 			if($logout) {
 				$app->setUserState(HIKASHOP_COMPONENT.'.user_id', 0);
 				hikashop_loadUser(false, true);
+
+				if(!isset($params['address_on_registration'])) {
+					$config = hikashop_config();
+					$params['address_on_registration'] = $config->get('address_on_registration', 1);
+				}
+				if(!$params['address_on_registration'])
+					$_SESSION['hikashop_previously_guest_as'] = $user_id;
 
 				$checkoutHelper = hikashopCheckoutHelper::get();
 				$cart = $checkoutHelper->getCart();
@@ -121,11 +162,11 @@ class hikashopCheckoutLoginHelper extends hikashopCheckoutHelperInterface {
 
 		$old_messages = $app->getMessageQueue();
 
-		$error = $app->login($credentials, $options);
+		$result = $app->login($credentials, $options);
 
 		$user = JFactory::getUser();
 
-		if(JError::isError($error) || $user->guest) {
+		if($result !== true || $user->guest) {
 			$new_messages = $app->getMessageQueue();
 			if(count($old_messages) < count($new_messages)) {
 				$new_messages = array_slice($new_messages, count($old_messages));
@@ -181,8 +222,15 @@ class hikashopCheckoutLoginHelper extends hikashopCheckoutHelperInterface {
 			$data['register'] = $formData['register'];
 		if(isset($formData['user']))
 			$data['user'] = $formData['user'];
-		if($config->get('address_on_registration', 1) && isset($formData['address']))
+		if(!isset($params['address_on_registration']))
+			$params['address_on_registration'] = $config->get('address_on_registration', 1);
+		if($params['address_on_registration'] && isset($formData['address']))
 			$data['address'] = $formData['address'];
+		if(!isset($params['same_address']))
+			$params['same_address'] = 1;
+		if($params['address_on_registration'] && $params['same_address'] && empty($formData['same_address']) && isset($formData['shipping_address'])) {
+			$data['shipping_address'] = $formData['shipping_address'];
+		}
 
 		$mode = $config->get('simplified_registration', 0);
 
@@ -200,8 +248,14 @@ class hikashopCheckoutLoginHelper extends hikashopCheckoutHelperInterface {
 			}
 		}
 
+		$options = array('address_type' => 'both');
+		if($params['same_address'] && empty($formData['same_address']))
+			$options['address_type'] = 'billing';
+		if($params['same_address'])
+			$_SESSION['same_address_pre_checked'] = (bool)@$formData['same_address'];
+
 		$userClass = hikashop_get('class.user');
-		$ret = $userClass->register($data, $mode);
+		$ret = $userClass->register($data, $mode, $options);
 
 		if($ret === false || !isset($ret['status']))
 			return false;
@@ -234,6 +288,8 @@ class hikashopCheckoutLoginHelper extends hikashopCheckoutHelperInterface {
 				}
 			}
 			$content['params']['registration'] = false;
+			$content['params']['show_login'] = false;
+			$content['params']['waiting_validation'] = true;
 			return false;
 		}
 
@@ -270,10 +326,10 @@ class hikashopCheckoutLoginHelper extends hikashopCheckoutHelperInterface {
 				'username' => (string)$ret['registerData']->username,
 				'password' => (string)$ret['registerData']->password
 			);
-			$error = $app->login($credentials, $options);
+			$result = $app->login($credentials, $options);
 			$juser = JFactory::getUser();
 
-			if(!JError::isError($error) && !$juser->guest) {
+			if($result === true  && !$juser->guest) {
 				$userClass = hikashop_get('class.user');
 				$user_id = $userClass->getID($juser->get('id'));
 				if(!empty($user_id)) {
@@ -299,7 +355,8 @@ class hikashopCheckoutLoginHelper extends hikashopCheckoutHelperInterface {
 	}
 
 	public function display(&$view, &$params) {
-		$params['show_login'] = $view->config->get('display_login', 1);
+		if(!isset($params['show_login']))
+			$params['show_login'] = $view->config->get('display_login', 1);
 
 		$params['current_login'] = hikashop_loadUser(true);
 		$view->mainUser = JFactory::getUser();
@@ -328,16 +385,35 @@ class hikashopCheckoutLoginHelper extends hikashopCheckoutHelperInterface {
 
 	protected function loadRegistrationparams(&$view, &$params) {
 		$params['registration_email_confirmation'] = $view->config->get('show_email_confirmation_field', 0);
-		$params['address_on_registration'] = $view->config->get('address_on_registration', 1);
 		$params['affiliate_registration'] = $view->config->get('affiliate_registration', 0);
 		$params['user_group_registration'] = $view->config->get('user_group_registration', '');
 		if(!isset($params['default_registration_view']))
 			$params['default_registration_view'] = $view->config->get('default_registration_view', '');
+		if(!isset($params['show_submit']))
+			$params['show_submit'] = 1;
+
+		if(!isset($params['address_on_registration']))
+			$params['address_on_registration'] = $view->config->get('address_on_registration', 1);
+		if(!isset($params['same_address']))
+			$params['same_address'] = 1;
+		if(!isset($params['same_address_pre_checked']))
+			$params['same_address_pre_checked'] = 1;
+
 
 		$params['display_method'] = 0;
 		$params['registration_registration'] = true;
 		$params['registration_count'] = 1;
 
+
+		if($params['registration_registration'] || $params['registration_simplified'] || $params['registration_password']) {
+			$userClass = hikashop_get('class.user');
+			$privacy = $userClass->getPrivacyConsentSettings();
+			if($privacy) {
+				$params['privacy'] = true;
+				$params['privacy_id'] = $privacy['id'];
+				$params['privacy_text'] = $privacy['text'];
+			}
+		}
 	}
 
 	protected function initRegistration(&$view, &$params) {
@@ -371,15 +447,57 @@ class hikashopCheckoutLoginHelper extends hikashopCheckoutHelperInterface {
 		$check_values = array('user' => $view->user);
 
 		if(!empty($params['address_on_registration'])) {
-			$view->address = @$_SESSION['hikashop_address_data'];
-			$view->extraFields['address'] = $view->fieldsClass->getFields('frontcomp', $view->address, 'address');
-			$params['js'] .= $view->fieldsClass->jsToggle($view->extraFields['address'], $view->address, 0, 'hikashop_', array('return_data' => true, 'suffix_type' => '_'.$view->step.'_'.$view->block_position));
+			$view->address = @$_SESSION['hikashop_billing_address_data'];
+
+			if(empty($view->address)) {
+				$app = JFactory::getApplication();
+				$session_addresses = $app->getUserState(HIKASHOP_COMPONENT.'.addresses', array());
+				$session_address = reset($session_addresses);
+				if(!empty($session_address))
+					$view->address = hikashop_copy($session_address);
+				unset($session_addresses);
+				unset($session_address);
+			}
+
+			$view->extraFields['address'] = $view->fieldsClass->getFields('frontcomp', $view->address, 'billing_address');
+			$params['js'] .= $view->fieldsClass->jsToggle($view->extraFields['address'], $view->address, 0, 'hikashop_', array('return_data' => true, 'suffix_type' => '_'.$view->step.'_'.$view->block_position, 'type' => ''));
 			$check_values['address'] = $view->address;
+
+			if($params['same_address']) {
+
+				if(isset($_SESSION['same_address_pre_checked']))
+					$params['same_address_pre_checked'] = (int)$_SESSION['same_address_pre_checked'];
+
+				$view->shipping_address = @$_SESSION['hikashop_shipping_address_data'];
+
+				if(empty($view->shipping_address)) {
+					$app = JFactory::getApplication();
+					$session_addresses = $app->getUserState(HIKASHOP_COMPONENT.'.addresses', array());
+					$session_address = reset($session_addresses);
+					if(!empty($session_address))
+						$view->shipping_address = hikashop_copy($session_address);
+					unset($session_addresses);
+					unset($session_address);
+				}
+
+				$view->extraFields['shipping_address'] = $view->fieldsClass->getFields('frontcomp', $view->shipping_address, 'shipping_address');
+				$params['js'] .= $view->fieldsClass->jsToggle($view->extraFields['shipping_address'], $view->shipping_address, 0, 'hikashop_', array('return_data' => true, 'suffix_type' => '_shipping_'.$view->step.'_'.$view->block_position, 'type' => 'shipping_'));
+				$check_values['shipping_address'] = $view->shipping_address;
+
+			}
 		}
+
+		$affiliate = $view->config->get( 'affiliate_registration_default', 0);
+		if($affiliate) {
+			$affiliate = 'checked="checked"';
+		} else {
+			$affiliate = '';
+		}
+		$view->affiliate_checked = $affiliate;
 	}
 
 	public function checkMarker($markerName, $oldMarkers, $newMarkers, &$controller, $params) {
-		if(!in_array($markerName, array('billing_address', 'shipping_address', 'user')))
+		if(!in_array($markerName, array('billing_address', 'billing_addresses', 'shipping_address', 'shipping_addresses', 'user')))
 			return true;
 
 		if(!empty($params['register_done'])){

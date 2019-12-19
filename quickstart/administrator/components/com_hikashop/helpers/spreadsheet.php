@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -16,25 +16,30 @@ class hikashopSpreadsheetHelper {
 	var $currLine;
 	var $buffer;
 	var $forceQuote;
+	var $forceText;
 	var $progressive;
 	var $headerSent;
+	var $excelSecurity;
 
 	function __construct() {
 		$this->init();
 	}
 
-	function init($format = 'csv', $filename = 'export', $sep = ';', $forceQuote = false, $decimal_separator = '.') {
+	function init($format = 'csv', $filename = 'export', $sep = ';', $forceQuote = false, $decimal_separator = '.', $forceText = false) {
 		$this->currLine = -1;
 		$this->buffer = '';
 		$this->separator = ';';
 		$this->filename = $filename;
 		$this->forceQuote = $forceQuote;
+		$this->forceText = $forceText;
 		$this->progressive = false;
 		$this->headerSent = false;
+		$this->excelSecurity = "'";
 
 		switch( strtolower($format) ) {
 			case 'xls':
 				$this->format = 1;
+				$this->buffer .= pack("ssssss", 0x809, 0x8, 0x0, 0x10, 0x0, 0x0);
 				break;
 
 			default:
@@ -42,6 +47,7 @@ class hikashopSpreadsheetHelper {
 				$this->format = 0;
 				$this->separator = $sep;
 				$this->decimal_separator = $decimal_separator;
+				$this->buffer .= chr(239) . chr(187) . chr(191);
 				break;
 		}
 
@@ -52,9 +58,6 @@ class hikashopSpreadsheetHelper {
 			$this->filename .= '.xls';
 		else
 			$this->filename .= '.csv';
-
-		if( $this->format == 1 )
-			$this->buffer .= pack("ssssss", 0x809, 0x8, 0x0, 0x10, 0x0, 0x0);
 	}
 
 	function send() {
@@ -118,7 +121,7 @@ class hikashopSpreadsheetHelper {
 			if($floatValue == (int)$floatValue)
 				$this->buffer .= (int)$value;
 			else
-				$this->buffer .= number_format($floatValue, 5, $this->decimal_separator, '');
+				$this->buffer .= rtrim(number_format($floatValue, 5, $this->decimal_separator, ''), '0,.');
 
 			if(!$lastOne)
 				$this->buffer .= $this->separator;
@@ -126,6 +129,9 @@ class hikashopSpreadsheetHelper {
 	}
 
 	function writeText($row, $col, $value, $lastOne) {
+		if( empty($value) || is_array($value) || is_object($value)) {
+			$value = '';
+		}
 		if( $this->format == 1 ) {
 			$this->currLine = $row;
 			$len = strlen($value);
@@ -135,9 +141,11 @@ class hikashopSpreadsheetHelper {
 			if( $this->currLine < $row )
 				$this->newLine();
 			$this->currLine = $row;
-			if( empty($value) ) {
-				$value = '""';
-			} elseif( strpos($value, '"') !== false ) {
+
+			if(!empty($value) && !empty($this->excelSecurity) && in_array(@substr($value, 0, 1), array('=','+','-','@')))
+				$value = "'".$value;
+
+			if( strpos($value, '"') !== false) {
 				$value = '"' . str_replace('"','""',$value) . '"';
 			} elseif( $this->forceQuote || (strpos($value, $this->separator) !== false) || (strpos($value, "\n") !== false) || (trim($value) != $value) ) {
 				$value = '"' . $value . '"';
@@ -169,7 +177,11 @@ class hikashopSpreadsheetHelper {
 			if(is_array($value))
 				continue;
 
-			if( is_numeric($value) && (preg_match('[^0-9]',$value) || ltrim($value, '0') === (string)$value) || '0' === (string)$value) {
+			if(
+				!$this->forceText &&
+				is_numeric($value) &&
+				(preg_match('[^0-9]',$value) || ltrim($value, '0') === (string)$value || '0' === (string)$value || '0.00000' === (string)$value)
+			) {
 				$this->writeNumber($this->currLine, $i++, $value, $lastOne);
 			} else {
 				$this->writeText($this->currLine, $i++, $value, $lastOne);

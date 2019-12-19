@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="plugin" version="2.5" method="upgrade" group="hikashop">
 	<name>Hikashop Add to Cart notification Plugin</name>
-	<creationDate>07 novembre 2017</creationDate>
-	<version>3.2.1</version>
+	<creationDate>17 décembre 2019</creationDate>
+	<version>4.2.2</version>
 	<author>Obsidev</author>
 	<authorEmail>dev@hikashop.com</authorEmail>
 	<authorUrl>http://www.hikashop.com</authorUrl>
-	<copyright>(C) 2011-2017 OBSIDEV. All rights reserved.</copyright>
+	<copyright>(C) 2011-2019 OBSIDEV. All rights reserved.</copyright>
 	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
 	<description>This plugin display notifications when a product is added to the cart</description>
 	<files>
@@ -30,6 +30,11 @@
 			<option value="left">HIKA_CARTNOTIF_POS_LEFT</option>
 		</param>
 		<param name="delay" type="text" size="50" default="5000" label="HIKA_CARTNOTIFICATION_DELAY_LBL" description="HIKA_CARTNOTIFICATION_DELAY_DESC" />
+		<param name="auto_redirect" type="list" default="on_success" label="HIKA_CARTNOTIFICATION_REDIRECT" description="HIKA_CARTNOTIFICATION_REDIRECT_DESC">
+			<option value="on_success">HIKA_CARTNOTIFICATION_ON_SUCCESS</option>
+			<option value="no_redirect">HIKA_CARTNOTIFICATION_NO_REDIRECT</option>
+		</param>
+		<param name="auto_redirect_delay" type="text" size="50" default="5000" label="HIKA_CARTNOTIFICATION_REDIRECT_DELAY_LBL" description="HIKA_CARTNOTIFICATION_REDIRECT_DELAY_DESC" />
 	</params>
 	<config>
 		<fields name="params" addfieldpath="/components/com_hikashop/fields">
@@ -50,6 +55,11 @@
 					<option value="left">HIKA_CARTNOTIF_POS_LEFT</option>
 				</field>
 				<field name="delay" type="text" size="50" default="5000" label="HIKA_CARTNOTIFICATION_DELAY_LBL" description="HIKA_CARTNOTIFICATION_DELAY_DESC" />
+				<field name="auto_redirect" type="list" default="on_success" label="HIKA_CARTNOTIFICATION_REDIRECT" description="HIKA_CARTNOTIFICATION_REDIRECT_DESC">
+					<option value="on_success">HIKA_CARTNOTIFICATION_ON_SUCCESS</option>
+					<option value="no_redirect">HIKA_CARTNOTIFICATION_NO_REDIRECT</option>
+				</field>
+				<field name="auto_redirect_delay" type="text" size="50" default="4000" label="HIKA_CARTNOTIFICATION_REDIRECT_DELAY_LBL" description="HIKA_CARTNOTIFICATION_REDIRECT_DELAY_DESC" />
 			</fieldset>
 		</fields>
 	</config>

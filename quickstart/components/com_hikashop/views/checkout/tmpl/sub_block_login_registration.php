@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -87,7 +87,7 @@ if(!empty($this->extraFields[$type])) {
 				@$this->$type->$fieldName,
 				'data['.$type.']['.$fieldName.']',
 				false,
-				' class="hkform-control" '.$onWhat.'="hikashopToggleFields(this.value,\''.$fieldName.'\',\''.$type . '_' . $this->step . '_' . $this->module_position.'\',0,\'hikashop_\');"',
+				' class="hkform-control" '.$onWhat.'="window.hikashop.toggleField(this.value,\''.$fieldName.'\',\''.$type . '_' . $this->step . '_' . $this->module_position.'\',0,\'hikashop_\');"',
 				false,
 				$this->extraFields[$type],
 				@$this->$type,
@@ -139,6 +139,9 @@ if(!empty($this->options['address_on_registration']) && !empty($this->extraField
 		<legend><?php echo JText::_( 'ADDRESS_INFORMATION' ); ?></legend>
 	</div>
 <?php
+if(!empty($this->extraData[$this->module_position]) && !empty($this->extraData[$this->module_position]->address_top)) { echo implode("\r\n", $this->extraData[$this->module_position]->address_top); }
+?>
+<?php
 	foreach($this->extraFields[$type] as $fieldName => $oneExtraField) {
 ?>
 	<div class="hkform-group control-group hikashop_registration_<?php echo $fieldName;?>_line" id="hikashop_<?php echo $type . '_' . $this->step . '_' . $this->module_position . '_' . $oneExtraField->field_namekey; ?>">
@@ -165,6 +168,103 @@ if(!empty($this->options['address_on_registration']) && !empty($this->extraField
 	</div>
 <?php
 	}
+	if(!empty($this->extraData[$this->module_position]) && !empty($this->extraData[$this->module_position]->address_bottom)) { echo implode("\r\n", $this->extraData[$this->module_position]->address_bottom); }
+
+	if(!empty($this->options['same_address'])) {
+		$checked = '';
+		$attribute = '';
+		if(!empty($this->options['same_address_pre_checked'])) {
+			$checked = ' checked';
+			$attribute = ' style="display:none;"';
+		}
+?>
+	<div class="hkform-group control-group hikashop_registration_same_address_line" id="hikashop_address_<?php echo $this->step . '_' . $this->module_position . '_same_address'; ?>">
+		<div class="<?php echo $labelcolumnclass;?> hkcontrol-label"></div>
+		<div class="<?php echo $inputcolumnclass;?>">
+			<input class="hikashop_checkout_same_address_checkbox" id="hikashop_address_<?php echo $this->step . '_' . $this->module_position . '_same_address_input'; ?>" data-displayzone="hikashop_registration_shipping_address_<?php echo $this->step . '_' . $this->module_position; ?>" onchange="window.checkout.sameAddressToggle(this);" type="checkbox" name="data[same_address]"<?php echo $checked; ?> value="1"/>
+			<label for="hikashop_address_<?php echo $this->step . '_' . $this->module_position . '_same_address_input'; ?>"><?php echo JText::_('SAME_FOR_SHIPPING'); ?></label>
+		</div>
+	</div>
+	<div class="hikashop_registration_shipping_address_title" id="hikashop_registration_shipping_address_<?php echo $this->step . '_' . $this->module_position; ?>_title" <?php echo $attribute; ?>>
+		<legend><?php echo JText::_( 'HIKASHOP_SHIPPING_ADDRESS' ); ?></legend>
+	</div>
+	<div class="hikashop_registration_shipping_address" id="hikashop_registration_shipping_address_<?php echo $this->step . '_' . $this->module_position; ?>" <?php echo $attribute; ?>>
+<?php
+		$type = 'shipping_address';
+		if(!empty($this->extraFields[$type]) && !empty($this->extraData[$this->module_position]) && !empty($this->extraData[$this->module_position]->address_shipping_top)) { echo implode("\r\n", $this->extraData[$this->module_position]->address_shipping_top); }
+
+		foreach($this->extraFields[$type] as $fieldName => $oneExtraField) {
+?>
+		<div class="hkform-group control-group hikashop_registration_<?php echo $fieldName;?>_line" id="hikashop_address_shipping_<?php echo $this->step . '_' . $this->module_position . '_' . $oneExtraField->field_namekey; ?>">
+<?php
+		$classname = $labelcolumnclass.' hkcontrol-label';
+		echo $this->fieldsClass->getFieldName($oneExtraField, true, $classname);
+?>
+			<div class="<?php echo $inputcolumnclass;?>">
+<?php
+		$onWhat = ($oneExtraField->field_type == 'radio') ? 'onclick' : 'onchange';
+		$this->fieldsClass->prefix = 'shipping_';
+		echo $this->fieldsClass->display(
+				$oneExtraField,
+				@$this->$type->$fieldName,
+				'data['.$type.']['.$fieldName.']',
+				false,
+				'class="hkform-control" '.$onWhat.'="window.hikashop.toggleField(this.value,\''.$fieldName.'\',\'address_shipping_' . $this->step . '_' . $this->module_position.'\',0,\'hikashop_\');"',
+				false,
+				$this->extraFields[$type],
+				@$this->$type,
+				false
+		);
+?>
+			</div>
+		</div>
+<?php
+	}
+	if(!empty($this->extraFields[$type]) && !empty($this->extraData[$this->module_position]) && !empty($this->extraData[$this->module_position]->address_shipping_bottom)) { echo implode("\r\n", $this->extraData[$this->module_position]->address_shipping_bottom); }
+?>
+	</div>
+<?php
+
+	}
+}
+
+if(!empty($this->options['privacy'])) {
+?>
+<fieldset>
+	<legend>
+<?php
+	echo JText::_('PLG_SYSTEM_PRIVACYCONSENT_LABEL');
+?>
+	</legend>
+<?php
+	if(!empty($this->options['privacy_text']))
+		hikashop_display($this->options['privacy_text'], 'info');
+?>
+	<div class="hkform-group control-group hikashop_registration_privacy_line">
+		<div class="<?php echo $labelcolumnclass;?> hkcontrol-label">
+<?php
+	$text = JText::_('PLG_SYSTEM_PRIVACYCONSENT_FIELD_LABEL').'<span class="hikashop_field_required_label">*</span>';
+	if(!empty($this->options['privacy_id'])) {
+		$popupHelper = hikashop_get('helper.popup');
+		$text = $popupHelper->display(
+			$text,
+			'PLG_SYSTEM_PRIVACYCONSENT_FIELD_LABEL',
+			JRoute::_('index.php?option=com_hikashop&ctrl=checkout&task=privacyconsent&tmpl=component'),
+			'shop_privacyconsent',
+			800, 500, '', '', 'link'
+		);
+	}
+	echo $text;
+?>
+		</div>
+		<div class=" <?php echo $inputcolumnclass;?>">
+<?php
+	echo JHTML::_('hikaselect.booleanlist', "data[register][privacy]" , '', 0, JText::_('PLG_SYSTEM_PRIVACYCONSENT_OPTION_AGREE'), JText::_('JNO')	);
+?>
+		</div>
+	</div>
+</fieldset>
+<?php
 }
 
 if(!empty($this->extraData[$this->module_position]) && !empty($this->extraData[$this->module_position]->bottom)) { echo implode("\r\n", $this->extraData[$this->module_position]->bottom); }
@@ -176,6 +276,9 @@ if(!empty($this->extraData[$this->module_position]) && !empty($this->extraData[$
 	</div>
 	<input type="hidden" name="data[register][id]" value="<?php echo (int)$this->mainUser->get('id');?>" />
 	<input type="hidden" name="data[register][gid]" value="<?php echo (int)$this->mainUser->get('gid');?>" />
+<?php
+	if(!empty($this->options['show_submit'])) {
+?>
 	<div class="hkform-group control-group">
 		<div class="<?php echo $labelcolumnclass;?> hkcontrol-label"></div>
 		<div class="<?php echo $inputcolumnclass;?>">
@@ -184,6 +287,9 @@ if(!empty($this->extraData[$this->module_position]) && !empty($this->extraData[$
 			?></button>
 		</div>
 	</div>
+<?php
+	}
+?>
 </fieldset>
 <?php
 	if(!empty($this->options['js'])) {
@@ -202,4 +308,19 @@ window.hikashop.ready(function() {
 	if(container)
 		document.formvalidator.attachToForm(container);
 });
+window.checkout.sameAddressToggle = function(el) {
+	var d = document, zoneName = el.getAttribute('data-displayzone'), zone = d.getElementById(zoneName), title = d.getElementById(zoneName+'_title');
+	if(!zone)
+		return;
+	if(el.checked)
+		zone.style.display = 'none';
+	else
+		zone.style.display = '';
+	if(!title)
+		return;
+	if(el.checked)
+		title.style.display = 'none';
+	else
+		title.style.display = '';
+};
 </script>

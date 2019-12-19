@@ -37,7 +37,7 @@ class N2Color {
 
     static function colorToCss($value) {
         return array(
-            substr($value, 0, 2) == '00' ? false : substr($value, 0, 6),
+            substr($value, -2) == '00' ? false : substr($value, 0, 6),
             self::colorToRGBA($value)
         );
     }

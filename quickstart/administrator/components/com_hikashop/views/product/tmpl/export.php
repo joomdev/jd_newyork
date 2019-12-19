@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -14,17 +14,18 @@ $config =& hikashop_config();
 $format = $config->get('export_format','csv');
 $separator = $config->get('csv_separator',';');
 $force_quote = $config->get('csv_force_quote',1);
+$force_text = $config->get('csv_force_text', false);
 $decimal_separator = $config->get('csv_decimal_separator','.');
 
 $export = hikashop_get('helper.spreadsheet');
-$export->init($format, 'hikashopexport', $separator, $force_quote, $decimal_separator);
+$export->init($format, 'hikashopexport', $separator, $force_quote, $decimal_separator, $force_text);
 
 $characteristic = hikashop_get('class.characteristic');
 $classProduct = hikashop_get('class.product');
 $characteristic->loadConversionTables($this);
 
 $db = JFactory::getDBO();
-if(version_compare(JVERSION,'3.0','<')){
+if(!HIKASHOP_J30){
 	$columnsTable = $db->getTableFields(hikashop_table('product'));
 	$columnsArray = reset($columnsTable);
 } else {
@@ -97,7 +98,9 @@ if(!empty($this->products)) {
 		$data = array();
 
 		if(!empty($product->product_manufacturer_id) && !empty($this->brands[$product->product_manufacturer_id]))
-			$product->product_manufacturer_id = $this->brands[$product->product_manufacturer_id];
+			$product->product_manufacturer_id = $this->brands[$product->product_manufacturer_id]->category_name;
+		else
+			$product->product_manufacturer_id = '';
 
 		foreach($products_columns as $column) {
 			if(!empty($product->$column) && is_array($product->$column))
@@ -137,7 +140,12 @@ if(!empty($this->products)) {
 		$users = array();
 		if(!empty($product->prices)) {
 			foreach($product->prices as $price) {
-				$values[] = $price->price_value;
+				$floatValue = (float)hikashop_toFloat($price->price_value);
+				if($floatValue == (int)$floatValue)
+					$price_value = (int)$floatValue;
+				else
+					$price_value = number_format($floatValue, 5, '.', '');
+				$values[] = $price_value;
 				$codes[] = $this->currencies[$price->price_currency_id]->currency_code;
 				$qtys[] = $price->price_min_quantity;
 				$accesses[] = $price->price_access;

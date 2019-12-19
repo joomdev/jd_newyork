@@ -7,7 +7,7 @@ if(  !defined( '_JEXEC' ) ) die( 'Direct Access to '.basename(__FILE__).' is not
  * @author Max Milbers
  * @subpackage router
  * @version $Id$
- * @copyright Copyright (C) 2009 - 2016 by the VirtueMart Team and authors
+ * @copyright Copyright (C) 2009 - 2019 by the VirtueMart Team and authors
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -29,7 +29,7 @@ function virtuemartBuildRoute(&$query) {
 	if ($helper->router_disabled) {
 		foreach ($query as $key => $value){
 			if  ($key != 'option')  {
-				if ($key != 'Itemid') {
+				if ($key != 'Itemid' and $key != 'lang') {
 					$segments[]=$key.'/'.$value;
 					unset($query[$key]);
 				}
@@ -45,7 +45,6 @@ function virtuemartBuildRoute(&$query) {
 	$jmenu = $helper->menu ;
 	//vmdebug('virtuemartBuildRoute $jmenu',$helper->query,$helper->activeMenu,$helper->menuVmitems);
 	if(isset($query['langswitch'])) unset($query['langswitch']);
-
 
 	if(isset($query['view'])){
 		$view = $query['view'];
@@ -86,7 +85,7 @@ function virtuemartBuildRoute(&$query) {
 					//http://forum.virtuemart.net/index.php?topic=121642.0
 					if (!empty($categoryRoute->Itemid)) {
 						$query['Itemid'] = $categoryRoute->Itemid;
-					} else {
+					} else if (!empty($helper->Itemid)) {
 						$query['Itemid'] = $helper->Itemid;
 					}
 				}
@@ -94,7 +93,7 @@ function virtuemartBuildRoute(&$query) {
 				unset($query['virtuemart_category_id']);
 				unset($query['virtuemart_manufacturer_id']);
 			}
-			if ( isset($jmenu['category']) ) $query['Itemid'] = $jmenu['category'];
+			if ( !empty($jmenu['category']) ) $query['Itemid'] = $jmenu['category'];
 
 			/*if ( isset($query['search'])  ) {
 				$segments[] = $helper->lang('search') ;
@@ -136,6 +135,7 @@ function virtuemartBuildRoute(&$query) {
 
 			if ($start !== null &&  $limitstart!== null ) {
 				vmdebug('Pagination limits $start !== null &&  $limitstart!== null',$start,$limitstart);
+
 				//$segments[] = $helper->lang('results') .',1-'.$start ;
 			} else if ( $start>0 ) {
 				//For the urls leading to the paginated pages
@@ -145,6 +145,8 @@ function virtuemartBuildRoute(&$query) {
 			} else if ($limit !== null && $limit != vmrouterHelper::$limit ) {
 				//for the urls of the list where the user sets the pagination size/limit
 				$segments[] = $helper->lang('results') .',1-'.$limit ;
+			} else if(!empty($query['search']) or !empty($query['keyword'])){
+				$segments[] = $helper->lang('results') .',1-'.vmrouterHelper::$limit ;
 			}
 
 			break;
@@ -152,7 +154,7 @@ function virtuemartBuildRoute(&$query) {
 		case 'productdetails';
 
 			$virtuemart_product_id = false;
-			if (isset($jmenu['virtuemart_product_id']) and isset($jmenu['virtuemart_product_id'][ $query['virtuemart_product_id'] ] ) ) {
+			if (!empty($query['virtuemart_product_id']) and isset($jmenu['virtuemart_product_id']) and isset($jmenu['virtuemart_product_id'][ $query['virtuemart_product_id'] ] ) ) {
 				$query['Itemid'] = $jmenu['virtuemart_product_id'][$query['virtuemart_product_id']];
 				unset($query['virtuemart_product_id']);
 				unset($query['virtuemart_category_id']);
@@ -163,8 +165,9 @@ function virtuemartBuildRoute(&$query) {
 					$virtuemart_product_id = $query['virtuemart_product_id'];
 					unset($query['virtuemart_product_id']);
 				}
-
-				unset($query['Itemid']);
+				//vmdebug('vmRouter case \'productdetails\' Itemid',$helper->rItemid,$query['Itemid']);
+				//unset($query['Itemid']);
+				$Itemid = false;
 				if($helper->full){
 					if(empty( $query['virtuemart_category_id'])){
 						$query['virtuemart_category_id'] = $helper->getParentProductcategory($virtuemart_product_id);
@@ -174,14 +177,14 @@ function virtuemartBuildRoute(&$query) {
 					if(!empty( $catId)){
 						$categoryRoute = $helper->getCategoryRoute($catId,$manId);
 						if ($categoryRoute->route) $segments[] = $categoryRoute->route;
-						if($helper->useGivenItemid and $helper->rItemid){
-							if($helper->checkItemid()){
-								$query['Itemid'] = $helper->rItemid;
+						/*if($helper->useGivenItemid and $helper->rItemid){
+							if($helper->checkItemid($helper->rItemid)){
+								$Itemid = $helper->rItemid;
 							}
-						}
-						if(!isset($query['Itemid'])){
-							if ($categoryRoute->Itemid) $query['Itemid'] = $categoryRoute->Itemid;
-							else $query['Itemid'] = $jmenu['virtuemart'];
+						}*/
+						if(!$Itemid){
+							if ($categoryRoute->Itemid) $Itemid = $categoryRoute->Itemid;
+							else $Itemid = $jmenu['virtuemart'];
 						}
 
 					} else {
@@ -191,21 +194,30 @@ function virtuemartBuildRoute(&$query) {
 					//Itemid is needed even if seo_full = 0
 					//$query['Itemid'] = $jmenu['virtuemart']?$jmenu['virtuemart']:@$jmenu['virtuemart_category_id'][0][0];
 				}
-				if(!isset($query['Itemid'])){
 
+				if(empty($Itemid)){
+					/*vmdebug('vmRouter case \'productdetails\' Itemid not found yet. Try given and check '.$helper->rItemid,$virtuemart_product_id);
 					if($helper->useGivenItemid and $helper->rItemid){
-						if($helper->checkItemid()){
-							$query['Itemid'] = $helper->rItemid;
+						if($helper->checkItemid($helper->rItemid)){
+							$Itemid = $helper->rItemid;
 						}
-					}
-					if(!isset($query['Itemid'])){
+					}*/
+
+					if(empty($Itemid)){
+						//vmdebug('vmRouter case \'productdetails\' Itemid not found yet '.$helper->rItemid,$virtuemart_product_id);
 						//Itemid is needed even if seo_full = 0
 						if(!empty($jmenu['virtuemart'])){
-							$query['Itemid'] = $jmenu['virtuemart'];
+							$Itemid = $jmenu['virtuemart'];
 						} else if(!empty($jmenu['virtuemart_category_id'][0]) and !empty($jmenu['virtuemart_category_id'][0][0])){
-							$query['Itemid'] = $jmenu['virtuemart_category_id'][0][0];
+							$Itemid = $jmenu['virtuemart_category_id'][0][0];
 						}
 					}
+				}
+
+				if(empty($Itemid)){
+					vmdebug('vmRouter case \'productdetails\' No Itemid found, Itemid existing in $query?');
+				}  else {
+					$query['Itemid'] = $Itemid;
 				}
 
 				unset($query['limitstart']);
@@ -784,8 +796,7 @@ function virtuemartParseRoute($segments) {
 
 class vmrouterHelper {
 
-	/* language array */
-	public $lang = null ;
+	public $slang = '';
 	public $query = array();
 	/* Joomla menus ID object from com_virtuemart */
 	public $menu = null ;
@@ -816,6 +827,11 @@ class vmrouterHelper {
 
 	private function __construct($query) {
 
+		$this->template = JFactory::getApplication()->getTemplate(true);
+		if(empty($this->template) or !isset($this->template->id)){
+			$this->template->id = 0;
+		}
+
 		if (!$this->router_disabled = VmConfig::get('seo_disabled', false)) {
 
 			$this->_db = JFactory::getDbo();
@@ -824,40 +840,12 @@ class vmrouterHelper {
 			//if ( $this->seo_translate ) {
 			vmLanguage::loadJLang('com_virtuemart.sef',true);
 			/*} else {
-				$this->Jlang = JFactory::getLanguage();
+				$this->Jlang = vmLanguage::getLanguage();
 			}*/
 
 			$this->byMenu =  (int)VmConfig::get('router_by_menu', 0);
 			$this->seo_sufix = '';
 			$this->seo_sufix_size = 0;
-
-			$this->rItemid = vRequest::getInt('Itemid',false);
-			if(!empty($query['Itemid'])){
-				$this->Itemid = $query['Itemid'];
-			} else {
-				$this->Itemid = $this->rItemid;
-			}
-
-			$this->useGivenItemid = VmConfig::get('useGivenItemid',false);
-			$this->template = JFactory::getApplication()->getTemplate(true);
-			if(empty($this->template) or !isset($this->template->id)){
-				$this->template->id = 0;
-			}
-			$this->setActiveMenu();
-			if(!$this->Itemid){
-
-				$jLangTag = vmText::$language->getTag();
-				$db = JFactory::getDbo();
-				$q = 'SELECT `id` FROM `#__menu` WHERE `home`="1" and (language="*" or language = "'.$jLangTag.'" ) ORDER BY `language` DESC';
-				$db->setQuery($q);
-				$this->Itemid = $db->loadResult();
-				vmdebug('There is no requested itemid loaded home Itemid',$this->Itemid);
-			}
-			if(!$this->Itemid) {
-				vmdebug( 'There is still no itemid' );
-				$this->Itemid = '';
-			}
-			$this->setMenuItemId();
 
 			$this->use_id = VmConfig::get('seo_use_id', false);
 			$this->use_seo_suffix = VmConfig::get('use_seo_suffix', true);
@@ -866,41 +854,111 @@ class vmrouterHelper {
 
 
 			$this->full = VmConfig::get('seo_full',true);
+			$this->useGivenItemid = 0;//VmConfig::get('useGivenItemid',false);
 
 			$this->edit = ('edit' == vRequest::getCmd('task') or vRequest::getInt('manage')=='1');
-			// if language switcher we must know the $query
-			$this->query = $query;
 
-			$this->langFback = vmLanguage::getUseLangFallback();// !VmConfig::get('prodOnlyWLang',false) and VmConfig::$defaultLang!=VmConfig::$vmlang and VmConfig::$langCount>1 );
+			/*$this->langFback = vmLanguage::getUseLangFallback();
 			$this->slang = VmLanguage::$currLangTag;
+			$this->setMenuItemId();
+			vmdebug('New Router instance with language '.VmLanguage::$currLangTag);*/
+
+			$this->rItemid = vRequest::getInt('Itemid',false);
+			if(!empty($query['Itemid'])){
+				$this->Itemid = $query['Itemid'];
+			} else {
+				$this->Itemid = $this->rItemid;
+			}
+
+			$this->setRoutingQuery($query);
+		}
+	}
+
+	public function setRoutingQuery($query){
+
+		if(!empty($query['Itemid'])){
+			$this->Itemid = $query['Itemid'];
 		}
 
+		$this->setActiveMenu();
+		if(!$this->Itemid){
+
+			$jLangTag = vmText::$language->getTag();
+			$db = JFactory::getDbo();
+			$q = 'SELECT `id` FROM `#__menu` WHERE `home`="1" and (language="*" or language = "'.$jLangTag.'" ) ORDER BY `language` DESC';
+			$db->setQuery($q);
+			$this->Itemid = $db->loadResult();
+			vmdebug('There is no requested itemid loaded home Itemid',$this->Itemid);
+		}
+		if(!$this->Itemid) {
+			vmdebug( 'There is still no itemid' );
+			$this->Itemid = '';
+		}
+
+		// if language switcher we must know the $query
+		$this->query = $query;
+
+		$this->langFback = vmLanguage::getUseLangFallback();
+		$this->slang = VmLanguage::$currLangTag;
+		$this->setMenuItemId();
+		vmdebug('Router initialised with language '.$this->slang);
 	}
 
 	public static function getInstance(&$query = null) {
 
-		if (!self::$_instance){
-			if (!class_exists( 'VmConfig' )) require(JPATH_ROOT .'/administrator/components/com_virtuemart/helpers/config.php');
-			VmConfig::loadConfig(FALSE,FALSE,true,false);    // this is needed in case VmConfig was not yet loaded before
-			$lang_code = JFactory::getApplication()->input->get('language', null);  //this is set by languageFilterPlugin
-			if (!empty($lang_code) and VmConfig::$vmlangTag!=$lang_code) {  // by default it returns a full language tag such as nl-NL
-				vmLanguage::setLanguageByTag($lang_code); //this is needed if VmConfig was called in incompatible context and thus current VmConfig::$vmlang IS INCORRECT
+		static $lConf = true;
+		if($lConf){
+			if (!class_exists( 'VmConfig' ) or !class_exists('VmLanguage') or !isset(VmLanguage::$currLangTag)) {
+				if (!class_exists( 'VmConfig' )){
+					require(JPATH_ROOT .'/administrator/components/com_virtuemart/helpers/config.php');
+				}
+
+				VmConfig::loadConfig(FALSE,FALSE,true,false);    // this is needed in case VmConfig was not yet loaded before
+				vmdebug('Lädt die Config',VmLanguage::$currLangTag);
 			}
-			self::$_instance= new vmrouterHelper ($query);
+
+			$lConf = false;
+		}
+
+		/*if(isset($query['lang'])){
+			$lang_code = vmrouterHelper::getLanguageTagBySefTag($query['lang']); // by default it returns a full language tag such as nl-NL
+		} else {
+			$lang_code = JFactory::getApplication()->input->get('language', null);  //this is set by languageFilterPlugin
+		}
+		//vmdebug('called get Router instance',VmLanguage::$currLangTag,$lang_code);
+		if (!empty($lang_code) and VmLanguage::$currLangTag!=$lang_code) {
+			vmdebug('Router language switch from '.VmLanguage::$currLangTag.VmConfig::$vmlangTag.' to '.$query['lang']. ' '.$lang_code);
+			vmLanguage::setLanguageByTag($lang_code); //this is needed if VmConfig was called in incompatible context and thus current VmConfig::$vmlang IS INCORRECT
+			vmdebug('Router language switchED TO '.VmLanguage::$currLangTag.VmConfig::$vmlangTag);
+		}*/
+
+		if (!self::$_instance){
+
+			self::$_instance = new vmrouterHelper ($query);
 
 			if (self::$limit===null){
 				$app = JFactory::getApplication();
-				$view = 'virtuemart';
+				$view = 'category';
 				if(isset($query['view'])) $view = $query['view'];
 
 				//We need to set the default here.
-				self::$limit= $app->getUserStateFromRequest('com_virtuemart.'.$view.'.limit', 'limit', VmConfig::get('llimit_init_FE', 24), 'int');
+				self::$limit = $app->getUserStateFromRequest('com_virtuemart.'.$view.'.limit', 'limit', VmConfig::get('llimit_init_FE', 24), 'int');
 			}
 		}
-		self::$_instance->query = $query;
+
+		if(self::$_instance->slang != VmLanguage::$currLangTag){
+			self::$_instance->setRoutingQuery($query);
+		}
+
 
 		if((!empty($query['Itemid']) and $query['Itemid']!=self::$_instance->Itemid) or (!empty($query['lang']) and $query['lang']!=self::$_instance->slang)){
-			self::$_instance->Itemid = $query['Itemid'];
+			if(!empty($query['Itemid']) and $query['Itemid']!=self::$_instance->Itemid){
+				self::$_instance->Itemid = $query['Itemid'];
+			}
+
+			if (!empty($query['lang']) and $query['lang']!=self::$_instance->slang) {
+				self::$_instance->slang = $query['lang'];
+			}
 			self::$_instance->setMenuItemId();
 		} else {
 			//self::$_instance->Itemid = vRequest::get('Itemid',false);
@@ -909,6 +967,8 @@ class vmrouterHelper {
 
 		return self::$_instance;
 	}
+
+
 
 	public static function getLimitByCategory($catId, $view = 'category'){
 
@@ -964,6 +1024,7 @@ class vmrouterHelper {
 					$ismenu = true;
 					$category->Itemid = $this->menu['virtuemart_category_id'][$catId][$manId] ;
 				} else {
+					$catModel->categoryRecursed = 0;
 					$CatParentIds = $catModel->getCategoryRecurse($catId,0) ;
 					/* control if parent categories are joomla menu */
 					foreach ($CatParentIds as $CatParentId) {
@@ -978,10 +1039,10 @@ class vmrouterHelper {
 			}
 			if ($ismenu==false) {
 				if ( $this->use_id ) $category->route = $catId.'/';
-				if (!isset ($this->CategoryName[VmLanguage::$currLangTag][$catId])) {
-					$this->CategoryName[VmLanguage::$currLangTag][$catId] = $this->getCategoryNames($catId, $menuCatid );
+				if (!isset ($this->CategoryName[$this->slang][$catId])) {
+					$this->CategoryName[$this->slang][$catId] = $this->getCategoryNames($catId, $menuCatid );
 				}
-				$category->route .= $this->CategoryName[VmLanguage::$currLangTag][$catId] ;
+				$category->route .= $this->CategoryName[$this->slang][$catId] ;
 				if ($menuCatid == 0  && $this->menu['virtuemart']) $category->Itemid = $this->menu['virtuemart'] ;
 			}
 			self::$_catRoute[$catId . 'mf' . $manId . VmConfig::$vmlang] = $category;
@@ -999,6 +1060,7 @@ class vmrouterHelper {
 		$catModel = VmModel::getModel('category');
 
 		if($this->full) {
+			$catModel->categoryRecursed = 0;
 			if($parent_ids = $catModel->getCategoryRecurse($catId,$catMenuId)){
 
 				$parent_ids = array_reverse($parent_ids) ;
@@ -1007,22 +1069,23 @@ class vmrouterHelper {
 			$parent_ids[] = $catId;
 		}
 
-		//vmdebug('Router getCategoryNames getCategoryRecurse finished '.$catId,VmLanguage::$currLangTag,$parent_ids);
+		//vmdebug('Router getCategoryNames getCategoryRecurse finished '.$catId,$this->slang,$parent_ids);
 		foreach ($parent_ids as $id ) {
-			if(!isset($categoryNamesCache[VmLanguage::$currLangTag][$id])){
+			if(!isset($categoryNamesCache[$this->slang][$id])){
+
 				$cat = $catModel->getCategory($id,0);
 
 				if(!empty($cat->published)){
-					$categoryNamesCache[VmLanguage::$currLangTag][$id] = $cat->slug;
+					$categoryNamesCache[$this->slang][$id] = $cat->slug;
 					$strings[] = $cat->slug;
 
 				} else if(!empty($id)){
 					//vmdebug('router.php getCategoryNames set 404 for id '.$id,$cat);
-					//$categoryNamesCache[VmLanguage::$currLangTag][$id] = '404';
+					//$categoryNamesCache[$this->slang][$id] = '404';
 					//$strings[] = '404';
 				}
 			} else {
-				$strings[] = $categoryNamesCache[VmLanguage::$currLangTag][$id];
+				$strings[] = $categoryNamesCache[$this->slang][$id];
 			}
 		}
 
@@ -1047,38 +1110,62 @@ class vmrouterHelper {
 		return $catIds;
 	}
 
+	static $productNamesCache = array();
 	/* Get URL safe Product name */
 	public function getProductName($id){
 
-		static $productNamesCache = array();
+
 		static $suffix = '';
-		if(!isset($productNamesCache[VmLanguage::$currLangTag][$id])){
+		static $prTable = false;
+		if(!isset(self::$productNamesCache[$this->slang][$id])){
 			if($this->use_seo_suffix){
 				$suffix = $this->seo_sufix;
 			}
-			if(!class_exists('VirtueMartModelProduct')) VmModel::getModel('product');
-			$checkedProductKey= VirtueMartModelProduct::checkIfCached($id,true);
+			if(!$prTable){
+				$prTable = VmTable::getInstance('products');
+			}
+			$i = 0;
+			//vmSetStartTime('Routerloads');
+			if(!isset(self::$productNamesCache[$this->slang][$id])){
+				$prTable->_langTag = VmConfig::$vmlang;
+				$prTable->load($id);
+//vmdebug('getProductName '.$this->slang, $prTable->_langTag,VmConfig::$vmlang,$prTable->slug);
+				//a product cannot derive a slug from a parent product
+				//if(empty($prTable->slug) and $prTable->product_parent_id>0 ){}
+
+				if(!$prTable or empty($prTable->slug)){
+					self::$productNamesCache[$this->slang][$id] = false;
+				} else {
+					self::$productNamesCache[$this->slang][$id] = $prTable->slug.$suffix;
+				}
+			}
+
+			//*/
+
+			/*$virtuemart_shoppergroup_ids = VirtueMartModelProduct::getCurrentUserShopperGrps();
+			$checkedProductKey= VirtueMartModelProduct::checkIfCached($id,TRUE, FALSE, TRUE, 1, $virtuemart_shoppergroup_ids,0);
 			if($checkedProductKey[0]){
 				if(VirtueMartModelProduct::$_products[$checkedProductKey[1]]===false){
-					$productNamesCache[VmLanguage::$currLangTag][$id] = false;
+					self::$productNamesCache[$this->slang][$id] = false;
 				} else if(isset(VirtueMartModelProduct::$_products[$checkedProductKey[1]])){
-					$productNamesCache[VmLanguage::$currLangTag][$id] = VirtueMartModelProduct::$_products[$checkedProductKey[1]]->slug.$suffix;
+					self::$productNamesCache[$this->slang][$id] = VirtueMartModelProduct::$_products[$checkedProductKey[1]]->slug.$suffix;
 				}
 			}
 
-			if(!isset($productNamesCache[VmLanguage::$currLangTag][$id])){
+			if(!isset(self::$productNamesCache[$this->slang][$id])){
 				$pModel = VmModel::getModel('product');
 				//Adding shoppergroup could be needed
-				$pr = $pModel->getProduct($id, TRUE, FALSE, TRUE, 1, 0, 0);
+				$pr = $pModel->getProduct($id, TRUE, FALSE, TRUE, 1, $virtuemart_shoppergroup_ids,0);
 				if(!$pr or empty($pr->slug)){
-					$productNamesCache[VmLanguage::$currLangTag][$id] = false;
+					self::$productNamesCache[$this->slang][$id] = false;
 				} else {
-					$productNamesCache[VmLanguage::$currLangTag][$id] = $pr->slug.$suffix;
+					self::$productNamesCache[$this->slang][$id] = $pr->slug.$suffix;
 				}
-			}
+			}//*/
+			//vmTime('Router load  '.$id,'Routerloads');
 		}
 
-		return $productNamesCache[VmLanguage::$currLangTag][$id];
+		return self::$productNamesCache[$this->slang][$id];
 	}
 
 	var $counter = 0;
@@ -1123,7 +1210,7 @@ class vmrouterHelper {
 
 				//When the child and parent id is the same, this creates a deadlock
 				//add $counter, dont allow more then 10 levels
-				if (!$parProdCat[$id]){
+				if (!isset($parProdCat[$id]) or !$parProdCat[$id]){
 					$this->counter++;
 					if($this->counter<10){
 						$this->getParentProductcategory($parent_id) ;
@@ -1136,6 +1223,7 @@ class vmrouterHelper {
 			$this->counter = 0;
 		}
 
+		if(!isset($parProdCat[$id])) $parProdCat[$id] = 0;
 		return $parProdCat[$id] ;
 	}
 
@@ -1193,7 +1281,7 @@ class vmrouterHelper {
 
 		static $ids = array();
 		$value = trim($value);
-		$hash = substr($table,14,-1).VmLanguage::$currLangTag.$wherename.$value;
+		$hash = substr($table,14,-1).$this->slang.$wherename.$value;
 		if(isset($ids[$hash])){
 			//vmdebug('getFieldOfObjectWithLangFallBack return cached',$hash);
 			return $ids[$hash];
@@ -1218,28 +1306,35 @@ class vmrouterHelper {
 	}
 
 	/**
-	 * TODO caching
+	 * Checks Itemid if it is a vm itemid and allowed to visit
 	 * @return bool
 	 */
-	public function checkItemid(){
+	public function checkItemid($id){
 
-		$user = JFactory::getUser();
-		$auth = array_unique($user->getAuthorisedViewLevels());
-		//$auth = $user->getAuthorisedViewLevels();
-		//vmdebug('my auth',$auth);
-		$andAccess = ' AND ( access="' . implode ('" OR access="', $auth) . '" ) ';
+		static $res = array();
+		if(isset($res[$id])) {
+			return $res[$id];
+		} else {
+			$user = JFactory::getUser();
+			$auth = array_unique($user->getAuthorisedViewLevels());
+			//$auth = $user->getAuthorisedViewLevels();
+			//vmdebug('my auth',$auth);
+			$andAccess = ' AND ( access="' . implode ('" OR access="', $auth) . '" ) ';
 
-		$q = 'SELECT * FROM `#__menu` WHERE `link` like "index.php?option=com_virtuemart%" and client_id=0 and published=1 and (language="*" or language = "'.vmLanguage::$jSelLangTag.'" )'.$andAccess;
+			$q = 'SELECT * FROM `#__menu` WHERE `link` like "index.php?option=com_virtuemart%" and client_id=0 and published=1 and (language="*" or language = "'.vmLanguage::$jSelLangTag.'" )'.$andAccess;
 
-		$q .= ' and `id` = "'.$this->Itemid.'" ';
+			$q .= ' and `id` = "'.(int)$id.'" ';
 
-		$q .= ' ORDER BY `language` DESC';
+			$q .= ' ORDER BY `language` DESC';
 
-		$db			= JFactory::getDBO();
-		$db->setQuery($q);
-		$res = $db->loadResult();
+			$db			= JFactory::getDBO();
+			$db->setQuery($q);
+			$r = $db->loadResult();
+			$res[$id] = boolval($r);
+		}
+
 		//vmdebug('checkItemid $res ', $q, $res);
-		return boolval($res);
+		return $res[$id];
 	}
 
 	/* Set $this->menu with the Item ID from Joomla Menus */
@@ -1248,19 +1343,25 @@ class vmrouterHelper {
 		$home 	= false ;
 		static $mCache = array();
 
-		$jLangTag = vmLanguage::$currLangTag;
-		$h = $jLangTag;
+		$jLangTag = $this->slang;//vmText::$language->getTag();
+		//$jLangTag = $this->slang;
 
-		if(isset($mCache[$h.$this->Itemid])){
-			$this->menu = $mCache[$h.$this->Itemid];
-			//vmdebug('Found cached menu',$h.$this->Itemid);
-			return;
-		}
+
 		$user = JFactory::getUser();
 		$auth = array_unique($user->getAuthorisedViewLevels());
 		//$auth = $user->getAuthorisedViewLevels();
 		//vmdebug('my auth',$auth);
 		$andAccess = ' AND ( access="' . implode ('" OR access="', $auth) . '" ) ';
+
+		$h = $jLangTag.implode($auth).'i';
+		if(isset($mCache[$h.$this->Itemid])){
+			$this->menu = $mCache[$h.$this->Itemid];
+			//vmdebug('Found cached menu',$h.$this->Itemid);
+			return;
+		} else {
+			//vmdebug('Existing cache',$h.$this->Itemid,$mCache);
+		}
+
 
 		$db			= JFactory::getDBO();
 
@@ -1397,7 +1498,7 @@ class vmrouterHelper {
 				} else $this->menu['virtuemart'] = $homeid;
 			}
 		}
-		vmdebug('Router parse, using Itemid',$this->Itemid);
+		//vmdebug('Router parse, using Itemid',$this->Itemid);
 		$mCache[$h.$this->Itemid] = $this->menu;
 	}
 
@@ -1407,11 +1508,14 @@ class vmrouterHelper {
 
 			$app		= JFactory::getApplication();
 			$menu		= $app->getMenu('site');
+
+
 			if ($this->Itemid ) {
 				$menuItem = $menu->getItem($this->Itemid);
 			} else {
 				$menuItem = $menu->getActive();
 			}
+
 
 			$this->activeMenu = new stdClass();
 			$this->activeMenu->view			= (empty($menuItem->query['view'])) ? null : $menuItem->query['view'];
@@ -1486,6 +1590,32 @@ class vmrouterHelper {
 
 		return $key;
 	}
+
+	static public function getLanguageTagBySefTag($lTag) {
+
+		static $langs = null;
+		if($langs===null){
+			$langs = JLanguageHelper::getLanguages('sef');
+			//vmdebug('my langs in router '.$lTag,$langs);
+		}
+		static $langTags = array();
+
+		if(isset($langTags[$lTag])) {
+			return $langTags[$lTag];
+		} else {
+			foreach ($langs as $langTag => $language) {
+				if ($language->lang_code == $lTag) {
+					$langTags[$lTag] = $language->lang_code;
+					break;
+				}
+			}
+		}
+		//vmdebug('getLanguageTagBySefTag',$lTag,$langTags[$lTag]);
+		if(isset($langTags[$lTag])) {
+			return $langTags[$lTag];
+		} else return false;
+	}
+
 	/*
 	 * revert string key or use $key in route
 	 */

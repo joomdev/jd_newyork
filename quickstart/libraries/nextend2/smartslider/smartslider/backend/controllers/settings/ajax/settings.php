@@ -10,6 +10,8 @@ class N2SmartsliderBackendSettingsControllerAjax extends N2SmartSliderController
 
     public function actionSubscribed() {
         $this->validateToken();
+        $this->appType->app->storage->set('free', 'subscribeOnImport', 1);
+    
         $this->response->respond();
     }
 

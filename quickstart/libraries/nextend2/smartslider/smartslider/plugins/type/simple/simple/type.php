@@ -35,22 +35,31 @@ class N2SmartSliderTypeSimple extends N2SmartSliderType {
         $this->loadResources();
 
         $background = $params->get('background');
+        $backgroundColor = $params->get('background-color', '');
         $sliderCSS  = $params->get('slider-css');
+		$borderRadius = $params->get('border-radius', 0);
+        if (!empty($borderRadius)) {
+            $sliderCSS .= 'overflow:hidden';
+        }
         if (!empty($background)) {
             $sliderCSS .= 'background-image: URL(' . N2ImageHelper::fixed($background) . ');';
+        }
+        if (!empty($backgroundColor)) {
+            $rgba = N2Color::hex2rgba($backgroundColor);
+            if ($rgba[3] != 0) {
+                $sliderCSS .= 'background-color:RGBA(' . $rgba[0] . ',' . $rgba[1] . ',' . $rgba[2] . ',' . round($rgba[3] / 127, 2) . ');';
+            }
         }
 
         $slideCSS = $params->get('slide-css');
 
         $this->initBackgroundAnimation();
-        $this->initParticleJS();
-    
 
         echo $this->openSliderElement();
         $this->widgets->echoAbove();
         ?>
 
-        <div class="n2-ss-slider-1 n2-ss-swipe-element n2-ow" style="<?php echo $sliderCSS; ?>">
+        <div class="n2-ss-slider-1 n2-ss-swipe-element n2-ow" style="<?php echo n2_esc_attr($sliderCSS); ?>">
             <?php
             echo $this->getBackgroundVideo($params);
             ?>
@@ -73,8 +82,6 @@ class N2SmartSliderTypeSimple extends N2SmartSliderType {
                             'style' => $slide->style
                         )), $slide->background . $slide->getHTML());
                     }
-                    $this->renderShapeDividers();
-                
                     ?>
                 </div>
             </div>
@@ -96,10 +103,14 @@ class N2SmartSliderTypeSimple extends N2SmartSliderType {
         );
 
         $this->javaScriptProperties['mainanimation']['parallax'] = intval($params->get('animation-parallax-overlap'));
+        $this->javaScriptProperties['mainanimation']['shiftedBackgroundAnimation'] = 0;
+    
 
         $this->javaScriptProperties['carousel'] = intval($params->get('carousel'));
 
         $this->javaScriptProperties['dynamicHeight'] = intval($params->get('dynamic-height', '0'));
+        $this->javaScriptProperties['dynamicHeight'] = 0;
+    
 
         $this->style .= $css->getCSS();
 

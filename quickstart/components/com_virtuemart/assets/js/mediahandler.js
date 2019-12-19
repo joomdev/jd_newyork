@@ -22,6 +22,7 @@ jQuery(document).ready(function($){
 			//$(this).autocomplete( 'option' , 'source' , '". JURI::root(false) ."administrator/index.php?option=com_virtuemart&view=product&task=getData&format=json&type=relatedcategories&row='+nextCustom )
 		},
 		minLength:1,
+		delay: 400,
 		html: true
 	});
 	$('.js-pages').click(function (e) {
@@ -38,6 +39,7 @@ jQuery(document).ready(function($){
 		var rr = $(this).parent().find("[name='media[media_action]']:checked");
 		if (typeof $(rr[0]).val() != 'undefined' && $(rr[0]).val() == 0) {
 			var rs = $(this).parent().find("[id='media[media_action]upload']").attr('checked', true);
+			//var rs = $(this).parent().find("[id='media[media_action]replace']").attr('checked', true);
 		}
 	});
 	$('#ImagesContainer').sortable({

@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -31,13 +31,15 @@ class plgHikashopshippingAupost extends hikashopShippingPlugin {
 				$divide = (float)($product['x'] * $product['y'] * $product['z']);
 				if(empty($divide) || $divide > $limit_value)
 					return false;
-				return (int)floor($limit_value / $divide);
+				$current_limit_value = max(0.0, $limit_value - (float)($package['x'] * $package['y'] * $package['z']));
+				return (int)floor($current_limit_value / $divide);
 				break;
 			case 'girth':
 				$divide = (float)(($product['x'] + $product['y']) * 2);
 				if(empty($divide) || $divide > $limit_value)
 					return false;
-				return (int)floor($limit_value / $divide);
+				$current_limit_value = max(0.0, $limit_value - (float)(($package['x'] + $package['y']) * 2));
+				return (int)floor($current_limit_value / $divide);
 				break;
 		}
 		return parent::processPackageLimit($limit_key, $limit_value , $product, $qty, $package, $units);
@@ -65,11 +67,7 @@ class plgHikashopshippingAupost extends hikashopShippingPlugin {
 		$app = JFactory::getApplication();
 		$user = JFactory::getUser();
 		$iAmSuperAdmin = false;
-		if(!HIKASHOP_J16) {
-			$iAmSuperAdmin = ($user->get('gid') == 25);
-		} else {
-			$iAmSuperAdmin = $user->authorise('core.admin');
-		}
+		$iAmSuperAdmin = $user->authorise('core.admin');
 		if ($iAmSuperAdmin)
 			$app->enqueueMessage('That Australia Post shipping version is deprecated and is using the old Australia post API, Please start using the new Australia Post v2 shipping method');
 		foreach($local_usable_rates as $rate) {
@@ -114,7 +112,7 @@ class plgHikashopshippingAupost extends hikashopShippingPlugin {
 				}
 			}
 			if(empty($order->shipping_address_full)) {
-				$cart = hikashop_get('class.cart');;
+				$cart = hikashop_get('class.cart');
 				if(isset($order->shipping_address->address_id))
 					$cart->loadAddress($order->shipping_address_full, $order->shipping_address->address_id, 'object', 'shipping');
 			}
@@ -388,7 +386,7 @@ class plgHikashopshippingAupost extends hikashopShippingPlugin {
 				if($data['err_msg']=='OK'){
 					if(empty($rates[$type])){
 						$info = new stdClass();
-						$info = (!HIKASHOP_PHP5) ? $rate : clone($rate);
+						$info = clone($rate);
 						$info->shipping_name .=' '.JText::_($type);
 						if (!empty($rate->shipping_description))
 							$info->shipping_description = $rate->shipping_description . ' ';

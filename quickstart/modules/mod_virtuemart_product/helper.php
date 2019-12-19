@@ -12,13 +12,13 @@
  * @link https://virtuemart.net
  */
 
-class mod_virtuemart_product {
+/*class mod_virtuemart_product {
 
 	/*
 	 * @deprecated
-	 */
+	 *
 	static function addtocart ($product) {
 
 		echo shopFunctionsF::renderVmSubLayout('addtocart',array('product'=>$product));
 	}
-}
+}*/

@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -66,8 +66,17 @@ class hikashopConfigClass extends hikashopClass{
 		if(is_object($configObject))
 			$configObject = get_object_vars($configObject);
 
+		JPluginHelper::importPlugin('hikashop');
+		JPluginHelper::importPlugin('hikashoppayment');
+		JPluginHelper::importPlugin('hikashopshipping');
+		$app = JFactory::getApplication();
+		$do = true;
+		$app->triggerEvent('onBeforeConfigSave', array(&$config, &$do) );
+		if(!$do)
+			return false;
+
 		jimport('joomla.filter.filterinput');
-		$safeHtmlFilter =& JFilterInput::getInstance(null, null, 1, 1);
+		$safeHtmlFilter = JFilterInput::getInstance(null, null, 1, 1);
 
 		foreach($configObject as $namekey => $value){
 			if($namekey == 'configClassInit')
@@ -82,13 +91,13 @@ class hikashopConfigClass extends hikashopClass{
 				$value = base64_encode(serialize($value));
 
 			if(($namekey == 'payment_log_file' || $namekey == 'cron_savepath') && !preg_match('#^[a-z0-9/_\-]*\.log$#i', $value)) {
-				if($app->isAdmin())
+				if(hikashop_isClient('administrator'))
 					$app->enqueueMessage('The log file must only contain alphanumeric characters and end with .log', 'error');
 				continue;
 			}
 
 			if($namekey == 'mail_folder' && !empty($value) && !preg_match('#^\{root\}[a-z0-9/_\-]*$#i', $value)) {
-				if($app->isAdmin())
+				if(hikashop_isClient('administrator'))
 					$app->enqueueMessage('The email folder must be a relative path from your ROOT folder prefixed with the tag {root}', 'error');
 				continue;
 			}
@@ -114,6 +123,9 @@ class hikashopConfigClass extends hikashopClass{
 
 			$cleaned_var = $safeHtmlFilter->clean($value, 'string');
 
+			if($namekey == 'checkout_workflow')
+				$cleaned_var = json_encode(json_decode($value));
+
 			if($namekey == 'order_number_format')
 				$cleaned_var = str_replace('&quot;}"','"}', $cleaned_var);
 
@@ -125,13 +137,16 @@ class hikashopConfigClass extends hikashopClass{
 
 		$query = 'REPLACE INTO '.hikashop_table('config').' (config_namekey,config_value'.($default?',config_default':'').') VALUES ' . implode(',', $params);
 		$this->database->setQuery($query);
-		return $this->database->query();
+		$result = $this->database->execute();
+		if($result)
+			$app->triggerEvent('onAfterConfigSave', array(&$params) );
+		return $result;
 	}
 
 	function reset() {
 		$query = 'UPDATE '.hikashop_table('config').' SET config_value = config_default';
 		$this->database->setQuery($query);
-		$this->database->query();
+		$this->database->execute();
 		$this->load();
 	}
 
@@ -142,17 +157,15 @@ class hikashopConfigClass extends hikashopClass{
 
 		$query = 'UPDATE '.hikashop_table('product').' SET product_average_score = ('.(int)$new_stars.' * product_average_score) / '.(int)$previous_stars.' WHERE product_average_score != 0';
 		$this->database->setQuery($query);
-		$this->database->query();
+		$this->database->execute();
 
 		$query = 'UPDATE '.hikashop_table('vote').' SET vote_rating = ('.(int)$new_stars.' * vote_rating) / '.(int)$previous_stars.' WHERE vote_rating != 0';
 		$this->database->setQuery($query);
-		$this->database->query();
+		$this->database->execute();
 
 	}
 
 	public function getAddressFormat($originalOnly=false){
-		if(!HIKASHOP_J25)
-			return;
 		if(!$originalOnly){
 			$db = JFactory::getDBO();
 			$query = "SELECT template FROM #__template_styles WHERE client_id = 0 AND home = 1";
@@ -163,12 +176,12 @@ class hikashopConfigClass extends hikashopClass{
 			$path = HIKASHOP_ROOT . 'templates' . DS . $defaultemplate . DS . 'html' . DS . 'com_hikashop' . DS . 'address' . DS . 'address_template.php';
 			jimport('joomla.filesystem.file');
 			if(JFile::exists($path))
-				$file = JFile::read($path);
+				$file = file_get_contents($path);
 		}
 		if(empty($file)){
 			$path = HIKASHOP_FRONT . 'views' . DS . 'address' . DS . 'tmpl' . DS . 'address_template.php';
 			if(JFile::exists($path))
-				$file = JFile::read($path);
+				$file = file_get_contents($path);
 		}
 
 		if(empty($file))

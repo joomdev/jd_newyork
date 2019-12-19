@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -11,6 +11,40 @@ defined('_JEXEC') or die('Restricted access');
 include_once HIKASHOP_HELPER . 'checkout.php';
 
 class hikashopCheckoutPaymentHelper extends hikashopCheckoutHelperInterface {
+	protected $params = array(
+		'read_only' =>  array(
+			'name' => 'READ_ONLY',
+			'type' => 'boolean',
+			'default' => 0
+		),
+		'show_title' =>  array(
+			'name' => 'SHOW_TITLE',
+			'type' => 'boolean',
+			'default' => 1
+		),
+		'payment_selector' => array(
+			'name' => 'HIKASHOP_CHECKOUT_DISPLAY_SELECTOR',
+			'type' => 'radio',
+			'tooltip' => 'checkout_payment_selector',
+			'default' => 1,
+			'showon' => array(
+				'key' => 'read_only',
+				'values' => array(0)
+			)
+		),
+	);
+
+	public function getParams() {
+		$config = hikashop_config();
+		$values = array(
+			JHTML::_('select.option', 1, JText::_('HIKASHOP_CHECKOUT_ADDRESS_SELECTOR_LIST')),
+			JHTML::_('select.option', 2, JText::_('HIKASHOP_CHECKOUT_ADDRESS_SELECTOR_DROPDOWN'))
+		);
+		$this->params['payment_selector']['values'] = $values;
+
+		return parent::getParams();
+	}
+
 	public function check(&$controller, &$params) {
 		if(!empty($params['read_only']))
 			return true;
@@ -18,9 +52,9 @@ class hikashopCheckoutPaymentHelper extends hikashopCheckoutHelperInterface {
 		$checkoutHelper = hikashopCheckoutHelper::get();
 		$cart = $checkoutHelper->getCart();
 
-		if((empty($cart->full_total->prices[0]) || $cart->full_total->prices[0]->price_value_with_tax == 0.0) || !empty($cart->payment))
+		if((empty($cart->full_total->prices[0]) || $cart->full_total->prices[0]->price_value_with_tax == 0.0) || !empty($cart->payment)) {
 			return true;
-
+		}
 		$checkoutHelper->addMessage('payment.checkfailed', array(
 			JText::_('SELECT_PAYMENT'),
 			'error'
@@ -29,6 +63,9 @@ class hikashopCheckoutPaymentHelper extends hikashopCheckoutHelperInterface {
 	}
 
 	public function validate(&$controller, &$params, $data = array()) {
+		if(!empty($params['read_only']))
+			return true;
+
 		if(empty($data))
 			$data = hikaInput::get()->get('checkout', array(), 'array');
 		if(empty($data['payment']))
@@ -109,22 +146,43 @@ class hikashopCheckoutPaymentHelper extends hikashopCheckoutHelperInterface {
 			$app = JFactory::getApplication();
 			$checkout_custom = $app->getUserState(HIKASHOP_COMPONENT.'.checkout_custom', null);
 			if(is_string($checkout_custom))
-				$checkout_custom = json_decode(base64_decode($checkout_custom));
+				$checkout_custom = json_decode(base64_decode($checkout_custom), true);
 			if(empty($checkout_custom))
 				$checkout_custom = array();
 			if(!isset($checkout_custom[ $payment_id ]))
 				$checkout_custom[$payment_id] = array();
 
-			$checkout_custom[$payment_id][$field] = $data['payment']['custom'][$payment_id];
+			$plugin = hikashop_import('hikashoppayment', $cart->payment->payment_type);
+			$checkout_custom[$payment_id] = $plugin->onPaymentCustomSave($cart, $cart->payment, $data['payment']['custom'][$payment_id]);
+
 			$app->setUserState(HIKASHOP_COMPONENT.'.checkout_custom', base64_encode(json_encode($checkout_custom)));
 		}
 
 		if($ret && !empty($cart->payment->custom_html)) {
 			$plugin = hikashop_import('hikashoppayment', $cart->payment->payment_type);
+
+			$submitstep = !empty($params['src']['context']) && $params['src']['context'] == 'submitstep';
+
+			if(!$submitstep) {
+				$app = JFactory::getApplication();
+				$old_messages = $app->getMessageQueue();
+			}
+
 			$paymentData = $plugin->onPaymentSave($cart, $cart->usable_methods->payment, $cart->payment->payment_id);
 
 			if($paymentData !== false) {
 				$cartClass->updatePaymentCustom($cart->cart_id, $cart->payment->payment_id, $paymentData->custom_html);
+			} else {
+				$ret = false;
+				if(!$submitstep) {
+					$new_messages = $app->getMessageQueue();
+					if(count($old_messages) < count($new_messages)) {
+						$new_messages = array_slice($new_messages, count($old_messages));
+						foreach($new_messages as $i => $msg) {
+							$checkoutHelper->addMessage('payment.error_'.$i, array($msg['message'], $msg['type']));
+						}
+					}
+				}
 			}
 		}
 
@@ -164,6 +222,15 @@ class hikashopCheckoutPaymentHelper extends hikashopCheckoutHelperInterface {
 	}
 
 	public function display(&$view, &$params) {
+		if(!isset($params['read_only']))
+			$params['read_only'] = false;
+		if(!isset($params['show_title']))
+			$params['show_title'] = true;
+		if(!isset($params['payment_selector']))
+			$params['payment_selector'] = 0;
+		if($params['read_only'])
+			$params['payment_selector'] = 0;
+
 		$checkoutHelper = hikashopCheckoutHelper::get();
 		$cart = $checkoutHelper->getCart();
 

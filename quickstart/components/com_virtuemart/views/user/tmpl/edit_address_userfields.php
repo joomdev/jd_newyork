@@ -6,15 +6,15 @@
  *
  * @package	VirtueMart
  * @subpackage User
- * @author Oscar van Eijk, Eugen Stranz
+ * @author Oscar van Eijk, Eugen Stranz, Max Milbers
  * @link https://virtuemart.net
- * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
+ * @copyright Copyright (c) 2004 - 2019 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: edit_address_userfields.php 9625 2017-08-17 12:49:57Z Milbo $
+ * @version $Id: edit_address_userfields.php 10163 2019-10-09 07:09:10Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -26,7 +26,8 @@ $hiddenFields = '';
 
 $i=0;
 //When only one Delimiter exists, set it to begin of the array
-//not an elegant solution, but works for the moment.
+//not an elegant solution, but works.
+$tmp = false;
 foreach($this->userFields['fields'] as $k=>$field){
 	if($field['type'] == 'delimiter') {
 	    $tmp = $field;
@@ -58,17 +59,25 @@ foreach($this->userFields['fields'] as $field) {
 		<?php
 			$closeDelimiter = false;
 		} else if(!$openTable){ ?>
-            </table>
+			</table>
 			<?php
 		}
 
-        ?>
-        <fieldset>
-        <legend class="userfields_info"><?php echo $field['title'] ?></legend>
+		if($field['name']=='delimiter_userinfo'){
+			if($this->getLayout() == 'edit'){
+				echo $this->loadTemplate('vmshopper');
+			}
 
-        <?php
-        $closeDelimiter = true;
-        $openTable = true;
+		} else {
+			?>
+			<fieldset>
+			<legend class="userfields_info"><?php echo $field['title'] ?></legend>
+
+			<?php
+		}
+
+		$closeDelimiter = true;
+		$openTable = true;
 
 	} elseif ($field['hidden'] == true) {
 
@@ -107,8 +116,8 @@ foreach($this->userFields['fields'] as $field) {
 }
 
 if($closeDelimiter) { ?>
-    </table>
-    </fieldset>
+	</table>
+	</fieldset>
 	<?php
 	$closeDelimiter = false;
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<fieldset name="item_modal"  addfieldpath="/modules/mod_jdprogressbar/fields">
+		<field name="title" type="text" label="MOD_JDPROGRESSBAR_TEXT_TITLE_LABEL" description="MOD_JDPROGRESSBAR_TEXT_TITLE_DESC" default="Title" />
+
+		<field name="type" type="list" label="MOD_JDPROGRESSBAR_TYPE_LABEL" description="MOD_JDPROGRESSBAR_TYPE_DESC" default="default">
+			<option value="color1">MOD_JDPROGRESSBAR_STYLE1</option>
+			<option value="color2">MOD_JDPROGRESSBAR_STYLE2</option>
+			<option value="color3">MOD_JDPROGRESSBAR_STYLE3</option>
+			<option value="color4">MOD_JDPROGRESSBAR_STYLE4</option>
+			<option value="color5">MOD_JDPROGRESSBAR_STYLE5</option>
+			<option value="customtype">MOD_JDBA_CUSTOM_COLOR</option>
+		</field>
+		<field name="customcolor" type="color" label="MOD_JDBA_CHOOSE_COLOR" showon="type:customtype" default="#f86300"></field>
+		<field name="precentage" type="jdrange" label="MOD_JDPROGRESSBAR_PERCENTAGE_LABEL" description="MOD_JDPROGRESSBAR_PERCENTAGE_DESC" default="75" step="1" min="1" max="100" postfix="%"/>
+	</fieldset>
+</form>

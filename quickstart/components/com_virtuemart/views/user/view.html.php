@@ -15,14 +15,10 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 9663 2017-11-09 00:00:38Z Milbo $
+ * @version $Id: view.html.php 10198 2019-11-18 10:42:19Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
-
-// Load the view framework
-if (!class_exists('VmView'))
-    require(VMPATH_SITE . DS . 'helpers' . DS . 'vmview.php');
 
 // Set to '0' to use tabs i.s.o. sliders
 // Might be a config option later on, now just here for testing.
@@ -56,8 +52,8 @@ class VirtuemartViewUser extends VmView {
 
 		vmLanguage::loadJLang('com_virtuemart_shoppers',TRUE);
 
-		$mainframe = JFactory::getApplication();
-		$pathway = $mainframe->getPathway();
+		$this->app = JFactory::getApplication();
+		$pathway = $this->app->getPathway();
 		$layoutName = $this->getLayout();
 		if ($layoutName == 'login') {
 			parent::display($tpl);
@@ -100,24 +96,22 @@ class VirtuemartViewUser extends VmView {
 
 		$userFields = null;
 
-		if (!class_exists('VirtueMartCart')) require(VMPATH_SITE . DS . 'helpers' . DS . 'cart.php');
 		$this->cart = VirtueMartCart::getCart();
 		$task = vRequest::getCmd('task', '');
+		if($task=='addST'){
+			$this->address_type='ST';
+		}
 
-
-
-		if (($this->cart->_fromCart or $this->cart->getInCheckOut()) && empty($virtuemart_userinfo_id)) {
+		$this->allowRegisterVendor = false;
+		if (($this->cart->_fromCart or $this->cart->getInCheckOut()) or ($new and empty($virtuemart_userinfo_id))) {
 
 			//New Address is filled here with the data of the cart (we are in the cart)
 			$fieldtype = $this->address_type . 'address';
-
-			$this->cart->prepareAddressFieldsInCart();
-			$userFields = $this->cart->$fieldtype;
+			$this->cart->setupAddressFieldsForCart(true);
+			$userFields = $this->cart->{$fieldtype};
 
 		} else {
-			if($task=='addST'){
-				$this->address_type='ST';
-			}
+
 			if(!$new and empty($virtuemart_userinfo_id)){
 				$virtuemart_userinfo_id = $this->_model->getBTuserinfo_id();
 				vmdebug('Try to get $virtuemart_userinfo_id by type BT', $virtuemart_userinfo_id);
@@ -175,7 +169,7 @@ class VirtuemartViewUser extends VmView {
 			$this->setLayout($layoutName);
 		}
 
-		if (!$this->userDetails->JUser->get('id')) {
+		if (!$this->userDetails->virtuemart_user_id) {
 			$corefield_title = vmText::_('COM_VIRTUEMART_USER_CART_INFO_CREATE_ACCOUNT');
 		} else {
 			$corefield_title = vmText::_('COM_VIRTUEMART_YOUR_ACCOUNT_DETAILS');
@@ -186,7 +180,7 @@ class VirtuemartViewUser extends VmView {
 			//$pathway->addItem(vmText::_('COM_VIRTUEMART_YOUR_ACCOUNT_DETAILS'), JRoute::_('index.php?option=com_virtuemart&view=user&&layout=edit'));
 		}
 		$pathway_text = vmText::_('COM_VIRTUEMART_YOUR_ACCOUNT_DETAILS');
-		if (!$this->userDetails->JUser->get('id')) {
+		if (!$this->userDetails->virtuemart_user_id) {
 			if ($this->cart->_fromCart or $this->cart->getInCheckOut()) {
 				if ($this->address_type == 'BT') {
 					$vmfield_title = vmText::_('COM_VIRTUEMART_USER_FORM_EDIT_BILLTO_LBL');
@@ -259,8 +253,6 @@ class VirtuemartViewUser extends VmView {
 	    $this->_orderList = $orders->getOrdersList($this->_model->getId(), true);
 
 	    if (empty($this->currency)) {
-		if (!class_exists('CurrencyDisplay'))
-		    require(VMPATH_ADMIN . DS . 'helpers' . DS . 'currencydisplay.php');
 
 		$currency = CurrencyDisplay::getInstance();
 		$this->assignRef('currency', $currency);
@@ -275,9 +267,6 @@ class VirtuemartViewUser extends VmView {
     function shopper($userFields) {
 
 		// Shopper info
-		if (!class_exists('VirtueMartModelShopperGroup'))
-			require(VMPATH_ADMIN . DS . 'models' . DS . 'shoppergroup.php');
-
 		$_shoppergroup = VirtueMartModelShopperGroup::getShoppergroupById($this->_model->getId());
 
 		$this->_lists['shoppergroups'] = '';
@@ -286,17 +275,21 @@ class VirtuemartViewUser extends VmView {
 			foreach($_shoppergroup as $group){
 				$shoppergrps[] = $group['virtuemart_shoppergroup_id'];
 			}
-			if (!class_exists('ShopFunctions'))	require(VMPATH_ADMIN . DS . 'helpers' . DS . 'shopfunctions.php');
+
 			$this->_lists['shoppergroups'] = ShopFunctions::renderShopperGroupList($shoppergrps);
 		} else {
-			foreach($_shoppergroup as $group){
-				$this->_lists['shoppergroups'] .= vmText::_($group['shopper_group_name']).', ';
+			$this->getMenuParams();
+			$showUserShopperGrp = $this->params->get('showUserShopperGrp',1);
+			if($showUserShopperGrp){
+				foreach($_shoppergroup as $group){
+					$this->_lists['shoppergroups'] .= vmText::_($group['shopper_group_name']).', ';
+				}
+				$this->_lists['shoppergroups'] = substr($this->_lists['shoppergroups'],0,-2);
 			}
-			$this->_lists['shoppergroups'] = substr($this->_lists['shoppergroups'],0,-2);
+
 		}
 
 		if (!empty($this->userDetails->virtuemart_vendor_id)) {
-			if (!class_exists('ShopFunctions'))	require(VMPATH_ADMIN . DS . 'helpers' . DS . 'shopfunctions.php');
 			$this->_lists['vendors'] = ShopFunctions::renderVendorList($this->userDetails->virtuemart_vendor_id);
 		} else {
 			$this->_lists['vendors'] = vmText::_('COM_VIRTUEMART_USER_NOT_A_VENDOR');
@@ -360,18 +353,25 @@ class VirtuemartViewUser extends VmView {
 
 			$this->vendor = $vendorModel->getVendor();
 			$vendorModel->addImages($this->vendor);
+		} else {
+			$this->getMenuParams();
+			$this->allowRegisterVendor = $this->params->get('allowRegisterVendor',0);
 
 		}
     }
 
-
-	public function vmValidator (){
-		$prefiks = '';
-		if($this->address_type=='ST'){
-			$prefiks = 'shipto_';
-		}
-		vmJsApi::vmValidator($this->userDetails->JUser->guest,$this->userFields['fields'],$prefiks);
-	}
+    function getMenuParams(){
+    	static $m = false;
+    	if(!$m){
+			$m	= $this->app->getMenu();
+			if($m){
+				$am = $m->getActive();
+				if($am) {
+					$this->params = $am->getParams();
+				}
+			}
+    	}
+    }
 
     /**
      * renderMailLayout

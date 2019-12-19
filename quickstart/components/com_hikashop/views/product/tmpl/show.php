@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -19,12 +19,12 @@ if(!empty($this->categories)) {
 	}
 }
 ?>
-<div itemscope itemtype="http://schema.org/Product" id="hikashop_product_<?php echo preg_replace('#[^a-z0-9]#i','_',@$this->element->product_code); ?>_page" class="hikashop_product_page <?php echo implode(' ',$classes); ?>">
+<div itemscope itemtype="https://schema.org/Product" id="hikashop_product_<?php echo preg_replace('#[^a-z0-9]#i','_',@$this->element->product_code); ?>_page" class="hikashop_product_page <?php echo implode(' ',$classes); ?>">
 <?php
 $app = JFactory::getApplication();
 if(empty($this->element)) {
 	if($this->config->get('404_when_product_not_found',1)){
-		JError::raiseError(404, JText::_('PRODUCT_NOT_FOUND'));
+		throw new Exception(JText::_('PRODUCT_NOT_FOUND'), 404);
 		echo '</div>';
 		return;
 	}
@@ -140,16 +140,22 @@ $contact = $this->config->get('product_contact',0);
 if(empty($this->element->variants) || $this->params->get('characteristic_display') == 'list') {
 	if(hikashop_level(1) && !empty($this->element->options)) {
 		$priceUsed = 0;
+		$unit_price = false;
 		if(!empty($this->row->prices)) {
 			foreach($this->row->prices as $price) {
-				if(!isset($price->price_min_quantity) || !empty($this->cart_product_price) || $price->price_min_quantity > 1)
+				if(!isset($price->price_min_quantity) || !empty($this->cart_product_price) || $unit_price)
+					continue;
+				if($price->price_min_quantity <= 1)
+					$unit_price = true;
+
+				$name = 'price_value';
+				if($this->params->get('price_with_tax'))
+					$name = 'price_value_with_tax';
+
+				if(!$unit_price && $price->$name > $priceUsed)
 					continue;
 
-				if($this->params->get('price_with_tax')) {
-					$priceUsed = $price->price_value_with_tax;
-				} else {
-					$priceUsed = $price->price_value;
-				}
+				$priceUsed = $price->$name;
 			}
 		}
 ?>
@@ -237,19 +243,12 @@ if(empty($this->element->variants) || $this->params->get('characteristic_display
 	?></div>
 	<div id="hikashop_product_contact_<?php echo $variant_name; ?>" style="display:none;"><?php
 		if(hikashop_level(1) && ($contact == 2 || ($contact == 1 && !empty ($this->element->main->product_contact)))) {
-			$params = @$this->params;
-			global $Itemid;
-			$url_itemid = '';
-			if(!empty($Itemid)) {
-				$url_itemid = '&Itemid='.$Itemid;
-			}
-			echo $this->cart->displayButton(
-				JText::_('CONTACT_US_FOR_INFO'),
-				'contact_us',
-				$params,
-				''.hikashop_completeLink('product&task=contact&cid=' . $variant->product_id.$url_itemid),
-				'window.location=\'' . hikashop_completeLink('product&task=contact&cid=' . $variant->product_id.$url_itemid) . '\';return false;'
-			);
+			$css_button = $this->config->get('css_button', 'hikabtn');
+?>
+			<a href="<?php echo hikashop_completeLink('product&task=contact&cid=' . (int)$variant->product_id . $this->url_itemid); ?>" class="<?php echo $css_button; ?>"><?php
+				echo JText::_('CONTACT_US_FOR_INFO');
+			?></a>
+<?php
 		}
 	?></div>
 <?php
@@ -343,7 +342,9 @@ if(empty($this->element->variants) || $this->params->get('characteristic_display
 	</div>
 <?php
 		}
-
+?>
+	<div id="hikashop_product_files_<?php echo $variant_name; ?>" style="display:none;">
+<?php
 		if(!empty($variant->files)) {
 			$freeDownload = false;
 			foreach($variant->files as $file) {
@@ -354,9 +355,8 @@ if(empty($this->element->variants) || $this->params->get('characteristic_display
 			}
 			if($freeDownload) {
 ?>
-	<div id="hikashop_product_files_<?php echo $variant_name; ?>" style="display:none;">
 		<fieldset class="hikashop_product_files_fieldset">
-			<legend><?php JText::_('DOWNLOADS'); ?></legend>
+			<legend><?php echo JText::_('DOWNLOADS'); ?></legend>
 <?php
 				foreach($variant->files as $file) {
 					if(empty($file->file_free_download))
@@ -370,10 +370,12 @@ if(empty($this->element->variants) || $this->params->get('characteristic_display
 				}
 ?>
 		</fieldset>
-	</div>
 <?php
 			}
 		}
+?>
+	</div>
+<?php
 	}
 }
 
@@ -404,7 +406,8 @@ if($this->config->get('comments_feature') == 'jcomments') {
 			$product_id = $this->product->product_id;
 			$product_name = $this->product->product_name;
 		}
-		echo JComments::showComments($product_id, 'com_hikashop', $product_name);
+		if(class_exists('JComments'))
+			echo JComments::showComments($product_id, 'com_hikashop', $product_name);
 	}
 } elseif($this->config->get('comments_feature') == 'jomcomment') {
 	$comments = HIKASHOP_ROOT . 'plugins' . DS . 'content' . DS . 'jom_comment_bot.php';
@@ -414,13 +417,15 @@ if($this->config->get('comments_feature') == 'jcomments') {
 			$product_id = $this->product->main->product_id;
 		else
 			$product_id = $this->product->product_id;
-		echo jomcomment($product_id, 'com_hikashop');
+		if(function_exists('jomcomment'))
+			echo jomcomment($product_id, 'com_hikashop');
 	}
 } elseif($this->config->get('comments_feature') == 'komento') {
 	$comments = HIKASHOP_ROOT . 'components' . DS . 'com_komento' . DS . 'bootstrap.php';
 	if(file_exists($comments)) {
 		require_once ($comments);
-		echo KT::commentify('com_hikashop', $this->product, array('params' => ''));
+		if(class_exists('KT'))
+			echo KT::commentify('com_hikashop', $this->product, array('params' => ''));
 	}
 }
 ?>

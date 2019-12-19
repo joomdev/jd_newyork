@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -37,19 +37,9 @@ class hikashopUpdateHelper{
 		if($install != true)
 			$dirs = JFolder::folders($path);
 
-		if(version_compare(JVERSION,'1.6.0') < '') {
-			$query = "SELECT CONCAT(`folder`,`element`) FROM #__plugins WHERE `folder` IN ('hikashop','hikashoppayment','hikashopshipping') OR `element` LIKE '%hikashop%' OR (`folder`='system' AND `element` IN ('vm_redirect','reds_redirect','mijo_redirect','custom_price','custom_quantity_tax','nossloutsidecheckout'))";
-			$query .= " UNION SELECT `module` FROM #__modules WHERE `module` LIKE '%hikashop%'";
-			$this->db->setQuery($query);
-			$existingExtensions = $this->db->loadResultArray();
-		} else {
-			$this->db->setQuery("SELECT CONCAT(`folder`,`element`) FROM #__extensions WHERE `folder` IN ('hikashop','hikashoppayment','hikashopshipping') OR `element` LIKE '%hikashop%' OR (`folder`='system' AND `element` IN ('vm_redirect','reds_redirect','mijo_redirect','custom_price','custom_quantity_tax','nossloutsidecheckout'))");
-			if(!HIKASHOP_J25) {
-				$existingExtensions = $this->db->loadResultArray();
-			} else {
-				$existingExtensions = $this->db->loadColumn();
-			}
-		}
+		$this->db->setQuery("SELECT CONCAT(`folder`,`element`) FROM #__extensions WHERE `folder` IN ('hikashop','hikashoppayment','hikashopshipping') OR `element` LIKE '%hikashop%' OR (`folder`='system' AND `element` IN ('vm_redirect','reds_redirect','mijo_redirect','custom_price','custom_quantity_tax','nossloutsidecheckout'))");
+		$existingExtensions = $this->db->loadColumn();
+
 		if(empty($existingExtensions))
 			$existingExtensions = array();
 
@@ -66,10 +56,12 @@ class hikashopUpdateHelper{
 			,'plg_acymailing_hikashop' => array('AcyMailing : HikaShop integration',0,1,1)
 			,'plg_authentication_opencart' => array('Hikashop OpenCart authentication Plugin',0,0)
 			,'plg_editors-xtd_hikashopproduct' => array('Hikashop product tag insertion plugin',0,1)
+			,'plg_finder_hikashop' => array('Smart Search - HikaShop Products',0,1)
 			,'plg_hikashop_acymailing' => array('HikaShop trigger for AcyMailing filters',0,1)
 			,'plg_hikashop_cartnotify' => array('HikaShop Cart notification Plugin',0,1)
+			,'plg_hikashop_content_markdown' => array('HikaShop Content Markdown Plugin',0,1)
 			,'plg_hikashop_datafeed' => array('Hikashop Products Cron Update Plugin',0,0)
-			,'plg_hikashop_datepickerfield' => array('Hikashop Date Picker Plugin',0,0)
+			,'plg_hikashop_datepickerfield' => array('Hikashop Date Picker Plugin',0,1)
 			,'plg_hikashop_email_history' => array('Hikashop Email History Plugin',0,1)
 			,'plg_hikashop_google_products' => array('Hikashop Google Products Plugin',0,1)
 			,'plg_hikashop_group' => array('HikaShop group plugin',0,1)
@@ -107,7 +99,7 @@ class hikashopUpdateHelper{
 			,'plg_hikashoppayment_borgun' => array('HikaShop Borgun payment plugin',0,0)
 			,'plg_hikashoppayment_cardsave' => array('HikaShop CardSave payment plugin',0,0)
 			,'plg_hikashoppayment_check' => array('HikaShop check payment plugin',0,0)
-			,'plg_hikashoppayment_cmcic' => array('HikaShop CM-CIC payment plugin',0,0)
+			,'plg_hikashoppayment_cmcic' => array('HikaShop Monetico payment plugin',0,0)
 			,'plg_hikashoppayment_collectondelivery' => array('HikaShop collect on delivery payment plugin',0,0)
 			,'plg_hikashoppayment_common' => array('HikaShop common payment API plugin',0,1)
 			,'plg_hikashoppayment_creditcard' => array('HikaShop credit card payment plugin',0,0)
@@ -122,6 +114,7 @@ class hikashopUpdateHelper{
 			,'plg_hikashoppayment_ipaydna' => array('HikaShop iPayDNA payment plugin',0,0)
 			,'plg_hikashoppayment_iveri' => array('HikaShop iVeri payment plugin',0,0)
 			,'plg_hikashoppayment_migsvpc' => array('HikaShop MIGS VPC payment plugin',0,0)
+			,'plg_hikashoppayment_monetico' => array('HikaShop Monetico payment plugin',0,0)
 			,'plg_hikashoppayment_moneybookers' => array('HikaShop Moneybookers payment plugin',0,0)
 			,'plg_hikashoppayment_nets' => array('HikaShop NETS payment plugin',0,0)
 			,'plg_hikashoppayment_ogone' => array('HikaShop Ogone payment plugin',0,0)
@@ -129,17 +122,18 @@ class hikashopUpdateHelper{
 			,'plg_hikashoppayment_payfast' => array('HikaShop PayFast payment plugin',0,0)
 			,'plg_hikashoppayment_paygate' => array('HikaShop PayGate payment plugin',0,0)
 			,'plg_hikashoppayment_payjunction' => array('HikaShop PayJunction payment plugin',0,0)
-			,'plg_hikashoppayment_paymentexpress' => array('HikaShop Payment Express payment plugin',0,0)
+			,'plg_hikashoppayment_paymentexpress' => array('HikaShop Payment Express PxPost payment plugin',0,0)
 			,'plg_hikashoppayment_paypal' => array('HikaShop Paypal payment plugin',0,0)
 			,'plg_hikashoppayment_paypaladvanced' => array('HikaShop Paypal Advanced payment plugin',0,0)
 			,'plg_hikashoppayment_paypalexpress' => array('HikaShop Paypal Express Checkout payment plugin',0,0)
 			,'plg_hikashoppayment_paypalintegralevolution' => array('Hikashop Paypal Website Payments Pro Hosted Payment plugin',0,0)
 			,'plg_hikashoppayment_paypalpro' => array('HikaShop PayPal Pro payment plugin',0,0)
 			,'plg_hikashoppayment_payplug' => array('HikaShop PayPlug payment plugin',0,0)
+			,'plg_hikashoppayment_payplug2' => array('HikaShop PayPlug v2 payment plugin',0,0)
 			,'plg_hikashoppayment_payuindia' => array('HikaShop PayU India payment plugin',0,0)
 			,'plg_hikashoppayment_postfinance' => array('HikaShop Post Finance payment plugin',0,0)
 			,'plg_hikashoppayment_purchaseorder' => array('HikaShop Purchase Order payment plugin',0,0)
-			,'plg_hikashoppayment_pxpay' => array('HikaShop PxPay payment plugin',0,0)
+			,'plg_hikashoppayment_pxpay' => array('HikaShop Payment Express PxPay payment plugin',0,0)
 			,'plg_hikashoppayment_servired' => array('HikaShop Servired payment plugin',0,0)
 			,'plg_hikashoppayment_userpoints' => array('HikaShop User Points payment plugin',0,0)
 			,'plg_hikashoppayment_virtualmerchant' => array('HikaShop VirtualMerchant payment plugin',0,0)
@@ -158,7 +152,6 @@ class hikashopUpdateHelper{
 			,'plg_search_hikashop_categories' => array('HikaShop categories search plugin',0,1)
 			,'plg_search_hikashop_products' => array('HikaShop products search plugin',0,1)
 			,'plg_system_custom_price' => array('HikaShop Donation plugin',0,0)
-			,'plg_system_custom_quantity_tax' => array('HikaShop tax calculations override plugin',0,0)
 			,'plg_system_hikashopaffiliate' => array('HikaShop affiliate plugin',0,1)
 			,'plg_system_hikashopanalytics' => array('HikaShop Google Analytics plugin',0,0)
 			,'plg_system_hikashopgeolocation' => array('HikaShop geolocation plugin',0,1)
@@ -192,21 +185,12 @@ class hikashopUpdateHelper{
 			JFolder::delete($oneFolder);
 			if(substr($name, 0, 4) != 'plg_')
 				continue;
-			if(version_compare(JVERSION,'1.6.0','<')) {
-				$destinationFolder = HIKASHOP_ROOT.'plugins'.DS.$struct[0].DS;
-				if(JFile::exists($destinationFolder.$struct[1].'.xml'))
-					JFile::delete($destinationFolder.$struct[1].'.xml');
-				if(JFile::exists($destinationFolder.$struct[1].'.php'))
-					JFile::delete($destinationFolder.$struct[1].'.php');
-				$query = 'DELETE FROM `#__plugins` WHERE element = '.$this->db->Quote($struct[1]).' AND folder = '.$this->db->Quote($struct[0]);
-			} else {
-				$destinationFolder = HIKASHOP_ROOT.'plugins'.DS.$struct[0].DS.$struct[1];
-				if(JFolder::exists($destinationFolder))
-					JFolder::delete($destinationFolder);
-				$query = 'DELETE FROM `#__extensions` WHERE type = \'plugin\' AND element = '.$this->db->Quote($struct[1]).' AND folder = '.$this->db->Quote($struct[0]);
-			}
+			$destinationFolder = HIKASHOP_ROOT.'plugins'.DS.$struct[0].DS.$struct[1];
+			if(JFolder::exists($destinationFolder))
+				JFolder::delete($destinationFolder);
+			$query = 'DELETE FROM `#__extensions` WHERE type = \'plugin\' AND element = '.$this->db->Quote($struct[1]).' AND folder = '.$this->db->Quote($struct[0]);
 			$this->db->setQuery($query);
-			$this->db->query();
+			$this->db->execute();
 
 			if(empty($struct[2]))
 				hikashop_display('The plugin &quot;'.$struct[1].'&quot; has been removed', 'error');
@@ -214,26 +198,31 @@ class hikashopUpdateHelper{
 				hikashop_display($struct[2], 'error');
 		}
 
-		if(version_compare(JVERSION,'1.6.0','<')) {
-			$extensions = $plugins;
-		} else {
-			$extensions = array_merge($plugins,$modules);
-		}
+		$extensions = array_merge($plugins,$modules);
 
 		$success = array();
-		if(!empty($extensions)){
-			if(version_compare(JVERSION,'1.6.0','<')){
-				$queryExtensions = 'INSERT INTO `#__plugins` (`name`,`element`,`folder`,`published`,`ordering`) VALUES ';
-			}else{
-				$queryExtensions = 'INSERT INTO `#__extensions` (`name`,`element`,`folder`,`enabled`,`ordering`,`type`,`access`,`client_id`) VALUES ';
-			}
+		if(!empty($extensions)) {
+			$ext_fields = array('`name`','`element`','`folder`','`enabled`','`ordering`','`type`','`access`','`client_id`');
+			if(HIKASHOP_J40)
+				$ext_fields = array_merge($ext_fields, array('`manifest_cache`','`params`'));
+
+			$queryExtensions = 'INSERT INTO `#__extensions` ('.implode(',', $ext_fields).') VALUES ';
 
 			foreach($extensions as $oneExt) {
-				$queryExtensions .= '('.$this->db->Quote($oneExt->name).','.$this->db->Quote($oneExt->element).','.$this->db->Quote($oneExt->folder).','.$oneExt->enabled.','.$oneExt->ordering;
-				if(version_compare(JVERSION,'1.6.0','>=')) {
-					$queryExtensions .= ','.$this->db->Quote($oneExt->type).',1,'.(int)@$oneExt->client_id;
-				}
-				$queryExtensions .= '),';
+				$data = array(
+					$this->db->Quote($oneExt->name),
+					$this->db->Quote($oneExt->element),
+					$this->db->Quote($oneExt->folder),
+					$oneExt->enabled,
+					$oneExt->ordering,
+					$this->db->Quote($oneExt->type),
+					1,
+					(int)@$oneExt->client_id,
+				);
+				if(HIKASHOP_J40)
+					$data = array_merge($data, array("''", "''"));
+
+				$queryExtensions .= '('. implode(',', $data) . '),';
 				if($oneExt->type != 'module') {
 					$success[] = JText::sprintf('PLUG_INSTALLED', $oneExt->name);
 				}
@@ -241,26 +230,36 @@ class hikashopUpdateHelper{
 			$queryExtensions = trim($queryExtensions,',');
 
 			$this->db->setQuery($queryExtensions);
-			$this->db->query();
+			$this->db->execute();
 		}
 
 		if(!empty($modules)) {
 			foreach($modules as $oneModule) {
-				if(version_compare(JVERSION,'1.6.0','<')) {
-					$position = empty($oneModule->client_id) ? 'left' : 'cpanel';
-					$queryModule = 'INSERT INTO `#__modules` (`title`,`position`,`published`,`module`,`client_id`) VALUES ';
-					$queryModule .= '('.$this->db->Quote($oneModule->name).",'".$position."',0,".$this->db->Quote($oneModule->element).",".(int)@$oneModule->client_id.")";
-				} else {
-					$position = empty($oneModule->client_id) ? 'position-7' : 'cpanel';
-					$queryModule = 'INSERT INTO `#__modules` (`title`,`position`,`published`,`module`,`access`,`language`,`client_id`) VALUES ';
-					$queryModule .= '('.$this->db->Quote($oneModule->name).",'".$position."',0,".$this->db->Quote($oneModule->element).",1,'*',".(int)@$oneModule->client_id.")";
-				}
+				$position = empty($oneModule->client_id) ? 'position-7' : 'cpanel';
+				$ext_fields = array('`title`','`position`','`published`','`module`','`access`','`language`','`client_id`');
+				if(HIKASHOP_J40)
+					$ext_fields = array_merge($ext_fields, array('`params`'));
+
+				$queryModule = 'INSERT INTO `#__modules` ('.implode(',', $ext_fields).') VALUES ';
+				$data = array(
+					$this->db->Quote($oneModule->name),
+					$this->db->Quote($position),
+					0,
+					$this->db->Quote($oneModule->element),
+					1,
+					$this->db->Quote('*'),
+					(int)@$oneModule->client_id
+				);
+				if(HIKASHOP_J40)
+					$data = array_merge($data, array("''"));
+				$queryModule .= '('. implode(',', $data) . ')';
+
 				$this->db->setQuery($queryModule);
-				$this->db->query();
+				$this->db->execute();
 				$moduleId = $this->db->insertid();
 
 				$this->db->setQuery('INSERT IGNORE INTO `#__modules_menu` (`moduleid`,`menuid`) VALUES ('.$moduleId.',0)');
-				$this->db->query();
+				$this->db->execute();
 
 				$success[] = JText::sprintf('MODULE_INSTALLED',$oneModule->name);
 			}
@@ -373,13 +372,9 @@ class hikashopUpdateHelper{
 				if(!hikashop_createDir(HIKASHOP_ROOT.'plugins'.DS.$newPlugin->folder, $report))
 					continue;
 
-				if(version_compare(JVERSION,'1.6.0','<')) {
-					$destinationFolder = HIKASHOP_ROOT.'plugins'.DS.$newPlugin->folder;
-				} else {
-					$destinationFolder = HIKASHOP_ROOT.'plugins'.DS.$newPlugin->folder.DS.$newPlugin->element;
-					if(!hikashop_createDir($destinationFolder))
-						continue;
-				}
+				$destinationFolder = HIKASHOP_ROOT.'plugins'.DS.$newPlugin->folder.DS.$newPlugin->element;
+				if(!hikashop_createDir($destinationFolder))
+					continue;
 
 				if(!$this->copyFolder($path.DS.$oneDir, $destinationFolder))
 					continue;
@@ -417,7 +412,7 @@ class hikashopUpdateHelper{
 					$this->db->setQuery('SELECT id FROM '.hikashop_table('menu',false).' WHERE alias=\'hikashop-menu-for-products-listing\'');
 					$menu_id = $this->db->loadResult();
 					if($menu_id) {
-						$fileContent = JFile::read($destinationFolder.DS.'mod_hikashop_filter.xml');
+						$fileContent = file_get_contents($destinationFolder.DS.'mod_hikashop_filter.xml');
 						if(!empty($fileContent)) {
 							$fileContent = str_replace('name="itemid" type="text" default=""', 'name="itemid" type="text" default="'.$menu_id.'"', $fileContent);
 							JFile::write($destinationFolder.DS.'mod_hikashop_filter.xml', $fileContent);
@@ -449,14 +444,6 @@ class hikashopUpdateHelper{
 				$this->errors[] = 'Could not copy the file from '.$from.DS.$oneFile.' to '.$to.DS.$oneFile;
 				$return = false;
 			}
-
-			if(version_compare(JVERSION,'1.6.0','<') && substr($oneFile,-4) == '.xml') {
-				$data = file_get_contents($to.DS.$oneFile);
-				if(strpos($data, '<extension ') !== false) {
-					$data = str_replace(array('<extension ','</extension>','version="2.5"'), array('<install ','</install>','version="1.5"'), $data);
-					JFile::write($to.DS.$oneFile, $data);
-				}
-			}
 		}
 
 		$allFolders = JFolder::folders($from);
@@ -481,7 +468,7 @@ class hikashopUpdateHelper{
 			$lang = JFactory::getLanguage();
 			$code = $lang->getTag();
 		}
-		$path = JLanguage::getLanguagePath(JPATH_ROOT).DS.$code.DS.$code.'.com_hikashop.ini';
+		$path = hikashop_getLanguagePath(JPATH_ROOT).DS.$code.DS.$code.'.com_hikashop.ini';
 		if(!file_exists($path)) return;
 		$content = file_get_contents($path);
 		if(empty($content)) return;
@@ -491,11 +478,7 @@ class hikashopUpdateHelper{
 		foreach($menuStrings as $oneString){
 			preg_match('#(\n|\r)(HIKA_)?'.$oneString.'="(.*)"#i',$content,$matches);
 			if(empty($matches[3])) continue;
-			if(version_compare(JVERSION,'1.6.0','<')){
-				$menuFileContent .= 'COM_HIKASHOP.'.$oneString.'="'.$matches[3].'"'."\r\n";
-			}else{
-				$menuFileContent .= $oneString.'="'.$matches[3].'"'."\r\n";
-			}
+			$menuFileContent .= $oneString.'="'.$matches[3].'"'."\r\n";
 		}
 
 		preg_match_all('#(\n|\r)(COM_HIKASHOP_.*)="(.*)"#iU',$content,$matches);
@@ -506,15 +489,7 @@ class hikashopUpdateHelper{
 		$menuFileContent.="\r\n".'COM_HIKASHOP_CONFIGURATION="HikaShop"';
 
 
-		if(version_compare(JVERSION,'1.6.0','<')){
-			$menuPath = HIKASHOP_ROOT.'administrator'.DS.'language'.DS.$code.DS.$code.'.com_hikashop.menu.ini';
-			if(!JFile::write($menuPath, $menuFileContent)){
-				hikashop_display(JText::sprintf('FAIL_SAVE',$menuPath),'error');
-			}
-			$menuPath = HIKASHOP_ROOT.'administrator'.DS.'language'.DS.$code.DS.$code.'.com_hikashop.ini';
-		}else{
-			$menuPath = HIKASHOP_ROOT.'administrator'.DS.'language'.DS.$code.DS.$code.'.com_hikashop.sys.ini';
-		}
+		$menuPath = HIKASHOP_ROOT.'administrator'.DS.'language'.DS.$code.DS.$code.'.com_hikashop.sys.ini';
 		if(!JFile::write($menuPath, $menuFileContent)){
 			hikashop_display(JText::sprintf('FAIL_SAVE',$menuPath),'error');
 		}
@@ -645,7 +620,7 @@ class hikashopUpdateHelper{
 				$unpublish[$k] = $db->Quote($v);
 			}
 			$db->setQuery('UPDATE #__'.$type.'_content SET published=0 WHERE reference_field IN ('.implode(',',$unpublish).') AND reference_table='.$db->Quote('hikashop_'.$types[$file]['type']));
-			$db->query();
+			$db->execute();
 		}
 
 		if(!empty($publish) && !empty($type)){
@@ -654,14 +629,13 @@ class hikashopUpdateHelper{
 				$publish[$k] = $db->Quote($v);
 			}
 			$db->setQuery('UPDATE #__'.$type.'_content SET published=1 WHERE reference_field IN ('.implode(',',$publish).') AND reference_table='.$db->Quote('hikashop_'.$types[$file]['type']));
-			$db->query();
+			$db->execute();
 		}
 
 		$xml->asXML($destination);
 	}
 
-	function addUpdateSite(){
-		if(version_compare(JVERSION,'1.6.0','<')) return false;
+	public function addUpdateSite() {
 		$config = hikashop_config();
 		$newconfig = new stdClass();
 		$newconfig->website = HIKASHOP_LIVE;
@@ -690,99 +664,65 @@ class hikashopUpdateHelper{
 		if(empty($update_site_id) OR empty($extension_id))  return false;
 		$query='INSERT IGNORE INTO #__update_sites_extensions (update_site_id, extension_id) values ('.$update_site_id.','.$extension_id.')';
 		$this->db->setQuery($query);
-		$this->db->query();
+		$this->db->execute();
 		return true;
 	}
 
 	function addDefaultData(){
-		if(version_compare(JVERSION,'1.6','<')){
-			$query = 'DELETE FROM `#__components` WHERE `admin_menu_link` LIKE \'%option=com\_hikashop%\' AND `parent`!=0';
+		$query = 'SELECT * FROM `#__menu` WHERE `title` IN (\'com_hikashop\',\'hikashop\',\'HikaShop\') AND `client_id`=1 AND `parent_id`=1 AND menutype IN (\'main\',\'mainmenu\',\'menu\')';
+		$this->db->setQuery($query);
+		$parentData = $this->db->loadObject();
+
+		if(!empty($parentData)) {
+			$parent = $parentData->id;
+			$query = 'SELECT id FROM `#__menu` WHERE `parent_id`='.(int)$parent;
 			$this->db->setQuery($query);
-			$this->db->query();
+			$submenu = $this->db->loadColumn();
+			$old = count($submenu);
 
-			$query = 'SELECT id FROM `#__components` WHERE `option`=\'com_hikashop\' AND `parent`=0';
+			$query = 'DELETE FROM `#__menu` WHERE `parent_id` = '.(int)$parent;
 			$this->db->setQuery($query);
-			$parent = (int)$this->db->loadResult();
+			$this->db->execute();
 
-			$query  = "INSERT IGNORE INTO `#__components` (`admin_menu_link`,`admin_menu_img`,`admin_menu_alt`,`name`,`ordering`,`parent`) VALUES
-			('option=com_hikashop&amp;ctrl=product','../includes/js/ThemeOffice/document.png','Products','Products',1,".$parent."),
-			('option=com_hikashop&amp;ctrl=category&amp;filter_id=product','../includes/js/ThemeOffice/sections.png','Categories','Categories',2,".$parent."),
-			('option=com_hikashop&amp;ctrl=user&amp;filter_partner=0','../includes/js/ThemeOffice/user.png','Users','Users',3,".$parent."),
-			('option=com_hikashop&amp;ctrl=order&amp;order_type=sale&amp;filter_partner=0','../includes/js/ThemeOffice/content.png','Orders','Orders',4,".$parent."),
-			('option=com_hikashop&amp;ctrl=config','../includes/js/ThemeOffice/config.png','Configuration','Configuration',5,".$parent."),
-			('option=com_hikashop&amp;ctrl=discount','../includes/js/ThemeOffice/credits.png','Discounts','Discounts',6,".$parent."),
-			('option=com_hikashop&amp;ctrl=documentation','../includes/js/ThemeOffice/help.png','Help','Help',7,".$parent."),
-			('option=com_hikashop&amp;ctrl=update','../includes/js/ThemeOffice/install.png','Update / About','Update / About',8,".$parent.");";
+			$query = 'UPDATE `#__menu` SET `rgt`=`rgt`-'.($old*2).' WHERE `rgt` >= '.(int)$parentData->rgt;
 			$this->db->setQuery($query);
-			$this->db->query();
+			$this->db->execute();
 
-			$query="SELECT a.id FROM ".hikashop_table('components',false).' AS a WHERE a.option=\''.HIKASHOP_COMPONENT.'\'';
+			$query = 'UPDATE `#__menu` SET `rgt`=`rgt`+16 WHERE `rgt` >= '.(int)$parentData->rgt;
 			$this->db->setQuery($query);
-			$componentid = $this->db->loadResult();
+			$this->db->execute();
 
-			$query = 'UPDATE '.hikashop_table('menu',false).' SET componentid = '.$componentid.' WHERE menutype = '.$this->db->quote('hikashop_default');
+			$query = 'UPDATE `#__menu` SET `lft`=`lft`+16 WHERE `lft` > '.(int)$parentData->lft;
 			$this->db->setQuery($query);
-			$this->db->query();
-		} else {
-			$query = 'SELECT * FROM `#__menu` WHERE `title` IN (\'com_hikashop\',\'hikashop\',\'HikaShop\') AND `client_id`=1 AND `parent_id`=1 AND menutype IN (\'main\',\'mainmenu\',\'menu\')';
+			$this->db->execute();
+
+			$left = $parentData->lft;
+			$cid = $parentData->component_id;
+			$query  = "INSERT IGNORE INTO `#__menu` (`published`,`type`,`link`,`menutype`,`img`,`alias`,`title`,`client_id`,`parent_id`,`level`,`language`,`lft`,`rgt`,`component_id`) VALUES
+			('1','component','index.php?option=com_hikashop&ctrl=product','".$parentData->menutype."','./templates/bluestork/images/menu/icon-16-article.png','Products','Products',1,".(int)$parent.",2,'*',".($left+1).",".($left+2).",".$cid."),
+			('1','component','index.php?option=com_hikashop&ctrl=category&filter_id=product','".$parentData->menutype."','./templates/bluestork/images/menu/icon-16-category.png','Categories','Categories',1,".(int)$parent.",2,'*',".($left+3).",".($left+4).",".$cid."),
+			('1','component','index.php?option=com_hikashop&ctrl=user&filter_partner=0','".$parentData->menutype."','./templates/bluestork/images/menu/icon-16-user.png','Users','Users',1,".(int)$parent.",2,'*',".($left+5).",".($left+6).",".$cid."),
+			('1','component','index.php?option=com_hikashop&ctrl=order&order_type=sale&filter_partner=0','".$parentData->menutype."','./templates/bluestork/images/menu/icon-16-content.png','Orders','Orders',1,".(int)$parent.",2,'*',".($left+7).",".($left+8).",".$cid."),
+			('1','component','index.php?option=com_hikashop&ctrl=config','".$parentData->menutype."','./templates/bluestork/images/menu/icon-16-config.png','Configuration','Configuration',1,".(int)$parent.",2,'*',".($left+9).",".($left+10).",".$cid."),
+			('1','component','index.php?option=com_hikashop&ctrl=discount','".$parentData->menutype."','./templates/bluestork/images/menu/icon-16-default.png','Discounts','Discounts',1,".(int)$parent.",2,'*',".($left+11).",".($left+12).",".$cid."),
+			('1','component','index.php?option=com_hikashop&ctrl=documentation','".$parentData->menutype."','./templates/bluestork/images/menu/icon-16-help.png','Help','Help',1,".(int)$parent.",2,'*',".($left+13).",".($left+14).",".$cid."),
+			('1','component','index.php?option=com_hikashop&ctrl=update','".$parentData->menutype."','./templates/bluestork/images/menu/icon-16-help-jrd.png','Update / About','Update_About',1,".(int)$parent.",2,'*',".($left+15).",".($left+16).",".$cid.");
+			";
 			$this->db->setQuery($query);
-			$parentData = $this->db->loadObject();
+			$this->db->execute();
 
-			if(!empty($parentData)) {
-				$parent = $parentData->id;
-				$query = 'SELECT id FROM `#__menu` WHERE `parent_id`='.(int)$parent;
-				$this->db->setQuery($query);
-				if(!HIKASHOP_J25){
-					$submenu = $this->db->loadResultArray();
-				} else {
-					$submenu = $this->db->loadColumn();
-				}
-				$old = count($submenu);
-
-				$query = 'DELETE FROM `#__menu` WHERE `parent_id` = '.(int)$parent;
-				$this->db->setQuery($query);
-				$this->db->query();
-
-				$query = 'UPDATE `#__menu` SET `rgt`=`rgt`-'.($old*2).' WHERE `rgt` >= '.(int)$parentData->rgt;
-				$this->db->setQuery($query);
-				$this->db->query();
-
-				$query = 'UPDATE `#__menu` SET `rgt`=`rgt`+16 WHERE `rgt` >= '.(int)$parentData->rgt;
-				$this->db->setQuery($query);
-				$this->db->query();
-
-				$query = 'UPDATE `#__menu` SET `lft`=`lft`+16 WHERE `lft` > '.(int)$parentData->lft;
-				$this->db->setQuery($query);
-				$this->db->query();
-
-				$left = $parentData->lft;
-				$cid = $parentData->component_id;
-				$query  = "INSERT IGNORE INTO `#__menu` (`published`,`type`,`link`,`menutype`,`img`,`alias`,`title`,`client_id`,`parent_id`,`level`,`language`,`lft`,`rgt`,`component_id`) VALUES
-				('1','component','index.php?option=com_hikashop&ctrl=product','".$parentData->menutype."','./templates/bluestork/images/menu/icon-16-article.png','Products','Products',1,".(int)$parent.",2,'*',".($left+1).",".($left+2).",".$cid."),
-				('1','component','index.php?option=com_hikashop&ctrl=category&filter_id=product','".$parentData->menutype."','./templates/bluestork/images/menu/icon-16-category.png','Categories','Categories',1,".(int)$parent.",2,'*',".($left+3).",".($left+4).",".$cid."),
-				('1','component','index.php?option=com_hikashop&ctrl=user&filter_partner=0','".$parentData->menutype."','./templates/bluestork/images/menu/icon-16-user.png','Users','Users',1,".(int)$parent.",2,'*',".($left+5).",".($left+6).",".$cid."),
-				('1','component','index.php?option=com_hikashop&ctrl=order&order_type=sale&filter_partner=0','".$parentData->menutype."','./templates/bluestork/images/menu/icon-16-content.png','Orders','Orders',1,".(int)$parent.",2,'*',".($left+7).",".($left+8).",".$cid."),
-				('1','component','index.php?option=com_hikashop&ctrl=config','".$parentData->menutype."','./templates/bluestork/images/menu/icon-16-config.png','Configuration','Configuration',1,".(int)$parent.",2,'*',".($left+9).",".($left+10).",".$cid."),
-				('1','component','index.php?option=com_hikashop&ctrl=discount','".$parentData->menutype."','./templates/bluestork/images/menu/icon-16-default.png','Discounts','Discounts',1,".(int)$parent.",2,'*',".($left+11).",".($left+12).",".$cid."),
-				('1','component','index.php?option=com_hikashop&ctrl=documentation','".$parentData->menutype."','./templates/bluestork/images/menu/icon-16-help.png','Help','Help',1,".(int)$parent.",2,'*',".($left+13).",".($left+14).",".$cid."),
-				('1','component','index.php?option=com_hikashop&ctrl=update','".$parentData->menutype."','./templates/bluestork/images/menu/icon-16-help-jrd.png','Update / About','Update_About',1,".(int)$parent.",2,'*',".($left+15).",".($left+16).",".$cid.");
-				";
-				$this->db->setQuery($query);
-				$this->db->query();
-
-				$query = 'UPDATE '.hikashop_table('menu',false).' SET component_id = '.$cid.' WHERE menutype = '.$this->db->quote('hikashop_default');
-				$this->db->setQuery($query);
-				$this->db->query();
-			}
+			$query = 'UPDATE '.hikashop_table('menu',false).' SET component_id = '.$cid.' WHERE menutype = '.$this->db->quote('hikashop_default');
+			$this->db->setQuery($query);
+			$this->db->execute();
 		}
 
 		$query = 'INSERT IGNORE INTO `#__hikashop_user` (`user_email`,`user_cms_id`,`user_created`) SELECT `email`, `id`,'.time().' FROM `#__users`';
 		$this->db->setQuery($query);
-		try{$this->db->query();}catch(Exception $e){}
+		try{$this->db->execute();}catch(Exception $e){}
 
 		$query = 'UPDATE `#__hikashop_user` AS hku JOIN `#__users` AS ju ON hku.`user_email`=ju.`email` SET hku.`user_cms_id`=ju.`id` WHERE hku.`user_cms_id`!=ju.`id`';
 		$this->db->setQuery($query);
-		try{$this->db->query();}catch(Exception $e){}
+		try{$this->db->execute();}catch(Exception $e){}
 
 		$query = "INSERT IGNORE INTO `#__hikashop_category` (`category_id`, `category_parent_id`, `category_type`, `category_name`, `category_description`, `category_published`, `category_ordering`, `category_left`, `category_right`, `category_depth`, `category_namekey`) VALUES
 (1, 0, 'root', 'ROOT', '', 0, 0, 1, 22, 0, 'root'),
@@ -797,7 +737,7 @@ class hikashopUpdateHelper{
 (10, 1, 'manufacturer', 'manufacturer', '', 1, 5, 20, 21, 1, 'manufacturer'),
 (11, 3, 'tax', 'Default tax category', '', 1, 1, 5, 6, 2, 'default_tax');";
 		$this->db->setQuery($query);
-		$this->db->query();
+		$this->db->execute();
 
 		$query = "INSERT IGNORE INTO `#__hikashop_orderstatus` (`orderstatus_id`, `orderstatus_name`, `orderstatus_description`, `orderstatus_published`, `orderstatus_ordering`, `orderstatus_namekey`, `orderstatus_email_params`, `orderstatus_links_params`) VALUES
 (1, 'Created', 'When a customer finishes a checkout, an order is created with the status created', 1, 1, 'created', '', ''),
@@ -807,7 +747,7 @@ class hikashopUpdateHelper{
 (5, 'shipped', 'When an order has been shipped', 1, 5, 'shipped', '', ''),
 (6, 'pending', 'When an order is created and the payment is still pending', 1, 6, 'pending', '', '');";
 		$this->db->setQuery($query);
-		$this->db->query();
+		$this->db->execute();
 
 		$query = <<<EOD
 INSERT IGNORE INTO `#__hikashop_field` (`field_table`, `field_realname`, `field_namekey`, `field_type`, `field_value`, `field_published`, `field_ordering`, `field_options`, `field_core`, `field_required`, `field_backend`, `field_frontcomp`, `field_default`, `field_backend_listing`) VALUES
@@ -828,7 +768,7 @@ INSERT IGNORE INTO `#__hikashop_field` (`field_table`, `field_realname`, `field_
 ('address', 'VAT number', 'address_vat', 'text', '', 0, 15, 'a:6:{s:12:"errormessage";s:0:"";s:4:"cols";s:0:"";s:4:"rows";s:0:"";s:9:"zone_type";s:7:"country";s:4:"size";s:0:"";s:6:"format";s:0:"";}', 1, 0, 1, 1, '', 0);
 EOD;
 		$this->db->setQuery($query);
-		$this->db->query();
+		$this->db->execute();
 
 		$query = <<<EOD
 INSERT IGNORE INTO `#__hikashop_widget` (`widget_id`, `widget_name`, `widget_params`, `widget_published`, `widget_ordering`, `widget_access`) VALUES
@@ -845,12 +785,12 @@ INSERT IGNORE INTO `#__hikashop_widget` (`widget_id`, `widget_name`, `widget_par
 (11, 'Order to ship', 'O:8:"stdClass":27:{s:7:"display";s:7:"listing";s:9:"date_type";s:7:"created";s:10:"date_group";s:5:"%j %Y";s:10:"periodType";s:14:"proposedPeriod";s:14:"proposedPeriod";s:3:"all";s:6:"period";s:1:"0";s:7:"content";s:6:"orders";s:7:"filters";s:54:"a:1:{s:14:"a.order_status";a:1:{i:0;s:9:"confirmed";}}";s:15:"category_childs";s:1:"0";s:9:"customers";s:14:"last_customers";s:15:"customers_order";s:5:"sales";s:8:"partners";s:14:"last_customers";s:14:"partners_order";s:5:"sales";s:12:"compare_with";s:7:"periods";s:14:"period_compare";s:4:"none";s:5:"limit";s:0:"";s:6:"region";s:5:"world";s:6:"format";s:5:"UTF-8";s:10:"map_source";s:8:"shipping";s:12:"product_data";s:5:"sales";s:16:"product_order_by";s:4:"best";s:15:"orders_order_by";s:4:"last";s:8:"compares";N;s:10:"categories";s:3:"all";s:8:"products";s:6:"a:0:{}";s:7:"coupons";s:6:"a:0:{}";s:6:"status";s:0:"";}', 0, 11, 'all');
 EOD;
 		$this->db->setQuery($query);
-		$this->db->query();
+		$this->db->execute();
 
 		$this->processSQLfile('currencies.sql');
 
 		$this->db->setQuery($query);
-		$this->db->query();
+		$this->db->execute();
 
 		$config = hikashop_config();
 		if((int)$config->get('no_zone_import', false))
@@ -909,7 +849,7 @@ EOD;
 			if(!empty($query) && $this->checkSQLquery($query)) {
 				$this->db->setQuery($query);
 				try {
-					 $this->db->query();
+					 $this->db->execute();
 				} catch(Exception $e) {}
 			}
 
@@ -920,7 +860,7 @@ EOD;
 		if(!empty($query) && $this->checkSQLquery($query)) {
 			$this->db->setQuery($query);
 			try {
-				 $this->db->query();
+				 $this->db->execute();
 			} catch(Exception $e) {}
 		}
 		unset($query);

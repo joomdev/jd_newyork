@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -16,12 +16,7 @@ class plgSystemHikashopuser extends JPlugin {
 
 		if(!isset($this->params)) {
 			$plugin = JPluginHelper::getPlugin('system', 'hikashopuser');
-			if(version_compare(JVERSION,'2.5','<')) {
-				jimport('joomla.html.parameter');
-				$this->params = new JParameter($plugin->params);
-			} else {
-				$this->params = new JRegistry($plugin->params);
-			}
+			$this->params = new JRegistry($plugin->params);
 		}
 
 		$app = JFactory::getApplication();
@@ -36,7 +31,17 @@ class plgSystemHikashopuser extends JPlugin {
 		$this->checkout_fields = $app->getUserState( 'com_hikashop.checkout_fields');
 		$this->checkout_fields_ok = $app->getUserState( 'com_hikashop.checkout_fields_ok', 0);
 
-		if($app->isAdmin() && @$_GET['option'] == 'com_plugins' && @$_GET['view'] == 'plugin' && (@$_GET['layout'] == 'edit' || @$_GET['task'] == 'edit')) {
+	}
+
+	public function onContentPrepareForm($form, $data) {
+		$app = JFactory::getApplication();
+
+		if(version_compare(JVERSION,'4.0','>=') && $app->isClient('site'))
+			return true;
+		if(version_compare(JVERSION,'4.0','<') && !$app->isAdmin())
+			return true;
+
+		if(@$_GET['option'] == 'com_plugins' && @$_GET['view'] == 'plugin' && (@$_GET['layout'] == 'edit' || @$_GET['task'] == 'edit')) {
 			$lang = JFactory::getLanguage();
 			$lang->load('com_hikashop', JPATH_SITE, null, true);
 		}
@@ -77,7 +82,13 @@ class plgSystemHikashopuser extends JPlugin {
 	}
 
 	public function onPrepareContent(&$article, &$params, $limitstart) {
-		if(JRequest::getString('tmpl') != 'component')
+		$app = JFactory::getApplication();
+
+		if(version_compare(JVERSION,'3.0','>='))
+			$tmpl = $app->input->getCmd('tmpl', '');
+		else
+			$tmpl = JRequest::getCmd('tmpl', '');
+		if($tmpl != 'component')
 			return true;
 
 		$db = JFactory::getDBO();
@@ -156,7 +167,7 @@ class plgSystemHikashopuser extends JPlugin {
 				return;
 			$oldUser = null;
 			$fieldsClass = hikashop_get('class.field');
-			$element = $fieldsClass->getInput('user', $oldUser);
+			$element = $fieldsClass->getFilteredInput('user', $oldUser);
 			if(!empty($element)) {
 				foreach($element as $key => $value) {
 					$hikaUser->$key = $value;
@@ -187,8 +198,11 @@ class plgSystemHikashopuser extends JPlugin {
 
 	public function restoreSession(&$user_id, $options) {
 		$app = JFactory::getApplication();
-		if($app->isAdmin())
-			return;
+
+		if(version_compare(JVERSION,'4.0','>=') && $app->isClient('administrator'))
+			return true;
+		if(version_compare(JVERSION,'4.0','<') && $app->isAdmin())
+			return true;
 
 		$currency = $app->getUserState('com_hikashop.currency_id');
 		if(empty($currency) && !empty($this->currency))
@@ -217,7 +231,9 @@ class plgSystemHikashopuser extends JPlugin {
 	public function onLoginUser($user, $options) {
 		$app = JFactory::getApplication();
 
-		if($app->isAdmin())
+		if(version_compare(JVERSION,'4.0','>=') && $app->isClient('administrator'))
+			return true;
+		if(version_compare(JVERSION,'4.0','<') && $app->isAdmin())
 			return true;
 
 		$user_id = 0;
@@ -251,13 +267,15 @@ class plgSystemHikashopuser extends JPlugin {
 		if(empty($hika_user_id))
 			return true;
 
-		if($options !== null)
+		$app->setUserState(HIKASHOP_COMPONENT.'.user_id', $hika_user_id );
+
+		if($options !== null) {
 			$this->moveCarts($hika_user_id);
-		else{
+		} else {
 			$db = JFactory::getDBO();
 			$query = 'UPDATE #__hikashop_cart SET session_id = \'\' WHERE user_id = '.(int)$hika_user_id.' AND cart_type = \'cart\';';
 			$db->setQuery($query);
-			$db->query();
+			$db->execute();
 		}
 
 		$addressClass = hikashop_get('class.address');
@@ -295,17 +313,13 @@ class plgSystemHikashopuser extends JPlugin {
 
 		$query = 'UPDATE #__hikashop_cart SET cart_current = 0 WHERE user_id = '.(int)$hika_user_id.' AND cart_type = \'cart\';';
 		$db->setQuery($query);
-		$db->query();
+		$db->execute();
 
 		$config = hikashop_config();
 		if(!$config->get('enable_multicart', 1)) {
 			$query = 'SELECT cart_id FROM #__hikashop_cart WHERE user_id = '.(int)$hika_user_id.' AND cart_type = \'cart\';';
 			$db->setQuery($query);
-			if(!HIKASHOP_J25) {
-				$cart_ids = $db->loadResultArray();
-			} else {
-				$cart_ids = $db->loadColumn();
-			}
+			$cart_ids = $db->loadColumn();
 			if(count($cart_ids)) {
 				$cartClass = hikashop_get('class.cart');
 				$cartClass->delete($cart_ids, $hika_user_id);
@@ -315,7 +329,7 @@ class plgSystemHikashopuser extends JPlugin {
 		$query = 'UPDATE #__hikashop_cart SET user_id = '.(int)$hika_user_id.
 			' WHERE session_id = '.$db->Quote($this->session).' AND cart_type = \'cart\';';
 		$db->setQuery($query);
-		$db->query();
+		$db->execute();
 
 		if(!class_exists('hikashopCartClass'))
 			return;
@@ -339,13 +353,43 @@ class plgSystemHikashopuser extends JPlugin {
 
 	public function onAfterRoute() {
 		$app = JFactory::getApplication();
-		if($app->isAdmin())
-			return;
 
-		$option = JRequest::getCmd('option', '');
-		$view = JRequest::getCmd('view', '');
-		$task = JRequest::getCmd('task', '');
-		$layout = JRequest::getCmd('layout', '');
+
+
+		if(version_compare(JVERSION,'3.0','>=')) {
+			$option = $app->input->getCmd('option', '');
+			$view = $app->input->getCmd('view', '');
+			$task = $app->input->getCmd('task', '');
+			$layout = $app->input->getCmd('layout', '');
+		} else {
+			$option = JRequest::getCmd('option', '');
+			$view = JRequest::getCmd('view', '');
+			$task = JRequest::getCmd('task', '');
+			$layout = JRequest::getCmd('layout', '');
+		}
+
+		if($option == 'com_ajax') {
+			if(version_compare(JVERSION,'3.0','>='))
+				$group = $app->input->getCmd('group', '');
+			else
+				$group = JRequest::getCmd('group', '');
+			if(in_array($group, array('hikashop', 'hikashopshipping', 'hikashoppayment'))) {
+				if(!defined('DS'))
+					define('DS', DIRECTORY_SEPARATOR);
+				if(!include_once(rtrim(JPATH_ADMINISTRATOR,DS).DS.'components'.DS.'com_hikashop'.DS.'helpers'.DS.'helper.php'))
+					die('You cannot call plugins of the groups hikashop, hikashoppayment or hikashopshipping without HikaShop on the website.');
+			}
+		}
+
+		if($option == 'com_finder') {
+			$lang = JFactory::getLanguage();
+			$lang->load('com_hikashop', JPATH_SITE, null, true);
+		}
+
+		if(version_compare(JVERSION,'4.0','>=') && $app->isClient('administrator'))
+			return true;
+		if(version_compare(JVERSION,'4.0','<') && $app->isAdmin())
+			return true;
 
 		if(($option != 'com_user' || $view != 'user' || $task != 'edit') && ($option != 'com_users' || $view != 'profile' || $layout != 'edit'))
 			return;
@@ -386,13 +430,23 @@ class plgSystemHikashopuser extends JPlugin {
 
 	public function onAfterRender() {
 		$app = JFactory::getApplication();
-		if($app->isAdmin())
-			return;
 
-		$option = JRequest::getCmd('option', '');
-		$view = JRequest::getCmd('view', '');
-		$task = JRequest::getCmd('task', '');
-		$layout = JRequest::getCmd('layout', '');
+		if(version_compare(JVERSION,'3.0','>=')) {
+			$option = $app->input->getCmd('option', '');
+			$view = $app->input->getCmd('view', '');
+			$task = $app->input->getCmd('task', '');
+			$layout = $app->input->getCmd('layout', '');
+		} else {
+			$option = JRequest::getCmd('option', '');
+			$view = JRequest::getCmd('view', '');
+			$task = JRequest::getCmd('task', '');
+			$layout = JRequest::getCmd('layout', '');
+		}
+
+		if(version_compare(JVERSION,'4.0','>=') && $app->isClient('administrator'))
+			return true;
+		if(version_compare(JVERSION,'4.0','<') && $app->isAdmin())
+			return true;
 
 		if(($option != 'com_user' || $view != 'user' || $task != 'edit') && ($option != 'com_users' || $view != 'profile' || $layout != 'edit'))
 			return;
@@ -404,7 +458,9 @@ class plgSystemHikashopuser extends JPlugin {
 		if(empty($display) || $display=='0')
 			return;
 
-		$body = JResponse::getBody();
+		$body = '';
+		if(class_exists('JResponse'))
+			$body = JResponse::getBody();
 		$alternate_body = false;
 		if(empty($body)){
 			$app = JFactory::getApplication();
@@ -437,15 +493,6 @@ class plgSystemHikashopuser extends JPlugin {
 		$fieldsClass->addJS($requiredFields, $validMessages, array('user'));
 
 		$data = '';
-		if(version_compare(JVERSION,'1.6.0','<')) {
-			$data .= '<style type="text/css">'."\r\n".
-					'fieldset.hikashop_user_edit { border: 1px solid rgb(204, 204, 204); margin: 10px 0 15px; padding: 0px 10px 0px 10px; }'."\r\n".
-					'.hikashop_user_edit legend { font-size: 1em; font-weight: bold; }'."\r\n".
-					'.hikashop_user_edit dt { padding: 5px 5px 5px 0px; width: 13em; clear:left; float:left; }'."\r\n".
-					'.hikashop_user_edit dd { margin-left: 14em; }'."\r\n".
-					'</style>';
-		}
-
 		if(HIKASHOP_J30)
 			$data .= '<fieldset class="hikashop_user_edit"><legend>'.JText::_('HIKASHOP_USER_DETAILS').'</legend><dl>';
 		else
@@ -460,7 +507,7 @@ class plgSystemHikashopuser extends JPlugin {
 			$onWhat='onchange';
 			if($oneExtraField->field_type=='radio')
 				$onWhat='onclick';
-			$data .= $fieldsClass->display($oneExtraField,@$user->$fieldName,'data[user]['.$fieldName.']',false,' '.$onWhat.'="hikashopToggleFields(this.value,\''.$fieldName.'\',\'user\',0);"',false,$extraFields['user'],$user);
+			$data .= $fieldsClass->display($oneExtraField,@$user->$fieldName,'data[user]['.$fieldName.']',false,' '.$onWhat.'="window.hikashop.toggleField(this.value,\''.$fieldName.'\',\'user\',0);"',false,$extraFields['user'],$user);
 
 			if(HIKASHOP_J30)
 				$data .= '</div></div>';
@@ -477,5 +524,106 @@ class plgSystemHikashopuser extends JPlugin {
 			$app->setBody($body);
 		else
 			JResponse::setBody($body);
+	}
+
+	 public function onPreprocessMenuItems($name, &$items, $params, $enabled) {
+		if($name != 'com_menus.administrator.module' )
+			return;
+
+	 	$remove = array();
+	 	foreach($items as $k => $item) {
+	 		switch($item->link) {
+				case 'index.php?option=com_hikashop&ctrl=update':
+	 				if(!$this->_isAllowed('acl_update_about_view'))
+						$remove[] = $k;
+					break;
+				case 'index.php?option=com_hikashop&ctrl=documentation':
+	 				if(!$this->_isAllowed('acl_documentation_view'))
+						$remove[] = $k;
+					break;
+				case 'index.php?option=com_hikashop&ctrl=discount':
+	 				if(!$this->_isAllowed('acl_discount_view'))
+						$remove[] = $k;
+					break;
+				case 'index.php?option=com_hikashop&ctrl=config':
+	 				if(!$this->_isAllowed('acl_config_view'))
+						$remove[] = $k;
+					break;
+				case 'index.php?option=com_hikashop&ctrl=order&order_type=sale&filter_partner=0':
+	 				if(!$this->_isAllowed('acl_order_view'))
+						$remove[] = $k;
+					break;
+				case 'index.php?option=com_hikashop&ctrl=user&filter_partner=0':
+	 				if(!$this->_isAllowed('acl_user_view'))
+						$remove[] = $k;
+					break;
+				case 'index.php?option=com_hikashop&ctrl=category&filter_id=product':
+	 				if(!$this->_isAllowed('acl_category_view'))
+						$remove[] = $k;
+					break;
+				case 'index.php?option=com_hikashop&ctrl=product':
+	 				if(!$this->_isAllowed('acl_product_view'))
+						$remove[] = $k;
+					break;
+				default:
+					break;
+			}
+		}
+		if(!count($remove))
+			return;
+
+		foreach($remove as $r) {
+			unset($items[$r]);
+		}
+	}
+
+	public function onPrivacyCollectAdminCapabilities() {
+		$lang = JFactory::getLanguage();
+		$lang->load('com_hikashop', JPATH_SITE, null, true);
+		$capabilities = array(
+			'HikaShop' => array(
+				JText::_('HIKASHOP_PRIVACY_CAPABILITY_IP_ADDRESS'),
+				JText::_('HIKASHOP_PRIVACY_CAPABILITY_ADDRESS'),
+			),
+		);
+		return $capabilities;
+	}
+	private function _config($value, $default = 'all') {
+		static $config = null;
+		if(!isset($config)) {
+			$query = 'SELECT * FROM #__hikashop_config WHERE config_namekey IN(
+				\'acl_update_about_view\',
+				\'acl_documentation_view\',
+				\'acl_discount_view\',
+				\'acl_config_view\',
+				\'acl_order_view\',
+				\'acl_user_view\',
+				\'acl_category_view\',
+				\'acl_product_view\',
+				\'inherit_parent_group_access\'
+			)';
+			$database = JFactory::getDBO();
+			$database->setQuery($query);
+			$config = $database->loadObjectList('config_namekey');
+		}
+		return (isset($config[$value]) ? $config[$value]->config_value : $default);
+	}
+
+	private function _isAllowed($acl){
+		$allowedGroups = $this->_config($acl);
+
+		if($allowedGroups == 'all') return true;
+		if($allowedGroups == 'none') return false;
+		$id = null;
+
+		if(!is_array($allowedGroups)) $allowedGroups = explode(',',$allowedGroups);
+
+		jimport('joomla.access.access');
+		$my = JFactory::getUser($id);
+		$userGroups = JAccess::getGroupsByUser($my->id, (bool)$this->_config('inherit_parent_group_access', false));
+
+		$inter = array_intersect($userGroups,$allowedGroups);
+		if(empty($inter)) return false;
+		return true;
 	}
 }

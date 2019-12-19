@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -17,7 +17,7 @@ if(empty($this->row->prices)){
 
 	$first = true;
 	echo JText::_('PRICE_BEGINNING');
-	foreach($this->row->prices as $price) {
+	foreach($this->row->prices as $i => $price) {
 		if($first) $first = false;
 		else echo JText::_('PRICE_SEPARATOR');
 
@@ -26,7 +26,11 @@ if(empty($this->row->prices)){
 		}
 		if(!isset($price->price_currency_id)) $price->price_currency_id = hikashop_getCurrency();
 
-		echo '<span class="hikashop_product_price">';
+		$classes = array('hikashop_product_price hikashop_product_price_'.$i);
+		if(!empty($this->row->discount)) {
+			$classes[]='hikashop_product_price_with_discount';
+		}
+		echo '<span class="'.implode(' ',$classes).'">';
 		if($this->params->get('price_with_tax')){
 			echo $this->currencyHelper->format(@$price->price_value_with_tax, $price->price_currency_id);
 		}
@@ -61,7 +65,7 @@ if(empty($this->row->prices)){
 		}
 		echo '</span> ';
 
-		if(!empty($this->row->discount)) {
+		if(!empty($this->row->discount) && isset($price->price_value_without_discount_with_tax)) {
 			if($this->params->get('show_discount', 3) == 3) {
 				$defaultParams = $config->get('default_params');
 				$this->params->set('show_discount', $defaultParams['show_discount']);

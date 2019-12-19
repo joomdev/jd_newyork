@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -11,9 +11,7 @@ defined('_JEXEC') or die('Restricted access');
 <form action="<?php echo hikashop_completeLink('badge'); ?>" method="post"  name="adminForm" id="adminForm">
 
 <div class="hk-row">
-	<div class="hkc-md-5"><?php
-		echo $this->searchType->display('search', $this->pageInfo->search);
-	?></div>
+	<div class="hkc-md-5"><?php echo $this->loadHkLayout('search', array()); ?></div>
 	<div class="hkc-md-7"></div>
 </div>
 
@@ -104,8 +102,19 @@ defined('_JEXEC') or die('Restricted access');
 				<td><?php
 
 			$restrictions = array();
-			if(!empty($row->badge_discount_id)) {
-				$restrictions[] = '<strong>'.JText::_('DISCOUNT').'</strong>:'.$row->badge_discount_id;
+
+			if(!empty($row->badge_start)) {
+				$restrictions[] = '<strong>'.JText::_('START_DATE').'</strong>:'.hikashop_getDate($row->badge_start,'%Y-%m-%d %H:%M');
+			}
+			if(!empty($row->badge_end)) {
+				$restrictions[] = '<strong>'.JText::_('END_DATE').'</strong>:'.hikashop_getDate($row->badge_end,'%Y-%m-%d %H:%M');
+			}
+			if(!empty($row->badge_quantity) || $row->badge_quantity === '0') {
+				$restrictions[] = '<strong>'.JText::_('MAXIMUM_PRODUCT_QUANTITY').'</strong>:'.$row->badge_quantity;
+			}
+			if(!empty($row->badge_new_period)) {
+				$delayType = hikashop_get('type.delay');
+				$restrictions[] = '<strong>'.JText::_('NEW_PRODUCT_PERIOD').'</strong>:'.$delayType->displayDelay($row->badge_new_period);
 			}
 			if(!empty($row->badge_product_id)) {
 				$restrictions[] = '<strong>'.JText::_('PRODUCT').'</strong>:'.$row->badge_product_id;
@@ -116,6 +125,9 @@ defined('_JEXEC') or die('Restricted access');
 					$restriction .= '</br>'.JText::_('INCLUDING_SUB_CATEGORIES');
 				}
 				$restrictions[] = $restriction;
+			}
+			if(!empty($row->badge_discount_id)) {
+				$restrictions[] = '<strong>'.JText::_('DISCOUNT').'</strong>:'.$row->badge_discount_id;
 			}
 			echo implode('<br/>',$restrictions);
 

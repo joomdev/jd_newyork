@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -54,20 +54,66 @@ class CheckoutViewCheckout extends CheckoutViewCheckoutLegacy {
 	}
 
 	public function termsandconditions() {
-		$terms_article = $this->config->get('checkout_terms', 0);
-		$article = '';
-		$this->assignRef('article', $article);
+		$step = hikaInput::get()->getInt('step', 0)-1;
+		$pos = hikaInput::get()->getInt('pos', 0);
+
+		$checkoutHelper = hikashopCheckoutHelper::get();
+		$this->workflow = $checkoutHelper->checkout_workflow;
+		$block = @$this->workflow['steps'][$step]['content'][$pos];
+		if(!empty($block) && $block['task'] == 'terms' && !empty($block['params']['article_id']))
+			$terms_article = $block['params']['article_id'];
+
+		if(empty($terms_article))
+			$terms_article = $this->config->get('checkout_terms', 0);
 
 		if (empty($terms_article))
 			return;
 
 		$db = JFactory::getDBO();
-		$sql = 'SELECT * FROM #__content WHERE id = ' . intval($terms_article);
+		$sql = 'SELECT * FROM #__content WHERE id = ' . (int)$terms_article;
+		$db->setQuery($sql);
+		$data = $db->loadObject();
+
+		$lang = JFactory::getLanguage();
+		$currentLanguage = $lang->getTag();
+		if(!in_array($data->language, array('all', $currentLanguage)) ) {
+			$assoc = JLanguageAssociations::isEnabled();
+			if ($assoc) {
+				$data->associations = array();
+				if ($data->id != null) {
+					$associations = JLanguageAssociations::getAssociations('com_content', '#__content', 'com_content.item', $data->id);
+					foreach ($associations as $tag => $association) {
+						if($tag == $currentLanguage) {
+							$sql = 'SELECT * FROM #__content WHERE id = ' . (int)$association->id;
+							$db->setQuery($sql);
+							$data = $db->loadObject();
+
+						}
+					}
+				}
+			}
+		}
+		$article = '';
+		if (is_object($data))
+			$article = $data->introtext . $data->fulltext;
+		$this->assignRef('article', $article);
+	}
+	public function privacyconsent() {
+		$type = hikaInput::get()->getString('type', 'registration');
+		$userClass = hikashop_get('class.user');
+		$privacy = $userClass->getPrivacyConsentSettings($type);
+
+		if (empty($privacy) || empty($privacy['id']))
+			return;
+
+		$db = JFactory::getDBO();
+		$sql = 'SELECT * FROM #__content WHERE id = ' . intval($privacy['id']);
 		$db->setQuery($sql);
 		$data = $db->loadObject();
 
 		if (is_object($data))
-			$article = $data->introtext . $data->fulltext;
+			$data->text = $data->introtext . $data->fulltext;
+		$this->assignRef('article', $data);
 	}
 
 	public function show() {
@@ -105,19 +151,22 @@ class CheckoutViewCheckout extends CheckoutViewCheckoutLegacy {
 		JPluginHelper::importPlugin('hikashop');
 		JPluginHelper::importPlugin('hikashoppayment');
 		JPluginHelper::importPlugin('hikashopshipping');
-		$dispatcher = JDispatcher::getInstance();
+		$app = JFactory::getApplication();
 
 		$this->checkout_data = array();
-
+		$this->hasSeparator = false;
+		$obj =& $this;
 		foreach($this->workflow['steps'][$this->workflow_step]['content'] as $k => &$content) {
 			$task = $content['task'];
 			$this->block_position = $k;
+			if($task == 'separator')
+				$this->hasSeparator = true;
 
 			$ctrl = hikashop_get('helper.checkout-' . $task);
 			if(!empty($ctrl)) {
 				$this->checkout_data[$k] = $ctrl->display($this, $content['params']);
 			} else {
-				$dispatcher->trigger('onInitCheckoutStep', array($task, &$this));
+				$app->triggerEvent('onInitCheckoutStep', array($task, &$obj));
 			}
 		}
 		unset($content);
@@ -169,20 +218,20 @@ class CheckoutViewCheckout extends CheckoutViewCheckoutLegacy {
 		JPluginHelper::importPlugin('hikashop');
 		JPluginHelper::importPlugin('hikashoppayment');
 		JPluginHelper::importPlugin('hikashopshipping');
-		$dispatcher = JDispatcher::getInstance();
+		$app = JFactory::getApplication();
 
 		$ctrl = hikashop_get('helper.checkout-' . $block_task);
+		$obj =& $this;
 		if(!empty($ctrl)) {
 			$this->checkout_data[$block_pos] = $ctrl->display($this, $content['params']);
 		} else {
-			$dispatcher->trigger('onInitCheckoutStep', array($block_task, &$this));
+			$app->triggerEvent('onInitCheckoutStep', array($block_task, &$obj));
 		}
-
-		$dispatcher->trigger('onHikashopBeforeDisplayView', array(&$this));
+		$app->triggerEvent('onHikashopBeforeDisplayView', array(&$obj));
 
 		echo $this->displayBlock($block_task, $block_pos, $content['params']);
 
-		$dispatcher->trigger('onHikashopAfterDisplayView', array(&$this));
+		$app->triggerEvent('onHikashopAfterDisplayView', array(&$obj));
 
 		$events = $checkoutHelper->getEvents();
 		if(!empty($events)) {
@@ -205,6 +254,14 @@ class CheckoutViewCheckout extends CheckoutViewCheckoutLegacy {
 		return true;
 	}
 
+	function getDescription(&$method) {
+		$name = 'shipping_description';
+		if(!empty($method->payment_id))
+			$name = 'payment_description';
+		return preg_replace('@(((?>src|href)=")((?!http|#)[^"]+"))@', '$2' . JURI::base() . '$3', $method->$name);
+
+	}
+
 	public function displayBlock($layout, $pos, $options) {
 		$ctrl = hikashop_get('helper.checkout-' . $layout);
 		if(!empty($ctrl)) {
@@ -220,13 +277,74 @@ class CheckoutViewCheckout extends CheckoutViewCheckoutLegacy {
 
 			$this->options = $previous_options;
 
-			return $ret;
+		} else {
+			$ret = '';
+			$app = JFactory::getApplication();
+			$obj =& $this;
+			$app->triggerEvent('onCheckoutStepDisplay', array($layout, &$ret, &$obj, $pos, $options));
+		}
+		if(!empty($options['process_content_tags'])) {
+			$ret = JHTML::_('content.prepare', $ret);
+		}
+		return $ret;
+	}
+
+
+	public function getGrid() {
+		if(empty($this->options['type']))
+			return;
+
+		$StepViews = $this->checkoutHelper->checkout_workflow['steps'][$this->workflow_step]['content'];
+		$flow = array();
+		foreach($StepViews as $k => $view) {
+			if($view['task'] == 'separator')
+				$flow[$k] = $view['params']['type'];
+		}
+		if(!count($flow))
+			return;
+		$columns = 1;
+		$stop = false;
+		foreach($flow as $k => $sep) {
+			if($this->module_position < $k)
+				$stop = true;
+			if($sep == 'horizontal') {
+				if($stop)
+					break;
+				$columns = 1;
+				continue;
+			}
+			$columns++;
 		}
 
-		$ret = '';
-		$dispatcher = JDispatcher::getInstance();
-		$dispatcher->trigger('onCheckoutStepDisplay', array($layout, &$ret, &$this, $pos, $options));
-		return $ret;
+		$span = 1;
+		$row_fluid = 12;
+		switch($columns) {
+			case 12:
+			case 6:
+			case 4:
+			case 3:
+			case 2:
+			case 1:
+				$row_fluid = 12;
+				$span = $row_fluid / $columns;
+				break;
+			case 10:
+			case 8:
+			case 7:
+				$row_fluid = $columns;
+				$span = 1;
+				break;
+			case 5:
+				$row_fluid = 10;
+				$span = 2;
+				break;
+			case 9: // special case
+				$row_fluid = 10;
+				$span = 1;
+				break;
+		}
+
+		return array($row_fluid, $span);
 	}
 
 	public function getDisplayProductPrice(&$product, $unit = false) {
@@ -256,16 +374,28 @@ class CheckoutViewCheckout extends CheckoutViewCheckoutLegacy {
 	}
 
 	public function loadFields() {
+		$products = null;
+		if(!isset($this->extraFields['product'])){
+			if(empty($this->fieldClass))
+				$this->fieldClass = hikashop_get('class.field');
+			if(!empty($this->checkoutHelper)) {
+				$cart = $this->checkoutHelper->getCart();
+				$products =& $cart->products;
+			}
+			$this->extraFields['product'] = $this->fieldClass->getFields('display:checkout=1', $products, 'product');
+		}
+
 		if(!hikashop_level(2) || !empty($this->extraFields['item']))
 			return;
 		if(empty($this->fieldClass))
 			$this->fieldClass = hikashop_get('class.field');
-		$products = null;
-		if(!empty($this->checkoutHelper)) {
+
+		if(empty($products) && !empty($this->checkoutHelper)) {
 			$cart = $this->checkoutHelper->getCart();
 			$products =& $cart->products;
 		}
-		$this->extraFields['item'] = $this->fieldClass->getFields('frontcomp', $products, 'item');
+		$this->extraFields['item'] = $this->fieldClass->getFields('display:checkout=1', $products, 'item');
+
 	}
 
 	public function state() {
@@ -291,13 +421,16 @@ class CheckoutViewCheckout extends CheckoutViewCheckoutLegacy {
 		if(empty($field_type))
 			$field_type = 'address';
 
-		$db = JFactory::getDBO();
-		$query = 'SELECT * FROM '.hikashop_table('field').' WHERE field_namekey = '.$db->Quote($field_namekey);
-		$db->setQuery($query, 0, 1);
-		$field = $db->loadObject();
+		$id = hikaInput::get()->getInt('state_field_id', 0);
+		$field_options = '';
+		if($id){
+			$class = hikashop_get('class.field');
+			$field = $class->get($id);
+			$field_options = $field->field_options;
+		}
 
 		$countryType = hikashop_get('type.country');
-		echo $countryType->displayStateDropDown($namekey, $field_id, $field_namekey, $field_type, '', $field->field_options);
+		echo $countryType->displayStateDropDown($namekey, $field_id, $field_namekey, $field_type, '', $field_options);
 		exit;
 	}
 
@@ -316,10 +449,11 @@ class CheckoutViewCheckout extends CheckoutViewCheckoutLegacy {
 		$order = null;
 		if(!empty($order_id)) {
 			$orderClass = hikashop_get('class.order');
-			$order = $orderClass->loadFullOrder($order_id,false,false);
+			$order = $orderClass->loadFullOrder($order_id, false, true);
 		}
 
 		$this->assignRef('order',$order);
+		$this->_orderURL($order);
 	}
 
 	public function after_end() {
@@ -332,12 +466,26 @@ class CheckoutViewCheckout extends CheckoutViewCheckoutLegacy {
 		$order = null;
 		if(!empty($order_id)) {
 			$orderClass = hikashop_get('class.order');
-			$order = $orderClass->loadFullOrder($order_id, false, false);
+			$order = $orderClass->loadFullOrder($order_id, false, true);
 		}
 
 		JPluginHelper::importPlugin('hikashoppayment');
 		JPluginHelper::importPlugin('hikashopshipping');
 		$this->assignRef('order', $order);
+		$this->_orderURL($order);
+
+	}
+
+	protected function _orderURL(&$order){
+		$user = JFactory::getUser();
+		global $Itemid;
+		$url_itemid = (!empty($Itemid)) ? '&Itemid='.$Itemid : '';
+		if(!$user->guest){
+			$url = hikashop_completeLink('order&task=show&cid='.@$order->order_id.$url_itemid);
+		}else{
+			$url = hikashop_completeLink('order&task=show&cid='.@$order->order_id.'&order_token='.@$order->order_token.$url_itemid);
+		}
+		$this->assignRef('url', $url);
 	}
 
 	 public function shop_closed() {

@@ -48,10 +48,6 @@ class PaypalHelperCustomerData {
 
 	public function load() {
 
-		//$this->clear();
-		if (!class_exists('vmCrypt')) {
-			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'vmcrypt.php');
-		}
 		$session = JFactory::getSession();
 		$sessionData = $session->get('paypal', 0, 'vm');
 
@@ -85,9 +81,7 @@ class PaypalHelperCustomerData {
 	}
 
 	public function loadPost() {
-		if (!class_exists('vmCrypt')) {
-			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'vmcrypt.php');
-		}
+
 		// card information
 		$virtuemart_paymentmethod_id = vRequest::getVar('virtuemart_paymentmethod_id', 0);
 		//if ($virtuemart_paymentmethod_id) {
@@ -144,9 +138,7 @@ class PaypalHelperCustomerData {
 	}
 
 	public function save() {
-		if (!class_exists('vmCrypt')) {
-			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'vmcrypt.php');
-		}
+
 		$session = JFactory::getSession();
 		$sessionData = new stdClass();
 		$sessionData->selected_method = $this->_selected_method;

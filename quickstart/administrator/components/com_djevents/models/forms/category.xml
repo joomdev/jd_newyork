@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset>
+		<field name="id" type="text" default="0" label="JGLOBAL_FIELD_ID_LABEL"
+			readonly="true" class="readonly" />
+
+		<field name="name" type="text" class="inputbox" size="40"
+			label="COM_DJEVENTS_NAME" required="true" />
+			
+		<field name="alias" type="text" label="JFIELD_ALIAS_LABEL" description="JFIELD_ALIAS_DESC" class="inputbox" size="30" />
+		
+		<field name="description" type="editor" class="inputbox"
+			label="COM_DJEVENTS_DESCRIPTION" description="COM_DJEVENTS_GROUP_DESCRIPTION_DESC"
+			filter="JComponentHelper::filterText" buttons="false" />
+		
+		<field name="icon_type" type="radio" class="btn-group" label="COM_DJEVENTS_ICON_TYPE">
+			<option value="">JNONE</option>
+			<option value="fa">COM_DJEVENTS_FA_ICON</option>
+			<option value="image">COM_DJEVENTS_IMAGE_ICON</option>
+		</field>
+		
+		<field name="fa_icon" type="text" size="40" default="" label="COM_DJEVENTS_FA_ICON" showon="icon_type:fa" />
+		<field name="image_icon" type="media" default="" label="COM_DJEVENTS_IMAGE_ICON" showon="icon_type:image" />
+		<field name="icon_color" type="color" default="" label="COM_DJEVENTS_ICON_COLOR" hint="inherit" />
+		<field name="icon_bg" type="color" default="" label="COM_DJEVENTS_ICON_BG" hint="inherit" />
+		
+		<field name="created" type="calendar" label="JGLOBAL_FIELD_CREATED_LABEL"
+			description="JGLOBAL_FIELD_CREATED_DESC" class="inputbox" size="22"
+			format="%Y-%m-%d %H:%M:%S" filter="user_utc" />
+
+		<field name="created_by" type="user" label="JGLOBAL_FIELD_CREATED_BY_LABEL"
+			description="JGLOBAL_FIELD_CREATED_BY_DESC" />
+
+	</fieldset>
+
+	<fields name="params">
+		<fieldset name="cat_params" label="COM_DJEVENTS_PARAMETERS">
+			
+		</fieldset>
+	</fields>
+</form>

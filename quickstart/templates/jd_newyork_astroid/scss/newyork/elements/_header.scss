@@ -1,0 +1,26 @@
+$menu-divider: #ddd;
+
+.astroid-header-section {
+   header.astroid-header {
+      padding: 0;
+   }
+   .astroid-header-sticky > div {
+      padding-top: 0;
+      padding-bottom: 0;
+   }
+}
+
+.astroid-header {
+   ul.astroid-nav {
+      li {
+         border-right: 1px solid $menu-divider;
+         margin: 0;
+      }
+   }
+}
+
+@include media-breakpoint-down(md) {
+   .astroid-header-section {
+      padding: 10px 0;
+   }
+}

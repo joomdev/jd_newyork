@@ -1,7 +1,7 @@
 /*
 	oTree : Obscurelighty Project ( http://www.obscurelighty.com/ )
 	Author: Jerome GLATIGNY <jerome@obscurelighty.com>
-	Copyright (C) 2010-2017  Jerome GLATIGNY
+	Copyright (C) 2010-2019  Jerome GLATIGNY
 
 	This file is part of Obscurelighty.
 
@@ -1320,6 +1320,194 @@
 })();
 
 /**
+ * oResize
+ * version: 0.0.1
+ * release date: 2018-01-15
+ */
+(function() {
+	var oResize = function(el, options) {
+		if(typeof(el) == 'string')
+			el = document.getElementById(el);
+		if(!el) return;
+		if(options === undefined && el.getAttribute('data-oresize')) {
+			try {
+				var params = JSON.parse( el.getAttribute('data-oresize') );
+				if(params) options = params;
+			}catch(e) {}
+		}
+		this.create(el, options);
+	};
+	/**
+	 *
+	 */
+	oResize.init = function() {
+		if(!document.querySelectorAll)
+			return;
+		var d = document,
+			els = d.querySelectorAll('[data-oresize]');
+		if(!els || !els.length)
+			return;
+		for(var i = els.length - 1; i >= 0; i--) {
+			var el = els[i], opt = {};
+			try {
+				var params = JSON.parse( el.getAttribute('data-oresize') );
+				if(params)
+					opt = params;
+			}catch(e) {}
+			oResize.create(el, opt);
+		}
+	};
+	/**
+	 *
+	 */
+	oResize.prototype = {
+		target: null,
+		options: null,
+		size: null,
+		storage: null,
+		/**
+		 *
+		 */
+		create: function(el, options) {
+			var t = this, d = document;
+
+			t.options = options || {};
+			if(t.options.width === false && t.options.height === false)
+				return;
+			//
+			var r = d.createElement('div');
+			r.className = 'oresize';
+			r.style.position = 'absolute';
+			//
+			t.target = el;
+			el.appendChild(r);
+			t.sizer = r;
+			t.addEvent(r, 'mousedown', function(evt){ t.start(evt); });
+
+			//
+			//
+			var storage = el.getAttribute('data-oresize');
+			if(!storage || !localStorage) return;
+			t.storage = storage;
+			var size = localStorage.getItem('oresize.'+t.storage);
+			try { size = JSON.parse(size); } catch(e) {}
+			if(!size || (!size.h && !size.w))
+				return;
+			if(t.options.width !== false) {
+				size.w = Math.max(size.w, (t.options.width && t.options.width.min) ? t.options.width.min : 100);
+				if(t.options.width && t.options.width.max)
+					size.w = Math.min(size.w, t.options.width.max);
+				t.target.style.width = size.w + 'px';
+			}
+			if(t.options.height !== false) {
+				size.h = Math.max(size.h, (t.options.height && t.options.height.min) ? t.options.height.min : 100);
+				if(t.options.height && t.options.height.max)
+					size.h = Math.min(size.h, t.options.height.max);
+				t.target.style.height = size.h + 'px';
+			}
+		},
+		/**
+		 *
+		 */
+		refresh: function() {
+			if(this.sizer.parentNode) return;
+			this.target.appendChild(this.sizer);
+		},
+		/**
+		 *
+		 */
+		start: function(e) {
+			var t = this, d = document, w = window;
+			t.cancelEvent(e);
+			t.resizeEvt = t.addEvent(w, 'mousemove', function(evt){ t.resize(evt); });
+			t.stopEvt = t.addEvent(w, 'mouseup', function(evt){ t.stop(evt); });
+		},
+		/**
+		 *
+		 */
+		stop: function(e) {
+			var t = this, d = document, w = window;
+			t.removeEvent(w, 'mousemove', t.resizeEvt);
+			t.removeEvent(w, 'mouseup', t.stopEvt);
+		},
+		/**
+		 *
+		 */
+		resize: function(e) {
+			this.cancelEvent(e);
+			var t = this,
+				minW = (t.options.width && t.options.width.min) ? t.options.width.min : 100,
+				minH = (t.options.height && t.options.height.min) ? t.options.height.min : 100,
+				offset = t.getOffset(t.target),
+				w = Math.max((e.clientX - offset.left), minW),
+				h = Math.max((e.clientY - offset.top), minH);
+			size = {};
+			if(t.options.width !== false) {
+				if(t.options.width && t.options.width.max)
+					w = Math.min(w, t.options.width.max);
+				t.target.style.width = w + 'px';
+				size.w = w;
+			}
+			if(t.options.height !== false) {
+				if(t.options.height && t.options.height.max)
+					h = Math.min(h, t.options.height.max);
+				t.target.style.height = h + 'px';
+				size.h = h;
+			}
+			if(t.storage && size && (size.h || size.w)) {
+				localStorage.setItem('oresize.'+t.storage, JSON.stringify(size));
+			}
+		},
+		/**
+		 *
+		 */
+		addEvent: function(d,e,f) {
+			if( d.attachEvent )
+				d.attachEvent('on' + e, f);
+			else if (d.addEventListener)
+				d.addEventListener(e, f, false);
+			else
+				d['on' + e] = f;
+			return f;
+		},
+		removeEvent: function(d,e,f) {
+			try {
+				if( d.detachEvent )
+					d.detachEvent('on' + e, f);
+				else if( d.removeEventListener)
+					d.removeEventListener(e, f, false);
+				else
+					d['on' + e] = null;
+			} catch(e) {}
+		},
+		cancelEvent: function(e) {
+			e = e || window.event;
+			if( !e )
+				return false;
+			if(e.stopPropagation) e.stopPropagation();
+			else e.cancelBubble = true;
+			if( e.preventDefault ) e.preventDefault();
+			else e.returnValue = false;
+			return false;
+		},
+		/**
+		 *
+		 */
+		getOffset: function(el, scroll) {
+			var rect = el.getBoundingClientRect(),
+				scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+				scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+			if(!scroll)
+				return { top: rect.top , left: rect.left };
+			return { top: rect.top + scrollTop, left: rect.left + scrollLeft };
+		}
+	};
+	oResize.version = 20180901;
+	if(!window.oResize || window.oResize.version < oResize.version)
+		window.oResize = oResize;
+})();
+
+/**
  * oNamebox
  * version: 0.1.3
  * release date: 2016-03-01
@@ -1375,7 +1563,14 @@
 		el.parentNode.removeChild(el);
 	};
 	oNamebox.cancelEvent = function(e) {
-		return window.Oby.cancelEvent(e);
+		e = e || window.event;
+		if( !e )
+			return false;
+		if(e.stopPropagation) e.stopPropagation();
+		else e.cancelBubble = true;
+		if( e.preventDefault ) e.preventDefault();
+		else e.returnValue = false;
+		return false;
 	};
 	/**
 	 *
@@ -1427,8 +1622,20 @@
 		 */
 		init: function() {
 			var t = this, d = document;
+
 			if(t.mode == 'list') {
 				t.container = d.getElementById(t.id+'_olist');
+			} else {
+				t.container = d.getElementById(t.id+'_otree');
+			}
+
+			if(window.oResize && t.container.parentNode.getAttribute('data-oresize')) {
+				t.container = t.container.parentNode;
+				//
+				t.resize = new oResize(t.container, {width:false,height:{min:100,max:550}});
+			}
+
+			if(t.mode == 'list') {
 				t.content = new window.oList(t.id,t.config.olist,null,t.data,false);
 				t.content.callbackSelection = function(ol,id,value) {
 					var d = document, node = ol.get(id);
@@ -1438,8 +1645,7 @@
 						t.set(node.name, node.key);
 					else if(t.content.config.table && node.key)
 						t.set(value, node.key);
-					var c = d.getElementById(t.id+"_olist");
-					if(c) c.style.display = "none";
+					t.container.style.display = "none";
 					c = d.getElementById(t.id+"_text");
 					if(c) c.value = "";
 					ol.sel(null);
@@ -1449,7 +1655,6 @@
 				if(t.config.olist && t.config.olist.gradientLoad)
 					t.content.callbackScroll = function(el) { t.loadMore(el); };
 			} else {
-				t.container = d.getElementById(t.id+'_otree');
 				var options = {rootImg:(t.config.img_dir+'otree/'), showLoading:false};
 				t.content = new window.oTree(t.id, options, null, t.data, false);
 				t.content.addIcon("world","world.png");
@@ -1469,8 +1674,7 @@
 						tree.s(node);
 						return;
 					}
-					var c = d.getElementById(t.id+"_otree");
-					if(c) c.style.display = "none";
+					t.container.style.display = "none";
 					c = d.getElementById(t.id+"_text");
 					if(c) c.value = "";
 					tree.sel(0);
@@ -2028,7 +2232,7 @@
 			return true;
 		},
 	};
-	oNamebox.version = 20160301;
+	oNamebox.version = 20180901;
 	if(!window.oNamebox || !window.oNamebox.version || window.oNamebox.version < oNamebox.version)
 		window.oNamebox = oNamebox;
 })();

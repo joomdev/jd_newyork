@@ -8,7 +8,7 @@
  * @version $Id: paypal.php 7217 2013-09-18 13:42:54Z alatak $
  * @package VirtueMart
  * @subpackage payment
- * Copyright (C) 2004 - 2018 Virtuemart Team. All rights reserved.
+ * Copyright (C) 2004 - 2019 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -114,8 +114,10 @@ class PaypalHelperPaypal {
 	}
 
 	function getProductAmount ($productPricesUnformatted) {
-		if ($productPricesUnformatted['salesPriceWithDiscount']) {
-			return vmPSPlugin::getAmountValueInCurrency($productPricesUnformatted['salesPriceWithDiscount'], $this->_method->payment_currency);
+		if (!empty($productPricesUnformatted['override']) and !empty($productPricesUnformatted['product_override_price'])) {
+			return vmPSPlugin::getAmountValueInCurrency( $productPricesUnformatted['product_override_price'], $this->_method->payment_currency );
+		} else if ($productPricesUnformatted['salesPriceWithDiscount']) {
+			return vmPSPlugin::getAmountValueInCurrency( $productPricesUnformatted['salesPriceWithDiscount'], $this->_method->payment_currency );
 		} else {
 			return vmPSPlugin::getAmountValueInCurrency($productPricesUnformatted['salesPrice'], $this->_method->payment_currency);
 		}
@@ -156,9 +158,6 @@ class PaypalHelperPaypal {
 	}
 
 	public function setTotal ($total) {
-		if (!class_exists('CurrencyDisplay')) {
-			require(VMPATH_ADMIN . DS  .'helpers'.DS.'currencydisplay.php');
-		}
 		$this->total = vmPSPlugin::getAmountValueInCurrency($total, $this->_method->payment_currency);
 
 		$cd = CurrencyDisplay::getInstance($this->cart->pricesCurrency);
@@ -302,9 +301,6 @@ class PaypalHelperPaypal {
 	}
 
 	protected function truncate ($string, $length) {
-		if (!class_exists('shopFunctionsF')) {
-			require(VMPATH_SITE . DS . 'helpers' . DS . 'shopfunctionsf.php');
-		}
 		return ShopFunctionsF::vmSubstr($string, 0, $length);
 	}
 
@@ -485,6 +481,14 @@ class PaypalHelperPaypal {
 				if ($paypal_data['txn_type'] != 'recurring_payment' && !$this->_check_email_amount_currency($payments, $paypal_data)) {
 					return FALSE;
 				}
+					//	quorvia set successful status only if parameters allow and are configured
+					// 4. check this status can be updated
+				if (!empty($this->_method->status_ipn_success_updateable)) {
+					if(!$this->_check_ipn_status_confirmed_allowed( $this->_method->status_ipn_success_updateable )) {
+						$this->debugLog( $paypal_data['payment_status'], '_status of order is restricted cannot be set to confirmed', 'debug' );
+						return FALSE;
+					}
+				}
 				// now we can process the payment
 				if (strcmp($paypal_data['payment_status'], 'Authorization') == 0) {
 					$order_history['order_status'] = $this->_method->status_pending;
@@ -545,43 +549,31 @@ class PaypalHelperPaypal {
 
 		// Get the list of IP addresses for www.paypal.com and notify.paypal.com
 
-
-        if ($this->_method->sandbox) {
-//			$paypal_iplist = gethostbynamel('ipn.sandbox.paypal.com');
-//			$paypal_iplist = (array)$paypal_iplist;
-//           QUORVIA 2017April24
-            $paypal_sandbox_iplist_ipn       = gethostbynamel('ipn.sandbox.paypal.com');
-            $paypal_sandbox_iplist_ipnpb      = gethostbynamel('ipnpb.sandbox.paypal.com');
-
-            $paypal_iplist = array_merge(
-                $paypal_sandbox_iplist_ipn,
-                $paypal_sandbox_iplist_ipnpb
-            ); // end quorvia
-
+		if ($this->_method->sandbox) {
+			$paypalHosts = array('ipn.sandbox.paypal.com','ipnpb.sandbox.paypal.com');
 		} else {
-            // JH 2017-04-23
-//              QUORVIA 2017April24
-            // Get IP through DNS call
-            // Reporting and order management
-            $paypal_iplist_ipnpb       = gethostbynamel('ipnpb.paypal.com');
-            $paypal_iplist_notify      = gethostbynamel('notify.paypal.com');
-
-            $paypal_iplist = array_merge( // JH 2017-04-23
-            // List of Reporting and order management
-                $paypal_iplist_ipnpb,
-                $paypal_iplist_notify
-            );
-            // JH
-			$this->debugLog($paypal_iplist, 'checkPaypalIps PRODUCTION', 'debug', false);
-
+			$paypalHosts = array('ipnpb.paypal.com','notify.paypal.com');
 		}
-		$remoteIPAddress=$this->getRemoteIPAddress();
+
+		$paypal_iplist = array();
+		foreach($paypalHosts as $host){
+			$ipList = gethostbynamel($host);
+			$paypal_iplist = array_merge($paypal_iplist,$ipList);
+		}
+		if (isset($this->_method->extra_ips)){
+			$extraIps = explode(',',$this->_method->extra_ips);
+			$paypal_iplist = array_merge($paypal_iplist,$extraIps);
+		}
+		$this->debugLog($paypal_iplist, 'checkPaypalIps $paypal_iplist', 'debug', false);
+
+		$remoteIPAddress = ShopFunctions::getClientIP();
+		$hostname = gethostbyaddr($remoteIPAddress);
 		$this->debugLog($remoteIPAddress, 'checkPaypalIps REMOTE ADDRESS', 'debug', false);
 
 		//  test if the remote IP connected here is a valid IP address
-		if (!in_array($remoteIPAddress, $paypal_iplist)) {
+		if (!in_array($remoteIPAddress, $paypal_iplist) and !in_array($hostname, $paypalHosts)) {
 
-			$text = "Error with REMOTE IP ADDRESS = " . $remoteIPAddress . ".
+			$text = "Error with REMOTE IP ADDRESS = " . $remoteIPAddress . ".\n
                         The remote address of the script posting to this notify script does not match a valid PayPal IP address\n
             These are the valid IP Addresses: " . implode(",", $paypal_iplist) . "The Order ID received was: " . $order_number;
 			$this->debugLog($text, 'checkPaypalIps', 'error', false);
@@ -609,8 +601,6 @@ class PaypalHelperPaypal {
 	}*/
 
 	function getRemoteIPAddress() {
-		if (!class_exists('ShopFunctions'))
-			require(VMPATH_ADMIN . DS . 'helpers' . DS . 'shopfunctions.php');
 		return ShopFunctions::getClientIP();
 	}
 
@@ -703,6 +693,16 @@ class PaypalHelperPaypal {
 		}
 		return false;
 	}
+
+//quorvia should this order status be updated
+	protected function _check_ipn_status_confirmed_allowed ($valid_for_confirmed) {
+
+		if (in_array($this->order['details']['BT']->order_status, $valid_for_confirmed)) {
+					return true;
+		}
+		return false;
+	}
+
 
 	protected function _check_email_amount_currency ($payments, $paypal_data) {
 

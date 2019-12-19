@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -53,19 +53,31 @@ defined('_JEXEC') or die('Restricted access');
 		echo hikashop_getLayout('vote', 'mini', $this->params, $js);
 	}
 		?></div>
-		<span id="hikashop_product_price_main" class="hikashop_product_price_main" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
 <?php
+	$itemprop_offer = '';
+	if (!empty($this->element->prices))
+		$itemprop_offer = 'itemprop="offers" itemscope itemtype="https://schema.org/Offer"';
+?>
+		<span id="hikashop_product_price_main" class="hikashop_product_price_main" <?php echo $itemprop_offer; ?>>
+<?php
+	$main =& $this->element;
+	if(!empty($this->element->main))
+		$main =& $this->element->main;
+	if(!empty($main->product_condition) && !empty($this->element->prices)) {
+?>
+			<meta itemprop="itemCondition" itemtype="https://schema.org/OfferItemCondition" content="https://schema.org/<?php echo $main->product_condition; ?>" />
+<?php
+	}
 	if($this->params->get('show_price') && (empty($this->displayVariants['prices']) || $this->params->get('characteristic_display') != 'list')) {
 		$this->row =& $this->element;
 		$this->setLayout('listing_price');
 		echo $this->loadTemplate();
-?>
-		<meta itemprop="availability" content="http://schema.org/<?php echo ($this->row->product_quantity != 0) ? 'InStock' : 'OutOfstock' ;?>" />
-		<meta itemprop="priceCurrency" content="<?php echo $this->currency->currency_code; ?>" />
-<?php
-	}
-?>
-		</span>
+		if (!empty($this->element->prices)) {
+?>			<meta itemprop="availability" content="https://schema.org/<?php echo ($this->row->product_quantity != 0) ? 'InStock' : 'OutOfstock' ;?>" />
+			<meta itemprop="priceCurrency" content="<?php echo $this->currency->currency_code; ?>" />
+<?php	}
+	} 
+?>		</span>
 
 <?php if(!empty($this->element->extraData->rightMiddle)) { echo implode("\r\n",$this->element->extraData->rightMiddle); } ?>
 

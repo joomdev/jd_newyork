@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension version="2.5" type="plugin" group="vmpayment" method="upgrade">
     <name>Klarna</name>
-    <creationDate>April 05 2018</creationDate>
+    <creationDate>November 22 2019</creationDate>
     <author>The VirtueMart Development Team</author>
     <authorUrl>https://virtuemart.net</authorUrl>
-    <copyright>Copyright (C) 2004 - 2018 Virtuemart Team. All rights reserved.</copyright>
+    <copyright>Copyright (C) 2004 - 2019 Virtuemart Team. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-    <version>3.2.14</version>
+    <version>3.6.10</version>
     <description>Klarna VirtueMart Payment Plugin</description>
     <languages>
         <language tag="en-GB">language/en-GB/en-GB.plg_vmpayment_klarna.ini</language>

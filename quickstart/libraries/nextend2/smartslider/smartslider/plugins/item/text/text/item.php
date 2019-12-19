@@ -17,14 +17,36 @@ class N2SSItemText extends N2SSItemAbstract {
     private function getHTML() {
         $owner = $this->layer->getOwner();
 
-        $font = $owner->addFont($this->data->get('font'), 'paragraph', 'div#' . $owner->getElementID() . ' .n2-ss-layer ');
+        $font = $owner->addFont($this->data->get('font'), 'paragraph');
 
         $style = $owner->addStyle($this->data->get('style'), 'heading');
 
+        $tagName = 'p';
+        if (N2Platform::needStrongerCSS()) {
+            $tagName = 'ss-p';
+        }
         $html          = '';
-        $content       = str_replace('<p>', '<p class="' . $font . ' ' . $style . ' n2-ow">', $this->wpautop($this->closeTags($owner->fill($this->data->get('content', '')))));
-        $contentTablet = str_replace('<p>', '<p class="' . $font . ' ' . $style . ' n2-ow">', $this->wpautop($this->closeTags($owner->fill($this->data->get('contenttablet', '')))));
-        $contentMobile = str_replace('<p>', '<p class="' . $font . ' ' . $style . ' n2-ow">', $this->wpautop($this->closeTags($owner->fill($this->data->get('contentmobile', '')))));
+        $content       = str_replace(array(
+            '<p>',
+            '</p>'
+        ), array(
+            '<' . $tagName . ' class="' . $font . ' ' . $style . ' n2-ow">',
+            '</' . $tagName . '>'
+        ), $this->wpautop($this->closeTags($owner->fill($this->data->get('content', '')))));
+        $contentTablet = str_replace(array(
+            '<p>',
+            '</p>'
+        ), array(
+            '<' . $tagName . ' class="' . $font . ' ' . $style . ' n2-ow">',
+            '</' . $tagName . '>'
+        ), $this->wpautop($this->closeTags($owner->fill($this->data->get('contenttablet', '')))));
+        $contentMobile = str_replace(array(
+            '<p>',
+            '</p>'
+        ), array(
+            '<' . $tagName . ' class="' . $font . ' ' . $style . ' n2-ow">',
+            '</' . $tagName . '>'
+        ), $this->wpautop($this->closeTags($owner->fill($this->data->get('contentmobile', '')))));
         $class         = '';
 
         if ($contentMobile == '') {
@@ -38,7 +60,7 @@ class N2SSItemText extends N2SSItemAbstract {
         if ($contentTablet == '') {
             $class .= ' n2-ss-tablet';
         } else {
-            $html .= N2Html::tag('div', array(
+            $html  .= N2Html::tag('div', array(
                 'class' => 'n2-ss-tablet n2-ow n2-ow-all' . $class
             ), $contentTablet);
             $class = '';
@@ -48,7 +70,9 @@ class N2SSItemText extends N2SSItemAbstract {
             'class' => 'n2-ow n2-ow-all n2-ss-desktop' . $class
         ), $content);
 
-        return $html;
+        return N2Html::tag('div', array(
+            'class' => 'n2-ss-item-content n2-ow'
+        ), $html);
     }
 
 

@@ -118,6 +118,12 @@ class N2FontRenderer {
             'extra'         => ''
         ), $tabs[0]);
 
+        for ($i = 0; $i < count(self::$mode[$mode]['tabs']); $i++) {
+            if (!isset($tabs[$i])) {
+                $tabs[$i] = array();
+            }
+        }
+
         if (self::$mode[$mode]['renderOptions']['combined']) {
             for ($i = 1; $i < count($tabs); $i++) {
                 $tabs[$i] = array_merge($tabs[$i - 1], $tabs[$i]);
@@ -399,7 +405,7 @@ class N2FontStyle {
      * @return string
      */
     public function parseAfont($v) {
-        return 'font-family: ' . $this->loadFont($v) . ';';
+        return 'font-family: ' . n2_esc_css_value($this->loadFont($v)) . ';';
     }
 
     /**
@@ -484,7 +490,7 @@ class N2FontStyle {
     public function loadFont($families) {
         $families = explode(',', $families);
         for ($i = 0; $i < count($families); $i++) {
-            if($families[$i] != "inherit"){
+            if ($families[$i] != "inherit") {
                 $families[$i] = $this->getFamily(trim(trim($families[$i]), '\'"'));
             }
         }

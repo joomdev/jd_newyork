@@ -7,10 +7,11 @@ define('N2MAGENTO', 0);
 define('N2NATIVE', 0);
 
 if (!defined('N2PRO')) {
-    define('N2PRO', 1);
+    define('N2PRO', 0);
+
 }
 
-if (!defined('N2LIBRARYASSETS')) define('N2LIBRARYASSETS', JPATH_SITE . '/media/n2/n');
+if (!defined('N2LIBRARYASSETS')) define('N2LIBRARYASSETS', rtrim(JPATH_SITE, '\\/') . '/media/n2/n');
 
 
 // Load required UTF-8 config from Joomla

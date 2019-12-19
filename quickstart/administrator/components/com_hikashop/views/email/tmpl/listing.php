@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -104,8 +104,14 @@ $doc->addScriptDeclaration($js);
 <?php }
 		if(!empty($row->name))
 			echo $row->name;
-		else
-			echo JText::_(strtoupper($row->file));
+		else {
+			$key = strtoupper($row->file);
+			$trans = JText::_($key.'_EMAIL');
+			if($trans == $key.'_EMAIL') {
+				$trans = JText::_($key);
+			}
+			echo $trans;
+		}
 
 		if($this->manage && hikashop_level(2)) { ?>
 					</a>
@@ -115,9 +121,9 @@ $doc->addScriptDeclaration($js);
 				<td class="hk_center">
 <?php if($row->overriden_html){ ?>
 <?php if($this->delete){ ?>
-					<a href="<?php echo hikashop_completeLink('email&task=remove&type=html&mail_name='.$row->file); ?>" onclick="return hikashopRemoveCustom('html','<?php echo $row->file?>');">
+					<a title="<?php echo JText::_('REMOVE_CUSTOMIZATION_HTML'); ?>" href="<?php echo hikashop_completeLink('email&task=remove&type=html&mail_name='.$row->file); ?>" onclick="return hikashopRemoveCustom('html','<?php echo $row->file?>');">
 <?php } ?>
-						<img src="<?php echo HIKASHOP_IMAGES; ?>delete.png" />
+						<i class="fas fa-trash"></i>
 <?php if($this->delete){ ?>
 					</a>
 <?php } ?>
@@ -126,9 +132,9 @@ $doc->addScriptDeclaration($js);
 				<td class="hk_center">
 <?php if($row->overriden_text){ ?>
 <?php if($this->delete){ ?>
-					<a href="<?php echo hikashop_completeLink('email&task=remove&type=text&mail_name='.$row->file); ?>" onclick="return hikashopRemoveCustom('text','<?php echo $row->file?>');">
+					<a title="<?php echo JText::_('REMOVE_CUSTOMIZATION_TEXT'); ?>" href="<?php echo hikashop_completeLink('email&task=remove&type=text&mail_name='.$row->file); ?>" onclick="return hikashopRemoveCustom('text','<?php echo $row->file?>');">
 <?php } ?>
-						<img src="<?php echo HIKASHOP_IMAGES; ?>delete.png" />
+						<i class="fas fa-trash"></i>
 <?php if($this->delete){ ?>
 					</a>
 <?php } ?>
@@ -137,9 +143,9 @@ $doc->addScriptDeclaration($js);
 				<td class="hk_center">
 <?php if($row->overriden_preload){ ?>
 <?php if($this->delete){ ?>
-					<a href="<?php echo hikashop_completeLink('email&task=remove&type=preload&mail_name='.$row->file); ?>" onclick="return hikashopRemoveCustom('preload','<?php echo $row->file?>');">
+					<a title="<?php echo JText::_('REMOVE_CUSTOMIZATION_PRELOAD'); ?>" href="<?php echo hikashop_completeLink('email&task=remove&type=preload&mail_name='.$row->file); ?>" onclick="return hikashopRemoveCustom('preload','<?php echo $row->file?>');">
 <?php } ?>
-						<img src="<?php echo HIKASHOP_IMAGES; ?>delete.png" />
+						<i class="fas fa-trash"></i>
 <?php if($this->delete){ ?>
 					</a>
 <?php } ?>

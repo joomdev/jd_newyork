@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -19,18 +19,38 @@ class plgSystemVm_redirect extends JPlugin {
 	function onAfterRoute() {
 		$app = JFactory::getApplication();
 
-		if( JRequest::getString('option') != 'com_virtuemart' || $app->isAdmin() )
+		if(version_compare(JVERSION,'3.0','>=')) {
+			$option = $app->input->getVar('option');
+			$vmProdId = $app->input->getInt('product_id');
+			if (empty($vmProdId))
+				$vmProdId = $app->input->getInt('virtuemart_product_id');
+			$vmCatId = $app->input->getInt('category_id');
+			if (empty($vmCatId))
+				$vmCatId = $app->input->getInt('virtuemart_category_id');
+			$vmOrderId = $app->input->getInt('order_id');
+			if (empty($vmOrderId))
+				$vmOrderId = $app->input->getInt('order_number');
+		} else {
+			$option = JRequest::getVar('option');
+			$vmProdId = JRequest::getInt('product_id');
+			if (empty($vmProdId))
+				$vmProdId = JRequest::getInt('virtuemart_product_id');
+			$vmCatId = JRequest::getInt('category_id');
+			if (empty($vmCatId))
+				$vmCatId = JRequest::getInt('virtuemart_category_id');
+			$vmOrderId = JRequest::getInt('order_id');
+			if (empty($vmOrderId))
+				$vmOrderId = JRequest::getInt('order_number');
+		}
+
+
+		if(version_compare(JVERSION,'4.0','>=') && $app->isClient('administrator'))
+			return true;
+		if(version_compare(JVERSION,'4.0','<') && $app->isAdmin())
 			return true;
 
-		$vmProdId = (int)JRequest::getVar('product_id');
-		if (empty($vmProdId))
-			$vmProdId = (int)JRequest::getVar('virtuemart_product_id');
-		$vmCatId = (int)JRequest::getVar('category_id');
-		if (empty($vmCatId))
-			$vmCatId = (int)JRequest::getVar('virtuemart_category_id');
-		$vmOrderId= JRequest::getInt('order_id');
-		if (empty($vmOrderId))
-			$vmOrderId = (int)JRequest::getVar('order_number');
+		if( $option != 'com_virtuemart' )
+			return true;
 
 
 		$db = JFactory::getDBO();

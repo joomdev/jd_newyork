@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -50,11 +50,7 @@ class hikashopUploadHelper {
 	}
 
 	public function process($options = null) {
-		if(!HIKASHOP_J25) {
-			JRequest::checkToken() || die('Invalid Token');
-		} else {
-			JSession::checkToken() || die('Invalid Token');
-		}
+		JSession::checkToken() || die('Invalid Token');
 
 		if(!empty($options))
 			$this->setOptions($options);
@@ -102,8 +98,15 @@ class hikashopUploadHelper {
 		else
 			$allowed_extensions = $shopConfig->get('allowedimages');
 
+		if(!empty($this->options['allowed_extensions'])) {
+			$allowed_extensions = $this->options['allowed_extensions'];
+		}
+
 		if(!empty($error)) {
-			$file->error = $error;
+			if(is_numeric($error))
+				$file->error = $this->codeToMessage($error);
+			else
+				$file->error = $error;
 		} else if(empty($file->name)) {
 			$file->error = 'missingFileName';
 		} else if(!is_uploaded_file($uploaded_file)) {
@@ -117,6 +120,11 @@ class hikashopUploadHelper {
 			return $file;
 
 		$file_path = strtolower(JFile::makeSafe($name));
+
+		if(!strpos($file_path, '.')){
+			$file->error = 'The file name "' . $name . '" is not valid. Please change it.';
+			return $file;
+		}
 
 		if(!empty($slice) && $slice['index'] > 0 && substr($file_path, -5) == '.part') {
 			$pos = strrpos($file_path, '_');
@@ -221,12 +229,39 @@ class hikashopUploadHelper {
 		return $file;
 	}
 
-	public function processFallback($options = null) {
-		if(!HIKASHOP_J25) {
-			JRequest::checkToken() || die('Invalid Token');
-		} else {
-			JSession::checkToken() || die('Invalid Token');
+	private function codeToMessage($code) {
+		switch ($code) {
+			case UPLOAD_ERR_INI_SIZE:
+				$message = "The uploaded file exceeds the upload_max_filesize directive in php.ini";
+				break;
+			case UPLOAD_ERR_FORM_SIZE:
+				$message = "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form";
+				break;
+			case UPLOAD_ERR_PARTIAL:
+				$message = "The uploaded file was only partially uploaded";
+				break;
+			case UPLOAD_ERR_NO_FILE:
+				$message = "No file was uploaded";
+				break;
+			case UPLOAD_ERR_NO_TMP_DIR:
+				$message = "Missing a temporary folder";
+				break;
+			case UPLOAD_ERR_CANT_WRITE:
+				$message = "Failed to write file to disk";
+				break;
+			case UPLOAD_ERR_EXTENSION:
+				$message = "File upload stopped by extension";
+				break;
+
+			default:
+				$message = "Unknown upload error";
+				break;
 		}
+		return $message;
+	}
+
+	public function processFallback($options = null) {
+		JSession::checkToken() || die('Invalid Token');
 
 		if(!empty($options)) {
 			$this->setOptions($options);
@@ -319,6 +354,12 @@ class hikashopUploadHelper {
 		}
 
 		$file_path = strtolower(JFile::makeSafe($name));
+
+		if(!strpos($file_path, '.')){
+			$file->error = 'The file name "' . $name . '" is not valid. Please change it.';
+			return $file;
+		}
+
 		if(!preg_match('#\.('.str_replace(array(',','.'), array('|','\.'), $allowed).')$#Ui', $file_path,$extension) || preg_match('#\.(php.?|.?htm.?|pl|py|jsp|asp|sh|cgi)$#Ui', $file_path)) {
 			$file->error = JText::sprintf('ACCEPTED_TYPE', substr($file_path,strrpos($file_path, '.') + 1), str_replace(',',', ',$allowed));
 			return $file;

@@ -19,8 +19,6 @@ class N2SmartsliderLayersModel extends N2Model {
     }
 
     function renderForm($data = array()) {
-        N2Loader::import('libraries.animations.manager');
-    
 
 
         N2Loader::import('libraries.form.form');
@@ -44,12 +42,8 @@ class N2SmartsliderLayersModel extends N2Model {
         $this->formContent($sidebar);
 
         $this->formDesign($sidebar);
-        $this->formAnimations($sidebar);
-    
 
         $this->formProperties($sidebar);
-        $this->formGroup($sidebar);
-    
 
         echo $form->render('layer');
     }
@@ -135,17 +129,11 @@ class N2SmartsliderLayersModel extends N2Model {
             )
         ));
 
-
-        $link = new N2ElementMixed($rowSettings, 'row-link', '', '|*|_self');
-        new N2ElementUrl($link, 'link-1', n2_('Link'), '', array(
-            'style' => 'width:160px;'
+        $link = new N2ElementGroup($rowSettings, 'row-link', '');
+        new N2ElementUrl($link, 'row-href', n2_('Link'), '', array(
+            'style' => 'width:150px;'
         ));
-        new N2ElementList($link, 'link-2', n2_('Target window'), '', array(
-            'options' => array(
-                '_self'  => n2_('Self'),
-                '_blank' => n2_('New')
-            )
-        ));
+        new N2ElementLinkTarget($link, 'row-href-target', n2_('Target window'));
 
         $rowBackground = new N2ElementGroup($rowSettings, 'row-background');
         new N2ElementImage($rowBackground, 'row-background-image', n2_('Background image'), '');
@@ -163,7 +151,6 @@ class N2SmartsliderLayersModel extends N2Model {
             'unit'     => '%',
             'style'    => 'width:22px;'
         ));
-        new N2ElementOnOff($rowBackground, 'row-background-parallax', n2_('Parallax'), 0);
 
         new N2ElementStyleMode($rowSettings, 'row-style-mode', n2_('Style'), '', array(
             'options' => array(
@@ -186,7 +173,7 @@ class N2SmartsliderLayersModel extends N2Model {
                 'diagonal2'  => '&#8600;'
             ),
             'relatedFields' => array(
-                'row-background-color-end'
+                'layerrow-background-color-end'
             )
         ));
 
@@ -295,17 +282,11 @@ class N2SmartsliderLayersModel extends N2Model {
             'style'         => 'width:32px;'
         ));
 
-
-        $link = new N2ElementMixed($colSettings, 'col-link', '', '|*|_self');
-        new N2ElementUrl($link, 'link-1', n2_('Link'), '', array(
-            'style' => 'width:160px;'
+        $link = new N2ElementGroup($colSettings, 'col-link', '');
+        new N2ElementUrl($link, 'col-href', n2_('Link'), '', array(
+            'style' => 'width:150px;'
         ));
-        new N2ElementList($link, 'link-2', n2_('Target window'), '', array(
-            'options' => array(
-                '_self'  => n2_('Self'),
-                '_blank' => n2_('New')
-            )
-        ));
+        new N2ElementLinkTarget($link, 'col-href-target', n2_('Target window'));
 
         $colBackground = new N2ElementGroup($colSettings, 'col-background');
         new N2ElementImage($colBackground, 'col-background-image', n2_('Background image'), '');
@@ -323,7 +304,6 @@ class N2SmartsliderLayersModel extends N2Model {
             'unit'     => '%',
             'style'    => 'width:22px;'
         ));
-        new N2ElementOnOff($colBackground, 'col-background-parallax', n2_('Parallax'), 0);
 
         new N2ElementStyleMode($colSettings, 'col-style-mode', n2_('Style'), '', array(
             'options' => array(
@@ -346,7 +326,7 @@ class N2SmartsliderLayersModel extends N2Model {
                 'diagonal2'  => '&#8600;'
             ),
             'relatedFields' => array(
-                'col-background-color-end'
+                'layercol-background-color-end'
             )
         ));
 
@@ -495,7 +475,6 @@ class N2SmartsliderLayersModel extends N2Model {
             'unit'     => '%',
             'style'    => 'width:22px;'
         ));
-        new N2ElementOnOff($contentBackground, 'content-background-parallax', n2_('Parallax'), 0);
 
         new N2ElementStyleMode($contentSettings, 'content-style-mode', n2_('Style'), '', array(
             'options' => array(
@@ -518,7 +497,7 @@ class N2SmartsliderLayersModel extends N2Model {
                 'diagonal2'  => '&#8600;'
             ),
             'relatedFields' => array(
-                'content-background-color-end'
+                'layercontent-background-color-end'
             )
         ));
 
@@ -582,6 +561,7 @@ class N2SmartsliderLayersModel extends N2Model {
                 '600' => '600 - ' . n2_('Semi bold'),
                 '700' => '700 - ' . n2_('Bold'),
                 '800' => '800 - ' . n2_('Extra bold'),
+                '900' => '900'
             )
         ));
 
@@ -705,249 +685,14 @@ class N2SmartsliderLayersModel extends N2Model {
      * @param N2FormElementContainer $form
      */
     protected function formAnimations($form) {
-
-        $group      = new N2TabGrouppedSidebar($form, 'animations', '', array(
-            'icon' => 'n2-i-window-animation',
-            'tip'  => n2_('Animation')
-        ));
-        $animations = new N2TabTabbedSidebar($group, 'animations-tabbed', '', array(
-            'classes'    => 'n2-sidebar-tab-switcher n2-tab-bordered n2-sidebar-tab-bg',
-            'active'     => 1,
-            'underlined' => 1
-        ));
-
-        $_inTab = new N2TabGrouppedSidebar($animations, 'animations-in', n2_('In'));
-        $inTab  = new N2Tab($_inTab, 'animations-form', false);
-
-        $timing = new N2ElementGroup($inTab, 'animation-timing');
-        new N2ElementNumberAutocomplete($timing, '-anim-duration', n2_('Duration'), 500, array(
-            'min'    => 0,
-            'values' => array(
-                500,
-                800,
-                1000,
-                1500,
-                2000
-            ),
-            'unit'   => 'ms',
-            'wide'   => 5
-        ));
-        new N2ElementNumberAutocomplete($timing, '-anim-delay', n2_('Delay'), 0, array(
-            'min'    => 0,
-            'values' => array(
-                0,
-                500,
-                800,
-                1000,
-                1500,
-                2000
-            ),
-            'unit'   => 'ms',
-            'wide'   => 5
-        ));
-        new N2ElementEasing($timing, '-anim-ease', n2_('Easing'), 'easeOutCubic');
-
-
-        $effect = new N2ElementGroup($inTab, 'animation-effect');
-        new N2ElementNumberAutocomplete($effect, '-anim-opacity', n2_('Opacity'), 100, array(
-            'wide'   => 3,
-            'min'    => 0,
-            'max'    => 100,
-            'values' => array(
-                0,
-                50,
-                100
-            ),
-            'unit'   => '%'
-        ));
-        new N2ElementNumberSlider($effect, '-anim-n2blur', n2_('Blur'), 0, array(
-            'wide' => 3,
-            'min'  => 0,
-            'max'  => 100,
-            'unit' => 'px'
-        ));
-
-        $offset = new N2ElementGroup($inTab, 'animation-offset', n2_('Offset'));
-        new N2ElementNumberAutocomplete($offset, '-anim-x', '', 0, array(
-            'wide'     => 4,
-            'sublabel' => 'X',
-            'values'   => array(
-                -800,
-                -400,
-                -200,
-                -100,
-                -50,
-                0,
-                50,
-                100,
-                200,
-                400,
-                800
-            ),
-            'unit'     => 'px'
-        ));
-        new N2ElementNumberAutocomplete($offset, '-anim-y', '', 0, array(
-            'wide'     => 4,
-            'sublabel' => 'Y',
-            'values'   => array(
-                -800,
-                -400,
-                -200,
-                -100,
-                -50,
-                0,
-                50,
-                100,
-                200,
-                400,
-                800
-            ),
-            'unit'     => 'px'
-        ));
-
-
-        $rotate = new N2ElementGroup($inTab, 'animation-rotate', n2_('Rotate'));
-        new N2ElementNumberAutocomplete($rotate, '-anim-rotationX', '', 0, array(
-            'wide'     => 4,
-            'sublabel' => 'X',
-            'values'   => array(
-                0,
-                90,
-                180,
-                -90,
-                -180
-            ),
-            'unit'     => '°'
-        ));
-        new N2ElementNumberAutocomplete($rotate, '-anim-rotationY', '', 0, array(
-            'wide'     => 4,
-            'sublabel' => 'Y',
-            'values'   => array(
-                0,
-                90,
-                180,
-                -90,
-                -180
-            ),
-            'unit'     => '°'
-        ));
-        new N2ElementNumberAutocomplete($rotate, '-anim-rotationZ', '', 0, array(
-            'wide'     => 4,
-            'sublabel' => 'Z',
-            'values'   => array(
-                0,
-                90,
-                180,
-                -90,
-                -180
-            ),
-            'unit'     => '°'
-        ));
-
-        $scale = new N2ElementGroup($inTab, 'animation-scale', n2_('Scale'));
-        new N2ElementNumberAutocomplete($scale, '-anim-scaleX', '', 0, array(
-            'wide'     => 4,
-            'sublabel' => 'X',
-            'min'      => 0,
-            'values'   => array(
-                0,
-                50,
-                100,
-                150
-            ),
-            'unit'     => '%'
-        ));
-        new N2ElementNumberAutocomplete($scale, '-anim-scaleY', '', 0, array(
-            'wide'     => 4,
-            'sublabel' => 'Y',
-            'min'      => 0,
-            'values'   => array(
-                0,
-                50,
-                100,
-                150
-            ),
-            'unit'     => '%'
-        ));
-
-
-        $loopTab = new N2TabGrouppedSidebar($animations, 'animations-loop', n2_('Loop'));
-        new N2TabRaw($loopTab, 'animations-loop', false);
-
-        $outTab = new N2TabGrouppedSidebar($animations, 'animations-out', n2_('Out'));
-        new N2TabRaw($outTab, 'animations-out', false);
-
-        $__events = new N2TabGrouppedSidebar($animations, 'animations-events', n2_('Events'));
-        $_events  = new N2Tab($__events, 'animations-events');
-
-        $events = new N2ElementEditorGroup($_events, 'animations-events-events', n2_('Events'));
-
-        $eventNames = array(
-            'layerAnimationPlayIn',
-            'LayerClick',
-            'LayerMouseEnter',
-            'LayerMouseLeave',
-            'SlideClick',
-            'SlideMouseEnter',
-            'SlideMouseLeave',
-            'SliderClick',
-            'SliderMouseEnter',
-            'SliderMouseLeave'
-        );
-
-        new N2ElementAutocomplete($events, 'in-play-event', n2_('Plays in when'), '', array(
-            'options' => $eventNames,
-            'style'   => 'width:260px;'
-        ));
-
-        new N2ElementAutocomplete($events, 'out-play-event', n2_('Plays out when'), '', array(
-            'options'  => $eventNames,
-            'style'    => 'width:260px;',
-            'rowClass' => 'n2-expert'
-        ));
-
-        new N2ElementAutocomplete($events, 'loop-play-event', n2_('Plays loop when'), '', array(
-            'options'  => $eventNames,
-            'style'    => 'width:260px;',
-            'rowClass' => 'n2-expert'
-        ));
-
-        new N2ElementAutocomplete($events, 'loop-pause-event', n2_('Pauses loop when'), '', array(
-            'options'  => $eventNames,
-            'style'    => 'width:260px;',
-            'rowClass' => 'n2-expert'
-        ));
-
-        new N2ElementAutocomplete($events, 'loop-stop-event', n2_('Stops loop when'), '', array(
-            'options'  => $eventNames,
-            'style'    => 'width:260px;',
-            'rowClass' => 'n2-expert'
-        ));
-
-        $triggers = new N2ElementEditorGroup($_events, 'animations-events-triggers', n2_('Trigger custom event on'));
-
-        new N2ElementText($triggers, 'onclick', n2_('Click'), '', array(
-            'style' => 'width:73px;'
-        ));
-        new N2ElementText($triggers, 'onmouseenter', n2_('Mouse enter'), '', array(
-            'style' => 'width:73px;'
-        ));
-        new N2ElementText($triggers, 'onmouseleave', n2_('Mouse leave'), '', array(
-            'style' => 'width:73px;'
-        ));
-        new N2ElementText($triggers, 'onplay', n2_('Media started'), '', array(
-            'style' => 'width:73px;'
-        ));
-        new N2ElementText($triggers, 'onpause', n2_('Media paused'), '', array(
-            'style' => 'width:73px;'
-        ));
-        new N2ElementText($triggers, 'onstop', n2_('Media stopped'), '', array(
-            'style' => 'width:73px;'
-        ));
-
-
-    
     }
+
+    protected function formAnimationsBasic($form) {
+    }
+
+    protected function formAnimationsReveal($form) {
+    }
+
 
     /**
      * @param N2FormElementContainer $form
@@ -988,23 +733,6 @@ class N2SmartsliderLayersModel extends N2Model {
         ));
 
         $other = new N2ElementGroup($settings, 'layer-other');
-        new N2ElementList($other, 'parallax', n2_('Parallax depth'), 0, array(
-            'tip'     => n2_('More parallax options in slider settings -> Layer animations tab.'),
-            'options' => array(
-                '0'  => n2_('Off'),
-                '1'  => 1,
-                '2'  => 2,
-                '3'  => 3,
-                '4'  => 4,
-                '5'  => 5,
-                '6'  => 6,
-                '7'  => 7,
-                '8'  => 8,
-                '9'  => 9,
-                '10' => 10
-            )
-        ));
-    
 
         new N2ElementList($other, 'crop', n2_('Crop'), 'visible', array(
             'options' => array(
@@ -1143,28 +871,8 @@ class N2SmartsliderLayersModel extends N2Model {
         new N2ElementOnOff($size, 'responsive-size', n2_('Responsive'), 1);
 
         new N2ElementDevices($settings, 'show', n2_('Show on'));
-        $parentPicker = new N2ElementGroup($settings, 'layer-parent-picker', '', array(
-            'rowClass'      => 'n2-ss-parent-picker n2-expert',
-            'rowAttributes' => array(
-                'data-placement' => 'absolute'
-            )
-        ));
-        new N2ElementLayerPicker($parentPicker, 'parentid', n2_('Parent'), '', array(
-            'rowClass' => 'n2-layer-picker-container'
-        ));
-        new N2ElementHAlign($parentPicker, 'parentalign', n2_('Horizontal'), 'left', array(
-            'rowAttributes' => array(
-                'data-devicespecific' => ''
-            )
-        ));
-        new N2ElementVAlign($parentPicker, 'parentvalign', n2_('Vertical'), 'top', array(
-            'rowAttributes' => array(
-                'data-devicespecific' => ''
-            )
-        ));
-    
 
-        new N2ElementText($settings, 'class', 'CSS class', '');
+        new N2ElementText($settings, 'class', n2_('CSS class'), '');
 
         new N2ElementButton($settings, 'resettodesktop', n2_('Reset position'), n2_('Reset'));
 
@@ -1182,56 +890,5 @@ class N2SmartsliderLayersModel extends N2Model {
      * @param N2FormElementContainer $form
      */
     protected function formGroup($form) {
-
-        $group    = new N2TabGrouppedSidebar($form, 'layer-group', '', array(
-            'icon' => 'n2-i-window-layer',
-            'tip'  => n2_('Group')
-        ));
-        $settings = new N2Tab($group, 'layer-group');
-
-
-        $other = new N2ElementGroup($settings, 'layer-other');
-        new N2ElementList($other, 'group-parallax', n2_('Parallax depth'), 0, array(
-            'tip'     => n2_('More parallax options in slider settings -> Layer animations tab.'),
-            'options' => array(
-                '0'  => n2_('Off'),
-                '1'  => 1,
-                '2'  => 2,
-                '3'  => 3,
-                '4'  => 4,
-                '5'  => 5,
-                '6'  => 6,
-                '7'  => 7,
-                '8'  => 8,
-                '9'  => 9,
-                '10' => 10
-            )
-        ));
-        new N2ElementOnOff($other, 'group-adaptive-font', n2_('Adaptive sizing'), 0);
-        new N2ElementNumberAutocomplete($other, 'group-font-size', n2_('Font size modifier'), 100, array(
-            'values'        => array(
-                60,
-                80,
-                100,
-                120,
-                140,
-                160,
-                180
-            ),
-            'unit'          => '%',
-            'style'         => 'width:32px;',
-            'rowAttributes' => array(
-                'data-devicespecific' => ''
-            )
-        ));
-
-        new N2ElementText($settings, 'group-generator-visible', n2_('Hide layer if provided variable is empty'), '', array(
-            'rowClass' => 'n2-ss-generator-param',
-            'style'    => 'width:270px;'
-        ));
-
-        new N2ElementDevices($settings, 'group-show', n2_('Show on'));
-
-    
     }
 } 

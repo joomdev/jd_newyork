@@ -2,7 +2,7 @@
 /**
  * @version   $Id: Wordpress.php 29686 2015-12-21 08:27:39Z jakub $
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2018 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2019 RocketTheme, LLC
  * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only
  */
 defined('ROKCOMMON') or die;

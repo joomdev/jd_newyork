@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -11,6 +11,45 @@ defined('_JEXEC') or die('Restricted access');
 include_once HIKASHOP_HELPER . 'checkout.php';
 
 class hikashopCheckoutShippingHelper extends hikashopCheckoutHelperInterface {
+	protected $params = array(
+		'read_only' =>  array(
+			'name' => 'READ_ONLY',
+			'type' => 'boolean',
+			'default' => 0
+		),
+		'show_title' =>  array(
+			'name' => 'SHOW_TITLE',
+			'type' => 'boolean',
+			'default' => 1
+		),
+		'show_shipping_products' => array(
+			'name' => 'MULTI_GROUP_PRODUCT_DISPLAY',
+			'type' => 'boolean',
+			'default' => 1,
+		),
+		'shipping_selector' => array(
+			'name' => 'HIKASHOP_CHECKOUT_DISPLAY_SELECTOR',
+			'type' => 'radio',
+			'tooltip' => 'checkout_shipping_selector',
+			'default' => 1,
+			'showon' => array(
+				'key' => 'read_only',
+				'values' => array(0)
+			)
+		),
+	);
+
+	public function getParams() {
+		$config = hikashop_config();
+		$values = array(
+			JHTML::_('select.option', 1, JText::_('HIKASHOP_CHECKOUT_ADDRESS_SELECTOR_LIST')),
+			JHTML::_('select.option', 2, JText::_('HIKASHOP_CHECKOUT_ADDRESS_SELECTOR_DROPDOWN'))
+		);
+		$this->params['shipping_selector']['values'] = $values;
+
+		return parent::getParams();
+	}
+
 	public function check(&$controller, &$params) {
 		if(!empty($params['read_only']))
 			return true;
@@ -30,6 +69,9 @@ class hikashopCheckoutShippingHelper extends hikashopCheckoutHelperInterface {
 	}
 
 	public function validate(&$controller, &$params, $data = array()) {
+		if(!empty($params['read_only']))
+			return true;
+
 		if(empty($data))
 			$data = hikaInput::get()->get('checkout', array(), 'array');
 		if(empty($data['shipping']))
@@ -63,6 +105,38 @@ class hikashopCheckoutShippingHelper extends hikashopCheckoutHelperInterface {
 		$ret = $cartClass->updateShipping($cart->cart_id, $shipping_ids);
 
 		$cart = $checkoutHelper->getCart(true);
+
+		if($ret && !empty($data['shipping']['custom'])) {
+			$checkout_custom = array();
+			foreach($shipping_ids as $group => $id) {
+				if(!isset($data['shipping']['custom'][$group][$id]))
+					continue;
+
+				$warehouse_struct = $group;
+				if(preg_match_all('#([a-zA-Z])*([0-9]+)#iu', $group, $tmp))
+					$warehouse_struct = array_combine($tmp[1], $tmp[2]);
+
+				$shipping = null;
+				foreach($cart->shipping as $s) {
+					if($s->shipping_id != $id || ($s->shipping_warehouse_id !== $warehouse_struct && $s->shipping_warehouse_id !== $group))
+						continue;
+					if(empty($s->custom_html))
+						continue;
+
+					$plugin = hikashop_import('hikashopshipping', $s->shipping_type);
+					$ret = $plugin->onShippingCustomSave($cart, $s, $group, $data['shipping']['custom'][$group][$id]);
+					if($ret === false)
+						break;
+
+					if(!isset($checkout_custom[ $group ]))
+						$checkout_custom[$group] = array();
+					if(!isset($checkout_custom[ $group ]))
+						$checkout_custom[$group][$id] = array();
+					$checkout_custom[$group][$id] = $ret;
+				}
+			}
+			$cartClass->updateShippingCustomData($cart->cart_id, $checkout_custom);
+		}
 
 		$tmpl = hikaInput::get()->getCmd('tmpl', '');
 		if($selectionOnly && in_array($tmpl, array('ajax', 'raw'))) {
@@ -115,7 +189,16 @@ class hikashopCheckoutShippingHelper extends hikashopCheckoutHelperInterface {
 	}
 
 	public function display(&$view, &$params) {
-		$params['show_shipping_products'] = true;
+		if(!isset($params['show_shipping_products']))
+			$params['show_shipping_products'] = true;
+		if(!isset($params['read_only']))
+			$params['read_only'] = false;
+		if(!isset($params['show_title']))
+			$params['show_title'] = true;
+		if(!isset($params['shipping_selector']))
+			$params['shipping_selector'] = 0;
+		if($params['read_only'])
+			$params['shipping_selector'] = 0;
 
 		$checkoutHelper = hikashopCheckoutHelper::get();
 		if(!$checkoutHelper->isMessages('shipping')) {

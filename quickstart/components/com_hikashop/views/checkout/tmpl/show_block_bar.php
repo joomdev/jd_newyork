@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -17,10 +17,19 @@ defined('_JEXEC') or die('Restricted access');
 
 		$stepClass = ($k == $this->workflow_step) ? 'hikashop_cart_step_current' : ($k < $this->workflow_step ? 'hikashop_cart_step_finished' : '');
 		$badgeClass = ($k == $this->workflow_step) ? 'hkbadge-current' : ($k < $this->workflow_step ? 'hkbadge-past' : '');
-		$name = (isset($step['name'])) ? $step['name'] : JText::_('HIKASHOP_CHECKOUT_'.strtoupper($step['content'][0]['task']));
+		if(!empty($step['name'])){
+			$key = strtoupper($step['name']);
+			$trans = JText::_($key);
+			if($trans == $key)
+				$name = $step['name'];
+			else
+				$name = $trans;
+		}else{
+			$name = JText::_('HIKASHOP_CHECKOUT_'.strtoupper($step['content'][0]['task']));
+		}
 
 		if($k < $this->workflow_step) {
-			$name = '<a href="'.hikashop_completeLink('checkout&task=show&cid='.($k+1).$this->cartIdParam).'">'.$name.'</a>';
+			$name = '<a href="'.$this->checkoutHelper->completeLink('&cid='.($k+1).$this->cartIdParam, false, false, false, $this->itemid).'">'.$name.'</a>';
 		}
 ?>
 		<li class="<?php echo $stepClass; ?>">

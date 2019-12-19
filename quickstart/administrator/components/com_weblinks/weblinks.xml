@@ -2,12 +2,12 @@
 <extension type="component" version="3.5" method="upgrade">
 	<name>com_weblinks</name>
 	<author>Joomla! Project</author>
-	<creationDate>2017-03-08</creationDate>
-	<copyright>(C) 2005 - 2017 Open Source Matters. All rights reserved.</copyright>
+	<creationDate>2019-08-10</creationDate>
+	<copyright>(C) 2005 - 2019 Open Source Matters. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>admin@joomla.org</authorEmail>
 	<authorUrl>www.joomla.org</authorUrl>
-	<version>3.6.0</version>
+	<version>3.7.0</version>
 	<description>COM_WEBLINKS_XML_DESCRIPTION</description>
 	<scriptfile>script.php</scriptfile>
 
@@ -33,14 +33,18 @@
 		</schemas>
 	</update>
 
+	<media folder="media/com_weblinks" destination="com_weblinks">
+		<folder>js</folder>
+	</media>
+
 	<files folder="components/com_weblinks">
 		<file>controller.php</file>
-<folder>controllers</folder>
-<folder>helpers</folder>
 <file>metadata.xml</file>
 <folder>models</folder>
 <file>router.php</file>
+<folder>controllers</folder>
 <folder>views</folder>
+<folder>helpers</folder>
 <file>weblinks.php</file>
 	</files>
 	<languages folder="language">
@@ -60,17 +64,17 @@
 		</submenu>
 		<files folder="administrator/components/com_weblinks">
 			<file>access.xml</file>
-<file>config.xml</file>
-<file>controller.php</file>
-<folder>controllers</folder>
-<folder>helpers</folder>
-<folder>models</folder>
-<file>script.php</file>
-<folder>sql</folder>
 <folder>tables</folder>
+<file>controller.php</file>
+<folder>models</folder>
+<file>config.xml</file>
+<file>script.php</file>
+<folder>controllers</folder>
 <folder>views</folder>
-<file>weblinks.php</file>
 <file>weblinks.xml</file>
+<folder>helpers</folder>
+<file>weblinks.php</file>
+<folder>sql</folder>
 		</files>
 		<languages folder="administrator/language">
 			<language tag="en-GB">en-GB/en-GB.com_weblinks.ini</language>

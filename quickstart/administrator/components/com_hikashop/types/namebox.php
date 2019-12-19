@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -29,15 +29,13 @@ class hikashopNameboxType {
 				'onlyNode' => true
 			),
 		),
-		'category' => array(
-			'class' => 'class.category',
-			'name' => 'category_name',
-			'mode' => 'tree',
-			'url' => 'category&task=getTree',
-			'options' => array(
-				'tree_url' => 'category&task=getTree&category_id={ID}',
-				'tree_key' => '{ID}',
+		'article' => array(
+			'class' => 'class.article',
+			'name' => 'title',
+			'mode' => 'list',
+			'params' => array(
 			),
+			'url' => 'article&task=findList'
 		),
 		'brand' => array(
 			'class' => 'class.category',
@@ -53,6 +51,33 @@ class hikashopNameboxType {
 			'url' => 'category&task=findList&category_type=manufacturer',
 			'options' => array(
 				'tree_url' => 'category&task=getTree&category_type=manufacturer&category_id={ID}',
+				'tree_key' => '{ID}',
+			),
+		),
+		'cart' => array(
+			'class' => 'class.cart',
+			'name' => 'cart_name',
+			'mode' => 'list',
+			'displayFormat' => '{cart_name} - {user_email} - {cart_id}',
+			'params' => array(
+				'type' => 'cart'
+			),
+			'options' => array(
+				'olist' => array(
+					'table' => array('cart_name' => 'HIKA_NAME', 'user_email' => 'CUSTOMER', 'cart_id' => 'ID' ),
+					'displayFormat' => '{cart_name} - {user_email} - {cart_id}',
+				)
+			),
+			'url_params' => array('TYPE'),
+			'url' => 'cart&task=findList&type={TYPE}'
+		),
+		'category' => array(
+			'class' => 'class.category',
+			'name' => 'category_name',
+			'mode' => 'tree',
+			'url' => 'category&task=getTree',
+			'options' => array(
+				'tree_url' => 'category&task=getTree&category_id={ID}',
 				'tree_key' => '{ID}',
 			),
 		),
@@ -83,8 +108,56 @@ class hikashopNameboxType {
 			'name' => 'discount_code',
 			'mode' => 'list',
 			'displayFormat' => '{discount_code} ({discount_type})',
+			'url' => 'discount&task=findList&type={TYPE}',
+			'url_params' => array('TYPE'),
 			'params' => array(
+				'type' => ''
 			)
+		),
+		'field' => array(
+			'class' => 'class.field',
+			'name' => 'field_realname',
+			'mode' => 'list',
+			'displayFormat' => '{field_realname} - {field_namekey} - {field_type}',
+			'params' => array(
+				'table' => ''
+			),
+			'options' => array(
+				'olist' => array(
+					'table' => array('field_realname' => 'FIELD_LABEL', 'field_namekey' => 'FIELD_COLUMN', 'field_type' => 'FIELD_TYPE' ),
+					'displayFormat' => '{field_realname} - {field_namekey} - {field_type}',
+				)
+			),
+			'url_params' => array('TABLE'),
+			'url' => 'cart&task=findList&table={TABLE}'
+		),
+		'modules' => array(
+			'class' => 'class.modules',
+			'name' => 'id',
+			'mode' => 'list',
+			'displayFormat' => '{title} ({id})',
+			'url' => 'modules&task=getValues',
+			'options' => array(
+				'olist' => array(
+					'table' => array('title' => 'HIKA_NAME', 'module' => 'HIKA_TYPE', 'id' => 'ID'),
+					'displayFormat' => '{title} ({id})'
+				)
+			)
+		),
+		'order' => array(
+			'class' => 'class.order',
+			'name' => 'order_number',
+			'mode' => 'list',
+			'displayFormat' => '{order_number} - {user_email} - {order_full_price}',
+			'params' => array(
+			),
+			'options' => array(
+				'olist' => array(
+					'table' => array('order_number' => 'ORDER_NUMBER', 'user_email' => 'CUSTOMER', 'order_full_price' => 'PRICE' ),
+					'displayFormat' => '{order_number} - {user_email} - {order_full_price}',
+				)
+			),
+			'url' => 'order&task=findList'
 		),
 		'order_status' => array(
 			'class' => 'class.orderstatus',
@@ -166,6 +239,10 @@ class hikashopNameboxType {
 				'tree_key' => '{ID}',
 			)
 		),
+		'rawlist' => array(
+			'class' => 'type.namebox_rawlist',
+			'mode' => 'list'
+		),
 	);
 
 
@@ -186,8 +263,8 @@ class hikashopNameboxType {
 			$loaded_types = array();
 
 			JPluginHelper::importPlugin('hikashop');
-			$dispatcher = JDispatcher::getInstance();
-			$dispatcher->trigger('onNameboxTypesLoad', array(&$loaded_types));
+			$app = JFactory::getApplication();
+			$app->triggerEvent('onNameboxTypesLoad', array(&$loaded_types));
 		}
 
 		foreach($loaded_types as $k => $v) {
@@ -282,6 +359,9 @@ class hikashopNameboxType {
 		$fullLoad = true;
 		list($elements, $values) = $nameboxClass->getNameboxData($typeConfig, $fullLoad, $mode, $value, null, $options);
 
+		if(isset($options['returnOnEmpty']) && empty($elements))
+			return $options['returnOnEmpty'];
+
 		$displayFormat = '';
 		if(!empty($typeConfig['displayFormat']))
 			$displayFormat = $typeConfig['displayFormat'];
@@ -291,6 +371,10 @@ class hikashopNameboxType {
 		$style = '';
 		if(!empty($options['style']))
 			$style = ' style="' . is_array($options['style']) ? implode(' ', $options['style']) : $options['style'] . '"';
+
+		$attributes = '';
+		if(!empty($options['attributes']))
+			$attributes = ' '.trim($options['attributes']);
 
 		$lang = JFactory::getLanguage();
 		$leftOffset = ($lang->isRTL()) ? '2000px' : '-2000px';
@@ -306,7 +390,7 @@ class hikashopNameboxType {
 			unset($element);
 		}
 
-		$ret = '<div class="nameboxes" id="'.$id.'" onclick="window.oNameboxes[\''.$id.'\'].focus(\''.$id.'_text\');"'.$style.'>';
+		$ret = '<div class="nameboxes" id="'.$id.'" onclick="window.oNameboxes[\''.$id.'\'].focus(\''.$id.'_text\');"'.$style.$attributes.'>';
 
 		if($mode == hikashopNameboxType::NAMEBOX_SINGLE) {
 			if(!empty($values)) {
@@ -323,7 +407,7 @@ class hikashopNameboxType {
 		<input type="hidden" name="'.$map.'" id="'.$id.'_valuehidden" value="'.$key.'"/><span id="'.$id.'_valuetext">'.$name.'</span>
 		'.(!$delete ?
 			'<a class="editbutton" href="#" onclick="return false;"><span>-</span></a>' :
-			'<a class="closebutton" href="#" onclick="window.oNameboxes[\''.$id.'\'].clean(this,\''.$cleanText.'\');return false;"><span>X</span></a>'
+			'<a class="closebutton" href="#" onclick="window.oNameboxes[\''.$id.'\'].clean(this,\''.$cleanText.'\');return false;" title="'.JText::_('HIKA_DELETE').'"><span>X</span></a>'
 		).'
 	</div>
 	<div class="nametext">
@@ -336,25 +420,28 @@ class hikashopNameboxType {
 				$map = substr($map, 0, -2);
 
 			if(!empty($values)) {
-				$n = $typeConfig['name'];
+				if(!empty($typeConfig['name']))
+					$n = $typeConfig['name'];
 				foreach($values as $key => $name) {
 					$obj = null;
 					if(is_object($name)) {
 						$obj = $name;
 						if(!empty($displayFormat))
 							$name = $this->getDisplayValue($obj, $typeConfig, $options);
-						else
+						elseif(!empty($n))
 							$name = $name->$n;
+						else
+							$name = 'name missing in type.namebox';
 					}
 					$ret .= "\r\n".'<div class="namebox" id="'.$id.'-'.$key.'">'.
 						'<input type="hidden" name="'.$map.'[]" value="'.$key.'"/>'.$name.
-						' <a class="closebutton" href="#" onclick="window.oNameboxes[\''.$id.'\'].unset(this,\''.$key.'\');window.oNamebox.cancelEvent();return false;"><span>X</span></a>'.
+						' <a class="closebutton" href="#" onclick="window.oNameboxes[\''.$id.'\'].unset(this,\''.$key.'\');window.oNamebox.cancelEvent();return false;" title="'.JText::_('HIKA_DELETE').'"><span>X</span></a>'.
 						'</div>';
 				}
 			}
 			$ret .= "\r\n".'<div class="namebox" style="display:none;" id="'.$id.'tpl">'.
 				'<input type="hidden" name="{map}" value="{key}"/>{name}'.
-				' <a class="closebutton" href="#" onclick="window.oNameboxes[\''.$id.'\'].unset(this,\'{key}\');window.oNamebox.cancelEvent();return false;"><span>X</span></a>'.
+				' <a class="closebutton" href="#" onclick="window.oNameboxes[\''.$id.'\'].unset(this,\'{key}\');window.oNamebox.cancelEvent();return false;" title="'.JText::_('HIKA_DELETE').'"><span>X</span></a>'.
 				'</div>';
 			$ret .= "\r\n".'<div class="nametext">'.
 				'<input id="'.$id.'_text" type="text" style="width:50px;min-width:60px" onfocus="window.oNameboxes[\''.$id.'\'].focus(this);" onkeyup="window.oNameboxes[\''.$id.'\'].search(this);" onchange="window.oNameboxes[\''.$id.'\'].search(this);"/>'.
@@ -462,7 +549,9 @@ class hikashopNameboxType {
 		if(!empty($typeConfig['mode']) && $typeConfig['mode'] == 'tree') {
 			$ret .= '
 <div class="namebox-popup">
-	<div id="'.$id.'_otree" style="display:none;" class="oTree namebox-popup-content"></div>
+	<div style="display:none;" data-oresize="'.$id.'" class="namebox-popup-resize namebox-popup-container">
+		<div id="'.$id.'_otree" class="oTree namebox-popup-content"></div>
+	</div>
 </div>
 <script type="text/javascript">
 new window.oNamebox(
@@ -475,7 +564,9 @@ new window.oNamebox(
 		else {
 			$ret .= '
 <div class="namebox-popup">
-	<div id="'.$id.'_olist" style="display:none;" class="oList namebox-popup-content"></div>
+	<div style="display:none;" data-oresize="'.$id.'" class="namebox-popup-resize namebox-popup-container">
+		<div id="'.$id.'_olist" class="oList namebox-popup-content"></div>
+	</div>
 </div>
 <script type="text/javascript">
 new window.oNamebox(

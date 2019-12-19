@@ -115,12 +115,8 @@ class N2SmartsliderBackendSliderControllerAjax extends N2SmartSliderControllerAj
             N2Message::error(sprintf(n2_('Import url is not valid: %s'), $key));
             $this->response->error();
         }
-        if (!N2SmartsliderLicenseModel::getInstance()
-                                      ->hasKey()
-        ) {
-            N2Message::error(n2_('License key required for premium features!'));
-            $this->response->error();
-        }
+        N2Base::getApplication('smartslider')->storage->set('free', 'subscribeOnImport', 1);
+    
 
         $posts  = array(
             'action'  => 'asset',
@@ -193,92 +189,12 @@ class N2SmartsliderBackendSliderControllerAjax extends N2SmartSliderControllerAj
     }
 
     public function actionCreateGroup() {
-        $this->validateToken();
-
-        $this->validatePermission('smartslider_edit');
-        $slidersModel = new N2SmartsliderSlidersModel();
-
-        $title = N2Request::getVar('title');
-        $this->validateVariable(!empty($title), 'group name');
-
-        $slider = array(
-            'type'  => 'group',
-            'title' => $title
-        );
-
-        $sliderid = $slidersModel->create($slider);
-        $slider   = $slidersModel->getWithThumbnail($sliderid);
-        $this->validateDatabase($slider);
-
-        $this->addView('sliderbox', array(
-            'slider' => $slider
-        ));
-
-        ob_start();
-        $this->render();
-        $box = ob_get_clean();
-        $this->response->respond($box);
-    
     }
 
     public function actionRemoveFromGroup() {
-        $this->validateToken();
-        $currentGroupID = N2Request::getInt('currentGroupID', 0);
-        $this->validateVariable($currentGroupID, 'group');
-
-        $sliders = N2Request::getVar('sliders');
-        if (!is_array($sliders)) {
-            N2Message::error(n2_('Missing sliders!'));
-            $this->response->error();
-        }
-        $xref = new N2SmartsliderSlidersXrefModel();
-
-        foreach ($sliders AS $sliderID) {
-            $xref->deleteXref($currentGroupID, $sliderID);
-        }
-        $this->response->respond();
-    
     }
 
     public function actionAddToGroup() {
-        $this->validateToken();
-
-        $this->validatePermission('smartslider_edit');
-
-        $action = N2Request::getCmd('action');
-        $this->validateVariable($action, 'Action');
-
-        $currentGroupID = N2Request::getInt('currentGroupID', 0);
-
-        $groupID = N2Request::getInt('groupID');
-        $this->validateVariable($groupID, 'group');
-
-        $sliders = N2Request::getVar('sliders');
-        if (!is_array($sliders)) {
-            N2Message::error(n2_('Missing sliders!'));
-            $this->response->error();
-        }
-
-        $slidersModel = new N2SmartsliderSlidersModel();
-
-        $xref = new N2SmartsliderSlidersXrefModel();
-        foreach ($sliders AS $sliderID) {
-            switch ($action) {
-                case 'copy':
-                    $newSliderID = $slidersModel->duplicate($sliderID, false);
-                    $xref->add($groupID, $newSliderID);
-                    break;
-                case 'link':
-                    $xref->add($groupID, $sliderID);
-                    break;
-                default:
-                    $xref->deleteXref($currentGroupID, $sliderID);
-                    $xref->add($groupID, $sliderID);
-                    break;
-            }
-        }
-        $this->response->respond();
-    
     }
 
     public function actionRenderSliderType() {

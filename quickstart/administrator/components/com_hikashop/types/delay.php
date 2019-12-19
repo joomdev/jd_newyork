@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -81,7 +81,7 @@ function hikashop_updateDelay(num) {
 		$return = $this->get($value,$type);
 		$delayValue = '<input class="inputbox" onchange="hikashop_updateDelay('.$this->num.');'.$this->onChange.'" type="text" name="delayvalue'.$this->num.'" id="delayvalue'.$this->num.'" size="10" value="'.$return->value.'" /> ';
 		$delayVar = '<input type="hidden" name="'.$map.'" id="delayvar'.$this->num.'" value="'.$value.'"/>';
-		return $delayValue.JHTML::_('select.genericlist', $this->values, 'delaytype'.$this->num, 'class="inputbox" size="1" onchange="hikashop_updateDelay('.$this->num.');'.$this->onChange.'"', 'value', 'text', $return->type ,'delaytype'.$this->num).$delayVar;
+		return $delayValue.JHTML::_('select.genericlist', $this->values, 'delaytype'.$this->num, 'class="custom-select" size="1" onchange="hikashop_updateDelay('.$this->num.');'.$this->onChange.'"', 'value', 'text', $return->type ,'delaytype'.$this->num).$delayVar;
 	}
 
 	public function get($value, $type) {

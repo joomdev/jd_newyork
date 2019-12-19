@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -13,19 +13,19 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <div class="hika_edit"><?php
 	echo $this->popup->display(
-		'<img src="'. HIKASHOP_IMAGES .'plus.png" alt=""/><span>'. JText::_('HIKA_EDIT') .'</span>',
+		'<i class="fa fa-plus"></i> ' . JText::_('HIKA_NEW'),
 		'HIKA_ADD_ORDER_PRODUCT',
 		hikashop_completeLink('order&task=product_create&order_id='.$this->order->order_id, true),
 		'hikashop_addproduct_popup',
-		750, 460, 'onclick="return window.orderMgr.addProduct(this);"', '', 'link'
+		750, 460, 'onclick="return window.orderMgr.addProduct(this);" class="btn btn-primary"', '', 'link'
 	);
 	echo ' ';
 	echo $this->popup->display(
-		'<img src="'. HIKASHOP_IMAGES .'product.png" alt=""/><span>'. JText::_('HIKA_EDIT') .'</span>',
+		'<i class="fa fa-plus-square"></i> ' . JText::_('SELECT'),
 		'HIKA_ADD_ORDER_PRODUCT',
 		hikashop_completeLink('product&task=selection&single=1&confirm=0&after=order|product_create&afterParams=order_id|'.$this->order->order_id, true),
 		'hikashop_selectproduct_popup',
-		750, 460, 'onclick="return window.orderMgr.selectProduct(this);"', '', 'link'
+		750, 460, 'onclick="return window.orderMgr.selectProduct(this);" class="btn btn-primary"', '', 'link'
 	);
 ?></div>
 <script type="text/javascript">
@@ -57,6 +57,7 @@ window.orderMgr.selectProduct = function(el) {
 <table class="hika_listing adminlist <?php echo (HIKASHOP_RESPONSIVE)?'table table-striped table-hover':'hika_table'; ?>" id="hikashop_order_product_listing" style="width:100%">
 	<thead>
 		<tr>
+			<th class="hikashop_order_item_image_title title"></th>
 			<th class="hikashop_order_item_name_title title"><?php echo JText::_('PRODUCT'); ?></th>
 <?php
 	$null = null;
@@ -95,18 +96,35 @@ window.orderMgr.selectProduct = function(el) {
 		}
 	}
 ?>
-			<th colspan="2" class="hikashop_order_item_remove_title title"><?php echo JText::_('ACTIONS'); ?></th>
+			<th colspan="2" class="hikashop_order_item_remove_title title"><?php echo JText::_('HIKASHOP_ACTIONS'); ?></th>
 		</tr>
 	</thead>
 	<tbody>
 <?php
 $manage = hikashop_isAllowed($this->config->get('acl_product_manage','all'));
+$imageHelper = hikashop_get('helper.image');
+$width = (int)$this->config->get('cart_thumbnail_x', 50);
+$height = (int)$this->config->get('cart_thumbnail_y', 50);
+$image_options = array(
+	'default' => true,
+	'forcesize' => $this->config->get('image_force_size', true),
+	'scale' => $this->config->get('image_scale_mode','inside')
+);
 foreach($this->order->products as $k => $product) {
 	$td_class = '';
 	if(!empty($product->order_product_option_parent_id))
 		$td_class = ' hikamarket_order_item_option';
 ?>
 		<tr>
+			<td class="hikashop_order_item_image_value">
+<?php
+		$image_path = (!empty($product->images) ? @$product->images[0]->file_path : '');
+		$img = $imageHelper->getThumbnail($image_path, array('width' => $width, 'height' => $height), $image_options);
+		if($img->success) {
+			echo '<img class="hikashop_order_item_image" title="'.$this->escape(@$product->images[0]->file_description).'" alt="'.$this->escape(@$product->images[0]->file_name).'" src="'.$img->url.'"/>';
+		}
+?>
+			</td>
 			<td class="hikashop_order_item_name_value<?php echo $td_class; ?>">
 <?php
 	if(!empty($product->product_id)) {
@@ -224,12 +242,14 @@ foreach($this->order->products as $k => $product) {
 	}
 ?>
 			<td class="hikashop_order_item_edit_value" style="text-align:center">
-				<a onclick="return window.orderMgr.setProduct(this);" href="<?php
+				<a class="btn btn-primary" onclick="return window.orderMgr.setProduct(this);" href="<?php
 					echo hikashop_completeLink('order&task=edit&subtask=products&order_id='.$this->order->order_id.'&order_product_id='.$product->order_product_id, true);
-				?>"><img src="<?php echo HIKASHOP_IMAGES; ?>edit.png" alt="<?php echo JText::_('HIKA_EDIT'); ?>"/></a>
+				?>"><i class="fas fa-pen"></i> <?php echo JText::_('HIKA_EDIT'); ?></a>
 			</td>
 			<td class="hikashop_order_item_remove_value" style="text-align:center">
-				<a onclick="return window.orderMgr.delProduct(this, <?php echo $product->order_product_id; ?>);" href="<?php echo hikashop_completeLink('order&task=product_delete&order_id='.$this->order->order_id.'&order_product_id='.$product->order_product_id); ?>"><img src="<?php echo HIKASHOP_IMAGES; ?>delete.png" alt="<?php echo JText::_('HIKA_DELETE'); ?>"/></a>
+				<a class="btn btn-danger" onclick="return window.orderMgr.delProduct(this, <?php echo $product->order_product_id; ?>);" href="<?php echo hikashop_completeLink('order&task=product_delete&order_id='.$this->order->order_id.'&order_product_id='.$product->order_product_id); ?>">
+					<i class="fas fa-trash"></i> <?php echo JText::_('HIKA_DELETE'); ?>
+				</a>
 			</td>
 		</tr>
 <?php

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="2.5" client="site" method="upgrade">
+	<name>JD Tweet</name>
+	<author>JoomDev</author>
+	<creationDate>June 2019</creationDate>
+	<copyright>Copyright (C) 2019 Joomdev, Inc. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>info@joomdev.com</authorEmail>
+	<authorUrl>www.joomdev.com</authorUrl>
+	<version>1.0</version>
+	<description></description>
+	<files>
+		<filename module="mod_jdtweet">mod_jdtweet.php</filename>
+		<filename>index.html</filename>
+		<filename>mod_jdtweet.xml</filename>
+		<filename>TwitterAPIExchange.php</filename>
+		<folder>tmpl</folder>
+	</files>
+	<media folder="media" destination="mod_jdtweet">	
+        <folder>assets</folder>		
+    </media>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field
+					name="twitter_username"
+					type="text"
+					label="Twitter Username"
+					description="Put your twitter username" />
+				<field
+					name="count"
+					type="text"
+					default="3"
+					label="No of Tweets"
+					description="No of Tweets You want to Display" 
+					/>
+				<field
+					name="consumerkey"
+					type="text"
+					label="Consumer Key"
+					description="Twitter Application Consumer Key" 
+					class="required"/>
+				<field
+					name="consumersecret"
+					type="text"
+					label="Consumer Secret"
+					description="Twitter Application Consumer Secret" 
+					class="required"/>
+				<field
+					name="accesstoken"
+					type="text"
+					label="Access Token"
+					description="Twitter Application Access Token" 
+					class="required"/>
+					
+				<field
+					name="accesstokensecret"
+					type="text"
+					label="Access Token Secret"
+					description="Twitter Application Access Token Secret" 
+					class="required"/>		
+			</fieldset>
+			<fieldset name="advanced">
+				<field
+					name="moduleclass_sfx"
+					type="text"
+					default=""
+					label="Module Class Suffix"
+					description="Module Class Suffix" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

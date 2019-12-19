@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -12,7 +12,6 @@ jimport( 'joomla.application.component.view');
 class CategoryViewCategory  extends HikaShopView {
 	function display($tpl = null){
 
-		global $mainframe;
 		global $Itemid;
 		$db			= JFactory::getDBO();
 		$app = JFactory::getApplication();
@@ -40,9 +39,12 @@ class CategoryViewCategory  extends HikaShopView {
 			$module->initialize($params);
 			$cid = $params->params->get('selectparentlisting');
 		}
+		$category = null;
 		if(!empty($cid)){
 			$categoryClass = hikashop_get('class.category');
 			$category = $categoryClass->get($cid);
+		}
+		if(!empty($category)) {
 			if($category->category_type=='manufacturer'){
 				$query = 'SELECT * FROM '.hikashop_table('product').' as a ' .
 					'JOIN '.hikashop_table('category').' as cat ' .
@@ -96,7 +98,7 @@ class CategoryViewCategory  extends HikaShopView {
 					$ids = array();
 					$productClass = hikashop_get('class.product');
 					foreach($products as $key => $row){
-						$ids[]=$row->product_id;
+						$ids[]=(int)$row->product_id;
 						$productClass->addAlias($products[$key]);
 					}
 					$queryCategoryId='SELECT * FROM '.hikashop_table('product_category').' WHERE product_id IN ('.implode(',',$ids).')';
@@ -116,7 +118,9 @@ class CategoryViewCategory  extends HikaShopView {
 						foreach($images as $image){
 							if($row->product_id==$image->file_ref_id){
 								foreach(get_object_vars($image) as $key => $name){
-									if(!is_object($products[$k]->images[0])){
+									if(empty($products[$k]->images))
+										$products[$k]->images = array();
+									if(empty($products[$k]->images[0]) || !is_object($products[$k]->images[0])){
 										$products[$k]->images[0] = new stdClass();
 									}
 									$products[$k]->images[0]->$key = $name;
@@ -180,7 +184,7 @@ class CategoryViewCategory  extends HikaShopView {
 			$pathway_sef_name = $config->get('pathway_sef_name','category_pathway');
 			$link = JURI::base().'index.php?option=com_hikashop&amp;ctrl=product&amp;task=show&amp;cid='.$product->product_id.'&amp;name='.$product->alias.'&amp;Itemid='.$Itemid.'&amp;'.$pathway_sef_name.'='.$product->category_id;
 
-			if($product->prices['0']->price_value_with_tax != 0 ){
+			if(!empty($product->prices) && $product->prices['0']->price_value_with_tax != 0 ){
 			$desc = $product->product_description.JText::_('CART_PRODUCT_PRICE').' : '.$currencyClass->format($product->prices[0]->price_value_with_tax,$product->prices[0]->price_currency_id);
 			}
 			else{

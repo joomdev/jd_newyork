@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -19,7 +19,8 @@ class plgHikashoppaymentPayplug extends hikashopPaymentPlugin
 	var $pluginConfig = array(
 		'email' => array('HIKA_EMAIL', 'input'),
 		'password' => array('HIKA_PASSWORD', 'input'),
-		'debug' => array('DEBUG', 'boolean','0'),
+		'debug' => array('DEBUG', 'boolean', '0'),
+		'sandbox' => array('SANDBOX', 'boolean', '0'),
 		'cancel_url' => array('CANCEL_URL', 'input'),
 		'return_url' => array('RETURN_URL', 'input'),
 		'invalid_status' => array('INVALID_STATUS', 'orderstatus'),
@@ -33,6 +34,11 @@ class plgHikashoppaymentPayplug extends hikashopPaymentPlugin
 		$notif_url = HIKASHOP_LIVE.'index.php?option=com_hikashop&ctrl=checkout&task=notify&notif_payment='.$this->name.'&notif_id='.$method_id.'&order_id='.$order->order_id.'&lang='.$this->locale.$this->url_itemid;
 
 		require_once(dirname(__FILE__).'/lib/payplug.php');
+
+		if(!file_exists(HIKASHOP_MEDIA."payplug_parameters.json")) {
+			$this->app->enqueueMessage('The file '.HIKASHOP_MEDIA.'payplug_parameters.json is missing. This file is generated when you save the settings of your PayPlug payment method. So please check that the permissions are OK in that folder and save the settings of the the PayPlug payment method again.');
+			return;
+		}
 
 		try{
 			Payplug::setConfigFromFile(HIKASHOP_MEDIA."payplug_parameters.json");
@@ -151,7 +157,7 @@ class plgHikashoppaymentPayplug extends hikashopPaymentPlugin
 		}else{
 			require_once(dirname(__FILE__).'/lib/payplug.php');
 			try{
-				$parameters = Payplug::loadParameters($element->payment_params->email, $element->payment_params->password);
+				$parameters = Payplug::loadParameters($element->payment_params->email, $element->payment_params->password, (int)$element->payment_params->sandbox);
 				$parameters->saveInFile(HIKASHOP_MEDIA."payplug_parameters.json");
 			}catch(Exception $e){
 				$msg = $e->getMessage();

@@ -3,7 +3,7 @@
 	<name>mod_articles_category</name>
 	<author>Joomla! Project</author>
 	<creationDate>February 2010</creationDate>
-	<copyright>Copyright (C) 2005 - 2018 Open Source Matters. All rights reserved.</copyright>
+	<copyright>Copyright (C) 2005 - 2019 Open Source Matters. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>admin@joomla.org</authorEmail>
 	<authorUrl>www.joomla.org</authorUrl>
@@ -68,6 +68,7 @@
 					label="MOD_ARTICLES_CATEGORY_FIELD_SHOWFEATURED_LABEL"
 					description="MOD_ARTICLES_CATEGORY_FIELD_SHOWFEATURED_DESC"
 					default="show"
+					validate="options"
 					>
 					<option value="show">JSHOW</option>
 					<option value="hide">JHIDE</option>
@@ -231,6 +232,7 @@
 					label="MOD_ARTICLES_CATEGORY_FIELD_DATEFILTERING_LABEL"
 					description="MOD_ARTICLES_CATEGORY_FIELD_DATEFILTERING_DESC"
 					default="off"
+					validate="options"
 					>
 					<option value="off">MOD_ARTICLES_CATEGORY_OPTION_OFF_VALUE</option>
 					<option value="range">MOD_ARTICLES_CATEGORY_OPTION_DATERANGE_VALUE</option>
@@ -244,6 +246,7 @@
 					description="MOD_ARTICLES_CATEGORY_FIELD_DATERANGEFIELD_DESC"
 					default="a.created"
 					showon="date_filtering!:off"
+					validate="options"
 					>
 					<option value="a.created">MOD_ARTICLES_CATEGORY_OPTION_CREATED_VALUE</option>
 					<option value="a.modified">MOD_ARTICLES_CATEGORY_OPTION_MODIFIED_VALUE</option>
@@ -297,6 +300,7 @@
 					label="MOD_ARTICLES_CATEGORY_FIELD_ARTICLEORDERING_LABEL"
 					description="MOD_ARTICLES_CATEGORY_FIELD_ARTICLEORDERING_DESC"
 					default="a.title"
+					validate="options"
 					>
 					<option value="a.ordering">MOD_ARTICLES_CATEGORY_OPTION_ORDERING_VALUE</option>
 					<option value="fp.ordering">MOD_ARTICLES_CATEGORY_OPTION_ORDERINGFEATURED_VALUE</option>
@@ -319,6 +323,7 @@
 					label="MOD_ARTICLES_CATEGORY_FIELD_ARTICLEORDERINGDIR_LABEL"
 					description="MOD_ARTICLES_CATEGORY_FIELD_ARTICLEORDERINGDIR_DESC"
 					default="ASC"
+					validate="options"
 					>
 					<option value="DESC">MOD_ARTICLES_CATEGORY_OPTION_DESCENDING_VALUE</option>
 					<option value="ASC">MOD_ARTICLES_CATEGORY_OPTION_ASCENDING_VALUE</option>
@@ -336,12 +341,28 @@
 					label="MOD_ARTICLES_CATEGORY_FIELD_ARTICLEGROUPING_LABEL"
 					description="MOD_ARTICLES_CATEGORY_FIELD_ARTICLEGROUPING_DESC"
 					default="none"
+					validate="options"
 					>
 					<option value="none">JNONE</option>
 					<option value="year">MOD_ARTICLES_CATEGORY_OPTION_YEAR_VALUE</option>
 					<option value="month_year">MOD_ARTICLES_CATEGORY_OPTION_MONTHYEAR_VALUE</option>
 					<option value="author">JAUTHOR</option>
 					<option value="category_title">JCATEGORY</option>
+					<option value="tags">JTAG</option>
+				</field>
+
+				<field
+					name="date_grouping_field"
+					type="list"
+					label="MOD_ARTICLES_CATEGORY_FIELD_DATEGROUPINGFIELD_LABEL"
+					description="MOD_ARTICLES_CATEGORY_FIELD_DATEGROUPINGFIELD_DESC"
+					default="created"
+					showon="article_grouping:year,month_year"
+					validate="options"
+					>
+					<option value="created">MOD_ARTICLES_CATEGORY_OPTION_CREATED_VALUE</option>
+					<option value="modified">MOD_ARTICLES_CATEGORY_OPTION_MODIFIED_VALUE</option>
+					<option value="publish_up">MOD_ARTICLES_CATEGORY_OPTION_STARTPUBLISHING_VALUE</option>
 				</field>
 
 				<field
@@ -360,6 +381,7 @@
 					description="MOD_ARTICLES_CATEGORY_FIELD_ARTICLEGROUPINGDIR_DESC"
 					default="ksort"
 					showon="article_grouping!:none"
+					validate="options"
 					>
 					<option value="krsort">MOD_ARTICLES_CATEGORY_OPTION_DESCENDING_VALUE</option>
 					<option value="ksort">MOD_ARTICLES_CATEGORY_OPTION_ASCENDING_VALUE</option>
@@ -405,6 +427,7 @@
 					description="MOD_ARTICLES_CATEGORY_FIELD_DATEFIELD_DESC"
 					default="created"
 					showon="show_date:1"
+					validate="options"
 					>
 					<option value="created">MOD_ARTICLES_CATEGORY_OPTION_CREATED_VALUE</option>
 					<option value="modified">MOD_ARTICLES_CATEGORY_OPTION_MODIFIED_VALUE</option>
@@ -451,6 +474,19 @@
 					type="radio"
 					label="JAUTHOR"
 					description="MOD_ARTICLES_CATEGORY_FIELD_SHOWAUTHOR_DESC"
+					default="0"
+					filter="integer"
+					class="btn-group btn-group-yesno"
+					>
+					<option value="1">JSHOW</option>
+					<option value="0">JHIDE</option>
+				</field>
+
+				<field
+					name="show_tags"
+					type="radio"
+					label="JTAG"
+					description="MOD_ARTICLES_CATEGORY_FIELD_SHOWTAGS_DESC"
 					default="0"
 					filter="integer"
 					class="btn-group btn-group-yesno"

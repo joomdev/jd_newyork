@@ -189,7 +189,7 @@ class plgSearchVirtuemart extends JPlugin
 		" LEFT JOIN #__virtuemart_product_customfields AS cf ON pd.virtuemart_product_id = cf.virtuemart_product_id " .
 		" LEFT JOIN #__virtuemart_categories as c ON c.virtuemart_category_id = xref.virtuemart_category_id " .
 		" LEFT JOIN #__virtuemart_categories_" . VmConfig::$vmlang . " AS cd ON cd.virtuemart_category_id = c.virtuemart_category_id " .
-		" WHERE {$where} " .
+		" WHERE ({$where}) " .
 		" {$shopper_group_condition} " .
 		" {$uncategorized_products_condition}  " .
 		" AND p.published = 1" .

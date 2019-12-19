@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -17,7 +17,7 @@ defined('_JEXEC') or die('Restricted access');
 				echo JText::_('PRODUCT_QUANTITY');
 			?></th>
 			<th style="width:40px;text-align:center">
-				<a href="#" onclick="return window.productMgr.newBundle();"><img src="<?php echo HIKASHOP_IMAGES; ?>plus.png" alt="<?php echo JText::_('ADD'); ?>"></a>
+				<a href="#" onclick="return window.productMgr.newBundle();" title="<?php echo JText::_('ADD'); ?>"><i class="fa fa-plus"></i></a>
 			</th>
 		</tr>
 	</thead>
@@ -45,9 +45,9 @@ defined('_JEXEC') or die('Restricted access');
 	</dd>
 </dl>
 <div style="float:right">
-	<button onclick="return window.productMgr.addBundle();" class="btn btn-success"><img src="<?php echo HIKASHOP_IMAGES; ?>save.png" alt="" style="vertical-align:middle;"/> <?php echo JText::_('HIKA_SAVE'); ;?></button>
+	<button onclick="return window.productMgr.addBundle();" class="btn btn-success"><i class="fa fa-save"></i> <?php echo JText::_('HIKA_SAVE'); ;?></button>
 </div>
-<button onclick="return window.productMgr.cancelNewBundle();" class="btn btn-danger"><img src="<?php echo HIKASHOP_IMAGES; ?>cancel.png" alt="" style="vertical-align:middle;"/> <?php echo JText::_('HIKA_CANCEL'); ;?></button>
+<button onclick="return window.productMgr.cancelNewBundle();" class="btn btn-danger"><i class="fa fa-times"></i> <?php echo JText::_('HIKA_CANCEL'); ;?></button>
 <div style="clear:both"></div>
 			</td>
 		</tr>
@@ -68,7 +68,7 @@ defined('_JEXEC') or die('Restricted access');
 				<input type="text" size="5" style="width:70px;" name="data[product][bundle][<?php echo $pid; ?>]" value="<?php echo max((int)$bundle->product_related_quantity, 1); ?>"/>
 			</td>
 			<td style="text-align:center">
-				<a href="#delete" onclick="window.hikashop.deleteRow(this); return false;"><img src="<?php echo HIKASHOP_IMAGES; ?>delete.png" alt="<?php echo JText::_('HIKA_DELETE'); ?>"></a>
+				<a href="#delete" onclick="window.hikashop.deleteRow(this); return false;"><i class="fas fa-trash"></i></a>
 			</td>
 		</tr>
 <?php
@@ -82,7 +82,7 @@ defined('_JEXEC') or die('Restricted access');
 				<input type="text" size="5" style="width:70px;" name="{INPUT_NAME}" value="{VALUE}"/>
 			</td>
 			<td style="text-align:center">
-				<a href="#delete" onclick="window.hikashop.deleteRow(this); return false;"><img src="<?php echo HIKASHOP_IMAGES; ?>delete.png" alt="<?php echo JText::_('HIKA_DELETE'); ?>"></a>
+				<a href="#delete" onclick="window.hikashop.deleteRow(this); return false;"><i class="fas fa-trash"></i></a>
 			</td>
 		</tr>
 	</tbody>

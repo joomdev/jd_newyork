@@ -22,8 +22,8 @@
 defined('_JEXEC') or die('Restricted access');
 class KlikandpayHelperKlikandpaySubscribe extends KlikandpayHelperKlikandpay {
 
-	function __construct($method, $paypalPlugin) {
-		parent::__construct($method, $paypalPlugin);
+	function __construct($method, $KlikandpayPlugin) {
+		parent::__construct($method, $KlikandpayPlugin);
 
 	}
 

@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -19,9 +19,12 @@ class Payplug {
 			return self::$parameters;
 	}
 
-	public static function loadParameters($email, $password) {
+	public static function loadParameters($email, $password, $is_test=false) {
 		$answer;
 		$configUrl = 'https://www.payplug.fr/portal/ecommerce/autoconfig';
+		if ($is_test === true) {
+			$configUrl = 'https://www.payplug.fr/portal/test/ecommerce/autoconfig';
+		}
 		$curlErrNo;
 		$curlErrMsg;
 		$httpCode;

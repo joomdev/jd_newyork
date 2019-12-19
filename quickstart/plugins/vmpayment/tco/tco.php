@@ -8,7 +8,7 @@ defined('_JEXEC') or die('Direct Access to ' . basename(__FILE__) . ' is not all
  * @version $Id: tco.php$
  * @package VirtueMart
  * @subpackage payment
- * @copyright Copyright (C) 2015 - 2016 VirtueMart - All rights reserved.
+ * @copyright Copyright (C) 2015 - 2019 VirtueMart - All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -51,7 +51,7 @@ class plgVmPaymentTco extends vmPSPlugin {
             'cost_percent_total' => array(0, 'int'),
             'tax_id' => array(0, 'int')
         );
-
+		$this->addVarsToPushCore($varsToPush, 1);
         $this->setConfigParameterable($this->_configTableFieldName, $varsToPush);
 
     }
@@ -401,37 +401,8 @@ class plgVmPaymentTco extends vmPSPlugin {
 
     protected function checkConditions($cart, $method, $cart_prices) {
 
+		return parent::checkConditions($cart, $method, $cart_prices);
 
-        $address = (($cart->ST == 0) ? $cart->BT : $cart->ST);
-
-        $amount = $cart_prices['salesPrice'];
-        $amount_cond = ($amount >= $method->min_amount AND $amount <= $method->max_amount
-        OR
-        ($method->min_amount <= $amount AND ($method->max_amount == 0) ));
-
-        $countries = array();
-        if (!empty($method->countries)) {
-            if (!is_array($method->countries)) {
-                $countries[0] = $method->countries;
-            } else {
-                $countries = $method->countries;
-            }
-        }
-
-        if (!is_array($address)) {
-            $address = array();
-            $address['virtuemart_country_id'] = 0;
-        }
-
-        if (!isset($address['virtuemart_country_id']))
-        $address['virtuemart_country_id'] = 0;
-        if (in_array($address['virtuemart_country_id'], $countries) || count($countries) == 0) {
-            if ($amount_cond) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     function plgVmOnStoreInstallPaymentPluginTable($jplugin_id) {

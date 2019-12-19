@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -13,7 +13,7 @@ class DiscountViewDiscount extends hikashopView {
 	var $ctrl= 'discount';
 	var $nameListing = 'DISCOUNTS';
 	var $nameForm = 'DISCOUNTS';
-	var $icon = 'discount';
+	var $icon = 'percent';
 
 	function display($tpl = null) {
 		$this->paramBase = HIKASHOP_COMPONENT.'.'.$this->getName();
@@ -32,7 +32,7 @@ class DiscountViewDiscount extends hikashopView {
 		$pageInfo->filter->order->value = $app->getUserStateFromRequest( $this->paramBase.".filter_order", 'filter_order',	'a.discount_id','cmd' );
 		$pageInfo->filter->order->dir	= $app->getUserStateFromRequest( $this->paramBase.".filter_order_Dir", 'filter_order_Dir',	'desc',	'word' );
 		$pageInfo->search = $app->getUserStateFromRequest( $this->paramBase.".search", 'search', '', 'string' );
-		$pageInfo->search = JString::strtolower(trim($pageInfo->search));
+		$pageInfo->search = HikaStringHelper::strtolower(trim($pageInfo->search));
 		$pageInfo->filter->filter_type = $app->getUserStateFromRequest( $this->paramBase.".filter_type",'filter_type','','string');
 		$pageInfo->limit->value = $app->getUserStateFromRequest( $this->paramBase.'.list_limit', 'limit', $app->getCfg('list_limit'), 'int' );
 		if(empty($pageInfo->limit->value)) $pageInfo->limit->value = 500;
@@ -76,9 +76,13 @@ class DiscountViewDiscount extends hikashopView {
 
 		if($pageInfo->elements->page && $extendedData){
 
-			$types = array('product','category','zone');
+			$types = array(
+				'product' => 'product_name',
+				'category'  => 'category_name',
+				'zone'  => 'zone_name_english',
+				'user' => 'user_email');
 			$productClass = hikashop_get('class.product');
-			foreach($types as $type){
+			foreach($types as $type => $name){
 				$ids = array();
 				$key = 'discount_'.$type.'_id';
 				foreach($rows as $row){
@@ -96,12 +100,11 @@ class DiscountViewDiscount extends hikashopView {
 				if(!count($ids)){
 					continue;
 				}
+
 				if($type=='zone'){
 					$primary = $type.'_namekey';
-					$name = $type.'_name_english';
 				}else{
 					$primary = $type.'_id';
-					$name = $type.'_name';
 				}
 				$query = 'SELECT * FROM '.hikashop_table($type).' WHERE '.$primary.' IN ('.implode(',',$ids).')';
 				$database->setQuery($query);
@@ -206,7 +209,7 @@ class DiscountViewDiscount extends hikashopView {
 		);
 
 		if(!empty($selection)) {
-			JArrayHelper::toInteger($selection);
+			hikashop_toInteger($selection);
 			$db = JFactory::getDBO();
 			$query = 'SELECT a.* FROM '.hikashop_table('discount').' AS a  WHERE a.discount_id IN ('.implode(',',$selection).')';
 			$db->setQuery($query);
@@ -253,14 +256,24 @@ class DiscountViewDiscount extends hikashopView {
 				$type = $app->getUserState($this->paramBase . '.filter_type');
 				if(!in_array($type,array('all','nochilds'))) {
 					$element->discount_type = $type;
-					$this->nameForm = 'HIKASHOP_COUPON';
 				} else {
 					$element->discount_type = 'discount';
 				}
+				if($type == 'coupon') {
+					$element->discount_tax = 1;
+				}
 				$element->discount_published=1;
+
 			}
 			$task = 'add';
 		}
+
+		if($element->discount_type == 'coupon')
+			$this->nameForm = 'HIKASHOP_COUPON';
+		if($element->discount_type == 'discount')
+			$element->discount_tax = 0;
+
+
 		$this->assignRef('element', $element);
 
 		hikashop_setTitle(JText::_($this->nameForm), $this->icon,$this->ctrl.'&task='.$task.'&discount_id='.$discount_id);
@@ -268,9 +281,7 @@ class DiscountViewDiscount extends hikashopView {
 		hikashop_loadJsLib('tooltip');
 
 		$this->toolbar = array(
-			'save',
-			array('name' => 'save2new', 'display' => version_compare(JVERSION,'1.7','>=')),
-			'apply',
+			'save-group',
 			'cancel',
 			'|',
 			array('name' => 'pophelp', 'target' => $this->ctrl.'-form')
@@ -300,7 +311,7 @@ class DiscountViewDiscount extends hikashopView {
 		$pageInfo->filter->order->value = $app->getUserStateFromRequest( $this->paramBase.".filter_order", 'filter_order',	'a.discount_id','cmd' );
 		$pageInfo->filter->order->dir	= $app->getUserStateFromRequest( $this->paramBase.".filter_order_Dir", 'filter_order_Dir',	'desc',	'word' );
 		$pageInfo->search = $app->getUserStateFromRequest( $this->paramBase.".search", 'search', '', 'string' );
-		$pageInfo->search = JString::strtolower(trim($pageInfo->search));
+		$pageInfo->search = HikaStringHelper::strtolower(trim($pageInfo->search));
 		$pageInfo->filter->filter_type = $app->getUserStateFromRequest( $this->paramBase.".filter_type",'filter_type','','string');
 		$pageInfo->limit->value = $app->getUserStateFromRequest( $this->paramBase.'.list_limit', 'limit', $app->getCfg('list_limit'), 'int' );
 		if(empty($pageInfo->limit->value)) $pageInfo->limit->value = 500;
@@ -377,7 +388,7 @@ class DiscountViewDiscount extends hikashopView {
 
 		$rows = array();
 		if(!empty($discounts)) {
-			JArrayHelper::toInteger($discounts);
+			hikashop_toInteger($discounts);
 			$db = JFactory::getDBO();
 
 			$filter = '';

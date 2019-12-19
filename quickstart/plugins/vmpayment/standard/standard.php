@@ -10,7 +10,7 @@ defined ('_JEXEC') or die('Restricted access');
  * @version $Id: standard.php 5122 2011-12-18 22:24:49Z alatak $
  * @package VirtueMart
  * @subpackage payment
- * @copyright Copyright (c) 2004 - 2014 VirtueMart Team. All rights reserved.
+ * @copyright Copyright (c) 2004 - 2019 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -20,9 +20,6 @@ defined ('_JEXEC') or die('Restricted access');
  *
  * http://virtuemart.net
  */
-if (!class_exists ('vmPSPlugin')) {
-	require(VMPATH_PLUGINLIBS . DS . 'vmpsplugin.php');
-}
 
 class plgVmPaymentStandard extends vmPSPlugin {
 
@@ -35,6 +32,7 @@ class plgVmPaymentStandard extends vmPSPlugin {
 		$this->_tablepkey = 'id';
 		$this->_tableId = 'id';
 		$varsToPush = $this->getVarsToPush ();
+		$this->addVarsToPushCore($varsToPush,1);
 		$this->setConfigParameterable ($this->_configTableFieldName, $varsToPush);
 		$this->setConvertable(array('min_amount','max_amount','cost_per_transaction','cost_min_transaction'));
 		$this->setConvertDecimal(array('min_amount','max_amount','cost_per_transaction','cost_min_transaction','cost_percent_total'));
@@ -126,10 +124,6 @@ class plgVmPaymentStandard extends vmPSPlugin {
 		vmLanguage::loadJLang('com_virtuemart',true);
 		vmLanguage::loadJLang('com_virtuemart_orders', TRUE);
 
-		if (!class_exists ('VirtueMartModelOrders')) {
-			require(VMPATH_ADMIN . DS . 'models' . DS . 'orders.php');
-		}
-
 		$this->getPaymentCurrency($method, $order['details']['BT']->payment_currency_id);
 		$currency_code_3 = shopFunctions::getCurrencyByID($method->payment_currency, 'currency_code_3');
 		$email_currency = $this->getEmailCurrency($method);
@@ -155,23 +149,32 @@ class plgVmPaymentStandard extends vmPSPlugin {
 		$dbValues['tax_id'] = $method->tax_id;
 		$this->storePSPluginInternalData ($dbValues);
 
-		if (!class_exists ('VirtueMartModelCurrency')) {
-			require(VMPATH_ADMIN . DS . 'models' . DS . 'currency.php');
-		}
 		$currency = CurrencyDisplay::getInstance ('', $order['details']['BT']->virtuemart_vendor_id);
+
+
+		$modelOrder = VmModel::getModel ('orders');
+		$order['order_status'] = $this->getNewStatus ($method);
+		$order['customer_notified'] = 1;
+		$order['comments'] = '';
+		$modelOrder->updateStatusForOneOrder ($order['details']['BT']->virtuemart_order_id, $order, TRUE);
+
+		$orderlink='';
+		$tracking = VmConfig::get('ordertracking','guests');
+		if($tracking !='none' and !($tracking =='registered' and empty($order['details']['BT']->virtuemart_user_id) )) {
+
+			$orderlink = 'index.php?option=com_virtuemart&view=orders&layout=details&order_number=' . $order['details']['BT']->order_number;
+			if ($tracking == 'guestlink' or ($tracking == 'guests' and empty($order['details']['BT']->virtuemart_user_id))) {
+				$orderlink .= '&order_pass=' . $order['details']['BT']->order_pass;
+			}
+		}
 
 		$html = $this->renderByLayout('post_payment', array(
 			'order_number' =>$order['details']['BT']->order_number,
 			'order_pass' =>$order['details']['BT']->order_pass,
 			'payment_name' => $dbValues['payment_name'],
 			'displayTotalInPaymentCurrency' => $totalInPaymentCurrency['display'],
-			'order_user_id' => $order['details']['BT']->virtuemart_user_id
+			'orderlink' =>$orderlink
 		));
-		$modelOrder = VmModel::getModel ('orders');
-		$order['order_status'] = $this->getNewStatus ($method);
-		$order['customer_notified'] = 1;
-		$order['comments'] = '';
-		$modelOrder->updateStatusForOneOrder ($order['details']['BT']->virtuemart_order_id, $order, TRUE);
 
 		//We delete the old stuff
 		$cart->emptyCart ();
@@ -238,7 +241,7 @@ class plgVmPaymentStandard extends vmPSPlugin {
 	 * @return true: if the conditions are fulfilled, false otherwise
 	 *
 	 */
-	protected function checkConditions ($cart, $method, $cart_prices) {
+/*	protected function checkConditions ($cart, $method, $cart_prices) {
 
 		$this->convert_condition_amount($method);
 		$amount = $this->getCartAmount($cart_prices);
@@ -278,7 +281,7 @@ class plgVmPaymentStandard extends vmPSPlugin {
 
 		return FALSE;
 	}
-
+*/
 
 	/*
 * We must reimplement this triggers for joomla 1.7

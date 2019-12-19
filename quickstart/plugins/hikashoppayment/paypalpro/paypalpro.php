@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -247,7 +247,7 @@ class plgHikashoppaymentPaypalpro extends hikashopPaymentPlugin
 		return true;
 	}
 
-	 function onAfterOrderCreate(&$order, &$do) {
+	function onAfterOrderCreate(&$order, &$do) {
 	 	$this->loadOrderData($order);
 		$this->loadPaymentParams($order);
 		if($this->app->isAdmin())
@@ -256,7 +256,6 @@ class plgHikashoppaymentPaypalpro extends hikashopPaymentPlugin
 			return true;
 		if(empty($this->payment_params))
 			return false;
-
 
 		if(!empty($this->transaction_id)){
 			$email = new stdClass();
@@ -269,13 +268,13 @@ class plgHikashoppaymentPaypalpro extends hikashopPaymentPlugin
 
 			$this->modifyOrder($order,$order->order_status,false,$email);
 
-			$class = hikashop_get('class.cart');
-			$class->cleanCartFromSession();
+			$cartClass = hikashop_get('class.cart');
+			$cartClass->cleanCartFromSession(false);
 		}
 	 }
 
-	function onAfterOrderConfirm(&$order,&$methods,$method_id){
-		parent::onAfterOrderConfirm($order,$methods,$method_id);
+	function onAfterOrderConfirm(&$order, &$methods,$method_id) {
+		parent::onAfterOrderConfirm($order, $methods,$method_id);
 		return $this->showPage('thanks');
 	}
 
@@ -283,17 +282,17 @@ class plgHikashoppaymentPaypalpro extends hikashopPaymentPlugin
 		parent::onPaymentConfiguration($element);
 		$obj = $element;
 		$field = '';
-		if(empty($obj->payment_params->login)){
-			$field = JText::_( 'USERNAME' );
-		}elseif(empty($obj->payment_params->password)){
-			$field = JText::_( 'PASSWORD' );
-		}elseif(empty($obj->payment_params->signature)){
-			$field = JText::_( 'SIGNATURE' );
+		if(empty($obj->payment_params->login)) {
+			$field = JText::_('USERNAME');
+		} elseif(empty($obj->payment_params->password)) {
+			$field = JText::_('PASSWORD');
+		} elseif(empty($obj->payment_params->signature)) {
+			$field = JText::_('SIGNATURE');
 		}
-		if(!empty($field)){
+		if(!empty($field)) {
 			$app = JFactory::getApplication();
 			$lang = JFactory::getLanguage();
-			$locale=strtolower(substr($lang->get('tag'),0,2));
+			$locale=strtolower(substr($lang->get('tag'), 0, 2));
 			$app->enqueueMessage(JText::sprintf('ENTER_INFO_REGISTER_IF_NEEDED','PayPal Pro',$field,'PayPal Pro','https://www.paypal.com/'.$locale.'/mrb/pal=SXL9FKNKGAEM8'));
 		}
 	}

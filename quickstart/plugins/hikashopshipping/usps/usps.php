@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -67,6 +67,7 @@ class plgHikashopshippingUSPS extends hikashopShippingPlugin
 			'RECTANGULAR' => 'Rectangular',
 			'NONRECTANGULAR' => 'Non rectangular',
 		))
+		,'debug' => array('debug', 'boolean')
 	);
 	var $methods = array(
 		'PRIORITY' => 1,
@@ -108,7 +109,7 @@ class plgHikashopshippingUSPS extends hikashopShippingPlugin
 	}
 
 	function onShippingDisplay(&$order, &$dbrates, &$usable_rates, &$messages) {
-		if(!hikashop_loadUser())
+		if(empty($order->shipping_address))
 			return false;
 
 		if($this->loadShippingCache($order, $usable_rates, $messages))
@@ -135,8 +136,6 @@ class plgHikashopshippingUSPS extends hikashopShippingPlugin
 		$currencyClass = hikashop_get('class.currency');
 		foreach($local_usable_rates as $rate) {
 			if($rate->shipping_type != 'usps')
-				continue;
-			if(empty($order->shipping_address))
 				continue;
 
 			$found = true;
@@ -254,6 +253,7 @@ class plgHikashopshippingUSPS extends hikashopShippingPlugin
 				$limit['unit'] = 1;
 
 			$packages = $this->getOrderPackage($order, array('weight_unit' => 'oz', 'volume_unit' => 'in', 'limit' => $limit, 'required_dimensions' => $required_dimensions));
+
 			if(empty($packages))
 				return true;
 
@@ -401,7 +401,6 @@ class plgHikashopshippingUSPS extends hikashopShippingPlugin
 
 	function addRate(&$rates, $type, $parcels, &$rate, $currency, $isInternational) {
 		$app = JFactory::getApplication();
-
 		$usps_user_id = $rate->shipping_params->usps_user_id;
 
 		$origin_zip = $parcels[0]->Pickup_Postcode;
@@ -445,12 +444,15 @@ class plgHikashopshippingUSPS extends hikashopShippingPlugin
 					'<Length>'.$parcel->Length.'</Length>'.
 					'<Height>'.$parcel->Height.'</Height>'.
 					'<Girth>'.$parcel->Girth.'</Girth>';
-			}
-			if($parcels[0]->Country == 'CA')
-				$request .= '<OriginZip>' . $origin_zip . '</OriginZip>';
 
-			$request .= '</Package>'.
-				'</IntlRateV2Request>';
+				if($parcels[0]->Country == 'CA')
+					$request .= '<OriginZip>' . $origin_zip . '</OriginZip>';
+
+				$request .=	'</Package>';
+				$package_id++;
+			}
+
+			$request .= '</IntlRateV2Request>';
 		}
 		else {
 			$request = '<'.'?xml version="1.0"?'.'>'.
@@ -493,6 +495,9 @@ class plgHikashopshippingUSPS extends hikashopShippingPlugin
 			$request.='</RateV4Request>';
 		}
 
+		$ctrl = hikaInput::get()->getString('ctrl','');
+		if(!empty($rate->shipping_params->debug) && $ctrl == 'checkout')
+			echo '<!--' . "\r\n" . 'USPS DEBUG' . "\r\n" . $request . "\r\n" . '-->';
 
 		$responseError = false;
 		$response_xml = $this->doUSPS($request, !$isInternational);
@@ -501,13 +506,15 @@ class plgHikashopshippingUSPS extends hikashopShippingPlugin
 			return false;
 
 		if($response_xml->Number) {
-			 $app->enqueueMessage( 'USPS error: ' . $response_xml->Number . ' ' . $response_xml->Description);
-			 $responseError = true;
+			if(!empty($rate->shipping_params->debug) && $ctrl == 'checkout')
+				$app->enqueueMessage( 'USPS error: ' . $response_xml->Number . ' ' . $response_xml->Description);
+			$responseError = true;
 		}
 
 		if($response_xml->Package->Error) {
-			 $app->enqueueMessage( 'USPS error: ' . $response_xml->Package->Error->Number . ' ' . $response_xml->Package->Error->Description);
-			 $responseError = true;
+			if(!empty($rate->shipping_params->debug) && $ctrl == 'checkout')
+				$app->enqueueMessage( 'USPS error: ' . $response_xml->Package->Error->Number . ' ' . $response_xml->Package->Error->Description);
+			$responseError = true;
 		}
 
 		if($isInternational) {
@@ -565,7 +572,7 @@ class plgHikashopshippingUSPS extends hikashopShippingPlugin
 		if($responseError == false && !empty($usps_rates)) {
 			if(empty($rates[$type])) {
 				$info = new stdClass();
-				$info = (!HIKASHOP_PHP5) ? $rate : clone($rate);
+				$info = clone($rate);
 
 				$typeKey = str_replace(' ','_', $type);
 				$shipping_name = JText::_($typeKey);
@@ -719,7 +726,8 @@ class plgHikashopshippingUSPS extends hikashopShippingPlugin
 				$divide = $product['z'] + ($product['x'] + $product['y']) * 2;
 				if(!$divide || $divide > $limit_value)
 					return false;
-				return (int)floor($limit_value / $divide);
+				$current_limit_value = max(0.0, $limit_value - (float)(($package['x'] + $package['y']) * 2 + $package['z']));
+				return (int)floor($current_limit_value / $divide);
 				break;
 		}
 		return parent::processPackageLimit($limit_key, $limit_value , $product, $qty, $package, $units);

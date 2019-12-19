@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension version="2.5" type="plugin" group="vmpayment" method="upgrade">
-    <description>Realex HPP and API</description>
+    <description>Global Payments HPP and API</description>
     <name>realex_hpp_api</name>
-    <creationDate>April 05 2018</creationDate>
+    <creationDate>November 22 2019</creationDate>
     <author>The VirtueMart Development Team</author>
     <authorUrl>https://virtuemart.net</authorUrl>
-    <copyright>Copyright (C) 2004 - 2018 Virtuemart Team. All rights reserved.</copyright>
+    <copyright>Copyright (C) 2004 - 2019 Virtuemart Team. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-    <version>3.2.14</version>
+    <version>3.6.10</version>
     <description><![CDATA[<a href="http://realex.com" target="_blank">realex</a> is a popular
 	payment provider and available in many countries. ]]>
     </description>
@@ -19,6 +19,7 @@
         <fields name="params">
 
             <fieldset name="Realex" addfieldpath="/plugins/vmpayment/realex_hpp_api/realex_hpp_api/fields">
+                <field name="checkConditionsCore" value="1" default="1" type="hidden"/>
                 <field type="getrealex" />
                 <field class="level1" type="vmtitle" default="VMPAYMENT_REALEX_HPP_API_ACCOUNT_PARAMS"/>
                 <field name="integration" type="list" default="redirect" label="VMPAYMENT_REALEX_HPP_API_INTEGRATION"

@@ -17,7 +17,11 @@ class N2SmartsliderBackendSlidesController extends N2SmartSliderController {
         N2Localization::addJS(array(
             'In animation',
             'Loop animation',
-            'Out animation'
+            'Out animation',
+            'Add Keyframe',
+            'Layer Animation - Basic',
+            'Split Text In',
+            'Split Text Out',
         ));
 
         N2SS3::$forceDesktop = true;
@@ -33,18 +37,6 @@ class N2SmartsliderBackendSlidesController extends N2SmartSliderController {
     public function actionCreate() {
         if ($this->validatePermission('smartslider_edit')) {
             $sliderId = N2Request::getInt('sliderid');
-            if (N2Request::getCmd('mode') == 'sample') {
-                if (N2SmartsliderLicenseModel::getInstance()
-                                             ->isActive() != 'OK'
-                ) {
-                    N2Message::error(n2_('This feature requires valid license key!'));
-                    $this->redirect(array(
-                        "slider/edit",
-                        array("sliderid" => $sliderId)
-                    ));
-                }
-            }
-        
 
             $slidersModel = new N2SmartsliderSlidersModel();
             $slider       = $slidersModel->get($sliderId);
@@ -60,7 +52,7 @@ class N2SmartsliderBackendSlidesController extends N2SmartSliderController {
                             array('sliderid' => $groups[0]['group_id'])
                         )),
                         'class' => 'n2-h4'
-                    ), $groups[0]['title']));
+                    ), n2_esc_html($groups[0]['title'])));
                 }
 
                 $this->layout->addBreadcrumb(N2Html::tag('a', array(
@@ -69,7 +61,7 @@ class N2SmartsliderBackendSlidesController extends N2SmartSliderController {
                         array('sliderid' => $sliderId)
                     )),
                     'class' => 'n2-h4'
-                ), $slider['title']));
+                ), n2_esc_html($slider['title'])));
 
                 $this->layout->addBreadcrumb(N2Html::tag('a', array(
                     'href'  => '#',
@@ -125,7 +117,7 @@ class N2SmartsliderBackendSlidesController extends N2SmartSliderController {
                             array('sliderid' => $groups[0]['group_id'])
                         )),
                         'class' => 'n2-h4'
-                    ), $groups[0]['title']));
+                    ), n2_esc_html($groups[0]['title'])));
                 }
 
                 $this->layout->addBreadcrumb(N2Html::tag('a', array(
@@ -134,7 +126,7 @@ class N2SmartsliderBackendSlidesController extends N2SmartSliderController {
                         array('sliderid' => $sliderId)
                     )),
                     'class' => 'n2-h4'
-                ), $slider['title']));
+                ), n2_esc_html($slider['title'])));
 
                 $this->layout->addBreadcrumb(N2Html::tag('a', array(
                     'href'  => $this->appType->router->createUrl(array(
@@ -145,7 +137,7 @@ class N2SmartsliderBackendSlidesController extends N2SmartSliderController {
                         )
                     )),
                     'class' => 'n2-h4 n2-active'
-                ), $slide['title']));
+                ), n2_esc_html($slide['title'])));
 
                 if ($slide['generator_id'] > 0) {
                     $this->layout->addBreadcrumb(N2Html::tag('a', array(

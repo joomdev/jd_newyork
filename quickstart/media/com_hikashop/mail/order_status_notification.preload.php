@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -57,7 +57,7 @@ $data->cart->full_total = new stdClass;
 $data->cart->full_total->prices = array($price);
 $data->cart->coupon->discount_value =& $data->cart->order_discount_price;
 
-if($app->isAdmin()) {
+if(hikashop_isClient('administrator')) {
 	$view = 'order';
 } else {
 	$view = 'address';
@@ -80,6 +80,11 @@ $vars = array(
 	'TPL_HEADER' => (bool)@$customer->user_cms_id,
 	'TPL_HEADER_URL' => $order_url,
 );
+
+$order_changed = JText::sprintf('ORDER_STATUS_CHANGED_TO', $url, $data->mail_status);
+if(!empty($data->usermsg->usermsg))
+	$order_changed = $data->usermsg->usermsg;
+
 $texts = array(
 	'BILLING_ADDRESS' => JText::_('HIKASHOP_BILLING_ADDRESS'),
 	'SHIPPING_ADDRESS' => JText::_('HIKASHOP_SHIPPING_ADDRESS'),
@@ -96,7 +101,7 @@ $texts = array(
 
 	'ORDER_TITLE' => JText::_('YOUR_ORDER'),
 	'HI_CUSTOMER' => JText::sprintf('HI_CUSTOMER', $customer_name),
-	'ORDER_CHANGED' => JText::sprintf('ORDER_STATUS_CHANGED_TO', $url, $data->mail_status),
+	'ORDER_CHANGED' => $order_changed,
 	'ORDER_BEGIN_MESSAGE' => JText::sprintf('THANK_YOU_FOR_YOUR_ORDER_BEGIN', HIKASHOP_LIVE),
 	'ORDER_END_MESSAGE' => JText::sprintf('THANK_YOU_FOR_YOUR_ORDER', HIKASHOP_LIVE) . '<br/>' . JText::sprintf('BEST_REGARDS_CUSTOMER',$mail->from_name),
 );
@@ -232,7 +237,7 @@ if(!empty($data->cart->products)){
 
 		$t = '';
 		$statusDownload = explode(',',$config->get('order_status_for_download','confirmed,shipped'));
-		if(!empty($item->files) && in_array($data->order->order_status,$statusDownload)){
+		if(!empty($item->files) && in_array($data->order_status,$statusDownload)){
 			$t .= '<p>';
 			foreach($item->files as $file){
 				$fileName = empty($file->file_name) ? $file->file_path : $file->file_name;
@@ -264,13 +269,13 @@ if(!empty($data->cart->products)){
 	}
 	$templates['PRODUCT_LINE'] = $cartProducts;
 
-	if(bccomp($data->cart->order_discount_price,0,5) || bccomp($data->cart->order_shipping_price,0,5) || bccomp($data->cart->order_payment_price,0,5) || ($data->cart->full_total->prices[0]->price_value!=$data->cart->full_total->prices[0]->price_value_with_tax) || !empty($data->cart->additional)){
+	if(bccomp($data->cart->order_discount_price,0,5) != 0 || bccomp($data->cart->order_shipping_price,0,5) != 0 || bccomp($data->cart->order_payment_price,0,5) != 0 || ($data->cart->full_total->prices[0]->price_value!=$data->cart->full_total->prices[0]->price_value_with_tax) || !empty($data->cart->additional)){
 		$cartFooters[] = array(
 			'NAME' => JText::_('SUBTOTAL'),
 			'VALUE' => $currencyHelper->format($subtotal,$data->cart->order_currency_id)
 		);
 	}
-	if(bccomp($data->cart->order_discount_price,0,5)) {
+	if(bccomp($data->cart->order_discount_price,0,5) != 0) {
 		if($config->get('price_with_tax')) {
 			$t = $currencyHelper->format($data->cart->order_discount_price*-1,$data->cart->order_currency_id);
 		}else{
@@ -281,7 +286,7 @@ if(!empty($data->cart->products)){
 			'VALUE' => $t
 		);
 	}
-	if(bccomp($data->cart->order_shipping_price,0,5)){
+	if(bccomp($data->cart->order_shipping_price,0,5) != 0){
 		if($config->get('price_with_tax')) {
 			$t = $currencyHelper->format($data->cart->order_shipping_price,$data->cart->order_currency_id);
 		}else{
@@ -292,7 +297,7 @@ if(!empty($data->cart->products)){
 			'VALUE' => $t
 		);
 	}
-	if(bccomp($data->cart->order_payment_price,0,5)){
+	if(bccomp($data->cart->order_payment_price,0,5) != 0){
 		if($config->get('price_with_tax')) {
 			$t = $currencyHelper->format($data->cart->order_payment_price, $data->cart->order_currency_id);
 		} else {
@@ -329,7 +334,7 @@ if(!empty($data->cart->products)){
 		if($config->get('detailed_tax_display') && !empty($data->cart->order_tax_info)) {
 			foreach($data->cart->order_tax_info as $tax) {
 				$cartFooters[] = array(
-					'NAME' => $tax->tax_namekey,
+					'NAME' => hikashop_translate($tax->tax_namekey),
 					'VALUE' => $currencyHelper->format($tax->tax_amount,$data->cart->order_currency_id)
 				);
 			}
@@ -427,23 +432,44 @@ ob_start();
 
 	$sep = '';
 	if(hikashop_level(2)) {
-		$fields = $fieldsClass->getFields('display:mail_status_notif=1',$data,'order','');
+		$fields = $fieldsClass->getFields('display:mail_status_notif=1',$data->cart,'order','');
 		foreach($fields as $fieldName => $oneExtraField) {
 			if(isset($data->$fieldName) && !isset($data->cart->$fieldName))
 				$data->cart->$fieldName = $data->$fieldName;
-			if(empty($data->cart->$fieldName))
+			if($oneExtraField->field_type != 'customtext' && empty($data->cart->$fieldName))
 				continue;
-			echo $sep . $fieldsClass->trans($oneExtraField->field_realname).' : '.$fieldsClass->show($oneExtraField, $data->cart->$fieldName,'user_email');
+			echo $sep . $fieldsClass->trans($oneExtraField->field_realname).' : '.$fieldsClass->show($oneExtraField, @$data->cart->$fieldName,'user_email');
 			$sep = '<br />';
 		}
 	}
 
 	JPluginHelper::importPlugin('hikashop');
-	$dispatcher = JDispatcher::getInstance();
-	$dispatcher->trigger('onAfterOrderProductsListingDisplay', array(&$data->cart, 'email_notification_html'));
+	$app = JFactory::getApplication();
+	$app->triggerEvent('onAfterOrderProductsListingDisplay', array(&$data->cart, 'email_notification_html'));
 
 $content = ob_get_clean();
 $vars['ORDER_SUMMARY'] = trim($content);
+
+
+$unpaid_statuses = explode(',', $config->get('order_unpaid_statuses', 'created'));
+if(in_array($data->order_status, $unpaid_statuses) && !empty($data->cart->order_payment_method)) {
+	ob_start();
+	if($data->cart->order_full_price>0 && hikashop_level(1) && $config->get('allow_payment_button',1)) {
+		echo '<p>' . JText::_('ORDER_VALID_AFTER_PAYMENT') . '</p>';
+		$pay_url = 'index.php?option=com_hikashop&ctrl=order&task=pay&order_id='.$data->order_id.$url_itemid;
+		if(empty($customer->user_cms_id) && !empty($data->cart->order_token)) {
+			$pay_url .= '&order_token='.urlencode($data->cart->order_token);
+		}
+		$pay_url = hikashop_frontendLink($pay_url);
+		if($config->get('force_ssl',0) && strpos('https://',$pay_url) === false) {
+			$pay_url = str_replace('http://','https://',$pay_url);
+		}
+		echo '<p><a href="'. $pay_url .'">'.JText::_('PAY_NOW') . '</a></p>';
+	}
+
+	$content = ob_get_clean();
+	$vars['ORDER_SUMMARY'] .= $content;
+}
 
 if($config->get('register_after_guest', 1) && empty($customer->user_cms_id) && !empty($data->order_token)){
 	jimport('joomla.application.component.helper');

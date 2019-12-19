@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -45,7 +45,7 @@ class ToggleController extends HikashopBridgeController {
 			exit;
 		}
 		$function = $controllerName.$task;
-		if(!empty($extra['trigger'])){
+		if(!empty($extra['trigger']) && $extra['trigger'] != 'undefined'){
 			$parts = explode('.',$extra['trigger']);
 			if(@$parts[0] == 'fct' && !empty($parts[1]) && method_exists($this,$parts[1])){
 				$function = $parts[1];
@@ -95,6 +95,7 @@ class ToggleController extends HikashopBridgeController {
 				$tableName=$controllerName;
 			}
 			$class = hikashop_get('class.'.$tableName);
+
 			if(empty($class->toggle[$task])){
 				echo 'Forbidden';
 				exit;
@@ -132,11 +133,7 @@ class ToggleController extends HikashopBridgeController {
 	function pluginsEnabled($elementPkey,&$value,$task='enabled'){
 		$plugins = hikashop_get('class.plugins');
 		$obj = new stdClass();
-		if(!HIKASHOP_J16) {
-			$obj->id = $elementPkey;
-		}else{
-			$obj->extension_id = $elementPkey;
-		}
+		$obj->extension_id = $elementPkey;
 		$obj->$task = $value;
 
 		$plugins->save($obj);
@@ -245,7 +242,7 @@ class ToggleController extends HikashopBridgeController {
 
 		$db	= JFactory::getDBO();
 		$db->setQuery('DELETE FROM '.hikashop_table($table).' WHERE '.$key1.' = '.$db->Quote($value1).' AND '.$key2.' = '.$db->Quote($value2));
-		$db->query();
+		$db->execute();
 		exit;
 	}
 

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.5" client="site" method="upgrade">
+	<name>MOD_JDPROGRESSBAR_XML_TITLE</name>
+	<author>JoomDev</author>
+	<creationDate>May 2019</creationDate>
+	<copyright>Copyright (C) 2019 Joomdev, Inc. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>info@joomdev.com</authorEmail>
+	<authorUrl>www.joomdev.com</authorUrl>
+	<version>1.0</version>
+	<description>MOD_JDPROGRESSBAR_XML_DESCRIPTION</description>
+
+	<files>
+		<filename module="mod_jdprogressbar">mod_jdprogressbar.php</filename>
+		<folder>tmpl</folder>
+		<filename>helper.php</filename>
+		<folder>fields</folder>
+		<folder>forms</folder>
+	</files>
+	<updateservers>
+		<server type="extension" priority="1" name="mod_jdprogressbar.xml">https://cdn.joomdev.com/updates/mod_jdprogressbar.xml</server>
+	</updateservers>
+	<media folder="media" destination="mod_jdprogressbar">
+		<folder>css</folder>
+	</media>
+
+	<languages folder="language">
+		<language tag="en-GB">en-GB/en-GB.mod_jdprogressbar.ini</language>
+		<language tag="en-GB">en-GB/en-GB.mod_jdprogressbar.sys.ini</language>
+	</languages>
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic" addfieldpath="/modules/mod_jdprogressbar/fields">
+				<field name="items" type="subform" default='' groupByFieldset="true" formsource="/modules/mod_jdprogressbar/forms/item.xml" multiple="true" description="MOD_JDBA_ADD_ITEMS_DESC" label="MOD_JDBA_ADD_ITEMS_LABEL">
+				</field>
+			</fieldset>
+			<fieldset name="style">
+				<field name="heading2" type="jdheading" icon="icon-brush" label="MOD_JDBA_SETTINGS" description="MOD_JDPROGRESSBAR_HEADING_STYLE_DESC"></field>	
+
+				<field name="percenateg_position" type="radio" class="btn-group btn-group-yesno" label="MOD_JDPROGRESSBAR_PER_POS_LABEL" description="MOD_JDPROGRESSBAR_PER_POS_DESC" default="outside">
+					<option value="inside">MOD_JDPROGRESSBAR_PER_POS_OPTIONS_INSIDE</option>
+					<option value="outside">MOD_JDPROGRESSBAR_PER_POS_OPTIONS_OUTSIDE</option>
+				</field>	
+
+				<!-- <field name="dis_precentage" type="radio" class="btn-group btn-group-yesno" label="MOD_JDPROGRESSBAR_DISPLAY_PERCENATGE_LABEL" 	description="MOD_JDPROGRESSBAR_DISPLAY_PERCENATGE_DESC" default="1">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field> -->
+
+				<field name="barType" type="list" label="MOD_JDPROGRESSBAR_BARTYPE_LABEL" description="MOD_JDPROGRESSBAR_BARTYPE_DESC" default="MOD_JDBA_DEFAULT">
+					<option value="default">MOD_JDPROGRESSBAR_BARTYPE_DEFAULT</option>
+					<option value="striped">MOD_JDPROGRESSBAR_BARTYPE_OPTIONS_S</option>
+					<option value="striped animated_striped">MOD_JDPROGRESSBAR_BARTYPE_OPTIONS_AS</option>
+				</field>	
+
+				<field name="barHeight" type="jdrange" label="MOD_JDPROGRESSBAR_BARHEIGHT_LABEL" min="1"	max="100" step="1" postfix="px" description="MOD_JDPROGRESSBAR_BARHEIGHT_DESC" default="15"></field>
+
+				<field name="heading" type="jdheading" icon="icon-palette" label="MOD_JDPROGRESSBAR_HEADING_STYLE_LABEL" description="MOD_JDPROGRESSBAR_HEADING_STYLE_DESC"></field>
+				<field name="barProgressColor" type="color" label="MOD_JDPROGRESSBAR_BAR_PROGRESS_COLOR_LABEL" description="MOD_JDPROGRESSBAR_BAR_PROGRESS_COLOR_DESC" default="#ddd"></field>
+				<field name="textColor" type="color" label="MOD_JDPROGRESSBAR_TEXT_COLOR_LABEL" description="MOD_JDPROGRESSBAR_TEXT_COLOR_DESC" default="#333"></field>
+				<field name="color1" type="color" label="MOD_JDBA_COLOR_1" description="MOD_JDBA_COLOR_1_DESC" default="#00dcb3"></field>
+				<field name="color2" type="color" label="MOD_JDBA_COLOR_2" description="MOD_JDBA_COLOR_2_DESC" default="#ffc200"></field>
+				<field name="color3" type="color" label="MOD_JDBA_COLOR_3" description="MOD_JDBA_COLOR_3_DESC" default="#ff0000"></field>
+				<field name="color4" type="color" label="MOD_JDBA_COLOR_4" description="MOD_JDBA_COLOR_4_DESC" default="#007bff"></field>
+				<field name="color5" type="color" label="MOD_JDBA_COLOR_5" description="MOD_JDBA_COLOR_5_DESC" default="#f86300"></field>
+
+			</fieldset>
+			<fieldset name="advanced">
+				<field name="layout" type="modulelayout" label="JFIELD_ALT_LAYOUT_LABEL" description="JFIELD_ALT_MODULE_LAYOUT_DESC" default="default" />
+				<field name="moduleclass_sfx" type="textarea" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" rows="3"/>
+			</fieldset>
+		</fields>
+	</config>
+</extension>

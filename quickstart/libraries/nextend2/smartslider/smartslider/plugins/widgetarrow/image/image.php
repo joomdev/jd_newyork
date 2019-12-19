@@ -33,29 +33,13 @@ class N2SSPluginWidgetArrowImage extends N2SSPluginWidgetAbstract {
             'widget-arrow-next-hover'               => 0,
             'widget-arrow-next-hover-color'         => 'ffffffcc',
             'widget-arrow-previous-alt'             => 'previous arrow',
-            'widget-arrow-next-alt'                 => 'next arrow'
+            'widget-arrow-next-alt'                 => 'next arrow',
+            'widget-arrow-base64'                   => 1
         );
     }
 
     public function renderFields($form) {
         $settings = new N2Tab($form, 'widget-arrow');
-        $responsive = new N2ElementGroup($settings, 'arrow-responsive-scale', n2_('Responsive scale'), array(
-            'rowClass' => 'n2-expert'
-        ));
-        new N2ElementNumber($responsive, 'widget-arrow-responsive-desktop', n2_('Desktop'), '', array(
-            'style' => 'width:40px;'
-        ));
-        new N2ElementNumber($responsive, 'widget-arrow-responsive-tablet', n2_('Tablet'), '', array(
-            'style' => 'width:40px;'
-        ));
-        new N2ElementNumber($responsive, 'widget-arrow-responsive-mobile', n2_('Mobile'), '', array(
-            'style' => 'width:40px;'
-        ));
-
-        new N2ElementImage($settings, 'widget-arrow-previous-image', n2_('Previous image'), '', array(
-            'rowClass' => 'n2-expert'
-        ));
-    
 
         $previous = new N2ElementGroup($settings, 'arrow-previous', n2_('Previous'));
         new N2ElementImageListFromFolder($previous, 'widget-arrow-previous', n2_('Shape'), '', array(
@@ -67,7 +51,7 @@ class N2SSPluginWidgetArrowImage extends N2SSPluginWidgetAbstract {
         ));
         new N2ElementOnOff($previous, 'widget-arrow-previous-hover', n2_('Hover'), 0, array(
             'relatedFields' => array(
-                'widget-arrow-previous-hover-color'
+                'sliderwidget-arrow-previous-hover-color'
             )
         ));
         new N2ElementColor($previous, 'widget-arrow-previous-hover-color', n2_('Hover color'), '', array(
@@ -82,52 +66,19 @@ class N2SSPluginWidgetArrowImage extends N2SSPluginWidgetAbstract {
 
         new N2ElementWidgetPosition($settings, 'widget-arrow-previous-position', n2_('Previous position'));
         new N2ElementWidgetPosition($settings, 'widget-arrow-next-position', n2_('Next position'));
-        new N2ElementRadio($settings, 'widget-arrow-animation', n2_('Animation'), '', array(
-            'rowClass' => 'n2-expert',
-            'options'  => array(
-                'none'       => n2_('None'),
-                'fade'       => n2_('Fade'),
-                'horizontal' => n2_('Horizontal'),
-                'vertical'   => n2_('Vertical'),
-            )
-        ));
-    
 
         $alt_group = new N2ElementGroup($settings, 'widget-arrow-alt', n2_('Alt tags'));
         new N2ElementText($alt_group, 'widget-arrow-previous-alt', n2_('Previous arrow'), 'previous arrow');
         new N2ElementText($alt_group, 'widget-arrow-next-alt', n2_('Next arrow'), 'next arrow');
-        new N2ElementOnoff($settings, 'widget-arrow-mirror', n2_('Mirror'), '', array(
-            'rowClass'      => 'n2-expert',
-            'isEnable'      => false,
+        new N2ElementOnoff($settings, 'widget-arrow-base64', n2_('Base64 encoding'), 1, array(
+            'tip'           => n2_('Base64 encoded arrow images are loading faster and they are colorable. But optimization plugins often have errors in their codes related to them, so if your arrow won\'t load, turn this option off.'),
             'relatedFields' => array(
-                'widget-arrow-next-image',
-                'arrow-next'
+                'sliderwidget-arrow-next-color',
+                'sliderwidget-arrow-next-hover',
+                'sliderwidget-arrow-previous-color',
+                'sliderwidget-arrow-previous-hover'
             )
         ));
-
-        new N2ElementImage($settings, 'widget-arrow-next-image', n2_('Next image'), '', array(
-            'rowClass' => 'n2-expert'
-        ));
-
-        $next = new N2ElementGroup($settings, 'arrow-next', n2_('Next'), array(
-            'rowClass' => 'n2-expert'
-        ));
-        new N2ElementImageListFromFolder($next, 'widget-arrow-next', n2_('Shape'), '', array(
-            'folder' => N2Filesystem::translate($this->getPath() . 'next/'),
-            'post'   => 'break'
-        ));
-        new N2ElementColor($next, 'widget-arrow-next-color', n2_('Color'), '', array(
-            'alpha' => true
-        ));
-        new N2ElementOnOff($next, 'widget-arrow-next-hover', n2_('Hover'), 0, array(
-            'relatedFields' => array(
-                'widget-arrow-next-hover-color'
-            )
-        ));
-        new N2ElementColor($next, 'widget-arrow-next-hover-color', n2_('Hover color'), '', array(
-            'alpha' => true
-        ));
-    
     }
 
     public function getPath() {
@@ -245,25 +196,33 @@ class N2SSPluginWidgetArrowImage extends N2SSPluginWidgetAbstract {
 
         $ext = pathinfo($image, PATHINFO_EXTENSION);
         if (substr($image, 0, 1) == '$' && $ext == 'svg') {
-            list($color, $opacity) = N2Color::colorToSVG($color);
-            $content = N2Filesystem::readFile(N2ImageHelper::fixed($image, true));
-            $image   = 'data:image/svg+xml;base64,' . n2_base64_encode(str_replace(array(
-                    'fill="#FFF"',
-                    'opacity="1"'
-                ), array(
-                    'fill="#' . $color . '"',
-                    'opacity="' . $opacity . '"'
-                ), $content));
-
-            if ($hover) {
-                list($color, $opacity) = N2Color::colorToSVG($hoverColor);
-                $imageHover = 'data:image/svg+xml;base64,' . n2_base64_encode(str_replace(array(
+            if ($params->get(self::$key . 'base64', 1)) {
+                list($color, $opacity) = N2Color::colorToSVG($color);
+                $content = N2Filesystem::readFile(N2ImageHelper::fixed($image, true));
+                $image   = 'data:image/svg+xml;base64,' . n2_base64_encode(str_replace(array(
                         'fill="#FFF"',
                         'opacity="1"'
                     ), array(
                         'fill="#' . $color . '"',
                         'opacity="' . $opacity . '"'
                     ), $content));
+            } else {
+                $image = N2ImageHelper::fixed($image);
+            }
+
+            if ($hover) {
+                if ($params->get(self::$key . 'base64', 1)) {
+                    list($color, $opacity) = N2Color::colorToSVG($hoverColor);
+                    $imageHover = 'data:image/svg+xml;base64,' . n2_base64_encode(str_replace(array(
+                            'fill="#FFF"',
+                            'opacity="1"'
+                        ), array(
+                            'fill="#' . $color . '"',
+                            'opacity="' . $opacity . '"'
+                        ), $content));
+                } else {
+                    $imageHover = N2ImageHelper::fixed($imageHover);
+                }
             }
         } else {
             $image = N2ImageHelper::fixed($image);
@@ -272,25 +231,15 @@ class N2SSPluginWidgetArrowImage extends N2SSPluginWidgetAbstract {
         $alt = $params->get(self::$key . $side . '-alt', $side . ' arrow');
 
         if ($imageHover === null) {
-            $image = N2Html::image($image, $alt, array(
-                    'class' => 'n2-ow'
-                ) + N2Html::getExcludeLazyLoadAttributes());
+            $image = N2Html::image($image, $alt, N2HTML::addExcludeLazyLoadAttributes(array(
+                'class' => 'n2-ow'
+            )));
         } else {
-            $image = N2Html::image($image, $alt, array(
-                        'class' => 'n2-arrow-normal-img n2-ow'
-                    ) + N2Html::getExcludeLazyLoadAttributes()) . N2Html::image($imageHover, $alt, array(
-                        'class' => 'n2-arrow-hover-img n2-ow'
-                    ) + N2Html::getExcludeLazyLoadAttributes());
-        }
-
-        $label = '';
-        switch ($side) {
-            case 'previous':
-                $label = 'Previous slide';
-                break;
-            case 'next':
-                $label = 'Next slide';
-                break;
+            $image = N2Html::image($image, $alt, N2HTML::addExcludeLazyLoadAttributes(array(
+                    'class' => 'n2-arrow-normal-img n2-ow'
+                ))) . N2Html::image($imageHover, $alt, N2HTML::addExcludeLazyLoadAttributes(array(
+                    'class' => 'n2-arrow-hover-img n2-ow'
+                )));
         }
 
         $isNormalFlow = self::isNormalFlow($params, self::$key . $side . '-');
@@ -301,7 +250,7 @@ class N2SSPluginWidgetArrowImage extends N2SSPluginWidgetAbstract {
                     'class'      => $displayClass . $styleClass . 'nextend-arrow n2-ow nextend-arrow-' . $side . '  nextend-arrow-animated-' . $animation . ($isNormalFlow ? '' : ' n2-ib'),
                     'style'      => $style,
                     'role'       => 'button',
-                    'aria-label' => $label,
+                    'aria-label' => $alt,
                     'tabindex'   => '0'
                 ), $image);
         }
@@ -312,7 +261,7 @@ class N2SSPluginWidgetArrowImage extends N2SSPluginWidgetAbstract {
                 'class'      => $displayClass . 'nextend-arrow nextend-arrow-animated n2-ow nextend-arrow-animated-' . $animation . ' nextend-arrow-' . $side . ($isNormalFlow ? '' : ' n2-ib'),
                 'style'      => $style,
                 'role'       => 'button',
-                'aria-label' => $label,
+                'aria-label' => $alt,
                 'tabindex'   => '0'
             ), N2Html::tag('div', array(
                 'class' => $styleClass . ' n2-resize'
@@ -336,24 +285,6 @@ class N2SSPluginWidgetArrowImage extends N2SSPluginWidgetAbstract {
         $params->set(self::$key . 'style', $import->fixSection($params->get(self::$key . 'style', '')));
     }
 }
-N2SmartSliderWidgets::addWidget('arrow', new N2SSPluginWidgetArrowImage);
-
-class N2SSPluginWidgetArrowImageBigRectangle extends N2SSPluginWidgetArrowImage {
-
-    protected $name = 'imageBigRectangle';
-
-    public function getDefaults() {
-        return array_merge(parent::getDefaults(), array(
-            'widget-arrow-style'                    => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwYWIiLCJwYWRkaW5nIjoiMjB8KnwyMHwqfDIwfCp8MjB8KnxweCIsImJveHNoYWRvdyI6IjB8KnwwfCp8MHwqfDB8KnwwMDAwMDBmZiIsImJvcmRlciI6IjB8Knxzb2xpZHwqfDAwMDAwMGZmIiwiYm9yZGVycmFkaXVzIjoiMCIsImV4dHJhIjoiIn0seyJiYWNrZ3JvdW5kY29sb3IiOiIwMGMxYzRmZiJ9XX0=',
-            'widget-arrow-animation'                => 'horizontal',
-            'widget-arrow-previous-position-offset' => 0,
-            'widget-arrow-next-position-offset'     => 0,
-        ));
-    }
-}
-
-N2SmartSliderWidgets::addWidget('arrow', new N2SSPluginWidgetArrowImageBigRectangle);
-
 
 
 class N2SSPluginWidgetArrowImageSmallRectangle extends N2SSPluginWidgetArrowImage {
@@ -387,21 +318,4 @@ class N2SSPluginWidgetArrowImageEmpty extends N2SSPluginWidgetArrowImage {
 }
 
 N2SmartSliderWidgets::addWidget('arrow', new N2SSPluginWidgetArrowImageEmpty);
-class N2SSPluginWidgetArrowImageVertical extends N2SSPluginWidgetArrowImage {
-
-    protected $name = 'imageVertical';
-
-    public function getDefaults() {
-        return array_merge(parent::getDefaults(), array(
-            'widget-arrow-previous'               => '$ss$/plugins/widgetarrow/image/image/previous/simple-vertical.svg',
-            'widget-arrow-next'                   => '$ss$/plugins/widgetarrow/image/image/next/simple-vertical.svg',
-            'widget-arrow-style'                  => 'eyJuYW1lIjoiU3RhdGljIiwiZGF0YSI6W3siYmFja2dyb3VuZGNvbG9yIjoiMDAwMDAwYWIiLCJwYWRkaW5nIjoiMTB8KnwxMHwqfDEwfCp8MTB8KnxweCIsImJveHNoYWRvdyI6IjB8KnwwfCp8MHwqfDB8KnwwMDAwMDBmZiIsImJvcmRlciI6IjB8Knxzb2xpZHwqfDAwMDAwMGZmIiwiYm9yZGVycmFkaXVzIjoiMyIsImV4dHJhIjoiIn0seyJiYWNrZ3JvdW5kY29sb3IiOiIyZWNjNzFlMCJ9XX0=',
-            'widget-arrow-previous-position-area' => 3,
-            'widget-arrow-next-position-area'     => 10,
-        ));
-    }
-}
-
-N2SmartSliderWidgets::addWidget('arrow', new N2SSPluginWidgetArrowImageVertical);
-
 

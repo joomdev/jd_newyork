@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -19,12 +19,12 @@ class hikashopRatesType{
 			$this->values[] = JHTML::_('select.option', '',JText::_('ALL_RATES'));
 		}
 		foreach($this->results as $result){
-			$this->values[] = JHTML::_('select.option', $result->tax_namekey,$result->tax_namekey.' ('.($result->tax_rate*100.0).'%)');
+			$this->values[] = JHTML::_('select.option', $result->tax_namekey,hikashop_translate($result->tax_namekey).' ('.($result->tax_rate*100.0).'%)');
 		}
 	}
 	function display($map,$value,$form=true){
 		$this->load($form);
-		$options = 'class="inputbox" size="1"';
+		$options = 'class="custom-select" size="1"';
 		if(!$form){
 			$options .=' onchange="document.adminForm.submit();"';
 		}

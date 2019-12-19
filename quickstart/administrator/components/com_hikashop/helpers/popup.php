@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -22,8 +22,8 @@ class hikashopPopupHelper {
 			'image' => array()
 		);
 		JPluginHelper::importPlugin('hikashop');
-		$dispatcher = JDispatcher::getInstance();
-		$dispatcher->trigger('onHikashopPopupList', array( &$plugins ));
+		$app = JFactory::getApplication();
+		$app->triggerEvent('onHikashopPopupList', array( &$plugins ));
 		return $plugins;
 	}
 
@@ -58,8 +58,8 @@ class hikashopPopupHelper {
 
 		$plugins = $this->getPlugins();
 		if(isset($plugins['content'][$popupMode])) {
-			$dispatcher = JDispatcher::getInstance();
-			$dispatcher->trigger('onHikashopPopupDisplay', array( $popupMode, 'content', &$html, $text, $title, $url, $id, $params ));
+			$app = JFactory::getApplication();
+			$app->triggerEvent('onHikashopPopupDisplay', array( $popupMode, 'content', &$html, $text, $title, $url, $id, $params ));
 		}
 		if(!empty($html))
 			return $html;
@@ -276,7 +276,7 @@ window.localPage.createBox = function(el,href,options) {
 	function image($content, $url, $id = null, $attr = '', $params = array()) {
 		$html = '';
 		$config = hikashop_config();
-		$popupMode = $config->get('image_popup_mode', 'mootools');
+		$popupMode = $config->get('image_popup_mode', 'shadowbox');
 
 		switch($popupMode) {
 			case 'shadowbox':
@@ -289,8 +289,8 @@ window.localPage.createBox = function(el,href,options) {
 		}
 		$plugins = $this->getPlugins();
 		if(isset($plugins['image'][$popupMode])) {
-			$dispatcher = JDispatcher::getInstance();
-			$dispatcher->trigger('onHikashopPopupDisplay', array( $popupMode, 'image', &$html, $content, $url, $id, $attr, $params ));
+			$app = JFactory::getApplication();
+			$app->triggerEvent('onHikashopPopupDisplay', array( $popupMode, 'image', &$html, $content, $url, $id, $attr, $params ));
 		}
 		if(!empty($html))
 			return $html;
@@ -325,7 +325,7 @@ window.localPage.createBox = function(el,href,options) {
 		static $init = false;
 		if($init === false) {
 			$config = hikashop_config();
-			$shadowboxMode = $config->get('image_popup_mode', 'mootools');
+			$shadowboxMode = $config->get('image_popup_mode', 'shadowbox');
 			$doc = JFactory::getDocument();
 			if($shadowboxMode != 'shadowbox-embbeded') {
 				$doc->addStyleSheet('https://cdn.hikashop.com/shadowbox/shadowbox.css');

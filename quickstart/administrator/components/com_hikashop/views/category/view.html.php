@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -14,15 +14,20 @@ class CategoryViewCategory extends hikashopView
 	var $ctrl= 'category';
 	var $nameListing = 'HIKA_CATEGORIES';
 	var $nameForm = 'HIKA_CATEGORIES';
-	var $icon = 'categories';
+	var $icon = 'folder';
 	var $triggerView = true;
 
-	function display($tpl = null)
+	function display($tpl = null, $params = array())
 	{
+		$this->params =& $params;
 		$this->paramBase = HIKASHOP_COMPONENT.'.'.$this->getName();
-		$function = $this->getLayout();
-		if(method_exists($this,$function)) $this->$function();
-		parent::display($tpl);
+		$fct = $this->getLayout();
+		if(method_exists($this, $fct)) {
+			if($this->$fct() === false)
+				return;
+		}
+		if(empty($this->displayCompleted))
+			parent::display($tpl);
 	}
 
 	function listing(){
@@ -34,14 +39,14 @@ class CategoryViewCategory extends hikashopView
 
 		$pageInfo->filter->order->value = $app->getUserStateFromRequest( $this->paramBase.".filter_order", 'filter_order',	'a.category_ordering','cmd' );
 		$pageInfo->filter->order->dir	= $app->getUserStateFromRequest( $this->paramBase.".filter_order_Dir", 'filter_order_Dir',	'asc',	'word' );
-		if(hikaInput::get()->getVar('search')!=$app->getUserState($this->paramBase.".search")){
+		if(hikaInput::get()->getVar('search')!=$app->getUserState($this->paramBase.".search") || hikaInput::get()->getVar('filter_id')!=$app->getUserState($this->paramBase.".filter_id")){
 			$app->setUserState( $this->paramBase.'.limitstart',0);
 			$pageInfo->limit->start = 0;
 		}else{
 			$pageInfo->limit->start = $app->getUserStateFromRequest( $this->paramBase.'.limitstart', 'limitstart', 0, 'int' );
 		}
 		$pageInfo->search = $app->getUserStateFromRequest( $this->paramBase.".search", 'search', '', 'string' );
-		$pageInfo->search = JString::strtolower(trim($pageInfo->search));
+		$pageInfo->search = HikaStringHelper::strtolower(trim($pageInfo->search));
 		$pageInfo->limit->value = $app->getUserStateFromRequest( $this->paramBase.'.list_limit', 'limit', $app->getCfg('list_limit'), 'int' );
 
 		$pageInfo->selectedType = $app->getUserStateFromRequest( $this->paramBase.".filter_type",'filter_type',0,'int');
@@ -221,11 +226,8 @@ class CategoryViewCategory extends hikashopView
 		}
 		$this->assignRef('control',$control);
 		$this->assignRef('id',$id);
-		if (!HIKASHOP_PHP5) {
-			$doc =& JFactory::getDocument();
-		}else{
-			$doc = JFactory::getDocument();
-		}
+
+		$doc = JFactory::getDocument();
 		$doc->addScriptDeclaration( $js );
 		$this->listing();
 	}
@@ -263,9 +265,7 @@ class CategoryViewCategory extends hikashopView
 		hikashop_setTitle(JText::_($this->nameForm),$this->icon,$this->ctrl.'&task='.$task.'&category_id='.$category_id);
 
 		$this->toolbar = array(
-			'save',
-			array('name' => 'save2new', 'display' => version_compare(JVERSION,'1.7','>=')),
-			'apply',
+			'save-group',
 			'cancel',
 			'|',
 			array('name' => 'pophelp', 'target' => $this->ctrl.'-form')
@@ -306,6 +306,9 @@ class CategoryViewCategory extends hikashopView
 		if($category_image){
 			$image=hikashop_get('helper.image');
 			$this->assignRef('image',$image);
+			$this->assignRef('imageHelper',$image);
+			$uploaderType = hikashop_get('type.uploader');
+			$this->assignRef('uploaderType',$uploaderType);
 		}
 		if(!empty($element->category_type) && ($element->category_type=='tax'||$element->category_type=='status')){
 			$category_image = false;
@@ -315,6 +318,7 @@ class CategoryViewCategory extends hikashopView
 		$this->assignRef('quantityDisplayType',$quantityDisplayType);
 		$nameboxType = hikashop_get('type.namebox');
 		$this->assignRef('nameboxType', $nameboxType);
+
 	}
 
 	function edit_translation(){
@@ -356,6 +360,148 @@ class CategoryViewCategory extends hikashopView
 		$fieldsClass->jsToggle($fields,$element,0);
 		$this->assignRef('fieldsClass',$fieldsClass);
 		$this->assignRef('fields',$fields);
+	}
+	public function image() {
+		$file_id = (int)hikashop_getCID();
+		$this->assignRef('cid', $file_id);
+
+		$config = hikashop_config();
+		$this->assignRef('config', $config);
+
+		$element = null;
+		if(!empty($file_id)){
+			$fileClass = hikashop_get('class.file');
+			$element = $fileClass->get($file_id);
+		}
+		$this->assignRef('element', $element);
+
+		$category_id = hikaInput::get()->getInt('pid', 0);
+		$this->assignRef('category_id', $category_id);
+
+		$imageHelper = hikashop_get('helper.image');
+		$this->assignRef('imageHelper', $imageHelper);
+
+		$editor = hikashop_get('helper.editor');
+		$editor->setEditor($config->get('editor', ''));
+		$editor->name = 'file_description';
+		$editor->content = @$element->file_description;
+		$editor->height = 200;
+		if($config->get('editor_disable_buttons', 0))
+			$editor->options = false;
+		$this->assignRef('editor', $editor);
+	}
+
+	public function galleryimage() {
+		hikashop_loadJslib('otree');
+
+		$app = JFactory::getApplication();
+		$config = hikashop_config();
+		$this->assignRef('config', $config);
+
+		$this->paramBase = HIKASHOP_COMPONENT.'.'.$this->getName().'.gallery';
+
+
+		$uploadFolder = ltrim(JPath::clean(html_entity_decode($config->get('uploadfolder'))),DS);
+		$uploadFolder = rtrim($uploadFolder,DS).DS;
+		$basePath = JPATH_ROOT.DS.$uploadFolder.DS;
+
+		$pageInfo = new stdClass();
+		$pageInfo->limit = new stdClass();
+		$pageInfo->limit->value = $app->getUserStateFromRequest( $this->paramBase.'.list_limit', 'limit', 20, 'int' );
+		$pageInfo->limit->start = $app->getUserStateFromRequest( $this->paramBase.'.limitstart', 'limitstart', 0, 'int' );
+		$pageInfo->search = $app->getUserStateFromRequest( $this->paramBase.'.search', 'search', '', 'string');
+
+		$this->assignRef('pageInfo', $pageInfo);
+
+		jimport('joomla.filesystem.folder');
+		if(!JFolder::exists($basePath))
+			JFolder::create($basePath);
+
+		$galleryHelper = hikashop_get('helper.gallery');
+		$galleryHelper->setRoot($basePath);
+		$this->assignRef('galleryHelper', $galleryHelper);
+
+		$folder = str_replace('|', '/', hikaInput::get()->getString('folder', ''));
+		$destFolder = rtrim($folder, '/\\');
+		if(!$galleryHelper->validatePath($destFolder))
+			$destFolder = '';
+		if(!empty($destFolder)) $destFolder .= '/';
+		$this->assignRef('destFolder', $destFolder);
+
+		$galleryOptions = array(
+			'filter' => '.*' . str_replace(array('.','?','*','$','^'), array('\.','\?','\*','$','\^'), $pageInfo->search) . '.*',
+			'offset' => $pageInfo->limit->start,
+			'length' => $pageInfo->limit->value
+		);
+		$this->assignRef('galleryOptions', $galleryOptions);
+
+		$treeContent = $galleryHelper->getTreeList(null, $destFolder);
+		$this->assignRef('treeContent', $treeContent);
+
+		$dirContent = $galleryHelper->getDirContent($destFolder, $galleryOptions);
+		$this->assignRef('dirContent', $dirContent);
+
+		jimport('joomla.html.pagination');
+		$pagination = new JPagination( $galleryHelper->filecount, $pageInfo->limit->start, $pageInfo->limit->value );
+		$this->assignRef('pagination', $pagination);
+	}
+
+	public function form_image_entry() {
+		$imageHelper = hikashop_get('helper.image');
+		$this->assignRef('imageHelper', $imageHelper);
+		$popupHelper = hikashop_get('helper.popup');
+		$this->assignRef('popup', $popupHelper);
+	}
+	public function addimage(){
+		$files_id = hikaInput::get()->get('cid', array(), 'array');
+		$category_id = hikaInput::get()->getInt('category_id', 0);
+
+		$output = '[]';
+		if(!empty($files_id)) {
+			hikashop_toInteger($files_id);
+			$query = 'SELECT * FROM '.hikashop_table('file').' WHERE file_id IN ('.implode(',',$files_id).')';
+			$db = JFactory::getDBO();
+			$db->setQuery($query);
+			$files = $db->loadObjectList();
+
+			$helperImage = hikashop_get('helper.image');
+			$ret = array();
+			foreach($files as $file) {
+
+				$params = new stdClass();
+				$params->category_id = $category_id;
+				$params->file_id = $file->file_id;
+				$params->file_path = $file->file_path;
+				$params->file_name = $file->file_name;
+
+				$ret[] = hikashop_getLayout('category', 'form_image_entry', $params, $js);
+			}
+			if(!empty($ret))
+				$output = json_encode($ret);
+		}
+		$js = 'window.hikashop.ready(function(){window.top.hikashop.submitBox({images:'.$output.'});});';
+		$doc = JFactory::getDocument();
+		$doc->addScriptDeclaration($js);
+
+		return false;
+	}
+	public function selectimage(){
+		$id = (int)hikashop_getCID( 'file_id');
+		if(!empty($id)){
+			$class = hikashop_get('class.file');
+			$element = $class->get($id);
+		}else{
+			$element = new stdClass();
+		}
+		$this->assignRef('cid',$id);
+		$this->assignRef('element',$element);
+		$image=hikashop_get('helper.image');
+		$this->assignRef('image',$image);
+		$editor = hikashop_get('helper.editor');
+		$editor->name = 'file_description';
+		$editor->content = @$element->file_description;
+		$editor->height=200;
+		$this->assignRef('editor',$editor);
 	}
 
 }

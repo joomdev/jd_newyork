@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -62,11 +62,18 @@ class plgHikashopShippingmanual_prices extends JPlugin {
 	}
 
 	function onProductBlocksDisplay(&$product, &$html) {
+		if(isset($product->product_parent_id) && $product->product_parent_id > 0 && isset($product->main->product_id) && $product->main->product_id > 0) {
+			if(isset($product->main->product_warehouse_id) && $product->main->product_warehouse_id > 0)
+				$product->product_warehouse_id = $product->main->product_warehouse_id;
+		}
 		$shippings = $this->_getShippings($product);
 		if(empty($shippings))
 			return;
 
 		$currencyHelper = hikashop_get('class.currency');
+
+		if(empty($product->product_type))
+			$product->product_type = 'main';
 
 		ob_start();
 		include dirname(__FILE__).DS.'shippingprices_views'.DS.'backend_product.php';
@@ -83,7 +90,13 @@ class plgHikashopShippingmanual_prices extends JPlugin {
 		if(!hikamarket::acl('product/edit/plugin/shippingprices')) return;
 
 		$vendor_id = hikamarket::loadVendor(false);
+		if(isset($product->product_parent_id) && $product->product_parent_id > 0 && isset($product->parent->product_id) && $product->parent->product_id > 0) {
+			if(isset($product->parent->product_warehouse_id) && $product->parent->product_warehouse_id > 0)
+				$product->product_warehouse_id = $product->parent->product_warehouse_id;
+		}
+
 		$shippings = $this->_getShippings($product, $vendor_id);
+
 		if(empty($shippings))
 			return;
 
@@ -112,7 +125,7 @@ class plgHikashopShippingmanual_prices extends JPlugin {
 	function onAfterProductUpdate(&$product, $create = false) {
 		$app = JFactory::getApplication();
 		$vendor = null;
-		if(!$app->isAdmin()) {
+		if(!hikashop_isClient('administrator')) {
 			if(!defined('HIKAMARKET_COMPONENT'))
 				return;
 
@@ -127,7 +140,7 @@ class plgHikashopShippingmanual_prices extends JPlugin {
 		if(empty($formData))
 			return;
 
-		if(!$app->isAdmin()) {
+		if(!hikashop_isClient('administrator')) {
 			if(isset($formData[$product->product_id]))
 				$formData = $formData[$product->product_id];
 			else if(isset($formData[0]) && $create)
@@ -143,14 +156,13 @@ class plgHikashopShippingmanual_prices extends JPlugin {
 		if($vendor !== null && $vendor > 1)
 			$extra_filters = ' AND a.shipping_vendor_id IN (-1, 0, ' . (int)$vendor . ') ';
 
-		$sql_check_setting = ($app->isAdmin()) ? '%s:20:"shipping_per_product";s:1:"1"%' : '%s:20:"shipping_per_product";i:1%';
-
 		$db = JFactory::getDBO();
+		$shipping_params_filter = '(a.shipping_params LIKE '. $db->Quote('%s:20:"shipping_per_product";s:1:"1"%') .' OR a.shipping_params LIKE '. $db->Quote('%s:20:"shipping_per_product";s:1:"1"%') .')';
+
 		$query = 'SELECT b.*, a.*, c.currency_symbol FROM ' . hikashop_table('shipping') . ' AS a INNER JOIN '.
 			hikashop_table('shipping_price').' AS b ON a.shipping_id = b.shipping_id INNER JOIN '.
 			hikashop_table('currency').' AS c ON c.currency_id = a.shipping_currency_id '.
-			'WHERE a.shipping_params LIKE '.
-			$db->Quote($sql_check_setting) . ' AND b.shipping_price_ref_id = ' . $product->product_id . ' AND b.shipping_price_ref_type = \'product\' '.
+			'WHERE '.$shipping_params_filter.' AND b.shipping_price_ref_id = ' . $product->product_id . ' AND b.shipping_price_ref_type = \'product\' '.
 			$extra_filters.
 			'ORDER BY a.shipping_id, b.shipping_price_min_quantity';
 
@@ -162,7 +174,6 @@ class plgHikashopShippingmanual_prices extends JPlugin {
 			$toRemove = array_combine($toRemove, $toRemove);
 		}
 		$toInsert = array();
-
 
 		$checks = array();
 		foreach($formData as &$data) {
@@ -185,9 +196,14 @@ class plgHikashopShippingmanual_prices extends JPlugin {
 		foreach($formData as $data) {
 			if($data == null)
 				continue;
+
+			$shipping_blocked = 0;
+			if(isset($data['blocked']))
+				$shipping_blocked = 1;
+
 			$shipping = null;
 			if(!empty($data['id']) && isset($shippings[$data['id']]) ) {
-				if(empty($data['value']) && empty($data['fee']))
+				if(empty($data['value']) && empty($data['fee']) && !$shipping_blocked)
 					continue;
 
 				$shipping = $shippings[$data['id']];
@@ -196,29 +212,29 @@ class plgHikashopShippingmanual_prices extends JPlugin {
 				if(empty($data['qty']) || (int)$data['qty'] < 1)
 					$data['qty'] = 1;
 
-				if( (int)$shipping->shipping_price_min_quantity != (int)$data['qty'] || (float)$shipping->shipping_price_value != (float)$data['value'] || (float)$shipping->shipping_fee_value != (float)$data['fee']) {
+				if( (int)$shipping->shipping_price_min_quantity != (int)$data['qty'] || (float)$shipping->shipping_price_value != (float)$data['value'] || (float)$shipping->shipping_fee_value != (float)$data['fee'] || (int)$shipping->shipping_blocked != (int)$shipping_blocked) {
 					$query = 'UPDATE ' . hikashop_table('shipping_price') .
-						' SET shipping_price_min_quantity = ' . (int)$data['qty'] . ', shipping_price_value = ' . (float)$data['value'] . ', shipping_fee_value = ' . (float)$data['fee'] .
+						' SET shipping_price_min_quantity = ' . (int)$data['qty'] . ', shipping_price_value = ' . (float)$data['value'] . ', shipping_fee_value = ' . (float)$data['fee'] . ', shipping_blocked = ' . (int)$shipping_blocked .
 						' WHERE shipping_price_id = ' . $data['id'] . ' AND shipping_price_ref_id = ' . $product->product_id . ' AND shipping_price_ref_type = \'product\'';
 					$db->setQuery($query);
-					$db->query();
+					$db->execute();
 				}
 			} else {
-				if((!empty($data['value']) || !empty($data['fee'])) && !empty($data['shipping_id']) ) {
+				if((!empty($data['value']) || (!empty($data['fee'])) && !empty($data['shipping_id']) || (!empty($data['blocked'])) && !empty($data['shipping_id'])) ) {
 					if(empty($data['qty']) || (int)$data['qty'] < 1)
 						$data['qty'] = 1;
-					$toInsert[] = (int)$data['shipping_id'].','.$product->product_id.',\'product\','.(int)$data['qty'].','.(float)$data['value'].','.(float)$data['fee'];
+					$toInsert[] = (int)$data['shipping_id'].','.$product->product_id.',\'product\','.(int)$data['qty'].','.(float)$data['value'].','.(float)$data['fee'].','.(int)$shipping_blocked;
 				}
 			}
 		}
 
 		if(!empty($toRemove)) {
 			$db->setQuery('DELETE FROM ' . hikashop_table('shipping_price') . ' WHERE shipping_price_ref_id = ' . $product->product_id . ' AND shipping_price_ref_type = \'product\' AND shipping_price_id IN ('.implode(',',$toRemove).')');
-			$db->query();
+			$db->execute();
 		}
 		if(!empty($toInsert)) {
-			$db->setQuery('INSERT IGNORE INTO ' . hikashop_table('shipping_price') . ' (`shipping_id`,`shipping_price_ref_id`,`shipping_price_ref_type`,`shipping_price_min_quantity`,`shipping_price_value`,`shipping_fee_value`) VALUES ('.implode('),(',$toInsert).')');
-			$db->query();
+			$db->setQuery('INSERT IGNORE INTO ' . hikashop_table('shipping_price') . ' (`shipping_id`,`shipping_price_ref_id`,`shipping_price_ref_type`,`shipping_price_min_quantity`,`shipping_price_value`,`shipping_fee_value`,`shipping_blocked`) VALUES ('.implode('),(',$toInsert).')');
+			$db->execute();
 		}
 	}
 
@@ -232,14 +248,14 @@ class plgHikashopShippingmanual_prices extends JPlugin {
 		if($ctrl != "product" || $task != 'show')
 			return;
 
-		if(empty($plugin->params['displayOnFrontend'] ) )
-			return;
-
 		$shippings = $this->_getShippings($view->element);
 		$shipPrices = @$view->element->prices;
 
 		$pluginsClass = hikashop_get('class.plugins');
 		$plugin = $pluginsClass->getByName('hikashop','shippingmanual_prices');
+
+		if(empty($plugin->params['displayOnFrontend'] ) )
+			return;
 
 		if(!isset($plugin->params['position'] ) )
 			$plugin->params['position'] = 'rightMiddle';
@@ -256,6 +272,8 @@ class plgHikashopShippingmanual_prices extends JPlugin {
 
 			$shipData = array();
 			foreach ($shippings as $v) {
+				if ( (isset($v->shipping_blocked)) && ($v->shipping_blocked == 1) )
+					$v->shipping_published = 0;
 
 				if ($v->shipping_published == 0)
 					continue;

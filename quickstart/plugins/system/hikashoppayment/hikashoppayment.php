@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -17,12 +17,7 @@ class plgSystemHikashoppayment extends JPlugin {
 			return;
 
 		$plugin = JPluginHelper::getPlugin('system', 'hikashoppayment');
-		if(version_compare(JVERSION,'2.5','<')) {
-			jimport('joomla.html.parameter');
-			$this->params = new JParameter(@$plugin->params);
-		} else {
-			$this->params = new JRegistry(@$plugin->params);
-		}
+		$this->params = new JRegistry(@$plugin->params);
 	}
 
 	public function afterInitialise() {
@@ -35,7 +30,12 @@ class plgSystemHikashoppayment extends JPlugin {
 
 	public function onAfterInitialise() {
 		$app = JFactory::getApplication();
-		if($app->isAdmin())
+		$admin = false;
+		if(version_compare(JVERSION,'4.0','>=') && $app->isClient('administrator'))
+			$admin = true;
+		if(version_compare(JVERSION,'4.0','<') && $app->isAdmin())
+			$admin = true;
+		if($admin)
 			return;
 
 		if(!$this->params->get('after_init', 1))
@@ -52,7 +52,12 @@ class plgSystemHikashoppayment extends JPlugin {
 
 	public function onAfterRoute() {
 		$app = JFactory::getApplication();
-		if($app->isAdmin())
+		$admin = false;
+		if(version_compare(JVERSION,'4.0','>=') && $app->isClient('administrator'))
+			$admin = true;
+		if(version_compare(JVERSION,'4.0','<') && $app->isAdmin())
+			$admin = true;
+		if($admin)
 			return;
 
 		if($this->params->get('after_init', 1))
@@ -122,6 +127,8 @@ class plgSystemHikashoppayment extends JPlugin {
 			return false;
 		}
 		$cronHelper = hikashop_get('helper.cron');
+		if(!$cronHelper)
+			return false;
 		$cronHelper->report = true;
 		$launched = $cronHelper->cron();
 		if($launched)

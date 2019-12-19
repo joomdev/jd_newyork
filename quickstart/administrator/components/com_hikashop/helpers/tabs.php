@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -18,13 +18,11 @@ class hikashopTabsHelper {
 	var $name = '';
 
 	function __construct() {
-		if(!HIKASHOP_J16) {
-			$this->mode = 'pane';
-		} elseif(!HIKASHOP_J30) {
+		if(!HIKASHOP_J30) {
 			$this->mode = 'tabs';
 		} else {
 			$app = JFactory::getApplication();
-			if(($app->isAdmin() && HIKASHOP_BACK_RESPONSIVE) || (!$app->isAdmin() && HIKASHOP_RESPONSIVE)){
+			if((hikashop_isClient('administrator') && HIKASHOP_BACK_RESPONSIVE) || (!hikashop_isClient('administrator') && HIKASHOP_RESPONSIVE)){
 				$this->mode = 'bootstrap';
 			}else{
 				$this->mode = 'tabs';
@@ -147,6 +145,7 @@ class hikashopTabsHelper {
 				var expire = new Date(); expire.setDate(expire.getDate() + 5);
 				document.cookie = "hikashop-lastTab-"+id+"="+escape(jQuery(e.target).attr("id"))+"; expires="+expire;
 			}
+			window.hikashop.checkConsistency();
 		});
 		var lastTab = null;
 		if(localStorage) {

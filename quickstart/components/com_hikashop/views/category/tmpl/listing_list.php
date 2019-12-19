@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -183,7 +183,7 @@ switch($this->params->get('child_display_type')){
 				<span><?php echo $row->category_name; ?></span>
 			</h4>
 			<div class="jpane-slider content">
-				<ul class="hikashop_category_list<?php echo $this->params->get('ul_class_name'); ?>">
+				<ul class="hikashop_category_list <?php echo $this->params->get('ul_class_name'); ?>">
 <?php
 				if(!empty($row->childs)) {
 					$app = JFactory::getApplication();
@@ -244,22 +244,14 @@ switch($this->params->get('child_display_type')){
 				$database = JFactory::getDBO();
 				$query = 'SELECT category_id FROM '.hikashop_table('product_category').' WHERE product_id = ' . (int)hikashop_getCID('product_id') . ' ORDER BY product_category_id ASC';
 				$database->setQuery($query);
-				if(!HIKASHOP_J25){
-					$cid = $database->loadResultArray();
-				} else {
-					$cid = $database->loadColumn();
-				}
+				$cid = $database->loadColumn();
 				if(empty($cid)) {
 					$class = hikashop_get('class.product');
 					$product = $class->get(hikashop_getCID('product_id'));
 					if($product && $product->product_type == 'variant' && $product->product_parent_id) {
 						$query = 'SELECT category_id FROM '.hikashop_table('product_category').' WHERE product_id = ' . (int)$product->product_parent_id . ' ORDER BY product_category_id ASC';
 						$database->setQuery($query);
-						if(!HIKASHOP_J25){
-							$cid = $database->loadResultArray();
-						} else {
-							$cid = $database->loadColumn();
-						}
+						$cid = $database->loadColumn();
 					}
 				}
 			}

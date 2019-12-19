@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -14,15 +14,9 @@ defined('_JEXEC') or die('Restricted access');
 		$this->badge_position = "data[badge][badge_position]";
 
 	?>
-<?php if(!HIKASHOP_BACK_RESPONSIVE) { ?>
-<div id="page-badge">
-	<table style="width:100%;margin:auto;">
-		<tr>
-			<td valign="top">
-<?php } else { ?>
-<div id="page-badge" class="row-fluid">
-	<div class="span6">
-<?php } ?>
+<div id="page-badge" class="hk-row-fluid hikashop_backend_tile_edition">
+	<div class="hkc-md-6 hikashop_tile_block"><div>
+		<div class="hikashop_tile_title"><?php echo JText::_('MAIN_INFORMATION'); ?></div>
 				<table class="admintable table" style="margin:auto">
 					<tr>
 						<td class="key">
@@ -45,7 +39,7 @@ defined('_JEXEC') or die('Restricted access');
 							<?php echo JText::_( 'START_DATE' ); ?>
 						</td>
 						<td>
-							<?php echo JHTML::_('calendar', (@$this->element->badge_start?hikashop_getDate(@$this->element->badge_start,'%Y-%m-%d %H:%M'):''), 'data[badge][badge_start]','badge_start','%Y-%m-%d %H:%M',array('size'=>'20')); ?>
+							<?php echo JHTML::_('calendar', (@$this->element->badge_start?hikashop_getDate(@$this->element->badge_start,'%Y-%m-%d %H:%M'):''), 'data[badge][badge_start]','badge_start',hikashop_getDateFormat('%d %B %Y %H:%M'),array('size'=>'20')); ?>
 						</td>
 					</tr>
 					<tr>
@@ -53,17 +47,29 @@ defined('_JEXEC') or die('Restricted access');
 							<?php echo JText::_( 'END_DATE' ); ?>
 						</td>
 						<td>
-							<?php echo JHTML::_('calendar', (@$this->element->badge_end?hikashop_getDate(@$this->element->badge_end,'%Y-%m-%d %H:%M'):''), 'data[badge][badge_end]','badge_end','%Y-%m-%d %H:%M',array('size'=>'20')); ?>
+							<?php echo JHTML::_('calendar', (@$this->element->badge_end?hikashop_getDate(@$this->element->badge_end,'%Y-%m-%d %H:%M'):''), 'data[badge][badge_end]','badge_end',hikashop_getDateFormat('%d %B %Y %H:%M'),array('size'=>'20')); ?>
 						</td>
 					</tr>
 					<tr>
 						<td class="key">
-							<?php echo JText::_( 'PRODUCT_QUANTITY' ); ?>
+							<?php echo JText::_( 'MAXIMUM_PRODUCT_QUANTITY' ); ?>
 						</td>
 						<td>
 							<input type="text" name="data[badge][badge_quantity]" value="<?php echo @$this->element->badge_quantity; ?>" />
 						</td>
 					</tr>
+					<tr>
+						<td class="key">
+							<?php echo JText::_( 'NEW_PRODUCT_PERIOD' ); ?>
+						</td>
+						<td>
+							<?php
+								$delayType = hikashop_get('type.delay');
+								echo $delayType->display('data[badge][badge_new_period]', @$this->element->badge_new_period, 3);
+							?>
+						</td>
+					</tr>
+
 					<tr>
 						<td class="key">
 							<?php echo JText::_( 'PRODUCT' ); ?>
@@ -139,13 +145,11 @@ defined('_JEXEC') or die('Restricted access');
 						</td>
 					</tr>
 				</table>
-<?php if(!HIKASHOP_BACK_RESPONSIVE) { ?>
-			</td>
-			<td valign="top">
-<?php } else { ?>
+		</div>
 	</div>
-	<div class="span6">
-<?php } ?>
+	<div class="hkc-md-6">
+		<div class="hikashop_tile_block"><div>
+			<div class="hikashop_tile_title"><?php echo JText::_('HIKA_IMAGE'); ?></div>
 				<table class="admintable table" margin="auto">
 						<tr>
 							<td class="key">
@@ -207,9 +211,10 @@ defined('_JEXEC') or die('Restricted access');
 							</td>
 					</tr>
 				</table>
-
-				<fieldset class="adminform">
-					<legend><?php echo JText::_('ACCESS_LEVEL'); ?></legend>
+			</div>
+		</div>
+		<div class="hikashop_tile_block"><div>
+			<div class="hikashop_tile_title"><?php echo JText::_('ACCESS_LEVEL'); ?></div>
 <?php
 	if(hikashop_level(2)) {
 		$acltype = hikashop_get('type.acl');
@@ -218,18 +223,10 @@ defined('_JEXEC') or die('Restricted access');
 		echo '<small style="color:red">'.JText::_('ONLY_FROM_HIKASHOP_BUSINESS').'</small>';
 	}
 ?>
-				</fieldset>
-
-<?php if(!HIKASHOP_BACK_RESPONSIVE) { ?>
-			</td>
-		</tr>
-	</table>
-</div>
-<?php } else { ?>
+			</div>
+		</div>
 	</div>
 </div>
-<?php } ?>
-
 	<input type="hidden" name="cid[]" value="<?php echo @$this->element->badge_id; ?>" />
 	<input type="hidden" name="option" value="<?php echo HIKASHOP_COMPONENT; ?>" />
 	<input type="hidden" name="task" value="" />

@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -53,16 +53,16 @@ class hikashopCheckoutHelper {
 	protected function loadWorkflow() {
 		$this->checkout_workflow = $this->config->get('checkout_workflow', '');
 		if(!empty($this->checkout_workflow))
-			$this->checkout_workflow = json_decode($this->checkout_workflow, false);
+			$this->checkout_workflow = json_decode($this->checkout_workflow, true);
 
-		if(empty($this->checkout_workflow))
+		if(empty($this->checkout_workflow) || (int)$this->config->get('checkout_workflow_legacy', 0) == 1)
 			$this->loadWorkflowLegacy();
 
 		$this->shop_closed = false;
 
 		JPluginHelper::importPlugin('hikashop');
-		$dispatcher = JDispatcher::getInstance();
-		$dispatcher->trigger('onCheckoutWorkflowLoad', array(&$this->checkout_workflow, &$this->shop_closed, $this->cart_id));
+		$app = JFactory::getApplication();
+		$app->triggerEvent('onCheckoutWorkflowLoad', array(&$this->checkout_workflow, &$this->shop_closed, $this->cart_id));
 
 	}
 
@@ -135,9 +135,9 @@ class hikashopCheckoutHelper {
 		if(empty($this->addressClass))
 			$this->addressClass = hikashop_get('class.address');
 
-		$user_id = hikashop_loadUser();
-		if(!empty($user_id))
-			$ret['data'] = $this->addressClass->loadUserAddresses($user_id);
+		$cart = $this->getCart();
+		if(!empty($cart->user_id))
+			$ret['data'] = $this->addressClass->loadUserAddresses($cart->user_id, $type);
 
 		if(!empty($ret['data'])) {
 			$this->addressClass->loadZone($ret['data']);
@@ -146,6 +146,25 @@ class hikashopCheckoutHelper {
 			$fieldClass = hikashop_get('class.field');
 			$fields = $fieldClass->getData('frontcomp', 'address');
 			$ret['fields'] =& $fields;
+		}
+
+		if(!empty($ret['fields']) && count($ret['fields'])) {
+			$ret['billing_fields'] = array();
+			$ret['shipping_fields'] = array();
+			foreach($ret['fields'] as $k => $field) {
+				if($field->field_address_type == 'billing') {
+					$ret['billing_fields'][$k] = $field;
+					continue;
+				}
+				if($field->field_address_type == 'shipping') {
+					$ret['shipping_fields'][$k] = $field;
+					continue;
+				}
+				if(empty($field->field_address_type)) {
+					$ret['billing_fields'][$k] = $field;
+					$ret['shipping_fields'][$k] = $field;
+				}
+			}
 		}
 		return $ret;
 	}
@@ -166,7 +185,7 @@ class hikashopCheckoutHelper {
 		$override = false;
 		foreach($currentShipping as $shipping_id => $selectedMethod) {
 			if(!empty($selectedMethod) && method_exists($selectedMethod, 'getShippingAddress')) {
-				$override = $selectedMethod->getShippingAddress($shipping_id);
+				$override = $selectedMethod->getShippingAddress($shipping_id, $cart);
 			}
 		}
 
@@ -297,6 +316,44 @@ class hikashopCheckoutHelper {
 		return $ret;
 	}
 
+	public function completeLink($url, $ajax = false, $redirect = false, $js = false, $Itemid = 0) {
+		$config = hikashop_config();
+		$menusClass = hikashop_get('class.menus');
+
+		$config_itemid = (int)$config->get('checkout_itemid', 0);
+
+		$setCtrl = true;
+		$checkout_itemid = !empty($checkout_itemid) ? $checkout_itemid : $Itemid;
+
+		$valid_menu = $menusClass->loadAMenuItemId('checkout', 'show', $checkout_itemid);
+		if(!empty($valid_menu)) {
+			$setCtrl = false;
+		} else {
+			$valid_menu = $menusClass->loadAMenuItemId('', '', $checkout_itemid);
+			if(!$valid_menu) {
+				$checkout_itemid = $menusClass->loadAMenuItemId('', '');
+			}
+		}
+
+		if(!$setCtrl) {
+			$jconfig = JFactory::getConfig();
+			if(!$jconfig->get('sef'))
+				$setCtrl = true;
+			if(class_exists('Sh404sefHelperGeneral')) {
+				$params = Sh404sefHelperGeneral::getComponentParams();
+				if($params->get('Enabled'))
+					$setCtrl = true;
+			}
+		}
+
+		$cart_id = $this->getCartId();
+		$url .= ($cart_id > 0) ? '&cart_id=' . $cart_id : '';
+		$link = 'index.php?option=' . HIKASHOP_COMPONENT . ($setCtrl ? '&ctrl=checkout' : '') . (!empty($url) ? '&'.$url : '') . '&Itemid=' . $checkout_itemid . ($ajax ? '&tmpl=raw' : '');
+		$ret = JRoute::_($link, !$redirect);
+		if($js) return str_replace('&amp;', '&', $ret);
+		return $ret;
+	}
+
 	public function getRedirectUrl() {
 		if(!empty($this->redirect_url))
 			return $this->redirect_url;
@@ -339,11 +396,36 @@ class hikashopCheckoutHelper {
 		}
 		unset($p);
 
-		$fullprice = md5(serialize($cart->full_total));
+		$total = hikashop_copy($cart->full_total);
+		if(!empty($total->prices)) {
+			foreach($total->prices as &$price ) {
+				unset($price->taxes);
+				unset($price->taxes_without_discount);
+			}
+		}
+		$fullprice = md5(serialize($total));
 		$products = md5(serialize($cart->cart_products) . serialize(@$cart->additional));
-		$payments = md5(serialize(@$cart->usable_methods->payment));
-		$shippings = md5(serialize(@$cart->usable_methods->shipping));
+		$paymentMethods = hikashop_copy(@$cart->usable_methods->payment);
+		if(!empty($paymentMethods)) {
+			foreach($paymentMethods as &$paymentMethod ) {
+				unset($paymentMethod->total);
+			}
+		}
+		$payments = md5(serialize(@$paymentMethods));
+		$shippingMethods = hikashop_copy(@$cart->usable_methods->shipping);
+		if(!empty($shippingMethods)) {
+			foreach($shippingMethods as &$shippingMethod ) {
+				unset($shippingMethod->taxes);
+			}
+		}
+		$shippings = md5(serialize(@$shippingMethods));
 		$address_override = md5(serialize($this->getShippingAddressOverride()));
+		$fields = null;
+		if(!empty($cart->order_fields))
+		    $fields = array_keys($cart->order_fields);
+		$order_fields = md5(serialize($fields));
+		$billing_addreses = md5(serialize(@$cart->usable_addresses->billing));
+		$shipping_addreses = md5(serialize(@$cart->usable_addresses->shipping));
 
 		$shipping = $cart->cart_shipping_ids;
 		if(is_array($shippings))
@@ -388,15 +470,18 @@ class hikashopCheckoutHelper {
 			'shipping_list' => $shippings, // shipping
 			'shipping_group_products' => $shipping_products, // shipping
 			'billing_address' => (int)$cart->cart_billing_address_id,
+			'billing_addresses' => $billing_addreses,
 			'shipping_address' => (int)$cart->cart_shipping_address_ids,
 			'shipping_address_overirde' => $address_override,
+			'shipping_addresses' => $shipping_addreses,
 			'user' => $user,
+			'order_fields' => $order_fields,
 		);
 
 		$markers = array();
 		JPluginHelper::importPlugin('hikashop');
-		$dispatcher = JDispatcher::getInstance();
-		$dispatcher->trigger('onCheckoutGetCartMarkers', array(&$markers, &$cart));
+		$app = JFactory::getApplication();
+		$app->triggerEvent('onCheckoutGetCartMarkers', array(&$markers, &$cart));
 		if(!empty($markers)) {
 			$ret['plugins'] = $markers;
 		}
@@ -419,7 +504,10 @@ class hikashopCheckoutHelper {
 			'shipping_list' => 'checkout.shipping.updated',
 			'shipping_group_products' => 'checkout.shipping.updated',
 			'shipping_address_overirde' => 'checkout.address.updated',
+			'billing_addresses' => 'checkout.address.updated',
+			'shipping_addresses' => 'checkout.address.updated',
 			'user' => 'checkout.user.updated',
+			'order_fields' => 'checkout.fields.updated',
 		);
 
 		if(!empty($newMarkers['cart_empty'])) {
@@ -445,12 +533,12 @@ class hikashopCheckoutHelper {
 		}
 
 		if(!empty($markers['plugins'])) {
-			$dispatcher = JDispatcher::getInstance();
+			$app = JFactory::getApplication();
 			foreach($markers['plugins'] as $k => $v) {
 				if($v === $newMarkers['plugin'][$k])
 					continue;
 				$evts = array();
-				$dispatcher->trigger('onCheckoutProcessCartMarker', array($k, &$evts, $v, $newMarkers['plugin'][$k]));
+				$app->triggerEvent('onCheckoutProcessCartMarker', array($k, &$evts, $v, $newMarkers['plugin'][$k]));
 				foreach($evts as $e) {
 					$this->addEvent($e, $params);
 				}
@@ -480,7 +568,7 @@ class hikashopCheckoutHelper {
 	}
 
 	public function displayMessages($name = null, $display = true) {
-		if(empty($this->messages))
+		if(empty($this->messages) && $name !== 'cart')
 			return;
 
 		$key = ($name !== null) ? $name.'.' : null;
@@ -510,6 +598,17 @@ class hikashopCheckoutHelper {
 			hikashop_display($msg['msg'], $msg['type']);
 		}
 
+		if($name !== 'cart')
+			return $messagesToReturn;
+
+		$cart = $this->getCart();
+		if(empty($cart->messages))
+			return $messagesToReturn;
+
+		foreach($cart->messages as $msg) {
+			hikashop_display($msg['msg'], $msg['type']);
+		}
+
 		return $messagesToReturn;
 	}
 
@@ -528,6 +627,11 @@ class hikashopCheckoutHelper {
 }
 
 class hikashopCheckoutHelperInterface {
+	protected $params = array();
+
+	public function getParams() {
+		return $this->params;
+	}
 
 	public function check(&$controller, &$params) {
 		return true;

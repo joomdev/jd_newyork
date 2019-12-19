@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<fieldset name="global" label="COM_DJEVENTS_CONFIG_GLOBAL_SETTINGS" addfieldpath="/administrator/components/com_djevents/models/fields">
+
+		<field name="theme" type="djeventstheme" default="bootstrap" label="COM_DJEVENTS_CONFIG_THEME" description="COM_DJEVENTS_CONFIG_THEME_DESC" />
+		<field name="date_format" type="text" default="l, j F Y" label="COM_DJEVENTS_CONFIG_DATE_FORMAT" description="COM_DJEVENTS_CONFIG_DATE_FORMAT_DESC" />
+		<field name="time_format" type="list" default="G:i" label="COM_DJEVENTS_CONFIG_TIME_FORMAT" description="COM_DJEVENTS_CONFIG_TIME_FORMAT_DESC">
+			<option value="G:i">COM_DJEVENTS_CONFIG_TIME_FORMAT_24H</option>
+			<option value="g:i a">COM_DJEVENTS_CONFIG_TIME_FORMAT_12H</option>
+			<option value="H:i">COM_DJEVENTS_CONFIG_TIME_FORMAT_24H_ZERO</option>
+			<option value="h:i a">COM_DJEVENTS_CONFIG_TIME_FORMAT_12H_ZERO</option>
+		</field>
+		<field name="contact_list" default="" type="textarea" label="COM_DJEVENTS_CONFIG_CONTACT_LIST" description="COM_DJEVENTS_CONFIG_CONTACT_LIST_DESC" rows="5" cols="20" />
+		
+		<field type="djeventsspacer" class="djtitle" label="COM_DJEVENTS_GOOGLE_MAPS_SETTINGS" />
+		<field name="map_api_key" type="text" label="COM_DJEVENTS_MAP_API_KEY" description="COM_DJEVENTS_MAP_API_KEY_DESC" default="" />
+		<field name="map_latitude" type="text" label="COM_DJEVENTS_MAP_LATITUDE" />
+		<field name="map_longitude" type="text" label="COM_DJEVENTS_MAP_LONGITUDE" />
+		<field name="map_zoom" type="integer" label="COM_DJEVENTS_MAP_ZOOM" default="15" first="0" last="21" step="1" />
+		<field name="map_marker" default="" type="media" label="COM_DJEVENTS_MAP_MARKER" />
+		<field name="map_styles" type="textarea" filter="raw" label="COM_DJEVENTS_MAP_STYLES" rows="5" cols="20" />
+		
+		<field type="djeventsspacer" class="djtitle" label="COM_DJEVENTS_IMAGES_SETTINGS" />
+		<field name="width" type="text" default="420" size="10" label="COM_DJEVENTS_IMAGE_WIDTH" />
+		<field name="height" type="text" default="280" size="10" label="COM_DJEVENTS_IMAGE_HEIGHT" />
+		<field name="resizing" type="list" default="toWidth" label="COM_DJEVENTS_IMAGE_RESIZING">
+			<option value="crop">COM_DJEVENTS_CROP</option>
+			<option value="toWidth">COM_DJEVENTS_FIT_TO_WIDTH</option>
+			<option value="toHeight">COM_DJEVENTS_FIT_TO_HEIGHT</option>
+			<option value="no">COM_DJEVENTS_DON_T_RESIZE</option>
+		</field>
+		<field name="quality" type="text" default="80" size="10" label="COM_DJEVENTS_IMAGE_QUALITY" />
+		
+		<field name="thumb_width" type="text" default="200" size="10" label="COM_DJEVENTS_THUMB_WIDTH" />
+		<field name="thumb_height" type="text" default="200" size="10" label="COM_DJEVENTS_THUMB_HEIGHT" />
+		<field name="thumb_resizing" type="list" default="toWidth" label="COM_DJEVENTS_THUMB_RESIZING">
+			<option value="crop">COM_DJEVENTS_CROP</option>
+			<option value="toWidth">COM_DJEVENTS_FIT_TO_WIDTH</option>
+			<option value="toHeight">COM_DJEVENTS_FIT_TO_HEIGHT</option>
+		</field>
+		<field name="thumb_quality" type="text" default="80" size="10" label="COM_DJEVENTS_THUMB_QUALITY" />
+		
+		<field name="small_width" type="text" default="100" size="10" label="COM_DJEVENTS_SMALL_WIDTH" />
+		<field name="small_height" type="text" default="100" size="10" label="COM_DJEVENTS_SMALL_HEIGHT" />
+		<field name="small_quality" type="text" default="80" size="10" label="COM_DJEVENTS_SMALL_QUALITY" />
+				
+	</fieldset>
+	
+	<fieldset name="views" label="COM_DJEVENTS_VIEWS_FIELDSET_LABEL">
+	
+		<field type="djeventsspacer" label="COM_DJEVENTS_LIST_VIEW_SETTINGS" />
+		
+		<field name="evlist_limit" type="text" default="10" label="COM_DJEVENTS_CONFIG_LIST_LIMIT" description="COM_DJEVENTS_CONFIG_LIST_LIMIT_DESC" />				
+		<field name="evlist_featured_limit" type="text" default="2" label="COM_DJEVENTS_CONFIG_FEATURED_LIST_LIMIT" description="COM_DJEVENTS_CONFIG_FEATURED_LIST_LIMIT_DESC" />
+		
+		<field name="list_featured_heading" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_LIST_SHOW_FEATURED_HEADING">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="list_heading" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_LIST_SHOW_HEADING">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="list_weekly_switcher" type="radio" class="btn-group" default="0" label="COM_DJEVENTS_LIST_SHOW_WEEKLY_VIEW_SWITCH">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="list_event_title" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_TITLE">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="list_event_intro" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_INTRO">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="list_event_poster" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_POSTER">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="list_event_time" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_TIME">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="list_event_city" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_CITY">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="list_event_category" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_CATEGORY">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="list_event_readmore" type="radio" class="btn-group" default="0" label="COM_DJEVENTS_SHOW_EVENT_READMORE">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		
+		<field type="djeventsspacer" label="COM_DJEVENTS_WEEKLY_VIEW_SETTINGS" />
+		
+		<field name="weekly_heading" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_WEEKLY_SHOW_HEADING">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="weekly_buttons" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_WEEKLY_SHOW_NAVIGATION_BUTTONS">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="weekly_list_switcher" type="radio" class="btn-group" default="0" label="COM_DJEVENTS_WEEKLY_SHOW_LIST_VIEW_SWITCH">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="weekly_buttons_position" type="list" default="" label="COM_DJEVENTS_WEEKLY_NAVIGATION_BUTTONS_POSITION" showon="weekly_buttons:1[OR]weekly_list_switch:1">
+			<option value="">COM_DJEVENTS_BOTH</option>
+			<option value="top">COM_DJEVENTS_TOP</option>
+			<option value="bottom">COM_DJEVENTS_BOTTOM</option>
+		</field>
+		<field name="weekly_day_heading" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_WEEKLY_SHOW_DAY_HEADING">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="weekly_day_date_format" type="text" default="l, j F" label="COM_DJEVENTS_WEEKLY_DAY_DATE_FORMAT" showon="weekly_day_heading:1" />
+		<field name="weekly_event_title" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_TITLE">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="weekly_event_intro" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_INTRO">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="weekly_event_poster" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_POSTER">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="weekly_event_time" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_TIME">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="weekly_event_city" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_CITY">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="weekly_event_category" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_CATEGORY">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="weekly_event_readmore" type="radio" class="btn-group" default="0" label="COM_DJEVENTS_SHOW_EVENT_READMORE">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		
+		<field type="djeventsspacer" label="COM_DJEVENTS_EVENT_VIEW_SETTINGS" />
+		
+		<field name="event_title" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_TITLE">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="event_time" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_TIME">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="event_category" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_CATEGORY">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="event_intro" type="radio" class="btn-group" default="0" label="COM_DJEVENTS_SHOW_EVENT_INTRO">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="event_gallery" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_GALLERY">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="event_price" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_PRICE">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="event_url" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_URL">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="event_location" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_LOCATION">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="event_map" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_MAP">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="event_tags" type="radio" class="btn-group" default="1" label="COM_DJEVENTS_SHOW_EVENT_TAGS">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		
+		<field name="event_social_position" type="list" default="" label="COM_DJEVENTS_EVENT_SOCIAL_POSITION">
+			<option value="">JNONE</option>
+			<option value="top">COM_DJEVENTS_TOP</option>
+			<option value="bottom">COM_DJEVENTS_BOTTOM</option>
+		</field>
+
+		<field name="event_social_code" type="textarea" default="" label="COM_DJEVENTS_EVENT_SOCIAL_CODE" rows="10" cols="5" filter="raw" showon="event_social_position!:"/>
+		
+	</fieldset>
+	
+	<fieldset name="upload" label="COM_DJEVENTS_UPLOAD_FIELDSET_LABEL">
+				
+				<field name="upload_max_size" type="text" default="10240" size="10" label="COM_DJEVENTS_UPLOAD_SIZE" />
+				<field name="upload_chunk_size" type="text" default="1024" size="10" label="COM_DJEVENTS_UPLOAD_CHUNK_SIZE" description="COM_DJEVENTS_UPLOAD_CHUNK_SIZE_DESC" />
+				<field type="djeventsspacer" class="djinfo" label="COM_DJEVENTS_UPLOAD_RESIZE_INFO" />				
+				<field name="upload_width" type="text" default="1600" size="10" label="COM_DJEVENTS_UPLOAD_WIDTH" />
+				<field name="upload_height" type="text" default="1200" size="10" label="COM_DJEVENTS_UPLOAD_HEIGHT" />
+				<field name="upload_quality" type="text" default="90" size="10" label="COM_DJEVENTS_UPLOAD_QUALITY" />
+			
+	</fieldset>
+	
+	<fieldset name="permissions" description="JCONFIG_PERMISSIONS_DESC" label="JCONFIG_PERMISSIONS_LABEL">
+		<field name="rules" type="rules"
+			component="com_djevents"
+			filter="rules"
+			validate="rules"
+			label="JCONFIG_PERMISSIONS_LABEL"
+			section="component" />
+	</fieldset>
+</config>

@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -37,14 +37,7 @@ class plgHikashopshippingUPS extends hikashopShippingPlugin
 		array('key' => 21, 'code' => '83', 'name' => 'UPS Today Dedicated Courrier', 'countries' => 'POLAND', 'zones' => array('country_Poland_170'), 'destinations' => array('country_Poland_170')),
 		array('key' => 22, 'code' => '84', 'name' => 'UPS Today Intercity', 'countries' => 'POLAND', 'zones' => array('country_Poland_170'), 'destinations' => array('country_Poland_170')),
 		array('key' => 23, 'code' => '85', 'name' => 'UPS Today Express', 'countries' => 'POLAND', 'zones' => array('country_Poland_170'), 'destinations' => array('country_Poland_170')),
-		array('key' => 24, 'code' => '86', 'name' => 'UPS Today Express Saver', 'countries' => 'POLAND', 'zones' => array('country_Poland_170'), 'destinations' => array('country_Poland_170')),
-
-		array('key' => 25, 'code' => 'TDCB', 'name' => 'Trade Direct Cross Border', 'countries' => 'ALL', 'zones' => array('all'), 'destinations' => array('international')),
-		array('key' => 26, 'code' => 'TDA', 'name' => 'Trade Direct Air', 'countries' => 'ALL', 'zones' => array('all'), 'destinations' => array('international')),
-		array('key' => 27, 'code' => 'TDO', 'name' => 'Trade Direct Ocean', 'countries' => 'ALL', 'zones' => array('all'), 'destinations' => array('international')),
-		array('key' => 28, 'code' => '308', 'name' => 'UPS Freight LTL', 'countries' => 'ALL', 'zones' => array('all'), 'destinations' => array('international')),
-		array('key' => 29, 'code' => '309', 'name' => 'UPS Freight LTL Guaranteed', 'countries' => 'ALL', 'zones' => array('all'), 'destinations' => array('international')),
-		array('key' => 30, 'code' => '310', 'name' => 'UPS Freight LTL Urgent', 'countries' => 'ALL', 'zones' => array('all'), 'destinations' => array('international')),
+		array('key' => 24, 'code' => '86', 'name' => 'UPS Today Express Saver', 'countries' => 'POLAND', 'zones' => array('country_Poland_170'), 'destinations' => array('country_Poland_170'))
 	);
 
 	var $multiple = true;
@@ -57,10 +50,11 @@ class plgHikashopshippingUPS extends hikashopShippingPlugin
 	public function processPackageLimit($limit_key, $limit_value, $product, $qty, $package, $units) {
 		switch ($limit_key) {
 			case 'dimension':
-				$divide = (float)(($product['z'] + $product['y']) * 2 + $product['x']);
+				$divide = (float)(($product['x'] + $product['y']) * 2 + $product['z']);
 				if(empty($divide) || $divide > $limit_value)
 					return false;
-				return (int)floor($limit_value / $divide);
+				$current_limit_value = max(0.0, $limit_value - (float)(($package['x'] + $package['y']) * 2 + $package['z']));
+				return (int)floor($current_limit_value / $divide);
 				break;
 		}
 		return parent::processPackageLimit($limit_key, $limit_value , $product, $qty, $package, $units);
@@ -88,9 +82,6 @@ class plgHikashopshippingUPS extends hikashopShippingPlugin
 	}
 
 	public function onShippingDisplay(&$order, &$dbrates, &$usable_rates, &$messages) {
-		if(!hikashop_loadUser())
-			return false;
-
 		if(empty($order->shipping_address))
 			return true;
 
@@ -149,19 +140,6 @@ class plgHikashopshippingUPS extends hikashopShippingPlugin
 			}
 
 			$rate->shipping_params->methods = hikashop_unserialize($rate->shipping_params->methodsList);
-
-			$this->freight = false;
-			$this->classicMethod = false;
-			$heavyProduct = false;
-			$weightTotal = 0;
-			if(!empty($rate->shipping_params->methods)) {
-				foreach($rate->shipping_params->methods as $method) {
-					if(in_array($method, array('TDCB', 'TDA', 'TDO', '308', '309', '310')))
-						$this->freight = true;
-					else
-						$this->classicMethod = true;
-				}
-			}
 			$null = null;
 			if(empty($this->shipping_currency_id)) {
 				$this->shipping_currency_id = hikashop_getCurrency();
@@ -173,7 +151,7 @@ class plgHikashopshippingUPS extends hikashopShippingPlugin
 			$cart = hikashop_get('class.cart');
 			$cart->loadAddress($null, $order->shipping_address->address_id, 'object', 'shipping');
 
-			$receivedMethods = $this->_getBestMethods($rate, $order, $usableWarehouses, $heavyProduct, $null);
+			$receivedMethods = $this->_getBestMethods($rate, $order, $usableWarehouses, $null);
 
 			if(empty($receivedMethods)) {
 				$this->error_messages['no_rates'] = JText::_('NO_SHIPPING_METHOD_FOUND');
@@ -183,7 +161,7 @@ class plgHikashopshippingUPS extends hikashopShippingPlugin
 			$i = 0;
 			$new_usable_rates = array();
 			foreach($receivedMethods as $method) {
-				$new_usable_rates[$i] = (!HIKASHOP_PHP5) ? $rate : clone($rate);
+				$new_usable_rates[$i] = clone($rate);
 				$new_usable_rates[$i]->shipping_price += round($method['value'], 2);
 				$selected_method = '';
 				$name = '';
@@ -416,19 +394,10 @@ function checkAllBox(id, type){
 		return true;
 	}
 
-	protected function _getBestMethods(&$rate, &$order, &$usableWarehouses, $heavyProduct, $null) {
+	protected function _getBestMethods(&$rate, &$order, &$usableWarehouses, $null) {
 		$db = JFactory::getDBO();
 		$usableMethods = array();
 		$zone_code = '';
-
-		$this->freight = false;
-		$this->classicMethod = false;
-		foreach($rate->shipping_params->methods as $method) {
-			if($method=='TDCB' || $method=='TDA' || $method=='TDO' || $method=='308' || $method=='309' || $method=='310')
-				$this->freight = true;
-			else
-				$this->classicMethod = true;
-		}
 
 		$currencies = array();
 		foreach($usableWarehouses as $warehouse) {
@@ -468,29 +437,32 @@ function checkAllBox(id, type){
 			}
 		}
 		foreach($usableWarehouses as $k => $warehouse){
-			$usableWarehouses[$k]->methods = $this->_getShippingMethods($rate, $order, $warehouse, $heavyProduct, $null);
+			$usableWarehouses[$k]->methods = $this->_getShippingMethods($rate, $order, $warehouse, $null);
 		}
 		if(empty($usableWarehouses))
 			return false;
 
+		$bestPrice=99999999;
 		foreach($usableWarehouses as $k => $warehouse) {
-			if(!empty($warehouse->methods)) {
+			if(!empty($warehouse->methods) && $warehouse->methods !== true) {
 				foreach($warehouse->methods as $i => $method) {
 					if(!in_array($method['code'], $rate->shipping_params->methods))
 						unset($usableWarehouses[$k]->methods[$i]);
 				}
-			}
-		}
 
-		$bestPrice=99999999;
-		foreach($usableWarehouses as $id => $warehouse) {
-			if(!empty($warehouse->methods)) {
 				foreach($warehouse->methods as $method) {
 					if($method['value'] < $bestPrice) {
 						$bestPrice = $method['value'];
-						$bestWarehouse = $id;
+						$bestWarehouse = $k;
 					}
 				}
+			}
+		}
+
+
+		foreach($usableWarehouses as $id => $warehouse) {
+			if(!empty($warehouse->methods) && $warehouse->methods !== true) {
+
 			}
 		}
 		if(isset($bestWarehouse))
@@ -499,7 +471,7 @@ function checkAllBox(id, type){
 		return false;
 	}
 
-	protected function _getShippingMethods(&$rate, &$order, &$warehouse, $heavyProduct, $null) {
+	protected function _getShippingMethods(&$rate, &$order, &$warehouse, $null) {
 		$data['userId'] = $rate->shipping_params->user_id;
 		$data['accessLicenseNumber'] = $rate->shipping_params->access_code;
 		$data['password'] = $rate->shipping_params->password;
@@ -508,7 +480,7 @@ function checkAllBox(id, type){
 		if(empty($null->shipping_address->address_country->zone_code_2))
 			$null->shipping_address->address_country->zone_code_2 = 'US';
 		$data['destCountry'] = $null->shipping_address->address_country->zone_code_2;
-		$data['destStatecode'] = $null->shipping_address->address_state->zone_code_3;
+		$data['destStatecode'] = @$null->shipping_address->address_state->zone_code_3;
 		$data['city'] = $warehouse->city;
 		$data['zip'] = $warehouse->zip;
 		$data['stateCode'] = @$warehouse->statecode;
@@ -537,10 +509,8 @@ function checkAllBox(id, type){
 
 		$limitations = array();
 
-		if(($this->freight == false && $this->classicMethod == true) || ($heavyProduct == false && $this->freight == false)) {
-			$limitations['dimension'] = 165;
-			$limitations['w'] = 150;
-		}
+		$limitations['dimension'] = 165;
+		$limitations['w'] = 150;
 
 		if(empty($rate->shipping_params->group_package))
 			$limitations['unit'] = 1;
@@ -549,7 +519,12 @@ function checkAllBox(id, type){
 		$volume_unit = 'in';
 		if($warehouse->units == 'kg') {
 			$weight_unit = 'kg';
+			if(isset($limitations['w']))
+				$limitations['w'] = 68.04;
+
 			$volume_unit = 'cm';
+			if(isset($limitations['dimension']))
+				$limitations['dimension'] = 419.1;
 		}
 
 		if($exclude_dimensions) {
@@ -706,7 +681,7 @@ function checkAllBox(id, type){
 			$destStateCode = '<StateProvinceCode>'. $data['destStatecode'] .'</StateProvinceCode>';
 			$negotiated_rate = $data['negotiated_rate'];
 		}
-		$xml = 
+		$xml =
 '<'.'?xml version="1.0" ?'.'>
 	<AccessRequest xml:lang=\'en-US\'>
 		<AccessLicenseNumber>'. $data['accessLicenseNumber'] .'</AccessLicenseNumber>
@@ -758,11 +733,11 @@ function checkAllBox(id, type){
 		<ShipmentServiceOptions />
 	</Shipment>
 </RatingServiceSelectionRequest>';
-
-		if(@$rate->shipping_params->debug)
+		$ctrl = hikaInput::get()->getString('ctrl','');
+		if(@$rate->shipping_params->debug && $ctrl == 'checkout')
 			echo '<!-- '. $xml. ' -->'."\r\n"; // THIS LINE IS FOR DEBUG PURPOSES ONLY-IT WILL SHOW IN HTML COMMENTS
 
-		$session = curl_init("https://www.ups.com/ups.app/xml/Rate");
+		$session = curl_init("https://onlinetools.ups.com/ups.app/xml/Rate");
 		curl_setopt($session, CURLOPT_HEADER, 1);
 		curl_setopt($session,CURLOPT_POST,1);
 		curl_setopt($session,CURLOPT_TIMEOUT, 30);
@@ -783,7 +758,7 @@ function checkAllBox(id, type){
 			return false;
 		}
 
-		if(@$rate->shipping_params->debug)
+		if(@$rate->shipping_params->debug && $ctrl == 'checkout')
 			echo '<!-- '. $result. ' -->'; // THIS LINE IS FOR DEBUG PURPOSES ONLY-IT WILL SHOW IN HTML COMMENTS
 
 		$xml_data = strstr($result, '<?');

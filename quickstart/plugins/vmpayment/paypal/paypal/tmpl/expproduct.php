@@ -30,7 +30,11 @@ $paypalInterface = $viewData['paypalInterface'];
 		<?php
 	}
 
-if(empty($viewData['offer_credit'])) {
+
+if(!empty($viewData['paypalInterface']->_method->enable_smart_buttons)){
+
+
+} else if(empty($viewData['offer_credit'])) {
 	?><div class="pp-logo"><?php
 	echo vmPPButton::renderMarkAcceptance();
 	?></div><?php

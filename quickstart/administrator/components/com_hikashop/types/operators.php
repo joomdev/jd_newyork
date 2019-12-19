@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -40,7 +40,7 @@ class hikashopOperatorsType {
 	}
 
 	public function display($map, $default = '', $additionalClass = '') {
-		return JHTML::_('select.genericlist', $this->values, $map, 'class="inputbox '.$additionalClass.'" size="1" style="width:120px;" '.$this->extra, 'value', 'text', $default);
+		return JHTML::_('select.genericlist', $this->values, $map, 'class="custom-select '.$additionalClass.'" size="1" style="width:120px;" '.$this->extra, 'value', 'text', $default);
 	}
 
 	public function displayFilter($map, $default = '', $additionalClass = '') {

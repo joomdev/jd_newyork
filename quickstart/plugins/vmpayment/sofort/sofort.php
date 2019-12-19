@@ -3,10 +3,10 @@ defined('_JEXEC') or die('Restricted access');
 
 /**
  * @author Valérie Isaksen
- * @version $Id: sofort.php 9667 2017-11-15 11:17:36Z Milbo $
+ * @version $Id: sofort.php 10185 2019-10-23 12:58:26Z Milbo $
  * @package VirtueMart
  * @subpackage payment
- * @copyright Copyright (C) 2004-Copyright (C) 2004 - 2018 Virtuemart Team. All rights reserved.   - All rights reserved.
+ * @copyright Copyright (C) 2004 - 2019 Virtuemart Team. All rights reserved.   - All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -21,7 +21,7 @@ if (!class_exists('vmPSPlugin')) {
 }
 
 class plgVmPaymentSofort extends vmPSPlugin {
-	const RELEASE = 'VM 3.2.14';
+	const RELEASE = 'VM 3.6.10';
 	const SU_SOFORTBANKING = 'su';
 
 
@@ -35,7 +35,7 @@ class plgVmPaymentSofort extends vmPSPlugin {
 		$this->_tableId = 'id'; //'virtuemart_sofort_id';
 
 		$varsToPush = $this->getVarsToPush();
-
+		$this->addVarsToPushCore($varsToPush, 1);
 		$this->setConfigParameterable($this->_configTableFieldName, $varsToPush);
 
 	}
@@ -452,7 +452,7 @@ class plgVmPaymentSofort extends vmPSPlugin {
 
 		$this->storePSPluginInternalData($sofort_data);
 
-		$modelOrder->updateStatusForOneOrder($payments[0]->virtuemart_order_id, $order_history, false);
+		$modelOrder->updateStatusForOneOrder($payments[0]->virtuemart_order_id, $order_history, true);
 	}
 
 	function _checkAmountAndCurrency ($sofort_data, $payments) {
@@ -592,51 +592,7 @@ class plgVmPaymentSofort extends vmPSPlugin {
 		return ($method->cost_per_transaction + ($cart_prices['salesPrice'] * $cost_percent_total * 0.01));
 	}*/
 
-	/**
-	 * Check if the payment conditions are fulfilled for this payment method
-	 *
-	 * @author: Valerie Isaksen
-	 *
-	 * @param $cart_prices: cart prices
-	 * @param $payment
-	 * @return true: if the conditions are fulfilled, false otherwise
-	 *
-	 */
-	protected function checkConditions ($cart, $method, $cart_prices) {
 
-		$this->convert_condition_amount($method);
-		$amount = $this->getCartAmount($cart_prices);
-		$address = (($cart->ST == 0) ? $cart->BT : $cart->ST);
-
-		$amount_cond = ($amount >= $method->min_amount AND $amount <= $method->max_amount
-			OR
-			($method->min_amount <= $amount AND ($method->max_amount == 0)));
-
-		$countries = array();
-		if (!empty($method->countries)) {
-			if (!is_array($method->countries)) {
-				$countries[0] = $method->countries;
-			} else {
-				$countries = $method->countries;
-			}
-		}
-		// probably did not gave his BT:ST address
-		if (!is_array($address)) {
-			$address = array();
-			$address['virtuemart_country_id'] = 0;
-		}
-
-		if (!isset($address['virtuemart_country_id'])) {
-			$address['virtuemart_country_id'] = 0;
-		}
-		if (in_array($address['virtuemart_country_id'], $countries) || count($countries) == 0) {
-			if ($amount_cond) {
-				return TRUE;
-			}
-		}
-
-		return FALSE;
-	}
 
 
 

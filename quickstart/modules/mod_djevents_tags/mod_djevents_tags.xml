@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension
+	type="module"
+	version="1.6.0"
+	client="site"
+	method="upgrade">
+	<name>mod_djevents_tags</name>
+	<creationDate>May 2016</creationDate>
+	<author>DJ-Extensions.com LTD</author>
+	<copyright>Copyright (C) 2016 DJ-Extensions.com LTD, All rights reserved.</copyright>
+	<license> http://www.gnu.org/licenses GNU/GPL</license>
+	<authorEmail>contact@dj-extensions.com</authorEmail>
+	<authorUrl>http://dj-extensions.com</authorUrl>
+	<version>1.0.0</version>
+	<description>MOD_DJEVENTS_TAGS</description>
+	<files>
+		<filename module="mod_djevents_tags">mod_djevents_tags.php</filename>
+		<filename>index.html</filename>
+		<folder>language</folder>
+		<folder>tmpl</folder>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="limit" type="text" default="20"
+					label="MOD_DJEVENTS_TAGS_LIMIT" description="MOD_DJEVENTS_TAGS_LIMIT_DESC" />
+				<field name="order" type="radio" class="btn-group" default="count" label="MOD_DJEVENTS_TAGS_ORDER">
+					<option value="count">MOD_DJEVENTS_TAGS_COUNT</option>
+					<option value="random">MOD_DJEVENTS_TAGS_RANDOM</option>
+				</field>
+			</fieldset>
+			
+		</fields>
+		<fields name="params">
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" default=""
+					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" />
+				
+			</fieldset>
+		</fields>
+	</config>
+</extension>

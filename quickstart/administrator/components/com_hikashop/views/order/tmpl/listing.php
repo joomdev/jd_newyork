@@ -1,58 +1,34 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
 ?><div class="iframedoc" id="iframedoc"></div>
 <form action="<?php echo hikashop_completeLink('order'); ?>" method="post"  name="adminForm" id="adminForm">
-<?php if(HIKASHOP_BACK_RESPONSIVE) { ?>
-	<div class="row-fluid">
-		<div class="span4">
-			<div class="input-prepend input-append">
-				<span class="add-on"><i class="icon-filter"></i></span>
-				<input type="text" name="search" id="search" value="<?php echo $this->escape($this->pageInfo->search);?>" class="text_area" />
-				<button class="btn" onclick="document.adminForm.limitstart.value=0;this.form.submit();"><i class="icon-search"></i></button>
-				<button class="btn" onclick="document.adminForm.limitstart.value=0;document.getElementById('search').value='';this.form.submit();"><i class="icon-remove"></i></button>
-			</div>
-		</div>
-		<div class="span8">
-<?php } else { ?>
-	<table>
-		<tr>
-			<td width="100%">
-				<?php echo JText::_('FILTER'); ?>:
-				<input type="text" name="search" id="search" value="<?php echo $this->escape($this->pageInfo->search);?>" class="text_area" />
-				<button class="btn" onclick="document.adminForm.limitstart.value=0;this.form.submit();"><?php echo JText::_( 'GO' ); ?></button>
-				<button class="btn" onclick="document.adminForm.limitstart.value=0;document.getElementById('search').value='';this.form.submit();"><?php echo JText::_( 'RESET' ); ?></button>
-			</td>
-			<td nowrap="nowrap">
-<?php }
+<div class="hk-row-fluid">
+	<div class="hkc-md-3"><?php
+		echo $this->loadHkLayout('search', array());
+	?></div>
+	<div class="hkc-md-9 hikashop_listing_filters"><?php
 	foreach($this->extrafilters as $name => $filterObj) {
 		echo $filterObj->displayFilter($name, $this->pageInfo->filter);
 	}
 	if(!is_numeric($this->pageInfo->filter->filter_start) && !empty($this->pageInfo->filter->filter_start)) $this->pageInfo->filter->filter_start = strtotime($this->pageInfo->filter->filter_start);
 	if(!is_numeric($this->pageInfo->filter->filter_end) && !empty($this->pageInfo->filter->filter_end)) $this->pageInfo->filter->filter_end = strtotime($this->pageInfo->filter->filter_end);
 	echo JText::_('FROM').' ';
-	echo JHTML::_('calendar', hikashop_getDate((@$this->pageInfo->filter->filter_start?@$this->pageInfo->filter->filter_start:''),'%Y-%m-%d'), 'filter_start','period_start','%Y-%m-%d',array('size'=>'10','onchange'=>'document.adminForm.submit();'));
+	echo JHTML::_('calendar', hikashop_getDate((@$this->pageInfo->filter->filter_start?@$this->pageInfo->filter->filter_start:''),'%Y-%m-%d'), 'filter_start','period_start',hikashop_getDateFormat('%d %B %Y'),array('size'=>'10','onchange'=>'document.adminForm.submit();', 'onChange'=>'document.adminForm.submit();'));
 	echo ' '.JText::_('TO').' ';
-	echo JHTML::_('calendar', hikashop_getDate((@$this->pageInfo->filter->filter_end?@$this->pageInfo->filter->filter_end:''),'%Y-%m-%d'), 'filter_end','period_end','%Y-%m-%d',array('size'=>'10','onchange'=>'document.adminForm.submit();'));
+	echo JHTML::_('calendar', hikashop_getDate((@$this->pageInfo->filter->filter_end?@$this->pageInfo->filter->filter_end:''),'%Y-%m-%d'), 'filter_end','period_end',hikashop_getDateFormat('%d %B %Y'),array('size'=>'10','onchange'=>'document.adminForm.submit();', 'onChange'=>'document.adminForm.submit();'));
 	echo $this->payment->display("filter_payment",$this->pageInfo->filter->filter_payment,false);
 	$this->category->multiple = true;
 	echo $this->category->display("filter_status",$this->pageInfo->filter->filter_status,false);
 	$this->category->multiple = false;
-
-	if(HIKASHOP_BACK_RESPONSIVE) { ?>
-		</div>
-	</div>
-<?php } else { ?>
-			</td>
-		</tr>
-	</table>
-<?php } ?>
+?></div>
+</div>
 	<table id="hikashop_order_listing" class="adminlist table table-striped table-hover" cellpadding="1">
 		<thead>
 			<tr>
@@ -64,6 +40,8 @@ defined('_JEXEC') or die('Restricted access');
 				</th>
 				<th class="hikashop_order_number_title title">
 					<?php echo JHTML::_('grid.sort', JText::_('ORDER_NUMBER'), 'b.order_number', $this->pageInfo->filter->order->dir,$this->pageInfo->filter->order->value ); ?>
+					<br/>
+					<?php echo JHTML::_('grid.sort', JText::_('INVOICE_NUMBER'), 'b.order_invoice_number', $this->pageInfo->filter->order->dir,$this->pageInfo->filter->order->value ); ?>
 				</th>
 				<th class="hikashop_order_customer_title title">
 					<?php echo JHTML::_('grid.sort', JText::_('CUSTOMER'), 'c.name', $this->pageInfo->filter->order->dir,$this->pageInfo->filter->order->value ); ?>
@@ -130,12 +108,21 @@ defined('_JEXEC') or die('Restricted access');
 					</td>
 					<td class="hikashop_order_number_value">
 						<?php if($this->manage){ ?>
-							<a href="<?php echo hikashop_completeLink('order&task=edit&cid[]='.$row->order_id.'&cancel_redirect='.urlencode(base64_encode(hikashop_completeLink('order')))).$target; ?>">
+							<a title="<?php echo JText::_('ORDER_NUMBER'); ?>" href="<?php echo hikashop_completeLink('order&task=edit&cid[]='.$row->order_id.'&cancel_redirect='.urlencode(base64_encode(hikashop_completeLink('order')))).$target; ?>">
 						<?php } ?>
 								<?php echo $row->order_number; ?>
 						<?php if($this->manage){ ?>
 							</a>
 						<?php } ?>
+						<?php if(!empty($row->order_invoice_number)) {
+								if($this->manage){ ?>
+							<a title="<?php echo JText::_('INVOICE_NUMBER'); ?>" href="<?php echo hikashop_completeLink('order&task=edit&cid[]='.$row->order_id.'&cancel_redirect='.urlencode(base64_encode(hikashop_completeLink('order')))).$target; ?>">
+							<?php } ?>
+								<?php echo '<br/>'.$row->order_invoice_number; ?>
+						<?php if($this->manage){ ?>
+							</a>
+						<?php }
+							} ?>
 					</td>
 					<td class="hikashop_order_customer_value">
 						<?php
@@ -151,7 +138,7 @@ defined('_JEXEC') or die('Restricted access');
 						if(!empty($row->user_id)){
 							$url = hikashop_completeLink('user&task=edit&cid[]='.$row->user_id);
 							$config =& hikashop_config();
-							if(hikashop_isAllowed($config->get('acl_user_manage','all'))) echo $row->user_email.'<a href="'.$url.$target.'"><img src="'.HIKASHOP_IMAGES.'edit.png" alt="edit"/></a>';
+							if(hikashop_isAllowed($config->get('acl_user_manage','all'))) echo $row->user_email.' <a href="'.$url.$target.'"><i class="fa fa-chevron-right"></i></a>';
 						}elseif(!empty($row->user_email)){
 							echo $row->user_email;
 						}

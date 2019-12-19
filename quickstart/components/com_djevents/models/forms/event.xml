@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset addfieldpath="/administrator/components/com_djevents/models/fields">
+		<field name="id" type="hidden" default="0" label="JGLOBAL_FIELD_ID_LABEL" readonly="true" class="readonly" />
+		
+		<field name="cat_id" type="djeventscategory" class="inputbox" label="COM_DJEVENTS_CATEGORY" required="true" />
+		
+		<field name="title" type="text" class="input-xxlarge" label="COM_DJEVENTS_TITLE" required="true" />
+		<field name="alias" type="text" class="input-xxlarge" label="JFIELD_ALIAS_LABEL" description="JFIELD_ALIAS_DESC" />
+		
+		<field name="intro" type="editor" class="inputbox" height="180"
+			label="COM_DJEVENTS_EVENT_INTRO" filter="JComponentHelper::filterText" buttons="false" />
+			
+		<field name="description" type="editor" class="inputbox" height="350"
+			label="COM_DJEVENTS_EVENT_DESCRIPTION" filter="JComponentHelper::filterText" buttons="false" />
+		
+		<field name="video" type="djeventsvideo" class="input-xxlarge form-control" label="COM_DJEVENTS_VIDEO_LINK" description="COM_DJEVENTS_VIDEO_LINK_DESC" callback="window.injectAlbumVideo" size="50"	/>
+		
+		<field name="published" type="hidden" default="0" />
+		<field name="featured" type="hidden" default="0" />
+		<field name="created" type="hidden" />
+		<field name="created_by" type="hidden" />
+		
+		<field name="price" type="textarea" label="COM_DJEVENTS_PRICE" />
+		<field name="external_url" type="text" class="input-xxlarge" label="COM_DJEVENTS_EXTERNAL_URL" />
+		
+		<field name="location" type="text" class="input-xlarge" label="COM_DJEVENTS_LOCATION_NAME" />
+		<field name="address" type="text" class="input-xlarge" label="COM_DJEVENTS_ADDRESS" />
+		<field name="city_id" type="djeventscity" class="form-control" label="COM_DJEVENTS_CITY" />
+		<field name="post_code" type="text" class="input-medium" label="COM_DJEVENTS_POST_CODE" />
+		<field name="latitude" type="text" class="input-xlarge" label="COM_DJEVENTS_LATITUDE" />
+		<field name="longitude" type="text" class="input-xlarge" label="COM_DJEVENTS_LONGITUDE" />
+		<field name="zoom" type="text" class="input-mini" label="COM_DJEVENTS_ZOOM" default="15" />
+	</fieldset>
+	
+	<fields name="time" label="COM_DJEVENTS_EVENT_TIME">
+	
+		<field name="start" type="calendar" maxlength="10"
+			label="COM_DJEVENTS_EVENT_START_DATE"
+			class="input-small" size="10" format="%Y-%m-%d"
+			filter="UTC" default="NOW +1 day" required="true" />
+		<field name="start_time" type="djeventstime" class="form-control" label="COM_DJEVENTS_EVENT_START_TIME" />
+		
+		<field name="use_end" type="radio" label="COM_DJEVENTS_EVENT_USE_END" class="btn-group" default="0">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field name="end" type="calendar" maxlength="10"
+			label="COM_DJEVENTS_EVENT_END_DATE"
+			class="input-small" size="10" format="%Y-%m-%d"
+			filter="UTC" default="NOW +2 day" showon="use_end:1" />
+		<field name="end_time" type="djeventstime" class="form-control" label="COM_DJEVENTS_EVENT_END_TIME" showon="use_end:1" />
+		
+		<field name="repeat" type="radio" label="COM_DJEVENTS_EVENT_REPETITION" class="btn-group" default="">
+			<option value="">JNO</option>
+			<option value="weekly">COM_DJEVENTS_WEEKLY</option>
+			<option value="monthly">COM_DJEVENTS_MONTHLY</option>
+			<option value="yearly">COM_DJEVENTS_YEARLY</option>
+		</field>
+		
+		<field name="repeat_interval" type="text" class="input-mini" label="COM_DJEVENTS_EVENT_REPETITION_INTERVAL"
+			default="1" showon="repeat:weekly,monthly,yearly" />
+			
+		<field name="repeat_until" type="calendar"
+			label="COM_DJEVENTS_EVENT_REPETITION_UNTIL"
+			class="input-medium" size="22" format="%Y-%m-%d"
+			filter="" default="NOW +3 months" showon="repeat:weekly,monthly,yearly" />
+		
+		<field name="weekday" type="radio" label="COM_DJEVENTS_WEEKDAY" class="btn-group" default="1" showon="repeat:weekly">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		
+		<field name="weekly_weekdays" type="checkboxes" label="COM_DJEVENTS_WEEKLY_WEEKDAYS" class="form-inline" showon="weekday:0">
+			<option value="1">MON</option>
+			<option value="2">TUE</option>
+			<option value="3">WED</option>
+			<option value="4">THU</option>
+			<option value="5">FRI</option>
+			<option value="6">SAT</option>
+			<option value="7">SUN</option>
+		</field>
+		
+		<field name="monthday" type="radio" label="COM_DJEVENTS_MONTHDAY" class="btn-group" default="1" showon="repeat:monthly">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		
+		<field name="weekno" type="checkboxes" label="COM_DJEVENTS_WEEKNO" class="form-inline" showon="monthday:0">
+			<option value="1">1</option>
+			<option value="2">2</option>
+			<option value="3">3</option>
+			<option value="4">4</option>
+			<option value="5">5</option>
+		</field>
+		
+		<field name="monthly_weekdays" type="checkboxes" label="COM_DJEVENTS_MONTHLY_WEEKDAYS" class="form-inline" showon="monthday:0">
+			<option value="1">MON</option>
+			<option value="2">TUE</option>
+			<option value="3">WED</option>
+			<option value="4">THU</option>
+			<option value="5">FRI</option>
+			<option value="6">SAT</option>
+			<option value="7">SUN</option>
+		</field>
+		
+		<field name="include" type="textarea" label="COM_DJEVENTS_REPEAT_INCLUDE" description="COM_DJEVENTS_REPEAT_INCLUDE_DESC" showon="repeat:weekly,monthly,yearly" />
+		<field name="exclude" type="textarea" label="COM_DJEVENTS_REPEAT_EXCLUDE" description="COM_DJEVENTS_REPEAT_INCLUDE_DESC" showon="repeat:weekly,monthly,yearly" />
+	</fields>
+</form>

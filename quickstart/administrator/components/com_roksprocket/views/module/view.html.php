@@ -193,7 +193,7 @@ class RokSprocketViewModule extends RokSprocketLegacyJView
 			}
 		}
 
-		RokCommon_Header::addStyle(JURI::base(true) . '/components/com_roksprocket/assets/styles/roksprocket.css?nocache=2.1.24');
+		RokCommon_Header::addStyle(JURI::base(true) . '/components/com_roksprocket/assets/styles/roksprocket.css?nocache=2.1.26');
 	}
 
 	protected function compileJS()
@@ -254,7 +254,7 @@ class RokSprocketViewModule extends RokSprocketLegacyJView
 			file_put_contents($admin_assets . 'roksprocket.js', $buffer);
 		}
 
-		RokCommon_Header::addScript(JURI::base(true) . '/components/com_roksprocket/assets/js/roksprocket.js?nocache=2.1.24');
+		RokCommon_Header::addScript(JURI::base(true) . '/components/com_roksprocket/assets/js/roksprocket.js?nocache=2.1.26');
 
 		/*
 			To keep track of the ordering

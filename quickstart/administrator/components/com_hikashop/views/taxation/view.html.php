@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -13,7 +13,7 @@ class TaxationViewTaxation extends hikashopView{
 	var $ctrl= 'taxation';
 	var $nameListing = 'TAXATIONS';
 	var $nameForm = 'TAXATION';
-	var $icon = 'tax';
+	var $icon = 'university';
 	var $triggerView = true;
 
 	function display($tpl = null){
@@ -34,30 +34,12 @@ class TaxationViewTaxation extends hikashopView{
 		$pageInfo->limit->value = $app->getUserStateFromRequest( $this->paramBase.'.list_limit', 'limit', $app->getCfg('list_limit'), 'int' );
 		$pageInfo->limit->start = $app->getUserStateFromRequest( $this->paramBase.'.limitstart', 'limitstart', 0, 'int' );
 
-		$pageInfo->filter->taxation_date_start=$app->getUserStateFromRequest( HIKASHOP_COMPONENT.'.taxation_date_start','taxation_date_start','' ,'string');
-		$pageInfo->filter->taxation_date_end=$app->getUserStateFromRequest( HIKASHOP_COMPONENT.'.taxation_date_end','taxation_date_end','' ,'string');
 		$pageInfo->filter->tax_namekey=$app->getUserStateFromRequest( HIKASHOP_COMPONENT.'.tax_namekey','tax_namekey','' ,'string');
 		$pageInfo->filter->taxation_type=$app->getUserStateFromRequest( HIKASHOP_COMPONENT.'.taxation_type','taxation_type','' ,'string');
 		$pageInfo->filter->taxation_site_id=$app->getUserStateFromRequest( HIKASHOP_COMPONENT.'.taxation_site_id','taxation_site_id','' ,'string');
 		$database = JFactory::getDBO();
 
 		$filters = array();
-
-
-		if ( !empty( $pageInfo->filter->taxation_date_start)) {
-			$filters[] = '('
-				. hikashop_getTime($pageInfo->filter->taxation_date_start).'<=a.taxation_date_start'
-				. ' OR '. hikashop_getTime($pageInfo->filter->taxation_date_start).'<=a.taxation_date_end'
-				. ' OR a.taxation_date_end=0'
-				. ')';
-		}
-		if ( !empty( $pageInfo->filter->taxation_date_end)) {
-			$filters[] = '('
-				. 'a.taxation_date_start<='.hikashop_getTime($pageInfo->filter->taxation_date_end)
-				. ' OR (a.taxation_date_start<=a.taxation_date_end AND a.taxation_date_end<='.hikashop_getTime($pageInfo->filter->taxation_date_end).')'
-				. ' OR a.taxation_date_start=0'
-				. ')';
-		}
 
 		if(!empty($pageInfo->filter->tax_namekey)){
 			$filters[]='a.tax_namekey='.$database->Quote($pageInfo->filter->tax_namekey);
@@ -70,8 +52,8 @@ class TaxationViewTaxation extends hikashopView{
 		}
 
 		JPluginHelper::importPlugin('hikashop');
-		$dispatcher = JDispatcher::getInstance();
-		$dispatcher->trigger('onBeforeTaxationListing', array($this->paramBase, &$this->extrafilters, &$pageInfo, &$filters));
+		$app = JFactory::getApplication();
+		$app->triggerEvent('onBeforeTaxationListing', array($this->paramBase, &$this->extrafilters, &$pageInfo, &$filters));
 
 		$order = '';
 		if(!empty($pageInfo->filter->order->value)){
@@ -130,7 +112,7 @@ class TaxationViewTaxation extends hikashopView{
 							continue;
 						}
 						if(hikashop_isAllowed($config->get('acl_zone_manage','all'))){
-							$zones[]= $zone->zone_name_english.'<a href="'.hikashop_completeLink('zone&task=edit&zone_id='.$zone->zone_id).'"><img class="hikashop_go" src="'.HIKASHOP_IMAGES.'go.png" alt="go" /></a>';
+							$zones[]= $zone->zone_name_english.'<a href="'.hikashop_completeLink('zone&task=edit&zone_id='.$zone->zone_id).'" title="'.JText::_('HIKA_EDIT').'"><i class="fa fa-chevron-right"></i></a>';
 						}else{
 							$zones[]=$zone->zone_name_english;
 						}
@@ -209,9 +191,7 @@ class TaxationViewTaxation extends hikashopView{
 		hikashop_setTitle(JText::_($this->nameForm),$this->icon,$this->ctrl.'&task='.$task.'&taxation_id='.$taxation_id);
 
 		$this->toolbar = array(
-			'save',
-			array('name' => 'save2new', 'display' => version_compare(JVERSION,'1.7','>=')),
-			'apply',
+			'save-group',
 			'cancel',
 			'|',
 			array('name' => 'pophelp', 'target' => $this->ctrl.'-form')

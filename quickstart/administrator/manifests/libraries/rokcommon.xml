@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension type="library" version="2.5" method="upgrade">
+    <name>RokCommon</name>
+    <libraryname>rokcommon</libraryname>
+    <description>RocketTheme shared library</description>
+    <creationDate>September 26, 2019</creationDate>
+    <author>RocketTheme, LLC</author>
+    <authorEmail>support@rockettheme.com</authorEmail>
+    <authorUrl>http://www.rockettheme.com</authorUrl>
+    <copyright>(C) 2005 - 2019 RocketTheme, LLC. All rights reserved.</copyright>
+    <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
+    <version>3.2.8</version>
+    <files folder=".">
+        <filename>classes.map.php</filename>
+        <filename>Doctrine.php</filename>
+        <filename>functions.php</filename>
+        <filename>include.php</filename>
+        <filename>phpQuery.php</filename>
+        <filename>requirements.php</filename>
+        <filename>MD5SUMS</filename>
+        <folder>config</folder>
+        <folder>Doctrine</folder>
+        <folder>Overrides</folder>
+        <folder>phpQuery</folder>
+        <folder>RokCommon</folder>
+    </files>
+    <updateservers>
+       <server type="collection" priority="1" name="RocketTheme Update Directory">http://updates.rockettheme.com/joomla/updates.xml</server>
+    </updateservers>
+</extension>

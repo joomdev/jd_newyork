@@ -7,7 +7,7 @@
     <creationDate>2015-11-01</creationDate>
     <license>http://www.gnu.org/licenses/gpl-3.0.txt GNU/GPL</license>
     <releaseDate>2017-08-03</releaseDate>
-    <version>3.3.7</version>
+    <version>3.3.23</version>
     <description>Component for Smart Slider 3.</description>
     <files folder="site">
         <filename>index.html</filename>
@@ -29,6 +29,6 @@
         </languages>
     </administration>
     <updateservers>
-        <server type="extension" name="Smart Slider 3 Updates">https://secure.nextendweb.com/api/api.php?action=joomla_version&amp;platform=joomla&amp;product=smartslider3&amp;pro=1</server>
+        <server type="extension" name="Smart Slider 3 Updates">https://secure.nextendweb.com/api/api.php?action=joomla_version&amp;platform=joomla&amp;product=smartslider3&amp;pro=0</server>
     </updateservers>
 </extension>

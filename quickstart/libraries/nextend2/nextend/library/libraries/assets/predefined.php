@@ -113,11 +113,5 @@ class N2AssetsPredefined {
     }
 
     public static function loadLiteBox() {
-        N2CSS::addStaticGroup(N2LIBRARYASSETS . '/css/litebox/litebox.min.css', 'nextend-litebox');
-        N2JS::addStaticGroup(N2LIBRARYASSETS . '/dist/nextend-litebox.min.js', 'nextend-litebox');
-    
-
-        N2JS::addInline('n2const.lightboxMobileNewTab=' . intval(N2SmartSliderSettings::get('lightbox-mobile-new-tab', 1)) . ';');
-    
     }
 }

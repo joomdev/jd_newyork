@@ -1,10 +1,10 @@
 <?php
 /**
- * @version    2.8.x
+ * @version    2.10.x
  * @package    K2
- * @author     JoomlaWorks http://www.joomlaworks.net
- * @copyright  Copyright (c) 2006 - 2017 JoomlaWorks Ltd. All rights reserved.
- * @license    GNU/GPL license: http://www.gnu.org/copyleft/gpl.html
+ * @author     JoomlaWorks https://www.joomlaworks.net
+ * @copyright  Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.
+ * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
  */
 
 // no direct access
@@ -541,8 +541,8 @@ else
 	function K2BuildRoute(&$query)
 	{
 		$segments = array();
-		$application = JFactory::getApplication();
-		$menu = $application->getMenu();
+		$app = JFactory::getApplication();
+		$menu = $app->getMenu();
 		if (empty($query['Itemid']))
 		{
 			$menuItem = $menu->getActive();

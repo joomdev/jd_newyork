@@ -1,0 +1,139 @@
+@import "header";
+@import "banner";
+@import "copyright";
+@import "social-icons";
+
+
+.overlap-section {
+   z-index: 1;
+   .container {
+      box-shadow: 0 -2px 7px 0 #bfbfbf;
+      background: #fff;
+      padding: 40px;
+      margin-top: -70px;
+      z-index: 9999999;
+   }
+}
+
+// Heading
+
+$module-title-divider: $primary;
+
+.footer-section {
+   .module-title {
+      font-size: 20px;
+   }   
+}
+
+.author-wrap {
+   margin-bottom: 15px;
+}
+
+.module-title {
+   position: relative;
+   margin-bottom: 20px;
+   &:after {
+      content: "";
+      width: 40px;
+      height: 2px;
+      background: $module-title-divider;
+      display: block;
+      margin-top: 20px;
+   }
+   .heading-center &{
+      text-align: center;
+      &:after {
+         margin-left: auto;
+         margin-right: auto;
+      }
+   }
+   .heading-right &{
+      text-align: right;
+      &:after {
+         margin-left: auto;
+      }
+   }
+}
+
+
+// Article
+
+.latestnews {
+   .article-50 &{
+      .list-group {
+         flex-direction: row;
+         .list-group-item {
+            width: 50%;
+            border: none;
+            margin: 0 15px;
+         }
+         .card-img-top {
+            border-radius: 0;
+         }
+      }
+   }
+}
+
+.newsflash {
+   &[class*="article-"] {
+      display: flex;
+      .newsflash-wrapper {
+         margin: 0 10px;
+         &:first-child {
+            margin-left: 0;
+         }
+         &:last-child {
+            margin-right: 0;
+         }
+      }
+   }
+   .newsflash-wrapper {
+      .article-50 &{
+         width: 50%;
+      }
+      .article-33 &{
+         width: 33%;
+      }
+   }
+   .newsflash-title {
+      margin-bottom: 15px;
+   }
+}
+
+
+.readmore {
+   @extend .btn;
+   @extend .btn-primary;
+}
+
+ul li {
+   &:not(:last-child) {
+      margin-bottom: 10px;
+   }
+}
+
+
+// Right View
+
+.article-border {
+   .latestnews {
+      li {
+         border: 1px solid #ddd !important;
+         padding: 0;
+      }
+      .article-media img{
+         padding: 0 !important;
+      }
+      .article-title {
+         color: $text-muted;
+         display: block;
+         padding: 15px 8px;
+         font-size: 14px;
+         line-height: normal;
+         font-weight: bold;
+         &:hover {
+            color: $primary;
+         }
+      }
+   }
+}

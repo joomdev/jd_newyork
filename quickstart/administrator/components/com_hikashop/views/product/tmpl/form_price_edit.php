@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -29,6 +29,14 @@ if(!$this->config->get('floating_tax_prices',0)){ ?>
 		<input type="text" size="5" style="width:70px;" id="hikashop_<?php echo $this->form_key; ?>_qty_edit" name="" value="<?php echo $this->price->price_min_quantity; ?>"/>
 	</dd>
 <?php if(hikashop_level(2)) { ?>
+	<dt><?php echo JText::_('START_DATE'); ?></dt>
+	<dd>
+		<?php echo JHTML::_('calendar', hikashop_getDate((@$this->price->price_start_date?@$this->price->price_start_date:''),'%Y-%m-%d %H:%M'), 'price_start_date', 'hikashop_' . $this->form_key . '_start_date_edit', hikashop_getDateFormat('%d %B %Y %H:%M'), array('size' => '20', 'showTime' => true)); ?>
+	</dd>
+	<dt><?php echo JText::_('END_DATE'); ?></dt>
+	<dd>
+		<?php echo JHTML::_('calendar', hikashop_getDate((@$this->price->price_end_date?@$this->price->price_end_date:''),'%Y-%m-%d %H:%M'), 'price_end_date', 'hikashop_' . $this->form_key . '_end_date_edit', hikashop_getDateFormat('%d %B %Y %H:%M'), array('size' => '20', 'showTime' => true)); ?>
+	</dd>
 	<dt><?php echo JText::_('ACCESS_LEVEL'); ?></dt>
 	<dd>
 		<?php echo $this->joomlaAcl->display('hikashop_' . $this->form_key . '_acl_edit'.$this->price->price_id, @$this->price->price_access, true, true, 'hikashop_' . $this->form_key . '_acl_edit'); ?>
@@ -53,16 +61,16 @@ echo $this->nameboxVariantType->display(
 <?php if($this->jms_integration){ ?>
 	<dt><?php echo JText::_('SITE_ID'); ?></dt>
 	<dd>
-		<?php echo str_replace('class="inputbox"','class="inputbox no-chzn" style="width:90px;"', MultisitesHelperUtils::getComboSiteIDs( @$this->price->price_site_id, 'hikashop_' . $this->form_key . '_site_edit', JText::_( 'SELECT_A_SITE'))); ?>
+		<?php echo str_replace('class="custom-select"','class="custom-select no-chzn" style="width:90px;"', MultisitesHelperUtils::getComboSiteIDs( @$this->price->price_site_id, 'hikashop_' . $this->form_key . '_site_edit', JText::_( 'SELECT_A_SITE'))); ?>
 	</dd>
 <?php } ?>
 </dl>
 <div style="float:right">
 	<button onclick="return window.productMgr.addPrice('<?php echo $this->form_key; ?>');" class="btn btn-success">
-		<img src="<?php echo HIKASHOP_IMAGES; ?>save.png" alt="" style="vertical-align:middle;"/> <?php echo JText::_('HIKA_OK'); ;?>
+		<i class="fa fa-save"></i> <?php echo JText::_('HIKA_OK'); ;?>
 	</button>
 </div>
 <button onclick="<?php if(!empty($this->price->price_id)) echo 'window.productMgr.restorePriceRow('.$this->price->price_id.');'; ?>return window.productMgr.cancelNewPrice('<?php echo $this->form_key ?>');" class="btn btn-danger">
-	<img src="<?php echo HIKASHOP_IMAGES; ?>cancel.png" alt="" style="vertical-align:middle;"/> <?php echo JText::_('HIKA_CANCEL'); ;?>
+	<i class="fa fa-times"></i> <?php echo JText::_('HIKA_CANCEL'); ;?>
 </button>
 <div style="clear:both"></div>

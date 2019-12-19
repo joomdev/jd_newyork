@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<element type="image">
+   <title>Image</title>
+   <icon>media/jdbuilder/images/icons/elements/image.svg</icon>
+   <creationDate>Apr 2019</creationDate>
+   <author>JoomDev</author>
+   <authorEmail>info@joomdev.com</authorEmail>
+   <authorUrl>https://www.joomdev.com</authorUrl>
+   <copyright>Copyright (C) 2019 Joomdev, Inc. All rights reserved.</copyright>
+   <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+   <version>1.0</version>
+   <description>Element Description Here</description>
+   <form>
+      <fields>
+         <fieldset name="general" label="JDB_GENERAL_TITLE">
+            <field
+               name="image"
+               type="image"
+               label="JDB_IMAGE_CHOOSE_MEDIA"
+               group="basic"
+            >
+            </field>
+            <field
+               name="title"
+               type="text"
+               default=""
+               label="JDB_TITLE"
+               group="basic"
+            >
+            </field>
+            <field
+               name="caption"
+               type="text"
+               default=""
+               label="JDB_IMAGE_CAPTION"
+               group="basic"
+            >
+            </field>
+            <field
+               name="imageSize"
+               type="list"
+               label="JDB_IMAGE_SIZE"
+               default="original"
+               group="basic"
+            >
+               <option value="original">JDB_ORIGINAL</option>
+               <option value="custom">JDB_CUSTOM</option>
+            </field>
+            <field
+               name="width"
+               type="slider"
+               label="JDB_WIDTH"
+               default='{"value":"100", "unit": "%"}'
+               min="0"
+               max="2000"
+               showon="params.imageSize=='custom'"
+               units="px,%"
+               group="basic"
+               responsive="true"
+            >
+            </field>
+            <field
+               name="maxWidth"
+               type="slider" 
+               label="JDB_MAX_WIDTH" 
+               default='{"value":"100", "unit": "%"}' 
+               min="0" 
+               max="2000" 
+               showon="params.imageSize=='custom'"
+               units="px,%"
+               group="basic"
+               responsive="true"
+            >
+            </field>
+            <field
+               name="alignment"
+               type="radio" 
+               label="JDB_ALIGNMENT"
+               default="left" 
+               radiotype="buttons"
+               group="basic"
+               responsive="true"
+            >
+               <option value="left" icon="fa fa-align-left">JDB_LEFT</option>
+               <option value="center" icon="fa fa-align-center">JDB_CENTER</option>
+               <option value="right" icon="fa fa-align-right">JDB_RIGHT</option>
+            </field>
+            <field
+               name="link"
+               type="text"
+               label="JDB_LINK_LABEL"
+               default=""
+               group="basic"
+            >
+            </field>
+            <field
+               name="linkTargetBlank"
+               type="switch"
+               label="JDB_LINK_TARGET_LBL"
+               default="false"
+               showon="params.link!=''"
+               group="basic"
+            >
+            </field>
+            <field
+               name="linkNoFollow"
+               type="switch"
+               label="JDB_LINK_NOFOLLOW_LBL"
+               description="JDB_LINK_NOFOLLOW_DESC"
+               showon="params.link!=''"
+               group="basic"
+            >
+            </field>
+         </fieldset>
+      </fields>
+   </form>
+</element>

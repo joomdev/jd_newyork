@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -85,13 +85,13 @@ class plgHikashoppaymentPaybox extends hikashopPaymentPlugin
 			$srv = 'preprod-tpeweb.paybox.com';
 		}
 
-		$this->url = 'https://'.$srv.'/cgi/MYchoix_pagepaiement.cgi';
+		$this->url = 'https://'.$srv.'/cgi/FramepagepaiementRWD.cgi';
 
 		if(!empty($this->payment_params->iframe)) {
 			$this->url = 'https://'.$srv.'/cgi/MYframepagepaiement_ip.cgi';
 		}
 
-		$amount = (int)($order->cart->full_total->prices[0]->price_value_with_tax * 100);
+		$amount = (int)(round($order->cart->full_total->prices[0]->price_value_with_tax, 2) * 100);
 
 		$this->vars = array(
 			'PBX_SITE' => trim($this->payment_params->pbx_site),
@@ -262,7 +262,7 @@ class plgHikashoppaymentPaybox extends hikashopPaymentPlugin
 		$history->amount = ($pbx_mt/100);
 		$history->data =  ob_get_clean();
 
-		$price_check = (int)($dbOrder->order_full_price * 100);
+		$price_check = (int)(round($dbOrder->order_full_price, 2) * 100);
 		if($pbx_mt != $price_check) {
 			$email->subject = JText::sprintf('NOTIFICATION_REFUSED_FOR_THE_ORDER', 'Paybox') . JText::_('INVALID_AMOUNT');
 			$email->body = str_replace('<br/>', "\r\n", JText::sprintf('AMOUNT_RECEIVED_DIFFERENT_FROM_ORDER', 'Paybox', $history->amount, ($price_check/100) . $this->currency->currency_code)) . "\r\n\r\n" . $order_text;
@@ -284,9 +284,13 @@ class plgHikashoppaymentPaybox extends hikashopPaymentPlugin
 			exit;
 		}
 
+
 		$history->notified = 1;
 		$order_status = $this->payment_params->verified_status;
 		$payment_status = 'Accepted';
+
+		if($dbOrder->order_status == $order_status)
+			return true;
 
 		$email->body = str_replace('<br/>',"\r\n",JText::sprintf('PAYMENT_NOTIFICATION_STATUS','Paybox', $payment_status)).' '.JText::sprintf('ORDER_STATUS_CHANGED', $statuses[$order_status])."\r\n\r\n".$order_text;
 		$email->subject = JText::sprintf('PAYMENT_NOTIFICATION_FOR_ORDER', 'Paybox', $payment_status, $dbOrder->order_number);

@@ -6,7 +6,7 @@ defined ('_JEXEC') or die();
  * @version $Id$
  * @package VirtueMart
  * @subpackage payment
- * @copyright Copyright (C) 2004-Copyright (C) 2004 - 2018 Virtuemart Team. All rights reserved.   - All rights reserved.
+ * @copyright Copyright (C) 2004 - 2014 Virtuemart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -33,15 +33,9 @@ defined ('_JEXEC') or die();
 	<?php echo  $viewData['displayTotalInPaymentCurrency']; ?>
 </div>
 <?php
-$tracking = VmConfig::get('ordertracking','guests');
-if($tracking !='none' and !($tracking =='registered' and empty($viewData["virtuemart_user_id"]) )){
-
-$orderlink = 'index.php?option=com_virtuemart&view=orders&layout=details&order_number='.$viewData["order_number"];
-if( $tracking == 'guestlink' or ( $tracking == 'guests' and empty($viewData["virtuemart_user_id"]))){
-	$orderlink .= '&order_pass='.$viewData["order_pass"];
-}
+if($viewData["orderlink"]){
 ?>
-<a class="vm-button-correct" href="<?php echo JRoute::_($orderlink, false)?>"><?php echo vmText::_('COM_VIRTUEMART_ORDER_VIEW_ORDER'); ?></a>
+<a class="vm-button-correct" href="<?php echo JRoute::_($viewData["orderlink"], false)?>"><?php echo vmText::_('COM_VIRTUEMART_ORDER_VIEW_ORDER'); ?></a>
 <?php
 }
 ?>

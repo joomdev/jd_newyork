@@ -2,7 +2,7 @@
 /**
  * @version   $Id: index.php 10885 2013-05-30 06:31:41Z btowles $
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2018 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2019 RocketTheme, LLC
  * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only
  */
 
@@ -16,7 +16,7 @@
 ?>
 <div class="sprocket-mosaic" data-mosaic="<?php echo $parameters->get('module_id'); ?>">
 	<div class="sprocket-mosaic-g-overlay"><div class="css-loader-wrapper"><div class="css-loader"></div></div></div>
-	<?php if ((count($tagging) > 1) || count($ordering)): ?>
+	<?php if ((count($tagging) > 1) || count((array)$ordering)): ?>
 	<div class="sprocket-mosaic-g-header">
 		<?php if (count($tagging) > 1): ?>
 		<div class="sprocket-mosaic-g-filter">

@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -39,7 +39,7 @@ class hikashopStatisticsClass extends hikashopClass {
 		$this->timeoffsetStr = ''.$this->timeoffset;
 		if($this->timeoffset == 0)
 			$this->timeoffsetStr  = '';
-		else if($this->timeoffset  > 0)
+		else if($this->timeoffset > 0)
 			$this->timeoffsetStr  = '+' . $this->timeoffset ;
 	}
 
@@ -73,11 +73,8 @@ class hikashopStatisticsClass extends hikashopClass {
 			'vars' => array(
 				'DATE_RANGE' => 'past.month',
 			),
-			'vars-2' => array(
-				'DATE_RANGE' => 'past.month-1',
-			),
 			'query' => array(
-				'get' => 'object',
+				'get' => 'list',
 				'select' => array(
 					'SUM(hk_order.order_full_price) as value',
 					'hk_order.order_currency_id as currency'
@@ -89,7 +86,8 @@ class hikashopStatisticsClass extends hikashopClass {
 					'order_created' => ($created_status ?
 						'hk_order.order_created >= {DATE_START} AND ({DATE_END} <= 0 OR hk_order.order_created <= {DATE_END})':
 						'hk_order.order_invoice_created >= {DATE_START} AND ({DATE_END} <= 0 OR hk_order.order_invoice_created <= {DATE_END})'),
-				)
+				),
+				'group' => 'hk_order.order_currency_id'
 			)
 		);
 
@@ -108,9 +106,6 @@ class hikashopStatisticsClass extends hikashopClass {
 			),
 			'vars' => array(
 				'DATE_RANGE' => 'past.month',
-			),
-			'vars-2' => array(
-				'DATE_RANGE' => 'past.month-1',
 			),
 			'query' => array(
 				'get' => 'single',
@@ -136,13 +131,10 @@ class hikashopStatisticsClass extends hikashopClass {
 			'format' => 'price',
 			'type' => 'tile',
 			'tile' => array(
-				'icon' => array('type' => 'fa', 'value' => 'money'),
+				'icon' => array('type' => 'fa', 'value' => 'money fa-money-bill-alt'),
 				'view' => hikashop_completeLink('order&task=listing'),
 			),
 			'vars' => array(
-				'DATE_RANGE' => 'past.month',
-			),
-			'vars-2' => array(
 				'DATE_RANGE' => 'past.month',
 			),
 			'query' => array(
@@ -246,7 +238,8 @@ class hikashopStatisticsClass extends hikashopClass {
 
 			'type' => 'tile',
 			'tile' => array(
-				'mode' => 'small'
+				'mode' => 'small',
+				'image' => 'product',
 			),
 			'vars' => array(
 				'DATE_RANGE' => 'this.month',
@@ -258,12 +251,10 @@ class hikashopStatisticsClass extends hikashopClass {
 					'name' => 'hk_product.order_product_name AS name',
 					'value' => 'ROUND(SUM(hk_product.order_product_price * hk_product.order_product_quantity),2) AS value',
 					'counter' => 'COUNT(hk_order.order_id) AS counter',
-					'image' => 'hk_file.file_path AS image',
 				),
 				'tables' => array(
 					hikashop_table('order_product') . ' AS hk_product',
 					'INNER JOIN ' . hikashop_table('order') . ' AS hk_order ON hk_order.order_id = hk_product.order_id',
-					'LEFT JOIN ' . hikashop_table('file') . ' AS hk_file ON hk_product.product_id > 0 AND hk_product.product_id = hk_file.file_ref_id',
 				),
 				'filters' => array(
 					'order_type' => 'hk_order.order_type = '.$order_type.'',
@@ -271,9 +262,8 @@ class hikashopStatisticsClass extends hikashopClass {
 					'order_created' => ($created_status ?
 						'hk_order.order_created >= {DATE_START} AND ({DATE_END} <= 0 OR hk_order.order_created <= {DATE_END})' :
 						'hk_order.order_invoice_created >= {DATE_START} AND ({DATE_END} <= 0 OR hk_order.order_invoice_created <= {DATE_END})'),
-					'file_type' => 'hk_file.file_type = '.$this->db->Quote('product')
 				),
-				'order' => 'value DESC, hk_file.file_ordering ASC',
+				'order' => 'value DESC',
 				'limit' => 1
 			)
 		);
@@ -286,7 +276,8 @@ class hikashopStatisticsClass extends hikashopClass {
 
 			'type' => 'tile',
 			'tile' => array(
-				'mode' => 'small'
+				'mode' => 'small',
+				'image' => 'category',
 			),
 			'vars' => array(
 				'DATE_RANGE' => 'this.month',
@@ -298,14 +289,12 @@ class hikashopStatisticsClass extends hikashopClass {
 					'name' => 'hk_category.category_name AS name',
 					'value' => 'ROUND(SUM(hk_product.order_product_price * hk_product.order_product_quantity),2) AS value',
 					'counter' => 'COUNT(hk_order.order_id) AS counter',
-					'image' => 'hk_file.file_path AS image',
 				),
 				'tables' => array(
 					hikashop_table('order_product') . ' AS hk_product',
 					'INNER JOIN ' . hikashop_table('order') . ' AS hk_order ON hk_order.order_id = hk_product.order_id',
 					'INNER JOIN ' . hikashop_table('product_category') . ' AS hk_pc ON hk_product.product_id > 0 AND hk_pc.product_id = hk_product.product_id AND hk_pc.ordering = 1',
 					'INNER JOIN ' . hikashop_table('category') . ' AS hk_category ON hk_pc.category_id = hk_category.category_id',
-					'LEFT JOIN ' . hikashop_table('file') . ' AS hk_file ON hk_category.category_id = hk_file.file_ref_id',
 				),
 				'filters' => array(
 					'order_type' => 'hk_order.order_type = '.$order_type.'',
@@ -313,9 +302,8 @@ class hikashopStatisticsClass extends hikashopClass {
 					'order_created' => ($created_status ?
 						'hk_order.order_created >= {DATE_START} AND ({DATE_END} <= 0 OR hk_order.order_created <= {DATE_END})' :
 						'hk_order.order_invoice_created >= {DATE_START} AND ({DATE_END} <= 0 OR hk_order.order_invoice_created <= {DATE_END})'),
-					'file_type' => 'hk_file.file_type = '.$this->db->Quote('category')
 				),
-				'order' => 'value DESC, hk_file.file_ordering ASC',
+				'order' => 'value DESC',
 				'limit' => 1
 			)
 		);
@@ -372,7 +360,7 @@ class hikashopStatisticsClass extends hikashopClass {
 			'format' => 'percentage',
 			'type' => 'tile',
 			'tile' => array(
-				'icon' => array('type' => 'fa', 'value' => 'tachometer'),
+				'icon' => array('type' => 'fa', 'value' => 'tachometer fa-tachometer-alt'),
 			),
 			'vars' => array(
 				'DATE_RANGE' => 'this.month',
@@ -483,8 +471,8 @@ class hikashopStatisticsClass extends hikashopClass {
 		}
 
 		JPluginHelper::importPlugin('hikashop');
-		$dispatcher = JDispatcher::getInstance();
-		$extra_list = $dispatcher->trigger('onHikashopStatisticPluginList', array(
+		$app = JFactory::getApplication();
+		$extra_list = $app->triggerEvent('onHikashopStatisticPluginList', array(
 			array(
 				'created' => $created_status,
 				'valid' => $valid_order_statuses,
@@ -507,7 +495,7 @@ class hikashopStatisticsClass extends hikashopClass {
 	public function getAjaxData($name, $value) {
 		$app = JFactory::getApplication();
 		$statistics = array();
-		if($app->isAdmin())
+		if(hikashop_isClient('administrator'))
 			$statistics = $this->getDashboard();
 
 		if(empty($statistics[$name]))
@@ -570,7 +558,7 @@ class hikashopStatisticsClass extends hikashopClass {
 	}
 
 	public function getDates($mode, $base = 0) {
-		$now = explode('-', date('m-d-Y'), 3);
+		$now = explode('-', hikashop_getDate(time(),'m-d-Y'), 3);
 		$ret = array('start' => 0, 'end' => -1);
 
 		if(strpos($mode, ':') !== false) {
@@ -587,57 +575,57 @@ class hikashopStatisticsClass extends hikashopClass {
 				$ret['end'] = -1;
 				break;
 			case 'this.year':
-				$ret['start'] = mktime(0, 0, 0, 1, 1, $now[2]) + $this->timeoffset;
-				$ret['end'] = mktime(23, 59, 59, $now[0], $now[1], $now[2]) + $this->timeoffset;
+				$ret['start'] = gmmktime(0, 0, 0, 1, 1, $now[2]) - $this->timeoffset;
+				$ret['end'] = gmmktime(23, 59, 59, $now[0], $now[1], $now[2]) - $this->timeoffset;
 				break;
 			case 'this.month':
-				$ret['start'] = mktime(0, 0, 0, $now[0], 1, $now[2]) + $this->timeoffset;
-				$ret['end'] = mktime(23, 59, 59, $now[0], $now[1], $now[2]) + $this->timeoffset;
+				$ret['start'] = gmmktime(0, 0, 0, $now[0], 1, $now[2]) - $this->timeoffset;
+				$ret['end'] = gmmktime(23, 59, 59, $now[0], $now[1], $now[2]) - $this->timeoffset;
 				break;
 			case 'this.week':
-				$ret['start'] = mktime(0, 0, 0, $now[0], $now[1], $now[2]) - (date('N')-1)*24*3600 + $this->timeoffset;
-				$ret['end'] = mktime(23, 59, 59, $now[0], $now[1], $now[2]) + $this->timeoffset;
+				$ret['start'] = gmmktime(0, 0, 0, $now[0], $now[1], $now[2]) - (date('N')-1)*24*3600 - $this->timeoffset;
+				$ret['end'] = gmmktime(23, 59, 59, $now[0], $now[1], $now[2]) - $this->timeoffset;
 				break;
 			case 'this.day':
-				$ret['start'] = mktime(0, 0, 0, $now[0], $now[1], $now[2]) + $this->timeoffset;
-				$ret['end'] = mktime(23, 59, 59, $now[0], $now[1], $now[2]) + $this->timeoffset;
+				$ret['start'] = gmmktime(0, 0, 0, $now[0], $now[1], $now[2]) - $this->timeoffset;
+				$ret['end'] = gmmktime(23, 59, 59, $now[0], $now[1], $now[2]) - $this->timeoffset;
 				break;
 			case 'past.year':
-				$ret['end'] = mktime(23, 59, 59, $now[0], $now[1], $now[2]) + $this->timeoffset;
+				$ret['end'] = gmmktime(23, 59, 59, $now[0], $now[1], $now[2]) - $this->timeoffset;
 				$ret['start'] = strtotime('-1 year', $ret['end'])+1;
 				break;
 			case 'past.month':
-				$ret['end'] = mktime(23, 59, 59, $now[0], $now[1], $now[2]) + $this->timeoffset;
+				$ret['end'] = gmmktime(23, 59, 59, $now[0], $now[1], $now[2]) - $this->timeoffset;
 				$ret['start'] = strtotime('-1 month', $ret['end'])+1;
 				break;
 			case 'past.month-1':
-				$ret['end'] = mktime(23, 59, 59, $now[0], $now[1], $now[2]) + $this->timeoffset;
+				$ret['end'] = gmmktime(23, 59, 59, $now[0], $now[1], $now[2]) - $this->timeoffset;
 				$ret['end'] = strtotime('-1 month', $ret['end'])+1;
 				$ret['start'] = strtotime('-1 month', $ret['end'])+1;
 				break;
 			case 'past.week':
-				$ret['end'] = mktime(23, 59, 59, $now[0], $now[1], $now[2]) + $this->timeoffset;
+				$ret['end'] = gmmktime(23, 59, 59, $now[0], $now[1], $now[2]) - $this->timeoffset;
 				$ret['start'] = strtotime('-1 week', $ret['end'])+1;
 				break;
 			case 'past.day':
-				$ret['end'] = mktime(23, 59, 59, $now[0], $now[1], $now[2]) + $this->timeoffset;
-				$ret['start'] = strtotime('-1 day', $ret['end'])+1;
+				$ret['end'] = time() - $this->timeoffset;
+				$ret['start'] = $ret['end'] - 24*3600;
 				break;
 			case 'previous.year':
-				$ret['start'] = mktime(0, 0, 0, 1, 1, (int)$now[2]-1) + $this->timeoffset;
-				$ret['end'] = mktime(23, 59, 59, 12, 31, (int)$now[2]-1) + $this->timeoffset;
+				$ret['start'] = gmmktime(0, 0, 0, 1, 1, (int)$now[2]-1) - $this->timeoffset;
+				$ret['end'] = gmmktime(23, 59, 59, 12, 31, (int)$now[2]-1) - $this->timeoffset;
 				break;
 			case 'previous.month':
-				$ret['end'] = mktime(0, 0, 0, $now[0], 1, $now[2]) - 1 + $this->timeoffset;
+				$ret['end'] = gmmktime(0, 0, 0, $now[0], 1, $now[2]) - 1 - $this->timeoffset;
 				$ret['start'] = strtotime('-1 month', $ret['end']) + 1;
 				break;
 			case 'previous.week':
-				$ret['end'] = mktime(0, 0, 0, $now[0], $now[1], $now[2]) - (date('N')-1)*24*3600 - 1 + $this->timeoffset;
+				$ret['end'] = gmmktime(0, 0, 0, $now[0], $now[1], $now[2]) - (date('N')-1)*24*3600 - 1 - $this->timeoffset;
 				$ret['start'] = strtotime('-1 week', $ret['end']) + 1;
 				break;
 			case 'previous.day':
-				$ret['end'] = mktime(0, 0, 0, $now[0], $now[1], $now[2]) - (date('N')-1)*24*3600 - 1 + $this->timeoffset;
-				$ret['start'] = strtotime('-1 day', $ret['end']) + 1;
+				$ret['end'] = gmmktime(0, 0, 0, $now[0], $now[1], $now[2]) - $this->timeoffset;
+				$ret['start'] = $ret['end'] - 24*3600;
 				break;
 			default:
 				$manualProcess = true;
@@ -753,7 +741,8 @@ class hikashopStatisticsClass extends hikashopClass {
 			$limit = (int)$queryData['limit'];
 		if($limit === null)
 			$limit = -1;
-
+		$this->db->setQuery('SET @@session.time_zone = \'+00:00\'');
+		$this->db->execute();
 		$this->db->setQuery($query, $offset, $limit);
 		switch($queryData['get']) {
 			case 'object':
@@ -776,7 +765,7 @@ class hikashopStatisticsClass extends hikashopClass {
 
 		$app = JFactory::getApplication();
 		$url = hikashop_completeLink('user&task=reports', 'ajax', false, true);
-		if($app->isAdmin()) {
+		if(hikashop_isClient('administrator')) {
 			$url = hikashop_completeLink('dashboard&task=reports', 'ajax', false, true);
 		}
 
@@ -934,8 +923,8 @@ jQuery(window).on("resize", function(){
 				break;
 			case 'plugin':
 				JPluginHelper::importPlugin('hikashop');
-				$dispatcher = JDispatcher::getInstance();
-				$ret = $dispatcher->trigger('onHikashopStatisticPluginDisplay', array($data));
+				$app = JFactory::getApplication();
+				$ret = $app->triggerEvent('onHikashopStatisticPluginDisplay', array($data));
 				if(!empty($ret) && is_array($ret)) {
 					$arr = $ret;
 					$ret = reset($ret);
@@ -1053,10 +1042,17 @@ jQuery(window).on("resize", function(){
 			$d[] = $this->getFormatedValue($value, @$data['format']);
 		}
 
-		$value = reset($d);
+		$value = $this->getMergedValue($d, @$data['format']);
 
 		if(!empty($data['tile']['mode']) && $data['tile']['mode'] == 'small') {
 			$background = '';
+			if(!empty($data['tile']['image']) && empty($value->image) && !empty($value->id)) {
+				$query = 'SELECT file_path FROM #__hikashop_file WHERE file_ref_id = '.(int)$value->id.' AND file_type = ' . $this->db->Quote($data['tile']['image']).' ORDER BY file_ordering ASC LIMIT 1';
+				$this->db->setQuery($query);
+				$image = $this->db->loadResult();
+				if(!empty($image))
+					$value->image = $image;
+			}
 			if(isset($value->image)) {
 				$imageHelper = hikashop_get('helper.image');
 				$img = $imageHelper->getThumbnail($value->image, array(150,150), array('default' => true), true);
@@ -1093,7 +1089,6 @@ jQuery(window).on("resize", function(){
 		$footer = '';
 		$extra_class = '';
 		if(!empty($data['tile']['icon']['type']) && $data['tile']['icon']['type'] == 'fa') {
-			hikashop_loadJsLib('font-awesome');
 			$icon = '<i class="fa fa-'.$data['tile']['icon']['value'].'"></i>';
 		}
 
@@ -1316,6 +1311,7 @@ window.localPage.chartsInit[window.localPage.chartsInit.length] = function() {
 			}
 			$chartData[ $value->axis ][ $value->$col ] = strip_tags($value->value);
 		}
+		ksort($chartData);
 		foreach($chartData as $k => &$d) {
 			$d = '"' . strip_tags(str_replace('"','\\"', $k)) . '",' . strip_tags(implode(',', $d));
 		}
@@ -1475,5 +1471,12 @@ window.localPage.chartsInit[window.localPage.chartsInit.length] = function() {
 				break;
 		}
 		return $ret;
+	}
+
+	protected function getMergedValue($value, $format, $data = array()) {
+		$f = reset($value);
+		if(is_object($f))
+			return $f;
+		return implode('<br/>', $value);
 	}
 }

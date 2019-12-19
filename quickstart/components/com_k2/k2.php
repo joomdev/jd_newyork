@@ -1,10 +1,10 @@
 <?php
 /**
- * @version    2.8.x
+ * @version    2.10.x
  * @package    K2
- * @author     JoomlaWorks http://www.joomlaworks.net
- * @copyright  Copyright (c) 2006 - 2017 JoomlaWorks Ltd. All rights reserved.
- * @license    GNU/GPL license: http://www.gnu.org/copyleft/gpl.html
+ * @author     JoomlaWorks https://www.joomlaworks.net
+ * @copyright  Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.
+ * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
  */
 
 // no direct access
@@ -24,8 +24,9 @@ if (K2_JVERSION != '15')
 }
 
 JLoader::register('K2Controller', JPATH_COMPONENT.'/controllers/controller.php');
-JLoader::register('K2Model', JPATH_COMPONENT_ADMINISTRATOR.'/models/model.php');
 JLoader::register('K2View', JPATH_COMPONENT_ADMINISTRATOR.'/views/view.php');
+JLoader::register('K2Model', JPATH_COMPONENT_ADMINISTRATOR.'/models/model.php');
+
 JLoader::register('K2HelperRoute', JPATH_COMPONENT.'/helpers/route.php');
 JLoader::register('K2HelperPermissions', JPATH_COMPONENT.'/helpers/permissions.php');
 JLoader::register('K2HelperUtilities', JPATH_COMPONENT.'/helpers/utilities.php');
@@ -70,5 +71,5 @@ else
 
 if (JRequest::getCmd('format') != 'json')
 {
-    echo "\n<!-- JoomlaWorks \"K2\" (v".K2_CURRENT_VERSION.") | Learn more about K2 at http://getk2.org -->\n\n";
+    echo "\n<!-- JoomlaWorks \"K2\" (v".K2_CURRENT_VERSION.") | Learn more about K2 at https://getk2.org -->\n\n";
 }

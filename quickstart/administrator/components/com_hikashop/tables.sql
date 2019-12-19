@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS `#__hikashop_badge` (
 	`badge_quantity` varchar(255) NOT NULL DEFAULT '',
 	`badge_url` varchar(255) NOT NULL DEFAULT '',
 	`badge_access` varchar(255) NOT NULL DEFAULT 'all',
+	`badge_new_period` int(10) unsigned NOT NULL DEFAULT '0',
 	PRIMARY KEY (`badge_id`)
 ) ENGINE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci*/;
 
@@ -91,6 +92,7 @@ CREATE TABLE IF NOT EXISTS `#__hikashop_cart_product` (
 	`cart_product_option_parent_id` int(10) unsigned DEFAULT '0',
 	`cart_product_wishlist_id` int(11) NOT NULL DEFAULT '0',
 	`cart_product_wishlist_product_id` int(11) NOT NULL DEFAULT '0',
+	`cart_product_ref_price` decimal(17,5) DEFAULT NULL,
 	PRIMARY KEY (`cart_product_id`),
 	KEY `cart_id` (`cart_id`)
 ) ENGINE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci*/;
@@ -112,7 +114,7 @@ CREATE TABLE IF NOT EXISTS `#__hikashop_category` (
 	`category_access` varchar(255) NOT NULL DEFAULT 'all',
 	`category_menu` int(10) unsigned DEFAULT '0',
 	`category_keywords` text NOT NULL,
-	`category_meta_description` varchar(255) NOT NULL DEFAULT '',
+	`category_meta_description` text NOT NULL,
 	`category_layout` varchar(255) NOT NULL DEFAULT '',
 	`category_page_title` varchar(255) NOT NULL DEFAULT '',
 	`category_alias` varchar(255) NOT NULL DEFAULT '',
@@ -151,7 +153,7 @@ CREATE TABLE IF NOT EXISTS `#__hikashop_click` (
 CREATE TABLE IF NOT EXISTS `#__hikashop_config` (
 	`config_namekey` varchar(200) NOT NULL,
 	`config_value` text NOT NULL,
-	`config_default` text NOT NULL,
+	`config_default` text NULL,
 	PRIMARY KEY (`config_namekey`)
 ) ENGINE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci*/;
 
@@ -197,6 +199,9 @@ CREATE TABLE IF NOT EXISTS `#__hikashop_discount` (
 	`discount_coupon_product_only` tinyint(4) DEFAULT NULL,
 	`discount_affiliate` int(10) NOT NULL DEFAULT '0',
 	`discount_site_id` varchar(255) NULL DEFAULT '',
+	`discount_user_id` varchar(255) NOT NULL DEFAULT '',
+	`discount_tax` tinyint(3) unsigned DEFAULT '0',
+	`discount_shipping_percent` decimal(12,3) NOT NULL DEFAULT '0.000',
 	PRIMARY KEY (`discount_id`),
 	UNIQUE KEY `discount_code` (`discount_code`)
 ) ENGINE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci*/;
@@ -233,6 +238,7 @@ CREATE TABLE IF NOT EXISTS `#__hikashop_field` (
 	`field_categories` TEXT NULL,
 	`field_with_sub_categories` tinyint(1) NOT NULL DEFAULT '0',
 	`field_products` TEXT NULL,
+	`field_address_type` varchar(50) DEFAULT '',
 	`field_frontcomp` tinyint(3) unsigned NOT NULL DEFAULT '0',
 	`field_backend` tinyint(3) unsigned NOT NULL DEFAULT '1',
 	`field_backend_listing` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -353,6 +359,7 @@ CREATE TABLE IF NOT EXISTS `#__hikashop_order` (
 	`order_billing_address_id` int(10) unsigned NOT NULL DEFAULT '0',
 	`order_shipping_address_id` int(10) unsigned NOT NULL DEFAULT '0',
 	`order_user_id` int(10) unsigned NOT NULL DEFAULT '0',
+	`order_parent_id` int(10) unsigned NOT NULL DEFAULT '0',
 	`order_status` varchar(255) NOT NULL DEFAULT '',
 	`order_type` varchar(255) NOT NULL DEFAULT 'sale',
 	`order_number` varchar(255) NOT NULL DEFAULT '',
@@ -423,8 +430,10 @@ CREATE TABLE IF NOT EXISTS `#__hikashop_order_product` (
 	`order_product_shipping_price` decimal(17,5) NOT NULL DEFAULT '0.00000',
 	`order_product_shipping_tax` decimal(17,5) NOT NULL DEFAULT '0.00000',
 	`order_product_shipping_params` TEXT NULL,
+	`order_product_params` TEXT NULL,
 	PRIMARY KEY (`order_product_id`),
-	KEY `order_id` (`order_id`)
+	KEY `order_id` (`order_id`),
+	KEY `product_id` (`product_id`)
 ) ENGINE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci*/;
 
 CREATE TABLE IF NOT EXISTS `#__hikashop_payment` (
@@ -453,6 +462,8 @@ CREATE TABLE IF NOT EXISTS `#__hikashop_price` (
 	`price_access` varchar(255) NOT NULL DEFAULT 'all',
 	`price_users` varchar(255) NOT NULL DEFAULT '',
 	`price_site_id` varchar(255) NULL DEFAULT '',
+	`price_start_date` int(11) unsigned NOT NULL DEFAULT '0',
+	`price_end_date` int(11) unsigned NOT NULL DEFAULT '0',
 	PRIMARY KEY (`price_id`),
 	KEY `price_product_id` (`price_product_id`)
 ) ENGINE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci*/;
@@ -479,7 +490,7 @@ CREATE TABLE IF NOT EXISTS `#__hikashop_product` (
 	`product_keywords` text NOT NULL,
 	`product_weight_unit` varchar(255) NOT NULL DEFAULT 'kg',
 	`product_modified` int(10) unsigned NOT NULL DEFAULT '0',
-	`product_meta_description` varchar(255) NOT NULL DEFAULT '',
+	`product_meta_description` text NOT NULL,
 	`product_dimension_unit` varchar(255) NOT NULL DEFAULT 'm',
 	`product_width` decimal(12,3) NOT NULL DEFAULT '0.000',
 	`product_length` decimal(12,3) NOT NULL DEFAULT '0.000',
@@ -504,6 +515,10 @@ CREATE TABLE IF NOT EXISTS `#__hikashop_product` (
 	`product_warehouse_id` int(10) unsigned NOT NULL DEFAULT '0',
 	`product_quantity_layout` varchar(255) NOT NULL DEFAULT '',
 	`product_sort_price` decimal(17,5) NOT NULL DEFAULT '0.00000',
+	`product_description_raw` text NULL,
+	`product_description_type` varchar(255) NULL,
+	`product_option_method` VARCHAR(255) NOT NULL DEFAULT '',
+	`product_condition` varchar(255) NULL,
 	PRIMARY KEY (`product_id`),
 	UNIQUE KEY `product_code` (`product_code`),
 	KEY `product_parent_id` (`product_parent_id`),
@@ -567,6 +582,7 @@ CREATE TABLE IF NOT EXISTS `#__hikashop_shipping_price` (
 	`shipping_price_min_quantity` int(11) NOT NULL DEFAULT '0',
 	`shipping_price_value` decimal(15,7) NOT NULL DEFAULT '0.0000000',
 	`shipping_fee_value` decimal(15,7) NOT NULL DEFAULT '0.0000000',
+	`shipping_blocked` tinyint(3) unsigned NOT NULL DEFAULT '0',
 	PRIMARY KEY (`shipping_price_id`)
 ) ENGINE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci*/;
 
@@ -641,8 +657,9 @@ CREATE TABLE IF NOT EXISTS `#__hikashop_vote` (
 
 CREATE TABLE IF NOT EXISTS `#__hikashop_vote_user` (
 	`vote_user_id` int(11) NOT NULL,
-	`vote_user_user_id` varchar(26) NOT NULL,
-	`vote_user_useful` tinyint(4) NOT NULL
+	`vote_user_user_id` varchar(255) NOT NULL,
+	`vote_user_useful` tinyint(4) NOT NULL,
+	PRIMARY KEY (`vote_user_id`,`vote_user_user_id`)
 ) ENGINE=MyISAM /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci*/;
 
 CREATE TABLE IF NOT EXISTS `#__hikashop_waitlist` (

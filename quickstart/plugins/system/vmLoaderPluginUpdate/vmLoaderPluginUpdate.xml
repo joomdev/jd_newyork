@@ -1,34 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="2.0" type="plugin" group="system" method="upgrade">
-	<name>VM Framework Loader during Plugin Updates</name>
-	<creationDate>2017-08-06</creationDate>
+	<name>PLG_SYSTEM_VMLOADERPLUGINUPDATE</name>
+	<creationDate>2019-10-08</creationDate>
+	<author>The VirtueMart Development Team</author>
 	<author>Reinhold Kainhofer</author>
 	<copyright>Copyright (C) 2017 Reinhold Kainhofer.</copyright>
+	<copyright>Copyright (C) 2018 - 2019 The VirtueMart Development Team.</copyright>
 	<license>http://www.gnu.org/licenses/gpl.html GNU/GPL v3+</license>
-	<authorEmail>office@open-tools.net</authorEmail>
 	<authorUrl>http://www.virtuemart.net/</authorUrl>
-	<version>1.0</version>
-	<description>Makes sure the VirtueMart framework is loaded during automatic plugin updates using Joomla's plugin updater.</description>
-
+	<version>1.0.2</version>
+	<description>PLG_SYSTEM_VMLOADERPLUGINUPDATE_DESC</description>
 	<files>
 		<filename plugin="vmLoaderPluginUpdate">vmLoaderPluginUpdate.php</filename>
-	</files> 
+		<folder>language</folder>
+	</files>
 	<config>
 		<fields name="params">
-		<fieldset name="restrictions">
-			<field name="comuserredirect" type="radio" default="1"
-				   label="VMSYSTEM_COMUSER_REDIRECT"
-				   extension="com_virtuemart"
-				   description="VMSYSTEM_COMUSER_REDIRECT_TIP">
-				<option value="0">COM_VIRTUEMART_NO</option>
+		<fieldset name="redirects">
+			<field name="comuserredirect"
+				class="btn-group btn-yes-no radio"
+				type="radio"
+				default="1"
+				label="VMSYSTEM_COMUSER_REDIRECT"
+				extension="com_virtuemart"
+				description="VMSYSTEM_COMUSER_REDIRECT_TIP">
 				<option value="1">COM_VIRTUEMART_YES</option>
+				<option value="0">COM_VIRTUEMART_NO</option>
 			</field>
 		</fieldset>
 		</fields>
 	</config>
-	
 	<updateservers>
 		<server type="extension" name="VM Framework Loader during Plugin Updates"><![CDATA[http://virtuemart.net/releases/vm3/plg_system_vmLoaderPluginUpdate_update.xml]]></server>
 	</updateservers>
-
 </extension>

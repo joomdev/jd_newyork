@@ -47,19 +47,6 @@ class N2SmartsliderBackendSlidersControllerAjax extends N2SmartSliderControllerA
 
 
     public function actionListGroups() {
-        $this->validateToken();
-
-
-        $slidersModel = new N2SmartsliderSlidersModel();
-        $result       = $slidersModel->getGroups();
-
-        $data = array();
-        foreach ($result AS $r) {
-            $data[$r['id']] = $r['title'];
-        }
-
-        $this->response->respond($data);
-    
     }
 
     public function actionHideReview() {

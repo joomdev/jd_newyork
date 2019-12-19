@@ -1,0 +1,38 @@
+// Listing View
+.djev_item_title {
+   font-size: 22px;
+}
+
+
+.djev_time {
+   font-size: 14px;
+}
+
+.com-djevents {
+   .fa {
+      font-family: FontAwesome !important;
+      font-weight: 400;
+   }
+}
+
+
+// Search Module
+
+.djev_search {
+
+}
+
+.djev_search_horz {
+   .djev_search_button {
+      margin-bottom: 4px;
+   }
+}
+
+.djev_list {
+   .djev_item {
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.06);
+      background: #fff;
+      border: 1px solid #f2f2f2;
+      margin-bottom: 20px;
+   }
+}

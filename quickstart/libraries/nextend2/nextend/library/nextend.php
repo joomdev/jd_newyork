@@ -8,6 +8,14 @@ class N2 {
 
     private static $api2 = 'https://api.nextendweb.com/v1/';
 
+    public static function getApiUrl() {
+        if (N2Settings::get('api-secondary', 0)) {
+            return self::$api2;
+        }
+
+        return self::$api;
+    }
+
     public static function api($posts, $returnUrl = false) {
 
         if (N2Settings::get('api-secondary', 0)) {
@@ -20,8 +28,6 @@ class N2 {
             $posts_default = array(
                 'platform' => N2Platform::getPlatform()
             );
-            $posts_default['domain'] = parse_url(N2Uri::getFullUri(), PHP_URL_HOST);
-        
 
             return $api . '?' . http_build_query($posts + $posts_default);
         }
@@ -29,18 +35,18 @@ class N2 {
             $posts_default = array(
                 'platform' => N2Platform::getPlatform()
             );
-            $posts_default['domain'] = parse_url(N2Uri::getFullUri(), PHP_URL_HOST);
-        
 
             $client = new JHttp();
             try {
-                $response = $client->post($api, http_build_query($posts + $posts_default, '', '&'), array('Content-Type' => 'application/x-www-form-urlencoded; charset=utf-8'), 5);
+            $response = $client->post($api, http_build_query($posts + $posts_default, '', '&'), array('Content-Type' => 'application/x-www-form-urlencoded; charset=utf-8'), 5);
             } catch (Exception $e) {
             }
-            if (isset($response) && $response && $response->code != '200') {
+            if (isset($response) && $response && $response->code == '200') {
 
                 if (isset($response->headers['Content-Type'])) {
                     $contentType = $response->headers['Content-Type'];
+                } else if(isset($response->headers['content-type'])) {
+                    $contentType = $response->headers['content-type'];
                 }
                 $data = $response->body;
             } else {
@@ -60,8 +66,6 @@ class N2 {
                 $posts_default = array(
                     'platform' => N2Platform::getPlatform()
                 );
-                $posts_default['domain'] = parse_url(N2Uri::getFullUri(), PHP_URL_HOST);
-            
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $posts + $posts_default);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
@@ -84,6 +88,14 @@ class N2 {
                 curl_close($ch);
 
                 if ($curlErrorNumber) {
+                    $href = N2Base::getApplication('smartslider')->router->createUrl(array(
+                        "help/index",
+                        array('curl' => 1)
+                    ));
+                    N2Message::error(N2Html::tag('a', array(
+                        'href' => $href . '#support-form'
+                    ), n2_('Debug error')));
+
                     N2Message::error($curlErrorNumber . $error);
 
                     return array(
@@ -94,8 +106,6 @@ class N2 {
                 $posts_default = array(
                     'platform' => N2Platform::getPlatform()
                 );
-                $posts_default['domain'] = parse_url(N2Uri::getFullUri(), PHP_URL_HOST);
-            
 
                 $opts    = array(
                     'http' => array(

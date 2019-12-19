@@ -17,7 +17,7 @@ class N2SSPluginItemFactoryVimeo extends N2SSPluginItemFactoryAbstract {
 
     public function __construct() {
         $this->title = n2_x('Vimeo', 'Slide item');
-        $this->group = n2_('Media');
+        $this->group = n2_x('Media', 'Layer group');
     }
 
     function getValues() {
@@ -39,7 +39,9 @@ class N2SSPluginItemFactoryVimeo extends N2SSPluginItemFactoryAbstract {
         return dirname(__FILE__) . DIRECTORY_SEPARATOR . $this->type . DIRECTORY_SEPARATOR;
     }
 
-    public static function getFilled($slide, $data) {
+    public function getFilled($slide, $data) {
+        $data = parent::getFilled($slide, $data);
+
         $data->set('image', $slide->fill($data->get('image', '')));
         $data->set('vimeourl', $slide->fill($data->get('vimeourl', '')));
 
@@ -47,10 +49,14 @@ class N2SSPluginItemFactoryVimeo extends N2SSPluginItemFactoryAbstract {
     }
 
     public function prepareExport($export, $data) {
+        parent::prepareExport($export, $data);
+
         $export->addImage($data->get('image'));
     }
 
     public function prepareImport($import, $data) {
+        $data = parent::prepareImport($import, $data);
+
         $data->set('image', $import->fixImage($data->get('image')));
 
         return $data;
@@ -94,11 +100,12 @@ class N2SSPluginItemFactoryVimeo extends N2SSPluginItemFactoryAbstract {
                 '-1'   => n2_('Default')
             )
         ));
-        new N2ElementOnOff($misc, 'autoplay', n2_('Autoplay'), 0);
-        new N2ElementOnOff($misc, 'loop', n2_('Loop'), 0);
-        new N2ElementOnOff($misc, 'reset', n2_('Reset when slide changes'), 0);
-        new N2ElementOnOff($misc, 'background', n2_('Remove controls'), 0);
-    
+        new N2ElementOnOff($misc, 'autoplay', n2_('Autoplay'), 0, array(
+            'relatedFields' => array(
+                'item_vimeoautoplay-notice'
+            )
+        ));
+        new N2ElementImportant($misc, 'autoplay-notice', n2_('Video autoplaying has a lot of limitations made by browsers. You can read about them <a href="https://smartslider3.helpscoutdocs.com/article/1556-video-autoplay-handling" target="_blank">here</a>.'));
         new N2ElementOnOff($misc, 'title', n2_('Title'), 1);
         new N2ElementOnOff($misc, 'byline', n2_('Users byline'), 1);
         new N2ElementOnOff($misc, 'portrait', n2_('Portrait'), 1);
@@ -118,24 +125,10 @@ class N2SSPluginItemFactoryVimeo extends N2SSPluginItemFactoryAbstract {
             'unit' => 'sec',
             'wide' => 5
         ));
-        $playButton = new N2ElementGroup($settings, 'item-vimeo-playbutton', '', array(
+
+        new N2ElementOnOff($settings, 'privateurl', n2_('Private video'), 0, array(
             'rowClass' => 'n2-expert'
         ));
-        new N2ElementOnOff($playButton, 'playbutton', n2_('Play button'), 1);
-        new N2ElementNumber($playButton, 'playbuttonwidth', n2_('Width'), 48, array(
-            'unit' => 'px',
-            'wide' => 4
-        ));
-        new N2ElementNumber($playButton, 'playbuttonheight', n2_('Height'), 48, array(
-            'unit' => 'px',
-            'wide' => 4
-        ));
-
-        new N2ElementImage($playButton, 'playbuttonimage', n2_('Image'), '', array(
-            'fixed' => true,
-            'style' => 'width:236px;'
-        ));
-    
     }
 
 }

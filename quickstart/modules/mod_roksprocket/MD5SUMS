@@ -1,5 +1,6 @@
-mod_roksprocket.php	64ffcee68c2414daa37c79dcbf89c85b
-mod_roksprocket.xml	3440baf63ae571e28f463a66fdce9ed5
+mod_roksprocket.php	c8ebe62503fed6efb53486eb94551a35
+mod_roksprocket.xml	25384543ebcc759808c0703c5887c476
 language/en-GB/en-GB.mod_roksprocket.ini	70ee0f11fa0ce5aef89d506097df3318
-lib/ModRokSprocket.php	13a506ac5c8696dd054f4435a32300a3
+lib/ModRokSprocket.php	0425f823ec4d031dfb440d08a0c88986
 MD5SUMS	d41d8cd98f00b204e9800998ecf8427e
+install.php	b07ec993ecb15be469127dc92fa7f1b0

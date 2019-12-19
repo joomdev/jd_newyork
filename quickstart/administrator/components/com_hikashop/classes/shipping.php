@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -16,12 +16,12 @@ class hikashopShippingClass extends hikashopClass {
 
 	function save(&$element, $reorder = true) {
 		JPluginHelper::importPlugin('hikashop');
-		$dispatcher = JDispatcher::getInstance();
+		$app = JFactory::getApplication();
 		$do = true;
 		if(empty($element->shipping_id))
-			$dispatcher->trigger('onBeforeHikaPluginCreate', array('shipping', &$element, &$do));
+			$app->triggerEvent('onBeforeHikaPluginCreate', array('shipping', &$element, &$do));
 		else
-			$dispatcher->trigger('onBeforeHikaPluginUpdate', array('shipping', &$element, &$do));
+			$app->triggerEvent('onBeforeHikaPluginUpdate', array('shipping', &$element, &$do));
 
 		if(!$do)
 			return false;
@@ -60,13 +60,10 @@ class hikashopShippingClass extends hikashopClass {
 			$query = 'SELECT shipping_type FROM ' . hikashop_table('shipping') . ' WHERE shipping_id = ' . (int)$element->shipping_id;
 			$db->setQuery($query);
 			$name = $db->loadResult();
-			if(!HIKASHOP_J16) {
-				$query = 'UPDATE '.hikashop_table('plugins',false).' SET published = 1 WHERE published = 0 AND element = ' . $db->Quote($name) . ' AND folder = ' . $db->Quote('hikashopshipping');
-			} else {
-				$query = 'UPDATE '.hikashop_table('extensions',false).' SET enabled = 1 WHERE enabled = 0 AND type = ' . $db->Quote('plugin') . ' AND element = ' . $db->Quote($name) . ' AND folder = ' . $db->Quote('hikashopshipping');
-			}
+
+			$query = 'UPDATE '.hikashop_table('extensions',false).' SET enabled = 1 WHERE enabled = 0 AND type = ' . $db->Quote('plugin') . ' AND element = ' . $db->Quote($name) . ' AND folder = ' . $db->Quote('hikashopshipping');
 			$db->setQuery($query);
-			$db->query();
+			$db->execute();
 		}
 		return $status;
 	}
@@ -81,7 +78,7 @@ class hikashopShippingClass extends hikashopClass {
 		$orderHelper->table = 'shipping';
 		$orderHelper->groupMap = 'shipping_type';
 		$orderHelper->orderingMap = 'shipping_ordering';
-		$app =& JFactory::getApplication();
+		$app = JFactory::getApplication();
 		$orderHelper->groupVal = $app->getUserStateFromRequest( HIKASHOP_COMPONENT.'.shipping_plugin_type','shipping_plugin_type','manual');
 		$orderHelper->reOrder();
 		return $status;
@@ -102,10 +99,15 @@ class hikashopShippingClass extends hikashopClass {
 			$result = parent::get($id, $default);
 			if(is_object($result) && !empty($result->shipping_params)){
 				$result->shipping_params = hikashop_unserialize($result->shipping_params);
+				if(!empty($result->shipping_name))
+					$result->shipping_name = hikashop_translate($result->shipping_name);
 			} else if(is_array($id) && is_array($result)) {
 				foreach($result as &$r) {
 					if(!empty($r->shipping_params))
 						$r->shipping_params = hikashop_unserialize($r->shipping_params);
+
+					if(!empty($r->shipping_name))
+						$r->shipping_name = hikashop_translate($r->shipping_name);
 				}
 			}
 			$cachedElements[$cache_id] = $result;
@@ -135,6 +137,8 @@ class hikashopShippingClass extends hikashopClass {
 			$errors = array();
 			$shipping_groups = null;
 		}
+		if($reset === 'return')
+			return $usable_methods;
 		if(!is_null($usable_methods)) {
 			$this->errors = $errors;
 			$order->shipping_groups =& $shipping_groups;
@@ -232,7 +236,7 @@ class hikashopShippingClass extends hikashopClass {
 		$sort_shipping_by_price = (int)$config->get('sort_shipping_by_price', 0);
 
 		JPluginHelper::importPlugin('hikashopshipping');
-		$dispatcher = JDispatcher::getInstance();
+		$app = JFactory::getApplication();
 
 		if(!empty($shipping_groups) && count($shipping_groups) > 1) {
 			$order_backup = new stdClass();
@@ -305,7 +309,7 @@ class hikashopShippingClass extends hikashopClass {
 				$order->cache->shipping_key = $shipping_key.'_'.$key;
 				$local_errors = array();
 
-				$dispatcher->trigger('onShippingDisplay', array(&$order, &$rates_copy, &$group_usable_methods, &$local_errors));
+				$app->triggerEvent('onShippingDisplay', array(&$order, &$rates_copy, &$group_usable_methods, &$local_errors));
 
 				unset($order->shipping_warehouse_id);
 				$order->cache->shipping_key = $shipping_key;
@@ -373,7 +377,11 @@ class hikashopShippingClass extends hikashopClass {
 				}
 			}
 
-			$dispatcher->trigger('onShippingDisplay', array(&$order, &$rates, &$usable_methods, &$errors));
+			$warehouse_id = array_keys($shipping_groups);
+			$warehouse_id = reset($warehouse_id);
+			$order->shipping_warehouse_id = $warehouse_id;
+			$app->triggerEvent('onShippingDisplay', array(&$order, &$rates, &$usable_methods, &$errors));
+			unset($order->shipping_warehouse_id);
 
 			if($sort_shipping_by_price)
 				uasort($usable_methods, array($this, "sortShippingByPrice"));
@@ -668,8 +676,8 @@ class hikashopShippingClass extends hikashopClass {
 		}
 
 		JPluginHelper::importPlugin('hikashop');
-		$dispatcher = JDispatcher::getInstance();
-		$dispatcher->trigger('onShippingWarehouseFilter', array(&$shipping_groups, &$order, &$rates));
+		$app = JFactory::getApplication();
+		$app->triggerEvent('onShippingWarehouseFilter', array(&$shipping_groups, &$order, &$rates));
 
 		foreach($shipping_groups as $group_id => $shipping_group) {
 			if(empty($shipping_group->products)) {
@@ -739,6 +747,60 @@ class hikashopShippingClass extends hikashopClass {
 		return !$shipping_modified;
 	}
 
+	function getAllShippingNames(&$order) {
+		$names = array();
+		if(empty($order->order_shipping_method) && empty($order->shippings)) {
+			$names[] = JText::_('NONE');
+		} else if(!empty($order->order_shipping_method)) {
+			if(!is_numeric($order->order_shipping_id)){
+				$shipping_name = $this->getShippingName($order->order_shipping_method, $order->order_shipping_id);
+				$names[] = $shipping_name;
+			}else{
+				$shipping = $this->get($order->order_shipping_id);
+				$names[] = $shipping->shipping_name;
+			}
+		} else {
+			$shipping_ids = explode(';', $order->order_shipping_id);
+			foreach($shipping_ids as $key) {
+				$shipping_data = '';
+				list($k, $w) = explode('@', $key);
+				$shipping_id = $k;
+
+				if(isset($order->shippings[$shipping_id])) {
+					$shipping = $order->shippings[$shipping_id];
+					$shipping_data = $shipping->shipping_name;
+				} else {
+					foreach($order->products as $order_product) {
+						if($order_product->order_product_shipping_id == $key) {
+							if(!is_numeric($order_product->order_product_shipping_id)){
+								$shipping_name = $this->getShippingName($order_product->order_product_shipping_method, $shipping_id);
+								$shipping_data = $shipping_name;
+							}else{
+								$shipping_method_data = $this->get($shipping_id);
+								$shipping_data = $shipping_method_data->shipping_name;
+							}
+							break;
+						}
+					}
+					if(empty($shipping_data))
+						$shipping_data = '[ ' . $key . ' ]';
+				}
+				if(isset($order->order_shipping_params->prices[$key])) {
+					$price_params = $order->order_shipping_params->prices[$key];
+					$config = hikashop_config();
+					$currencyClass = hikashop_get('class.currency');
+					if($config->get('price_with_tax')){
+						$shipping_data .= ' (' . $currencyClass->format($price_params->price_with_tax, $order->order_currency_id) . ')';
+					}else{
+						$shipping_data .= ' (' . $currencyClass->format($price_params->price_with_tax-@$price_params->tax, $order->order_currency_id) . ')';
+					}
+				}
+				$names[] = $shipping_data;
+			}
+		}
+		return $names;
+	}
+
 	function getShippingName($shipping_method, $shipping_id) {
 		$shipping_name = $shipping_method . ' ' . $shipping_id;
 		if(strpos($shipping_id, '-') !== false) {
@@ -747,11 +809,13 @@ class hikashopShippingClass extends hikashopClass {
 			if(!empty($shipping->shipping_params) && is_string($shipping->shipping_params))
 				$shipping->shipping_params = hikashop_unserialize($shipping->shipping_params);
 			$shippingMethod = hikashop_import('hikashopshipping', $shipping_method);
-			$methods = $shippingMethod->shippingMethods($shipping);
+			$methods = array();
+			if(method_exists($shippingMethod, 'shippingMethods'))
+				$methods = $shippingMethod->shippingMethods($shipping);
 			unset($shippingMethod);
 
 			if(isset($methods[$shipping_id])){
-				$shipping_name = $shipping->shipping_name.' - '.$methods[$shipping_id];
+				$shipping_name = JText::sprintf('SHIPPING_METHOD_COMPLEX_NAME',$shipping->shipping_name, $methods[$shipping_id]);
 			}else{
 				$shipping_name = $shipping_id;
 			}
@@ -786,41 +850,38 @@ class hikashopShippingClass extends hikashopClass {
 		if($display)
 			$displayed[$key.$value] = true;
 
-		$number = 0;
-		if(is_numeric($value)) {
-			$number = $value;
-			switch($key) {
-				case 'min_price':
-					$value = 'ORDER_TOTAL_TOO_LOW_FOR_SHIPPING_METHODS';
-					break;
-				case 'max_price':
-					$value = 'ORDER_TOTAL_TOO_HIGH_FOR_SHIPPING_METHODS';
-					break;
-				case 'min_volume':
-					$value = 'ITEMS_VOLUME_TOO_SMALL_FOR_SHIPPING_METHODS';
-					break;
-				case 'max_volume':
-					$value = 'ITEMS_VOLUME_TOO_BIG_FOR_SHIPPING_METHODS';
-					break;
-				case 'min_weight':
-					$value = 'ITEMS_WEIGHT_TOO_SMALL_FOR_SHIPPING_METHODS';
-					break;
-				case 'max_weight':
-					$value = 'ITEMS_WEIGHT_TOO_BIG_FOR_SHIPPING_METHODS';
-					break;
-				case 'min_quantity':
-					$value = 'ORDER_QUANTITY_TOO_SMALL_FOR_SHIPPING_METHODS';
-					break;
-				case 'max_quantity':
-					$value = 'ORDER_QUANTITY_TOO_HIGH_FOR_SHIPPING_METHODS';
-					break;
-				default:
+		$number = $value;
+		switch($key) {
+			case 'min_price':
+				$value = 'ORDER_TOTAL_TOO_LOW_FOR_SHIPPING_METHODS';
+				break;
+			case 'max_price':
+				$value = 'ORDER_TOTAL_TOO_HIGH_FOR_SHIPPING_METHODS';
+				break;
+			case 'min_volume':
+				$value = 'ITEMS_VOLUME_TOO_SMALL_FOR_SHIPPING_METHODS';
+				break;
+			case 'max_volume':
+				$value = 'ITEMS_VOLUME_TOO_BIG_FOR_SHIPPING_METHODS';
+				break;
+			case 'min_weight':
+				$value = 'ITEMS_WEIGHT_TOO_SMALL_FOR_SHIPPING_METHODS';
+				break;
+			case 'max_weight':
+				$value = 'ITEMS_WEIGHT_TOO_BIG_FOR_SHIPPING_METHODS';
+				break;
+			case 'min_quantity':
+				$value = 'ORDER_QUANTITY_TOO_SMALL_FOR_SHIPPING_METHODS';
+				break;
+			case 'max_quantity':
+				$value = 'ORDER_QUANTITY_TOO_HIGH_FOR_SHIPPING_METHODS';
+				break;
+			case 'product_excluded':
+				$value = 'X_PRODUCTS_ARE_NOT_SHIPPABLE_TO_YOU';
+			default:
+				if(strtoupper($key) == $key)
 					$value = $key;
-					break;
-			}
-		} elseif(is_string($value)) {
-			$number = $value;
-			$value = $key;
+				break;
 		}
 
 		$transKey = strtoupper(str_replace(' ', '_', $value));
@@ -831,9 +892,6 @@ class hikashopShippingClass extends hikashopClass {
 		if($trans != $transKey) {
 			$value = $trans;
 		}
-
-		if($value == 'no_rates')
-			$value = $number;
 
 		if(!$display) {
 			return $value;
@@ -848,7 +906,7 @@ class hikashopShippingClass extends hikashopClass {
 		$app->enqueueMessage($value);
 	}
 
-	function fillListingColumns(&$rows, &$listing_columns, &$view) {
+	function fillListingColumns(&$rows, &$listing_columns, &$view, $type = null) {
 		$listing_columns['price'] = array(
 			'name' => 'PRODUCT_PRICE',
 			'col' => 'col_display_price'
@@ -873,34 +931,37 @@ class hikashopShippingClass extends hikashopClass {
 
 			$restrictions = array();
 			if(!empty($row->plugin_params->shipping_min_volume))
-				$restrictions[] = JText::_('SHIPPING_MIN_VOLUME') . ':' . $row->plugin_params->shipping_min_volume . $row->plugin_params->shipping_size_unit;
+				$restrictions[] = JText::_('SHIPPING_MIN_VOLUME') . ': ' . $row->plugin_params->shipping_min_volume . $row->plugin_params->shipping_size_unit;
 			if(!empty($row->plugin_params->shipping_max_volume))
-				$restrictions[] = JText::_('SHIPPING_MAX_VOLUME') . ':' . $row->plugin_params->shipping_max_volume . $row->plugin_params->shipping_size_unit;
+				$restrictions[] = JText::_('SHIPPING_MAX_VOLUME') . ': ' . $row->plugin_params->shipping_max_volume . $row->plugin_params->shipping_size_unit;
 
 			if(!empty($row->plugin_params->shipping_min_weight))
-				$restrictions[] = JText::_('SHIPPING_MIN_WEIGHT') . ':' . $row->plugin_params->shipping_min_weight . $row->plugin_params->shipping_weight_unit;
+				$restrictions[] = JText::_('SHIPPING_MIN_WEIGHT') . ': ' . $row->plugin_params->shipping_min_weight . $row->plugin_params->shipping_weight_unit;
 			if(!empty($row->plugin_params->shipping_max_weight))
-				$restrictions[] = JText::_('SHIPPING_MAX_WEIGHT') . ':' . $row->plugin_params->shipping_max_weight . $row->plugin_params->shipping_weight_unit;
+				$restrictions[] = JText::_('SHIPPING_MAX_WEIGHT') . ': ' . $row->plugin_params->shipping_max_weight . $row->plugin_params->shipping_weight_unit;
 
 			if(isset($row->plugin_params->shipping_min_price) && bccomp($row->plugin_params->shipping_min_price, 0, 5)) {
 				$row->shipping_min_price = $row->plugin_params->shipping_min_price;
-				$restrictions[] = JText::_('SHIPPING_MIN_PRICE') . ':' . $view->currencyClass->displayPrices(array($row), 'shipping_min_price', 'shipping_currency_id');
+				$restrictions[] = JText::_('SHIPPING_MIN_PRICE') . ': ' . $view->currencyClass->displayPrices(array($row), 'shipping_min_price', 'shipping_currency_id');
 			}
 			if(isset($row->plugin_params->shipping_max_price) && bccomp($row->plugin_params->shipping_max_price, 0, 5)) {
 				$row->shipping_max_price = $row->plugin_params->shipping_max_price;
-				$restrictions[] = JText::_('SHIPPING_MAX_PRICE') . ':' . $view->currencyClass->displayPrices(array($row), 'shipping_max_price', 'shipping_currency_id');
+				$restrictions[] = JText::_('SHIPPING_MAX_PRICE') . ': ' . $view->currencyClass->displayPrices(array($row), 'shipping_max_price', 'shipping_currency_id');
 			}
 			if(!empty($row->plugin_params->shipping_zip_prefix))
-				$restrictions[] = JText::_('SHIPPING_PREFIX') . ':' . $row->plugin_params->shipping_zip_prefix;
+				$restrictions[] = JText::_('SHIPPING_PREFIX') . ': ' . $row->plugin_params->shipping_zip_prefix;
 			if(!empty($row->plugin_params->shipping_min_zip))
-				$restrictions[] = JText::_('SHIPPING_MIN_ZIP') . ':' . $row->plugin_params->shipping_min_zip;
+				$restrictions[] = JText::_('SHIPPING_MIN_ZIP') . ': ' . $row->plugin_params->shipping_min_zip;
 			if(!empty($row->plugin_params->shipping_max_zip))
-				$restrictions[] = JText::_('SHIPPING_MAX_ZIP') . ':' . $row->plugin_params->shipping_max_zip;
+				$restrictions[] = JText::_('SHIPPING_MAX_ZIP') . ': ' . $row->plugin_params->shipping_max_zip;
 			if(!empty($row->plugin_params->shipping_zip_suffix))
-				$restrictions[] = JText::_('SHIPPING_SUFFIX') . ':' . $row->plugin_params->shipping_zip_suffix;
+				$restrictions[] = JText::_('SHIPPING_SUFFIX') . ': ' . $row->plugin_params->shipping_zip_suffix;
 			if(!empty($row->shipping_zone_namekey)) {
 				$zone = $view->zoneClass->get($row->shipping_zone_namekey);
-				$restrictions[] = JText::_('ZONE') . ':' . $zone->zone_name_english;
+				if(!empty($zone))
+					$restrictions[] = JText::_('ZONE') . ': ' . $zone->zone_name_english;
+				else
+					$restrictions[] = JText::_('ZONE') . ': ' . 'INVALID';
 			}
 			if(!empty($row->shipping_access) && $row->shipping_access != 'all') {
 				$joomlaAcl = hikashop_get('type.joomla_acl');
@@ -918,11 +979,70 @@ class hikashopShippingClass extends hikashopClass {
 					}
 				}
 				if(count($list))
-					$restrictions[] = JText::_('ACCESS_LEVEL') . ':' . implode(', ', $list);
+					$restrictions[] = JText::_('ACCESS_LEVEL') . ': ' . implode(', ', $list);
 			}
-			$row->col_display_restriction = implode('<br/>', $restrictions);
 
-			unset($row);
+			if(!empty($row->shipping_currency)) {
+				$null = null;
+				$currency_ids = explode(',', $row->shipping_currency);
+				$currencies = $view->currencyClass->getCurrencies($currency_ids, $null);
+				if(count($currencies)) {
+					$list = array();
+					foreach($currencies as $c) {
+						$list[] = $c->currency_code;
+					}
+					$restrictions[] = JText::_('CURRENCY') . ': ' . implode(', ', $list);
+				}
+			}
+
+			$row->col_display_restriction = implode('<br/>', $restrictions);
 		}
+		unset($row);
+	}
+
+	public function &getNameboxData($typeConfig, &$fullLoad, $mode, $value, $search, $options) {
+		$ret = array(
+			0 => array(),
+			1 => array()
+		);
+
+		$query = 'SELECT * FROM ' . hikashop_table('shipping') . ' WHERE shipping_published = 1 ORDER BY shipping_ordering';
+		$this->db->setQuery($query);
+		$methods = $this->db->loadObjectList('shipping_id');
+		foreach($methods as $method) {
+			$plugin = null;
+			if($method->shipping_type != 'manual')
+				$plugin = hikashop_import('hikashopshipping', $method->shipping_type);
+
+			if(!empty($plugin) && method_exists($plugin, 'shippingMethods')) {
+				if(is_string($method->shipping_params) && !empty($method->shipping_params))
+					$method->shipping_params = hikashop_unserialize($method->shipping_params);
+				$instances = $plugin->shippingMethods($method);
+				if(!empty($instances)) {
+					foreach($instances as $id => $instance) {
+						$shipping_namekey = $method->shipping_type . '_' . $id;
+						$ret[0][$shipping_namekey] = $method->shipping_name . ' - ' . $instance;
+					}
+				}
+			} else {
+				$shipping_namekey = $method->shipping_type . '_' . $method->shipping_id;
+				$ret[0][$shipping_namekey] = $method->shipping_name;
+			}
+		}
+
+		if(!empty($value)) {
+			if($mode == hikashopNameboxType::NAMEBOX_SINGLE) {
+				$ret[1] = $ret[0][$value];
+			} else {
+				if(!is_array($value))
+					$value = array($value);
+				foreach($value as $v) {
+					if(isset($ret[0][$v]))
+						$ret[1][$v] = $ret[0][$v];
+				}
+			}
+		}
+
+		return $ret;
 	}
 }

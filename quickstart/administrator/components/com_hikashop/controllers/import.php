@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -16,22 +16,17 @@ class ImportController extends hikashopController
 	var $helperImport;
 	var $db;
 
-	function __construct()
-	{
+	public function __construct() {
 		parent::__construct();
 		$this->db = JFactory::getDBO();
-		$this->modify[]='import';
+		$this->modify[] = 'import';
 		$this->registerDefaultTask('show');
 		$this->importHelper = hikashop_get('helper.import');
 	}
 
-	function import()
-	{
-		if(!HIKASHOP_J25) {
-			JRequest::checkToken('request') || die('Invalid Token');
-		} else {
-			JSession::checkToken('request') || die('Invalid Token');
-		}
+	public function import() {
+		JSession::checkToken('request') || die('Invalid Token');
+
 		$function = hikaInput::get()->getCmd('importfrom');
 		$this->importHelper->addTemplate(hikaInput::get()->getInt('template_product',0));
 
@@ -46,7 +41,7 @@ class ImportController extends hikashopController
 				if(hikashop_level(2)){
 					$this->_folder();
 				}else{
-					$app =& JFactory::getApplication();
+					$app = JFactory::getApplication();
 					$app->enqueueMessage(Text::_('ONLY_FROM_HIKASHOP_BUSINESS'),'error');
 				}
 				break;
@@ -61,7 +56,7 @@ class ImportController extends hikashopController
 					$table = $this->db->loadResult();
 					if (empty($table))
 					{
-						$app =& JFactory::getApplication();
+						$app = JFactory::getApplication();
 						$app->enqueueMessage('VirtueMart has not been found in the database','error');
 					}
 					else
@@ -83,7 +78,7 @@ class ImportController extends hikashopController
 				$table = $this->db->loadResult();
 				if (empty($table))
 				{
-					$app =& JFactory::getApplication();
+					$app = JFactory::getApplication();
 					$app->enqueueMessage('Mijoshop has not been found in the database','error');
 				}
 				else
@@ -98,7 +93,7 @@ class ImportController extends hikashopController
 				$table = $this->db->loadResult();
 				if (empty($table))
 				{
-					$app =& JFactory::getApplication();
+					$app = JFactory::getApplication();
 					$app->enqueueMessage('Redshop has not been found in the database','error');
 				}
 				else
@@ -127,6 +122,7 @@ class ImportController extends hikashopController
 		$this->importHelper->update_product_quantity = hikaInput::get()->getInt('textarea_update_product_quantity');
 		$this->importHelper->store_images_locally = hikaInput::get()->getInt('textarea_store_images_locally', 1);
 		$this->importHelper->store_files_locally = hikaInput::get()->getInt('textarea_store_files_locally', 1);
+		$this->importHelper->keep_other_variants = hikaInput::get()->getInt('keep_other_variants', 1);
 		return $this->importHelper->handleContent($content);
 	}
 
@@ -138,13 +134,14 @@ class ImportController extends hikashopController
 	}
 
 	function _file(){
-		$importFile =  hikaInput::get()->files->get('importfile', array(), 'array');
+		$importFile =  hikaInput::get()->files->getVar('importfile', array(), 'array');
 		$this->importHelper->overwrite = hikaInput::get()->getInt('file_update_products');
 		$this->importHelper->createCategories = hikaInput::get()->getInt('file_create_categories');
 		$this->importHelper->force_published = hikaInput::get()->getInt('file_force_publish');
 		$this->importHelper->update_product_quantity = hikaInput::get()->getInt('file_update_product_quantity');
 		$this->importHelper->store_images_locally = hikaInput::get()->getInt('file_store_images_locally', 1);
 		$this->importHelper->store_files_locally = hikaInput::get()->getInt('file_store_files_locally', 1);
+		$this->importHelper->keep_other_variants = hikaInput::get()->getInt('keep_other_variants', 1);
 		return $this->importHelper->importFromFile($importFile);
 	}
 

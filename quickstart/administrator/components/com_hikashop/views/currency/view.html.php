@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -14,7 +14,7 @@ class CurrencyViewCurrency extends hikashopView
 	var $ctrl= 'currency';
 	var $nameListing = 'CURRENCIES';
 	var $nameForm = 'CURRENCIES';
-	var $icon = 'currency';
+	var $icon = 'euro-sign';
 	function display($tpl = null)
 	{
 		$this->paramBase = HIKASHOP_COMPONENT.'.'.$this->getName();
@@ -40,7 +40,7 @@ class CurrencyViewCurrency extends hikashopView
 			$pageInfo->limit->start = $app->getUserStateFromRequest( $this->paramBase.'.limitstart', 'limitstart', 0, 'int' );
 		}
 		$pageInfo->search = $app->getUserStateFromRequest( $this->paramBase.".search", 'search', '', 'string' );
-		$pageInfo->search = JString::strtolower(trim($pageInfo->search));
+		$pageInfo->search = HikaStringHelper::strtolower(trim($pageInfo->search));
 		$database	= JFactory::getDBO();
 		$searchMap = array('a.currency_symbol','a.currency_code','a.currency_name','a.currency_id');
 		$filters = array();
@@ -113,8 +113,7 @@ class CurrencyViewCurrency extends hikashopView
 		hikashop_setTitle(JText::_($this->nameForm),$this->icon,$this->ctrl.'&task='.$task.'&currency_id='.$currency_id);
 
 		$this->toolbar = array(
-			'save',
-			'apply',
+			array('name' => 'group', 'buttons' => array( 'apply', 'save')),
 			'cancel',
 			'|',
 			array('name' => 'pophelp', 'target' => $this->ctrl.'-form')

@@ -1,0 +1,23 @@
+$sutitle-width: 550px;
+$title-divider-color: #fff;
+
+.astroid-banner-title {
+   position: relative;
+   margin-bottom: 15px;
+   &:after {
+      content: "";
+      width: 50px;
+      height: 2px;
+      background: $title-divider-color;
+      position: relative;
+      display: block;
+      margin: 5px auto 0;
+   }
+}
+
+.astroid-banner-subtitle {
+   max-width: $sutitle-width;
+	width: 100%;
+	margin: 0 auto;
+	display: block;
+}

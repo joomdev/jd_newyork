@@ -1,1 +1,0 @@
-jQuery(document).ready(function(c){var b=jQuery.parseJSON(Joomla.getOptions("com_kunena.pollcategoriesid"));var d=c("#poll_exist_edit");if(typeof b!=="undefined"&&b!==null&&d.length===0){var a=c("#kcategory_poll").val();if(b[a]!==undefined){c(".pollbutton").show();}else{c(".pollbutton").hide();}}else{if(d.length>0){c(".pollbutton").show();}else{c(".pollbutton").hide();}}});

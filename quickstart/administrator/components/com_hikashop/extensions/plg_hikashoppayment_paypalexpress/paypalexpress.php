@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -84,7 +84,7 @@ class plgHikashoppaymentPaypalExpress extends hikashopPaymentPlugin
 		else
 			$this->pluginParams();
 
-		if(empty($this->plugin_params))
+		if(empty($this->plugin_params) || empty($this->plugin_data->payment_published))
 			return false;
 
 		$menuClass = hikashop_get('class.menus');
@@ -215,6 +215,9 @@ class plgHikashoppaymentPaypalExpress extends hikashopPaymentPlugin
 				$order->order_payment_id = $this->plugin_data->payment_id;
 				$order->order_payment_method = $this->name;
 				$order->order_id = $orderClass->save($order);
+				$this->app->setUserState('com_hikashop.order_id', $order->order_id);
+				$this->app->setUserState('com_hikashop.order_token', @$order->order_token);
+				hikaInput::get()->set('order_token', $order->order_token );
 				$this->app->redirect($return_url);
 			}
 
@@ -268,6 +271,9 @@ class plgHikashoppaymentPaypalExpress extends hikashopPaymentPlugin
 				$order->history->history_data = $vars['TOKEN'];
 				$order->order_id = $orderClass->save($order);
 
+				$this->app->setUserState('com_hikashop.order_id', $order->order_id);
+				$this->app->setUserState('com_hikashop.order_token', @$order->order_token);
+				hikaInput::get()->set('order_token', $order->order_token );
 				$this->app->redirect($url);
 				return false;
 			}
@@ -520,7 +526,7 @@ class plgHikashoppaymentPaypalExpress extends hikashopPaymentPlugin
 			return false;
 		}
 
-		if($this->payment_params->debug) {
+		if($this->plugin_params->debug) {
 			$this->writeToLog('Success processing for order N°: '.$orderid);
 		}
 
@@ -753,7 +759,10 @@ class plgHikashoppaymentPaypalExpress extends hikashopPaymentPlugin
 				$orderProduct->cart_product_option_parent_id = $product->cart_product_option_parent_id;
 				$orderProduct->order_product_code = $product->product_code;
 				$orderProduct->order_product_price = @$product->prices[0]->unit_price->price_value;
-				$orderProduct->order_product_wishlist_id = $product->cart_product_wishlist_id;
+				if(!empty($product->cart_product_wishlist_id))
+					$orderProduct->order_product_wishlist_id = $product->cart_product_wishlist_id;
+				if(!empty($product->cart_product_wishlist_product_id))
+					$orderProduct->order_product_wishlist_product_id = $product->cart_product_wishlist_product_id;
 				$orderProduct->product_subscription_id = @$product->product_subscription_id;
 
 				$tax = 0;
@@ -771,9 +780,9 @@ class plgHikashoppaymentPaypalExpress extends hikashopPaymentPlugin
 				if(!empty($product->discount))
 					$orderProduct->discount = $product->discount;
 
-				if(!empty($itemFields)) {
+				if(!empty($cart->item_fields)) {
 
-					foreach($itemFields as $field) {
+					foreach($cart->item_fields as $field) {
 						$namekey = $field->field_namekey;
 						if(isset($product->$namekey))
 							$orderProduct->$namekey = $product->$namekey;
@@ -951,7 +960,7 @@ class plgHikashoppaymentPaypalExpress extends hikashopPaymentPlugin
 			}
 
 			$app = JFactory::getApplication();
-			if(!$app->isAdmin() ) {
+			if(!hikashop_isClient('administrator') ) {
 				hikashop_addACLFilters($where,'payment_access');
 			}
 

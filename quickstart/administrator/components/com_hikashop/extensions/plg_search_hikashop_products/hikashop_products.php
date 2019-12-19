@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	3.2.1
+ * @version	4.2.2
  * @author	hikashop.com
- * @copyright	(C) 2010-2017 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -16,12 +16,7 @@ class plgSearchHikashop_products extends JPlugin{
 		parent::__construct($subject, $config);
 		if(!isset($this->params)){
 			$plugin = JPluginHelper::getPlugin('search', 'hikashop_products');
-			if(version_compare(JVERSION,'2.5','<')){
-				jimport('joomla.html.parameter');
-				$this->params = new JParameter($plugin->params);
-			} else {
-				$this->params = new JRegistry(@$plugin->params);
-			}
+			$this->params = new JRegistry(@$plugin->params);
 		}
 	}
 
@@ -33,6 +28,9 @@ class plgSearchHikashop_products extends JPlugin{
 	}
 
 	function &onSearchAreas(){
+		if(!defined('DS'))
+			define('DS', DIRECTORY_SEPARATOR);
+		if(!include_once(rtrim(JPATH_ADMINISTRATOR,DS).DS.'components'.DS.'com_hikashop'.DS.'helpers'.DS.'helper.php')) return array();
 		$areas = array(
 			'products' => JText::_('PRODUCTS_SEARCH')
 		);
@@ -85,14 +83,17 @@ class plgSearchHikashop_products extends JPlugin{
 		$rows = array();
 
 		$filters = array('a.product_published=1');
+		$filters2 = array('a.product_published=1');
 
 		$variants = (int)$this->params->get('variants','0');
 		if(!$variants){
 			$filters[]='a.product_type=\'main\'';
+			$filters2[]='a.product_type=\'main\'';
 		}
 		$out_of_stock = (int)$this->params->get('out_of_stock_display','1');
 		if(!$out_of_stock){
 			$filters[]='a.product_quantity!=0';
+			$filters2[]='a.product_quantity!=0';
 		}
 
 		hikashop_addACLFilters($filters,'product_access','a');
@@ -101,11 +102,8 @@ class plgSearchHikashop_products extends JPlugin{
 		$catFilters = array('category_published=1','category_type=\'product\'');
 		hikashop_addACLFilters($catFilters,'category_access');
 		$db->setQuery('SELECT category_id FROM '.hikashop_table('category').' WHERE '.implode(' AND ',$catFilters));
-		if(!HIKASHOP_J25){
-			$cats = $db->loadResultArray();
-		} else {
-			$cats = $db->loadColumn();
-		}
+		$cats = $db->loadColumn();
+
 		if(!empty($cats)){
 			$filters[]='b.category_id IN ('.implode(',',$cats).')';
 		}
@@ -116,15 +114,11 @@ class plgSearchHikashop_products extends JPlugin{
 			$leftjoin=' INNER JOIN '.hikashop_table('product_category').' AS b ON a.product_id=b.product_id';
 		}
 
-		$filters2 = array();
 
 		if($multi){
 			$registry = JFactory::getConfig();
-			if(!HIKASHOP_J25){
-				$code = $registry->getValue('config.jflang');
-			}else{
-				$code = $registry->get('language');
-			}
+			$code = $registry->get('language');
+
 			$lg = $trans->getId($code);
 			$filters2[] = "b.reference_table='hikashop_product'";
 			$filters2[] = "b.published=1";
@@ -138,6 +132,13 @@ class plgSearchHikashop_products extends JPlugin{
 			$fields = explode(',',$fields);
 		}
 
+		if($multi) {
+			$reference_fields = array();
+			foreach($fields as $f){
+				$reference_fields[] = $db->Quote($f);
+			}
+		}
+
 		switch($phrase){
 			case 'exact':
 				$text		= $db->Quote( '%'.hikashop_getEscaped( $text, true ).'%', false );
@@ -147,7 +148,7 @@ class plgSearchHikashop_products extends JPlugin{
 				}
 
 				if($multi){
-					$filters2[] = "b.value LIKE ".$text;
+					$filters2[] = "b.reference_field IN (" . implode(',', $reference_fields) . ") AND b.value LIKE " . $text;
 				}
 				break;
 			case 'all':
@@ -163,7 +164,7 @@ class plgSearchHikashop_products extends JPlugin{
 						$subWordFiltersX[$i][] = "a.".$f." LIKE ".$word;
 					}
 					if($multi){
-						$wordFilters2[] = "b.value LIKE ".$word;
+						$wordFilters2[] = "b.reference_field IN (" . implode(',', $reference_fields) . ") AND b.value LIKE ".$word;
 					}
 				}
 				foreach($subWordFiltersX as $i => $subWordFilters){
@@ -185,14 +186,16 @@ class plgSearchHikashop_products extends JPlugin{
 		$count = 0;
 		if($multi && !empty($lg)){
 			$db->setQuery('SET SQL_BIG_SELECTS=1');
-			$db->query();
+			$db->execute();
 			$query = ' SELECT DISTINCT '.$select.' FROM '.hikashop_table($trans_table,false) . ' AS b LEFT JOIN '.hikashop_table('product').' AS a ON b.reference_id=a.product_id WHERE '.implode(' AND ',$filters2).' ORDER BY '.$order;
 			$db->setQuery($query, 0, $limit);
 			$rows = $db->loadObjectList("id");
 			$count = count($rows);
 			if($count){
 				$limit = $limit-$count;
-				$filters[]='a.product_id NOT IN ('.implode(',',array_keys($rows)).')';
+				$ids = array_keys($rows);
+				hikashop_toInteger($ids);
+				$filters[]='a.product_id NOT IN ('.implode(',', $ids).')';
 			}
 		}
 
@@ -201,7 +204,7 @@ class plgSearchHikashop_products extends JPlugin{
 				$select.=', b.category_id as category_id';
 			}
 			$db->setQuery('SET SQL_BIG_SELECTS=1');
-			$db->query();
+			$db->execute();
 			$filters = implode(' AND ',$filters);
 			if(isset($filters1)){
 				$filters = '('.$filters.') AND ('.implode(' OR ',$filters1).')';
@@ -211,7 +214,7 @@ class plgSearchHikashop_products extends JPlugin{
 			$mainRows = $db->loadObjectList("id");
 			if(!empty($mainRows)){
 				foreach($mainRows as $k => $main){
-					$rows[$k]=$main;
+					$rows[(int)$k] = $main;
 				}
 				$count = count( $rows );
 			}
@@ -219,7 +222,9 @@ class plgSearchHikashop_products extends JPlugin{
 		if($count){
 
 			if($multi && !empty($lg)){
-				$query = ' SELECT * FROM '.hikashop_table($trans_table,false) . ' WHERE reference_table=\'hikashop_product\' AND language_id=\''.$lg.'\' AND published=1 AND reference_id IN ('.implode(',',array_keys($rows)).')';
+				$ids = array_keys($rows);
+				hikashop_toInteger($ids);
+				$query = ' SELECT * FROM '.hikashop_table($trans_table,false) . ' WHERE reference_table=\'hikashop_product\' AND language_id=\''.$lg.'\' AND published=1 AND reference_id IN ('.implode(',', $ids).')';
 				$db->setQuery($query);
 				$trans = $db->loadObjectList();
 				foreach($trans as $item){
@@ -259,7 +264,7 @@ class plgSearchHikashop_products extends JPlugin{
 			$class = hikashop_get('class.product');
 			$ids = array();
 			foreach ( $rows as $k => $row ) {
-				$ids[$row->id]=$row->id;
+				$ids[(int)$row->id]=(int)$row->id;
 				if(!empty($row->category_id)){
 					if(empty($item_id)){
 						if(!isset($itemids[$row->category_id])) $itemids[$row->category_id] = $menuClass->getItemidFromCategory($row->category_id);
@@ -274,10 +279,10 @@ class plgSearchHikashop_products extends JPlugin{
 					if(!$this->params->get('item_id','')) $item_id = '';
 				}
 				$class->addAlias($row);
-				$row->title=$row->product_name;
-				$row->text=$row->product_description;
+				$row->title=hikashop_translate($row->product_name);
+				$row->text=hikashop_translate($row->product_description);
 				if($variants && $row->product_type=='variant'){
-					$ids[$row->product_parent_id]=$row->product_parent_id;
+					$ids[(int)$row->product_parent_id]=(int)$row->product_parent_id;
 					static $mains = array();
 					if(!isset($mains[$row->product_parent_id])){
 						$mains[$row->product_parent_id] = $class->get((int)$row->product_parent_id);
@@ -294,10 +299,10 @@ class plgSearchHikashop_products extends JPlugin{
 					$row->characteristics = $db->loadObjectList();
 					$class->checkVariant($row,$mains[$row->product_parent_id]);
 					if(empty($row->title)){
-						$row->title = strip_tags($row->product_name);
+						$row->title = strip_tags(hikashop_translate($row->product_name));
 					}
 					if(empty($row->text)){
-						$row->text = $mains[$row->product_parent_id]->product_description;
+						$row->text = hikashop_translate($mains[$row->product_parent_id]->product_description);
 					}
 				}
 				if(empty($row->product_canonical)){
