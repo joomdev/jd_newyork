@@ -7,7 +7,7 @@
 	<license> http://www.gnu.org/licenses GNU/GPL</license>
 	<authorEmail>contact@dj-extensions.com</authorEmail>
 	<authorUrl>http://dj-extensions.com</authorUrl>
-	<version>1.1.1</version>
+	<version>1.2</version>
 	<scriptfile>djevents.script.php</scriptfile>
 	<install>
 		<sql>

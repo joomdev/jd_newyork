@@ -3,7 +3,7 @@
 /**
  * @package    JD Builder
  * @author     Team Joomdev <info@joomdev.com>
- * @copyright  2019 www.joomdev.com
+ * @copyright  2020 www.joomdev.com
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -15,18 +15,22 @@ defined('_JEXEC') or die('Restricted access');
 class Layout extends BaseElement
 {
 
-   protected $sections = [];
+   public $sections = [];
 
-   public function __construct($object)
+   public function __construct($object, $type = 'page', $id = 0, $indexMode = false)
    {
       parent::__construct($object);
+      $this->id = 'jdb-layout-' . $this->id;
+      $this->indexMode = $indexMode;
+      $GLOBALS['jdlid'] = $this->id;
+      $this->itemType = $type;
+      $this->itemID = $id;
       $layout = \json_decode($object->layout, FALSE);
       if (isset($layout->sections)) {
          foreach ($layout->sections as $section) {
             $this->sections[] = new Section($section, $this);
          }
       }
-      $this->id = 'jdb-layout-' . $this->id;
       $this->addClass($this->id);
       $this->addClass('jdbuilder');
       //$this->addAttribute('jdb-layout');

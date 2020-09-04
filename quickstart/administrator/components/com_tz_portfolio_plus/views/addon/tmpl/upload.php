@@ -21,7 +21,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 JHtml::_('bootstrap.tooltip');
-JHtml::_('behavior.tooltip');
+JHtml::_('bootstrap.tooltip');
 JHtml::_('behavior.formvalidator');
 JHtml::_('behavior.keepalive');
 
@@ -63,7 +63,6 @@ $this -> document -> addScriptDeclaration('
                 position: "top"
             }
         }
-                
         
         tppIntroGuide("'.$this -> getName().'",addonSteps , '.(TZ_Portfolio_PlusHelper::introGuideSkipped($this -> getName())?1:0).', "'.JSession::getFormToken().'");
         

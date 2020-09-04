@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 10167 2019-10-09 07:51:46Z Milbo $
+ * @version $Id: view.html.php 10239 2020-01-10 11:31:03Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -79,7 +79,7 @@ class VirtuemartViewConfig extends VmViewAdmin {
 
 		$this->currConverterList = $model->getCurrencyConverterList();
 
-		$this->activeShopLanguage = $model->getActiveLanguages( VmConfig::get('vmDefLang'), 'vmDefLang', false, vmText::sprintf('COM_VIRTUEMART_ADMIN_CFG_POOS_GLOBAL', vmConfig::$jDefLangTag) );
+		$this->activeShopLanguage = $model->getActiveLanguages( VmConfig::get('vmDefLang'), 'vmDefLang', false, vmText::sprintf('COM_VIRTUEMART_ADMIN_CFG_POOS_GLOBAL', VmConfig::$jDefLangTag) );
 		$this->activeLanguages = $model->getActiveLanguages( VmConfig::get('active_languages') );
 
 		$this->orderByFieldsProduct = $model->getProductFilterFields('browse_orderby_fields');
@@ -201,7 +201,7 @@ WHERE published="1"';
 		//$lang =vmLanguage::getLanguage();
 		$tip = self::getTip($label);
 		if($tip){
-			$label = '<span class="hasTip" title="'.htmlentities(vmText::_($tip)).'">'.vmText::_($label).'</span>' ;
+			$label = '<span class="hasTooltip" title="'.htmlentities(vmText::_($tip)).'">'.vmText::_($label).'</span>' ;
 		} else {
 			$label = vmText::_($label);
 		}
@@ -242,7 +242,7 @@ WHERE published="1"';
 			<td class="key">';
 		if ($tip){
 			$html .= '
-				<span class="editlinktip hasTip" title="' . vmText::_ ($tip) . '">
+				<span class="editlinktip hasTooltip" title="' . vmText::_ ($tip) . '">
 					<label>' . vmText::_ ($langkey) . '</label>
 				</span>';
 		} else {

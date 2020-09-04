@@ -39,10 +39,6 @@ class TZ_Portfolio_PlusViewExtension extends JViewLegacy
         $this->state                = $this->get('State');
         $this->item                 = $this->get('Item');
         $this -> return_link        = $this -> get('ReturnLink');
-//        $canDo	                    = TZ_Portfolio_PlusHelper::getActions(COM_TZ_PORTFOLIO_PLUS, 'module', $this -> item -> id);
-//        var_dump($this -> item); die();
-//        $canDo	                    = JHelperContent::getActions('com_modules', 'module', $this->item->id);
-//        $this -> canDo	= $canDo;
 
         if($this -> getLayout() == 'manager') {
             $this->addonItem = $this->get('AddonItem');
@@ -56,8 +52,8 @@ class TZ_Portfolio_PlusViewExtension extends JViewLegacy
         }
 
         if($this -> getLayout() == 'upload') {
-            $this -> itemsServer       = $this -> get('ItemsFromServer');
-            $this -> paginationServer   = $this -> get('PaginationFromServer');
+            $this -> document -> addScript(TZ_Portfolio_PlusUri::base(true, true).'/js/libs.min.js',
+                array('version' => 'auto'));
             $this -> filterForm   = $this -> get('FilterForm');
 			
             TZ_Portfolio_PlusHelper::addSubmenu('extension');
@@ -70,7 +66,6 @@ class TZ_Portfolio_PlusViewExtension extends JViewLegacy
     }
 
     protected function addToolbar(){
-//        JFactory::getApplication()->input->set('hidemainmenu', true);
 
         $user		= JFactory::getUser();
         $userId		= $user->get('id');

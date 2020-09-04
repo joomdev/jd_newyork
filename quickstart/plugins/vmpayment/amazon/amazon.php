@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Direct Access to ' . basename(__FILE__) . 'is not allo
  * @version $Id: amazon.php 8585 2014-11-25 11:11:13Z alatak $
  * @author Valérie Isaksen
  * @link https://virtuemart.net
- * @copyright Copyright (c) 2004 - April 05 2018 VirtueMart Team. All rights reserved.
+ * @copyright Copyright (c) 2004 - June 18 2020 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -59,6 +59,7 @@ class plgVmpaymentAmazon extends vmPSPlugin {
 		$this->_tablepkey = 'id';
 		$this->_tableId = 'id';
 		$varsToPush = $this->getVarsToPush();
+		$this->addVarsToPushCore($varsToPush, 1);
 		$this->setConfigParameterable($this->_configTableFieldName, $varsToPush);
 
 		$this->setCryptedFields(array('accessKey', 'secretKey'));
@@ -287,7 +288,9 @@ class plgVmpaymentAmazon extends vmPSPlugin {
 		//$this->debugLog( $cart_prices['salesPrice'], 'checkConditions','debug');
 		if(!class_exists('vmAmazonConditions')) require VMPATH_PLUGINS .'/vmpayment/amazon/helper/conditions.php';
 		$vmCond = new vmAmazonConditions();
-		return $vmCond->checkConditions($cart, $method, $cart_prices);
+		if( $vmCond->checkConditions($cart, $method, $cart_prices) ) {
+			return parent::checkConditions($cart, $method, $cart_prices);
+		} else return false;
 	}
 
 	/**
@@ -329,7 +332,7 @@ class plgVmpaymentAmazon extends vmPSPlugin {
 		$config['accessKey'] = $this->_currentMethod->accessKey;
 		$config['secretKey'] = $this->_currentMethod->secretKey;
 		$config['applicationName'] = 'VirtueMart';
-		$config['applicationVersion'] = '3.2.14';
+		$config['applicationVersion'] = '3.8.4';
 		$config['region'] = $this->_currentMethod->region;
 		$config['environment'] = $this->_currentMethod->environment;
 		$config['cnName'] = 'sns.amazonaws.com';//$this->_currentMethod->cnname;
@@ -397,7 +400,7 @@ class plgVmpaymentAmazon extends vmPSPlugin {
 		$config['access_key'] = $this->_currentMethod->accessKey;
 		$config['secret_key'] = $this->_currentMethod->secretKey;
 		$config['application_name'] = 'VirtueMart';
-		$config['application_version'] = '3.2.14';
+		$config['application_version'] = '3.8.4';
 		$config['region'] = $this->_currentMethod->region;
 		$config['sandbox'] = true;//$this->_currentMethod->environment;
 		//$config['cnName'] = $this->_currentMethod->cnname;//$_SERVER['HTTP_HOST']; //$_SERVER['SERVER_NAME'] //REQUEST_URI
@@ -995,9 +998,8 @@ class plgVmpaymentAmazon extends vmPSPlugin {
 			$constraintList = $constraints->getConstraint();
 			foreach ($constraintList as $constraint) {
 				if($constraint->isSetDescription()) {
-
-					$case = $constraint->getConstraintID();
-					switch ($case) {
+					$this->setInConfirmOrder($cart, false);
+					switch ($constraint->isSetConstraintID($constraint)) {
 						case 'ShippingAddressNotSet':
 							$this->handleShippingAddressNotSetConstraint($constraint);
 							break;
@@ -1010,7 +1012,6 @@ class plgVmpaymentAmazon extends vmPSPlugin {
 							break;
 						case 'PaymentMethodNotAllowed':
 							$this->handlePaymentMethodNotAllowedConstraint($constraint);
-							return true;
 							break;
 						default:
 							vmError('VMPAYMENT_AMAZON_CONSTRAINTID_UNKOWN');
@@ -1060,8 +1061,7 @@ class plgVmpaymentAmazon extends vmPSPlugin {
 	 */
 	private function handlePaymentMethodNotAllowedConstraint($constraint) {
 		$this->debugLog("<pre>" . var_export($constraint, true) . "</pre>", __FUNCTION__, 'debug');
-		vmInfo('VMPAYMENT_AMAZON_SELECT_ANOTHER_PAYMENT');
-		$this->renderAddressbookWallet();
+		$this->renderAddressbookWallet('VMPAYMENT_AMAZON_SELECT_ANOTHER_PAYMENT');
 	}
 
 	/**
@@ -1641,7 +1641,7 @@ class plgVmpaymentAmazon extends vmPSPlugin {
 			$authorizeRequest->setAmazonOrderReferenceId($this->_amazonOrderReferenceId);
 			$authorizeRequest->setSellerId($this->_currentMethod->sellerId);
 
-			$authorizeRequest->setAuthorizationReferenceId($this->_order_number.time());
+			$authorizeRequest->setAuthorizationReferenceId($this->_order_number);
 			$authorizeRequest->setSellerAuthorizationNote(simNotes::getSellerAuthorizationNote($this->_currentMethod));
 			$authorizeRequest->setTransactionTimeout($this->getAuthorizationTransactionTimeout());
 			// directly do the capture without the need to call the Capture Request
@@ -1695,7 +1695,6 @@ class plgVmpaymentAmazon extends vmPSPlugin {
 			$reasonCode = $authorizeResponse->getAuthorizeResult()->getAuthorizationDetails()->getAuthorizationStatus()->getReasonCode();
 			if($redirect) {
 				if($amazonState == 'Declined' && $reasonCode == 'InvalidPaymentMethod') {
-					vmInfo('VMPAYMENT_AMAZON_SELECT_ANOTHER_PAYMENT');
 					$this->_session->incrementRetryInvalidPaymentMethodInSession();
 
 					return false;
@@ -2951,9 +2950,9 @@ $('.amazonDetailsOpener').click(function() {
 	 * @return null if no plugin was found, 0 if more then one plugin was found,  virtuemart_xxx_id if only one plugin is found
 	 *
 	 */
-	public function plgVmOnCheckAutomaticSelectedPayment(VirtueMartCart $cart, array $cart_prices = array()) {
+	function plgVmOnCheckAutomaticSelectedPayment (VirtueMartCart $cart, array $cart_prices = array(), &$paymentCounter) {
 
-		return $this->onCheckAutomaticSelected($cart, $cart_prices);
+		return $this->onCheckAutomaticSelected ($cart, $cart_prices, $paymentCounter);
 	}
 
 	/**
@@ -3230,7 +3229,7 @@ $('.amazonDetailsOpener').click(function() {
 			$config['accessKey'] = $this->_currentMethod->accessKey;
 			$config['secretKey'] = $this->_currentMethod->secretKey;
 			$config['applicationName'] = 'VirtueMart';
-			$config['applicationVersion'] = '3.2.14';
+			$config['applicationVersion'] = '3.8.4';
 			$config['region'] = $this->_currentMethod->region;
 			$config['environment'] = $this->_currentMethod->environment;
 			$config['cnName'] = 'sns.amazonaws.com'; //$this->_currentMethod->cnname;

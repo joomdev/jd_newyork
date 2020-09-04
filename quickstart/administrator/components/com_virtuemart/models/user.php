@@ -16,7 +16,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: user.php 10203 2019-11-18 11:06:13Z Milbo $
+ * @version $Id: user.php 10276 2020-03-03 18:02:51Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -174,10 +174,9 @@ class VirtueMartModelUser extends VmModel {
 
 		if(empty($this->_data->shopper_groups)) $this->_data->shopper_groups = array();
 
-		$site = JFactory::getApplication ()->isSite ();
-		if ($site) {
+		if (VmConfig::isSite()) {
 			$shoppergroupmodel = VmModel::getModel('ShopperGroup');
-			$shoppergroupmodel->appendShopperGroups($this->_data->shopper_groups,$this->_data->JUser,$site);
+			$shoppergroupmodel->appendShopperGroups($this->_data->shopper_groups,$this->_data->JUser,1);
 		}
 
 		if(!empty($this->_id)) {
@@ -914,10 +913,6 @@ class VirtueMartModelUser extends VmModel {
 			$shoppergroupData = array('virtuemart_user_id'=>$this->_id,'virtuemart_shoppergroup_id'=>$data['virtuemart_shoppergroup_id']);
 
 			$res = $user_shoppergroups_table -> bindChecknStore($shoppergroupData);
-			if(!$res){
-				vmError('Set shoppergroup error');
-				$noError = false;
-			}
 
 		}
 
@@ -928,15 +923,13 @@ class VirtueMartModelUser extends VmModel {
 			}
 		}
 
-		//$admin = JFactory::getApplication()->isClient('administrator');
-
-		if(!empty($data['virtuemart_vendor_user_id']) and is_array($data['virtuemart_vendor_user_id']) or ($data['virtuemart_vendor_user_id']>1) and
-							( 	(empty($data['virtuemart_vendor_id'] and empty($data['user_is_vendor']))) or
+		if(!empty($data['virtuemart_vendor_user_id']) and (is_array($data['virtuemart_vendor_user_id']) or $data['virtuemart_vendor_user_id']>1) and
+							( 	(empty($data['virtuemart_vendor_id']) and empty($data['user_is_vendor'])) or
 								(!empty($data['virtuemart_vendor_id']) and $data['virtuemart_vendor_id']!=$data['virtuemart_vendor_user_id']) ) ){
 			//$vUserD = array('virtuemart_user_id' => $data['virtuemart_user_id'],'virtuemart_vendor_id' => $data['virtuemart_vendor_user_id']);
 			$vUser = $this->getTable('vendor_users');
 			$vUser->load((int)$data['virtuemart_user_id']);
-			vmdebug('vendor_users load',$vUser);
+
 			$toStore = array('virtuemart_user_id'=>$data['virtuemart_user_id']);
 			if(!$vUser->virtuemart_vendor_user_id){
 				$arr = (array) $data['virtuemart_vendor_user_id'];
@@ -1111,8 +1104,8 @@ class VirtueMartModelUser extends VmModel {
 
 			$userinfo->bindChecknStore($userfielddata);
 
-			$app = JFactory::getApplication();
-			if($app->isSite()){
+
+			if(VmConfig::isSite()){
 
 				$cart = VirtuemartCart::getCart();
 				if($cart){
@@ -1256,7 +1249,7 @@ class VirtueMartModelUser extends VmModel {
 				unset($data[$fldName]);
 				if($userinfo!==0){
 					if(property_exists($userinfo,$fldName)){
-						$data[$fldName] = $userinfo->$fldName;
+						$data[$fldName] = $userinfo->{$fldName};
 					} else {
 						vmError('Your tables seem to be broken, you have fields in your form which have no corresponding field in the db');
 					}
@@ -1476,7 +1469,7 @@ class VirtueMartModelUser extends VmModel {
 	 *
 	 * @return boolean True is the remove was successful, false otherwise.
 	 */
-	function remove($userIds) {
+	function remove($userIds, $deleteJUser = true) {
 
 		if(vmAccess::manager('user.delete')){
 			$_status = true;
@@ -1522,7 +1515,7 @@ class VirtueMartModelUser extends VmModel {
 						continue;
 					}
 
-					if (!$_JUser->delete()) {
+					if ($deleteJUser and !$_JUser->delete()) {
 						vmError($_JUser->getError());
 						$_status = false;
 						continue;
@@ -1638,7 +1631,7 @@ class VirtueMartModelUser extends VmModel {
 			if ($this->searchTable=='vendors') {
 				$whereAnd[] = ' vmu.virtuemart_vendor_id > 1 or (vmu.user_is_vendor>0 and vmu.virtuemart_vendor_id != "1")  ';
 			} else if ($this->searchTable=='shoppers') {
-				$whereAnd[] = ' vmu.user_is_vendor==0  ';
+				$whereAnd[] = ' vmu.user_is_vendor = 0  ';
 			}
 
 		}
@@ -1652,7 +1645,7 @@ class VirtueMartModelUser extends VmModel {
 		if(!empty($whereAnd)){
 			$where .= $whereStr.' ('.implode(' OR ',$whereAnd).')';
 		}
-		$this->setDebugSql(1);
+		//$this->setDebugSql(1);
 		return $this->_data = $this->exeSortSearchListQuery(0,$select,$joinedTables,$where,' GROUP BY ju.id',$this->_getOrdering());
 
 	}

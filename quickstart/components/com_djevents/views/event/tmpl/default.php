@@ -83,8 +83,13 @@ $nullDate = JFactory::getDbo()->getNullDate();
 		echo $layout->render($displayData); ?>
 	</h3>
 	<?php } ?>
-
-	<?php if($this->params->get('event_location',1) && !empty($this->item->displayLocation)) { ?>
+	
+	<?php if(!empty($this->item->online_event)) { ?>
+	<h3 class="djev_location djev_infoline">
+		<span class="fa fa-map-marker"></span>
+		<span class="djev_location_val online-event"><?php echo JText::_('COM_DJEVENTS_ONLINE_EVENT'); ?></span>
+	</h3>
+	<?php }elseif($this->params->get('event_location',1) && !empty($this->item->displayLocation)) { ?>
 	<h3 class="djev_location djev_infoline">
 		<span class="fa fa-map-marker"></span>
 		<span class="djev_location_val"><?php echo $this->item->displayLocation?></span>

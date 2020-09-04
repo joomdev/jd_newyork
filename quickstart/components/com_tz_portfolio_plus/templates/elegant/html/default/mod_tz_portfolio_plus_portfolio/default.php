@@ -27,15 +27,15 @@ $bootstrap4 = ($params -> get('bootstrapversion', 4) == 4);
 $tzTemplate = TZ_Portfolio_PlusTemplate::getTemplateById($params -> get('template_id'));
 
 $doc = JFactory::getDocument();
-$doc->addScript(JUri::root() . '/components/com_tz_portfolio_plus/js/tz_portfolio_plus.min.js',
+$doc->addScript(JUri::base(true) . '/components/com_tz_portfolio_plus/js/tz_portfolio_plus.min.js',
     array('version' => 'auto', 'relative' => true));
-$doc->addScript(JUri::root() . '/components/com_tz_portfolio_plus/js/jquery.isotope.min.js',
+$doc->addScript(JUri::base(true) . '/components/com_tz_portfolio_plus/js/jquery.isotope.min.js',
     array('version' => 'auto', 'relative' => true));
 $doc->addStyleSheet(JUri::base(true) . '/components/com_tz_portfolio_plus/css/isotope.min.css',
     array('version' => 'auto', 'relative' => true));
 
 if(!$bootstrap4){
-    $doc -> addStyleSheet('components/com_tz_portfolio_plus/css/tzportfolioplus.min.css',
+    $doc -> addStyleSheet(JUri::base(true).'/components/com_tz_portfolio_plus/css/tzportfolioplus.min.css',
         array('version' => 'auto'));
 }
 
@@ -67,37 +67,42 @@ if($params -> get('enable_resize_image', 0)){
     ');
     }
 }
-$doc->addScriptDeclaration('
-jQuery(function($){
-    $(document).ready(function(){
-        $("#portfolio' . $module->id . '").tzPortfolioPlusIsotope({
-            "mainElementSelector"       : "#TzContent' . $module->id . '",
-            "containerElementSelector"  : "#portfolio' . $module->id . '",
-            "sortParentTag"             : "filter'.$module->id.'",
-            isotope_options             : {
-                "filterSelector"            : "#tz_options'.$module -> id.' .option-set"
-            },
-            "params"                    : {
-                "orderby_sec"           : "'.$params -> get('orderby_sec', 'rdate').'",
-                "tz_column_width"       : ' . $params->get('width_element') . ',
-                "tz_show_filter"        : ' . $params->get('show_filter', 1) . ',
-                "tz_filter_type"        : "'.$params -> get('tz_filter_type', 'categories').'"
-            },
-            "afterColumnWidth" : function(colCount, colWidth){
-                '.($params -> get('enable_resize_image', 0)?'TzPortfolioPlusArticlesResizeImage($("#portfolio' . $module->id . ' > .element .tzpp_media"));':'').'
-            }
-        });
-    });
-    $(window).load(function(){
-        var $tzppisotope    = $("#portfolio' . $module->id . '").data("tzPortfolioPlusIsotope");
-        if(typeof $tzppisotope === "object"){
-            $tzppisotope.imagesLoaded(function(){
-                $tzppisotope.tz_init();
+
+if(!TZ_Portfolio_PlusFrontHelper::scriptExists('/\$\("#portfolio' . $module->id . '"\)\.tzPortfolioPlusIsotope/i')) {
+    $doc->addScriptDeclaration('
+        jQuery(function($){
+            $(document).ready(function(){
+                $("#portfolio' . $module->id . '").tzPortfolioPlusIsotope({
+                    "rtl"                       : ' . (JFactory::getLanguage()->isRtl() ? 'true' : 'false') . ',
+                    "mainElementSelector"       : "#TzContent' . $module->id . '",
+                    "containerElementSelector"  : "#portfolio' . $module->id . '",
+                    "sortParentTag"             : "filter' . $module->id . '",
+                    isotope_options             : {
+                        "filterSelector"            : "#tz_options' . $module->id . ' .option-set"
+                    },
+                    "params"                    : {
+                        "orderby_sec"           : "' . $params->get('orderby_sec', 'rdate') . '",
+                        "tz_column_width"       : ' . $params->get('width_element') . ',
+                        "tz_show_filter"        : ' . $params->get('show_filter', 1) . ',
+                        "tz_filter_type"        : "' . $params->get('tz_filter_type', 'categories') . '",
+                        "enable_lazyload"       : ' . $params->get('enable_lazyload', 0) . '
+                    },
+                    "afterColumnWidth" : function(colCount, colWidth){
+                        ' . ($params->get('enable_resize_image', 0) ? 'TzPortfolioPlusArticlesResizeImage($("#portfolio' . $module->id . ' > .element .tzpp_media"));' : '') . '
+                    }
+                });
             });
-        }
-    });
-});
-');
+            $(window).load(function(){
+                var $tzppisotope    = $("#portfolio' . $module->id . '").data("tzPortfolioPlusIsotope");
+                if(typeof $tzppisotope === "object"){
+                    $tzppisotope.imagesLoaded(function(){
+                        $tzppisotope.tz_init();
+                    });
+                }
+            });
+        });
+    ');
+}
 
 if ($list):
     $bootstrap4 = ($params -> get('enable_bootstrap',1) && $params -> get('bootstrapversion', 4) == 4);

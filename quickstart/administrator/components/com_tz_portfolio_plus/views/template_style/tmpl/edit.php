@@ -23,7 +23,9 @@ defined('_JEXEC') or die('Restricted access');
 JHtml::_('bootstrap.tooltip','.hasTooltip,[data-toggle=tooltip]');
 JHtml::_('behavior.formvalidator');
 JHtml::_('behavior.keepalive');
-JHtml::_('behavior.tabstate');
+if(!COM_TZ_PORTFOLIO_PLUS_JVERSION_4_COMPARE) {
+    JHtml::_('behavior.tabstate');
+}
 JHtml::_('formbehavior.chosen', '#menuOptions select');
 JHtmlBootstrap::startTabSet();
 

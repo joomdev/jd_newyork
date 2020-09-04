@@ -401,17 +401,31 @@ class TZ_Portfolio_PlusViewArticle extends TZ_Portfolio_PlusViewLegacy
 				$title = $this->item->title;
 			}
 			$path = array(array('title' => $this->item->title, 'link' => ''));
-			$category = JCategories::getInstance('Content')->get($this->item->catid);
-			while ($category && ($menu->query['option'] != 'com_tz_portfolio_plus' || $menu->query['view'] == 'article' || $id != $category->id) && $category->id > 1)
-			{
-				$path[] = array('title' => $category->title, 'link' => TZ_Portfolio_PlusHelperRoute::getCategoryRoute($category->id));
-				$category = $category->getParent();
+
+            $catIds     = $this -> params -> get('catid');
+            $catAllow   = true;
+
+            if($catIds && is_array($catIds)){
+                $catIds = array_filter($catIds);
+                $catIds = array_values($catIds);
+                if(!count($catIds) || in_array($this -> item -> catid, $catIds)) {
+                    $catAllow = false;
+                }
+            }
+
+            if($catAllow){
+                $category = JCategories::getInstance('TZ_Portfolio_Plus')->get($this->item->catid);
+                while ($category && ($menu->query['option'] != 'com_tz_portfolio_plus' || $menu->query['view'] == 'article' || $id != $category->id) && $category->id > 1)
+                {
+                    $path[] = array('title' => $category->title, 'link' => TZ_Portfolio_PlusHelperRoute::getCategoryRoute($category->id));
+                    $category = $category->getParent();
+                }
 			}
-			$path = array_reverse($path);
-			foreach($path as $item)
-			{
-				$pathway->addItem($item['title'], $item['link']);
-			}
+            $path = array_reverse($path);
+            foreach($path as $item)
+            {
+                $pathway->addItem($item['title'], $item['link']);
+            }
 		}
 
 		// Check for empty title and add site name if param is set
@@ -428,6 +442,11 @@ class TZ_Portfolio_PlusViewArticle extends TZ_Portfolio_PlusViewLegacy
             $title = $this->item->title;
         }
         $this->document->setTitle($title);
+
+        $metadata   = $this -> item -> metadata;
+        if($metadata -> get('page_title')){
+            $this -> document -> setTitle($metadata -> get('page_title'));
+        }
 
         $description    = null;
         if ($this->item->metadesc){

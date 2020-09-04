@@ -48,7 +48,7 @@ class VmConfig {
 	var $_params = array();
 	var $_raw = array();
 	public static $installed = false;
-
+	public static $lazyLoad = null;
 
 	private function __construct() {
 
@@ -274,7 +274,7 @@ class VmConfig {
 	 */
 	public static function getCache($group = '', $handler = 'callback', $storage = null, $site = true)
 	{
-		$hash = md5($group . $handler . $storage);
+		$hash = $group . $handler . $storage;
 
 		if (isset(self::$cache[$hash]))
 		{
@@ -397,7 +397,7 @@ class VmConfig {
 
 				if($exeTrig and $execTrigger){
 					// try plugins
-					$isSite = $app->isSite();
+					$isSite = VmConfig::isSite();
 					self::importVMPlugins('vmuserfield');
 					if($isSite){
 
@@ -432,7 +432,7 @@ class VmConfig {
 			$knownLangs = $db->loadColumn();
 			//vmdebug('Selected language '.$selectedLang.' $knownLangs ',$knownLangs);
 
-			if($app->isAdmin() and !$redirected and !in_array(vmLanguage::$currLangTag,$knownLangs)){
+			if(!VmConfig::isSiteByApp() and !$redirected and !in_array(vmLanguage::$currLangTag,$knownLangs)){
 				$msg = 'Install your selected language <b>'.vmLanguage::$currLangTag.'</b> in <a href="'.$link.'">joomla language manager</a>';
 				$app->enqueueMessage($msg);
 			}
@@ -442,7 +442,7 @@ class VmConfig {
 				if(!$redirected and !$install){
 					$link = 'index.php?option=com_virtuemart&view=updatesmigration&redirected=1&nosafepathcheck=1';
 
-					if($app->isSite()){
+					if(VmConfig::isSiteByApp()){
 						$link = JUri::root(true).'/administrator/'.$link;
 					} else {
 						if(empty($msg)) $msg = 'COM_VM_INSTALLATION_INFO';
@@ -501,7 +501,7 @@ class VmConfig {
 
 		if($exeTrig and $execTrigger){
 
-			$isSite = $app->isSite();
+			$isSite = VmConfig::isSite();
 			self::importVMPlugins('vmuserfield');
 			if($isSite){
 				$dispatcher = JDispatcher::getInstance();
@@ -559,17 +559,13 @@ class VmConfig {
 
 		$value = '';
 		if ($key) {
-
 			if (empty(self::$_jpConfig->_params) && $allow_load) {
 				self::loadConfig();
 			}
 
-			if (!empty(self::$_jpConfig->_params)) {
-				if(array_key_exists($key,self::$_jpConfig->_params) && isset(self::$_jpConfig->_params[$key])){
+			if (!empty(self::$_jpConfig->_params) and isset(self::$_jpConfig->_params[$key])) {
 					$value = self::$_jpConfig->_params[$key];
-				} else {
-					$value = $default;
-				}
+
 
 			} else {
 				$value = $default;
@@ -677,16 +673,28 @@ class VmConfig {
 	}
 
 	static private $isSite = null;
+	static private $siteByApp = null;
+
 	static public function isSite(){
 
 		if(self::$isSite===null){
-			$app = JFactory::getApplication ();
-			if($app->isAdmin() or (vRequest::getInt('manage',false) and vmAccess::manager('manage'))){
+			$sess = JFactory::getSession();
+			$manage = vRequest::getInt('manage',$sess->get('manage', false,'vm'));
+			if(!self::isSiteByApp() or ($manage and vmAccess::manager('manage'))){
 				self::$isSite = false;
 			} else {
 				self::$isSite = true;
 			}
 		}
 		return self::$isSite;
+	}
+
+	static function isSiteByApp(){
+		if(vmDefines::$_appId=='site'){
+			self::$siteByApp = true;
+		} else {
+			self::$siteByApp = false;
+		}
+		return self::$siteByApp;
 	}
 }

@@ -56,12 +56,14 @@ class DJEventsViewEventsList extends JViewLegacy {
 			JError::raiseWarning(500, implode("\n", $errors));
 			return false;
 		}
-		
+
 		if (count($this->items)) {
 			$from = JFactory::getDate($this->items[0]->start);
+			$day = $app->input->getString('from');
 		}
-		$this->weekFrom = JFactory::getDate(!empty($from) ? $from : 'now')->format('Y-m-d');
-		
+
+		$this->weekFrom = JFactory::getDate(!empty($day) ? $day : 'now')->format('Y-m-d');
+
 		/* prepare poster image */
 		foreach($this->items as $key => &$item) {
 			

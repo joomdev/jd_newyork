@@ -10,13 +10,13 @@
  * @author Oscar van Eijk
  * @author RolandD
  * @link https://virtuemart.net
- * @copyright Copyright (c) 2004 - 2010 VirtueMart Team. All rights reserved.
+ * @copyright Copyright (c) 2004 - 2020 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 10174 2019-10-14 12:48:04Z Milbo $
+ * @version $Id: view.html.php 10334 2020-06-16 16:31:10Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -514,38 +514,42 @@ jQuery(function($) {
 	Virtuemart.autocheck = function (){
 		var count = 0;
     	var hit = 0;
-    	jQuery.each(jQuery(".required"), function (key, value){
+    	$.each($(".required"), function (key, value){
     		count++;
-    		if(jQuery(this).attr("checked")){
+    		if($(this).attr("checked")){
         		hit++;
        		}
     	});
-    	var chkOutBtn = jQuery("#checkoutFormSubmit");
-    	chkOutBtn.attr("task","checkout");
+    	var chkOutBtn = $("#checkoutFormSubmit");
+
+    	$(\'input[name="task"]\').val("updateCartNoMethods");
+    	var form = $("#checkoutForm");
     	
-    	var form = jQuery("#checkoutForm");
-    	console.log("Required count and hit",count, hit);
+    	//console.log("Required count and hit",count, hit,form);
     	if(count==hit){
     		'.$updF.'
 			chkOutBtn.html("<span>'.vmText::_('COM_VIRTUEMART_ORDER_CONFIRM_MNU').'</span>");
+			chkOutBtn.attr("task","confirm");
 			form.submit();
 		} else {
-        	//chkOutBtn.attr("task","checkout");
+        	chkOutBtn.attr("task","checkout");
         	chkOutBtn.html("<span>'.vmText::_('COM_VIRTUEMART_CHECKOUT_TITLE').'</span>");
         }
 	};
 });
 		
 		
-jQuery(document).ready(function(){
-	var chkOutBtn = jQuery("#checkoutFormSubmit");
-	var form = jQuery("#checkoutForm");
+jQuery(document).ready(function( $ ){
+	var chkOutBtn = $("#checkoutFormSubmit");
+	var form = $("#checkoutForm");
 	
-	jQuery("#checkoutForm").find(":radio, :checkbox").bind("change", Virtuemart.autocheck);
+	$("#checkoutForm").find(":radio, :checkbox").bind("change", Virtuemart.autocheck);
 	
-	jQuery(".output-shipto").find("input").unbind("change", Virtuemart.autocheck);
+	$("input[type=radio][name=virtuemart_paymentmethod_id]").unbind("change", Virtuemart.autocheck);
+	$("input[type=radio][name=virtuemart_shipmentmethod_id]").unbind("change", Virtuemart.autocheck);
 	
-	jQuery(".output-shipto").find(":radio").bind("change", function(){
+	$(".output-shipto").find("input").unbind("change", Virtuemart.autocheck);
+	$(".output-shipto").find(":radio").bind("change", function(){
 		chkOutBtn.attr("task","checkout");
 		
 		'.$updF.'

@@ -16,8 +16,7 @@ jimport('joomla.application.component.view');
  * @subpakage	TZ.Portfolio
  */
 class TZ_Portfolio_PlusViewDashboard extends JViewLegacy {
-    protected $xml;
-    protected $feedBlog;
+//    protected $xml;
 
     /* @since 2.2.7 */
     protected $license;
@@ -26,7 +25,6 @@ class TZ_Portfolio_PlusViewDashboard extends JViewLegacy {
      * Display the view.
      */
     public function display($tpl = null) {
-        $this -> feedBlog   = $this -> get('FeedBlog');
         $this -> license    = TZ_Portfolio_PlusHelper::getLicense();
 
         // We don't need toolbar in the modal window.

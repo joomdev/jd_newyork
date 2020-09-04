@@ -1,7 +1,10 @@
 .copyright-section {
    .astroid-social-icons {
       justify-content: center;
-      margin-top: 15px;
+      li {
+         margin-top: 10px;
+         margin-bottom: 10px;
+      }
    }
    @include media-breakpoint-up(md) {
       .astroid-social-icons {

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension method="upgrade" type="component" version="2.5">
     <name>VirtueMart_allinone</name>
-    <creationDate>November 22 2019</creationDate>
+    <creationDate>June 18 2020</creationDate>
     <copyright>Copyright (C) 2004-2017 Virtuemart Team. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
     <author>The VirtueMart Development Team</author>
     <authorUrl>https://virtuemart.net</authorUrl>
-    <version status="BUGFIX">3.6.10</version>
+    <version status="BUGFIX">3.8.4</version>
 
     <scriptfile>script.vmallinone.php</scriptfile>
 	<installfile>script.vmallinone.php</installfile>

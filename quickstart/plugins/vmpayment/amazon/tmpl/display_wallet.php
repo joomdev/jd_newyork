@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Restricted access');
 if ($viewData['include_amazon_css']) {
 	$document = JFactory::getDocument()->addStyleSheet(JURI::root(true) . '/plugins/vmpayment/amazon/assets/css/amazon.css');
 }
-JHtml::_('behavior.formvalidation');
+JHtml::_('behavior.formvalidator');
 
 		$js = "
 jQuery(document).ready( function($) {

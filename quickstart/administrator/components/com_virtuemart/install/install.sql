@@ -45,6 +45,11 @@ CREATE TABLE IF NOT EXISTS `#__virtuemart_calcs` (
   `publish_up` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Startdate if nothing is set = permanent',
   `publish_down` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Enddate if nothing is set = permanent',
   `for_override` tinyint(1) NOT NULL DEFAULT '0',
+  `has_categories` tinyint(1),
+  `has_shoppergroups` tinyint(1),
+  `has_manufacturers` tinyint(1),
+  `has_countries` tinyint(1),
+  `has_states` tinyint(1),
   `calc_params` varchar(15359) NOT NULL DEFAULT '',
   `ordering` int(1) NOT NULL DEFAULT '0',
   `shared` tinyint(1) NOT NULL DEFAULT '0',
@@ -138,6 +143,7 @@ CREATE TABLE IF NOT EXISTS `#__virtuemart_calc_states` (
 
 CREATE TABLE IF NOT EXISTS `#__virtuemart_categories` (
   `virtuemart_category_id` int(1) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `category_parent_id` int(1) UNSIGNED,
   `virtuemart_vendor_id` int(1) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'Belongs to vendor',
   `category_template` varchar(128),
   `category_layout` varchar(64),
@@ -152,6 +158,8 @@ CREATE TABLE IF NOT EXISTS `#__virtuemart_categories` (
   `ordering` int(1) NOT NULL DEFAULT '0',
   `shared` tinyint(1) NOT NULL DEFAULT '0',
   `published` tinyint(1) NOT NULL DEFAULT '1',
+  `has_children` tinyint(1),
+  `has_medias` tinyint(1),
   `created_on` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` int(1) NOT NULL DEFAULT '0',
   `modified_on` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -167,7 +175,7 @@ CREATE TABLE IF NOT EXISTS `#__virtuemart_categories` (
 
 -- --------------------------------------------------------
 
---
+-- Obsolete since vm3.6.12
 -- Table structure for table `#__virtuemart_category_categories`
 --
 
@@ -218,8 +226,8 @@ CREATE TABLE IF NOT EXISTS `#__virtuemart_countries` (
   `locked_on` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `locked_by` int(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`virtuemart_country_id`),
-  KEY `country_3_code` (`country_3_code`),
-  KEY `country_2_code` (`country_2_code`),
+  UNIQUE KEY `country_3_code` (`country_3_code`),
+  UNIQUE KEY `country_2_code` (`country_2_code`),
   KEY `country_name` (`country_name`),
   KEY `ordering` (`ordering`),
   KEY `published` (`published`)
@@ -242,6 +250,12 @@ CREATE TABLE IF NOT EXISTS `#__virtuemart_coupons` (
   `coupon_expiry_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `coupon_value_valid` decimal(15,5) NOT NULL DEFAULT '0.00000',
   `coupon_used` varchar(200) NOT NULL DEFAULT '',
+  `coupon_value_max` decimal(15,5) NOT NULL DEFAULT '0.00000',
+  `virtuemart_shoppergroup_ids` TEXT NOT NULL,
+  `virtuemart_shopper_ids` TEXT NOT NULL,
+  `virtuemart_product_ids` TEXT NOT NULL,
+  `virtuemart_category_ids` TEXT NOT NULL,
+  `virtuemart_coupon_max_attempt_per_user` TINYINT(4) NOT NULL,
   `published` tinyint(1) NOT NULL DEFAULT '1',
   `created_on` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` int(1) NOT NULL DEFAULT '0',
@@ -761,7 +775,7 @@ CREATE TABLE IF NOT EXISTS `#__virtuemart_paymentmethods` (
   PRIMARY KEY (`virtuemart_paymentmethod_id`),
 	KEY `payment_jplugin_id` (`payment_jplugin_id`),
 	KEY `virtuemart_vendor_id` (`virtuemart_vendor_id`),
-	KEY `payment_element` (payment_element,`virtuemart_vendor_id`),
+	KEY `payment_element` (`payment_element`,`virtuemart_vendor_id`),
 	KEY `ordering` (`ordering`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='The payment methods of your store' AUTO_INCREMENT=1 ;
 
@@ -820,6 +834,11 @@ CREATE TABLE IF NOT EXISTS `#__virtuemart_products` (
   `layout` varchar(16),
   `published` tinyint(1) NOT NULL DEFAULT '0',
   `pordering` int(1) UNSIGNED NOT NULL DEFAULT '0',
+  `has_categories` tinyint(1),
+  `has_manufacturers` tinyint(1),
+  `has_medias` tinyint(1),
+  `has_prices` tinyint(1),
+  `has_shoppergroups` tinyint(1),
   `created_on` datetime NOT NULL default '0000-00-00 00:00:00',
   `created_by` int(1) NOT NULL DEFAULT '0',
   `modified_on` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -898,6 +917,9 @@ CREATE TABLE IF NOT EXISTS `#__virtuemart_product_customfields` (
   `locked_by` int(1) UNSIGNED NOT NULL DEFAULT '0',
   `ordering` int(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`virtuemart_customfield_id`),
+  UNIQUE KEY `unique_custf_prd_value` (`virtuemart_customfield_id`,`virtuemart_product_id`,`virtuemart_custom_id`,`customfield_value`(50)),
+  KEY `unique_cust_prd_value` (`virtuemart_custom_id`,`virtuemart_product_id`,`customfield_value`(50)),
+  KEY `customfield_value` (`customfield_value`(50)),
   KEY `virtuemart_product_id` (`virtuemart_product_id`,`ordering`),
   KEY `virtuemart_custom_id` (`virtuemart_custom_id`),
   KEY `published` (`published`),
@@ -986,6 +1008,7 @@ CREATE TABLE IF NOT EXISTS `#__virtuemart_rating_reviews` (
   `review_rates` int(1) UNSIGNED NOT NULL DEFAULT '0',
   `review_ratingcount` int(1) UNSIGNED NOT NULL DEFAULT '0',
   `review_rating` decimal(10,2) NOT NULL DEFAULT '0.00',
+  `review_language` varchar(10),
   `review_editable` tinyint(1) NOT NULL DEFAULT '1',
   `lastip` char(50) NOT NULL DEFAULT '0',
   `published` tinyint(1) NOT NULL DEFAULT '1',
@@ -1071,7 +1094,7 @@ CREATE TABLE IF NOT EXISTS `#__virtuemart_shipmentmethods` (
   `locked_by` int(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`virtuemart_shipmentmethod_id`),
 	KEY `shipment_jplugin_id` (`shipment_jplugin_id`),
-	KEY `shipment_element` (shipment_element,`virtuemart_vendor_id`),
+	KEY `shipment_element` (`shipment_element`,`virtuemart_vendor_id`),
 	KEY `ordering` (`ordering`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Shipment created from the shipment plugins' AUTO_INCREMENT=1 ;
 

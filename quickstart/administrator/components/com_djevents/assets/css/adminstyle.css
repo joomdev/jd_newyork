@@ -525,3 +525,9 @@ table.table td.order .input-mini {
 	cursor: pointer;
 	background: #ffffff;
 }
+
+/* events calendar */
+
+.btn-group .js-calendar {
+	font-size: 10px;
+}

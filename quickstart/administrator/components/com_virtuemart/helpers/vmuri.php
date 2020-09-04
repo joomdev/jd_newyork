@@ -112,6 +112,18 @@ class vmURI{
 		return vRequest::filterUrl($JURIInstance->toString($parts));
 	}
 
+	static function createUrlWithPrefix($url){
+
+		$admin = '';
+		if(!VmConfig::isSiteByApp()){
+			$admin = 'administrator/';
+		}
+
+		$rurl = JURI::root(false).$admin.$url;
+		vmdebug('createUrlWithPrefix',$rurl,$url);
+		return $rurl;
+	}
+
 	static function useSSL (){
 		static $useSSL = null;
 

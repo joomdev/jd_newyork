@@ -2,7 +2,7 @@
  * @version    2.10.x
  * @package    K2
  * @author     JoomlaWorks https://www.joomlaworks.net
- * @copyright  Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.
+ * @copyright  Copyright (c) 2006 - 2020 JoomlaWorks Ltd. All rights reserved.
  * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
  */
 
@@ -919,7 +919,7 @@ function renderExtraFields(fieldType, fieldValues, isNewField) {
     switch (fieldType) {
 
         case 'textfield':
-            var text;
+            var text = '';
             if (!isNewField && currentType == fieldType) {
                 text = (fieldValues[0].value ? fieldValues[0].value : '');
             }
@@ -932,7 +932,11 @@ function renderExtraFields(fieldType, fieldValues, isNewField) {
             break;
 
         case 'textarea':
-            var textarea, rows, cols, editorValue, editorChecked;
+            var textarea = '',
+                rows = '',
+                cols = '',
+                editorValue = '',
+                editorChecked = '';
             if (!isNewField && currentType == fieldType) {
                 textarea = fieldValues[0].value;
                 rows = (fieldValues[0].rows ? fieldValues[0].rows : '');
@@ -962,7 +966,7 @@ function renderExtraFields(fieldType, fieldValues, isNewField) {
             break;
 
         case 'labels':
-            var label;
+            var label = '';
             if (!isNewField && currentType == fieldType) {
                 label = (fieldValues[0].value ? fieldValues[0].value : '');
             }
@@ -980,7 +984,7 @@ function renderExtraFields(fieldType, fieldValues, isNewField) {
         case 'select':
         case 'multipleSelect':
         case 'radio':
-            var label;
+            var label = '';
             if (!isNewField && currentType == fieldType) {
                 label = (fieldValues[0].value ? fieldValues[0].value : '');
             }
@@ -1054,7 +1058,9 @@ function renderExtraFields(fieldType, fieldValues, isNewField) {
             break;
 
         case 'link':
-            var linkText, linkUrl, linkTarget;
+            var linkText = '',
+                linkUrl = '',
+                linkTarget = '';
             if (!isNewField && currentType == fieldType) {
                 linkText = (fieldValues[0].name ? fieldValues[0].name : '');
                 linkUrl = (fieldValues[0].value ? fieldValues[0].value : '');
@@ -1094,35 +1100,39 @@ function renderExtraFields(fieldType, fieldValues, isNewField) {
                 name: 'option_value[]',
                 type: 'hidden'
             }).appendTo(target);
-            if (!isNewField && currentType == fieldType) {
-                inputValue.val($K2.parseJSON(fieldValues[0].value));
+            if (!isNewField && currentType == fieldType && fieldValues[0].value) {
+                var csvAsJson = fieldValues[0].value;
+
+                inputValue.val(JSON.stringify(csvAsJson));
+
                 var table = $K2('<table/>', {
-                    'class': 'csvTable'
+                    'class': 'k2ui-ef-csv'
                 }).appendTo(target);
-                $K2(fieldValues[0].value).each(function(row, index) {
+
+                $K2(csvAsJson).each(function(index, row) {
                     var tr = $K2('<tr/>').appendTo(table);
-                    row.each(function(cell) {
+                    row.each(function(c, cell) {
                         if (index > 0) {
-                            var td = $K2('<td/>').html(cell).appendTo(tr);
+                            var td = $K2('<td/>').html(c).appendTo(tr);
                         } else {
-                            var th = $K2('<th/>').html(cell).appendTo(tr);
+                            var th = $K2('<th/>').html(c).appendTo(tr);
                         }
                     });
                 });
-                var label = $K2('<label/>').html(K2Language[13]).appendTo(target);
-                var input = $K2('<input/>', {
-                    name: 'K2ResetCSV',
-                    type: 'checkbox'
-                }).appendTo(target);
-                var br = $K2('<br/>', {
-                    'class': 'clr'
-                }).appendTo(target);
+
+                var html = '\
+                    <hr />\
+                    <div class="k2ui-ef-row">\
+                        <input name="K2ResetCSV" type="checkbox" /><label>' + K2Language[13] + '</label> <span class="k2ui-ef-notice">(' + K2Language[1] + ')</span>\
+                    </div>\
+                ';
+                $K2(html).appendTo(target);
             }
-            var notice = $K2('<span class="k2ui-ef-notice"/>').html('(' + K2Language[1] + ')').appendTo(target);
+
             break;
 
         case 'date':
-            var label,
+            var label = '',
                 time = $K2.now();
             if (!isNewField && currentType == fieldType) {
                 label = (fieldValues[0].value ? fieldValues[0].value : '');
@@ -1143,20 +1153,20 @@ function renderExtraFields(fieldType, fieldValues, isNewField) {
 
         case 'image':
             var id = 'K2ExtraFieldImage_' + new Date().getTime(),
-                image;
+                image = '';
             if (!isNewField && currentType == fieldType) {
                 image = (fieldValues[0].value ? fieldValues[0].value : '');
             }
             var html = '\
                 <div class="k2ui-ef-row">\
-                    <input name="option_value[]" type="text" id="' + id + '" value="' + image + '" /> <a class="k2app-ef-image-button" href="index.php?option=com_k2&view=media&type=image&tmpl=component&fieldID=' + id + '">' + K2Language[18] + '</a> <span class="k2ui-ef-notice">(' + K2Language[1] + ')</span>\
+                    <input name="option_value[]" type="text" id="' + id + '" value="' + image + '" /> <a class="k2app-ef-image-button k2Button" href="index.php?option=com_k2&view=media&type=image&tmpl=component&fieldID=' + id + '">' + K2Language[18] + '</a> <span class="k2ui-ef-notice">(' + K2Language[1] + ')</span>\
                 </div>\
             ';
             $K2(html).appendTo(target);
             break;
 
         case 'header':
-            var header;
+            var header = '';
             if (!isNewField && currentType == fieldType) {
                 header = (fieldValues[0].value ? fieldValues[0].value : '');
             }
@@ -1213,10 +1223,12 @@ function initExtraFieldsEditor() {
         } else {
             new nicEditor({
                 fullPanel: true,
-                maxHeight: 200,
-                width: '100%',
                 iconsPath: K2SitePath + 'media/k2/assets/vendors/bkirchoff/nicedit/nicEditorIcons.gif'
-            }).panelInstance($K2(this).attr('id'));
+            }).panelInstance(id);
+            // Properly resize nicEdit
+            $K2('.nicEdit-panelContain').parent().css('width', 'calc(90% + 12px)');
+            $K2('.nicEdit-panelContain').parent().next().css({'width': 'calc(90% + 12px)', 'min-height': '200px'});
+            $K2('.nicEdit-main').css('width', 'calc(90% + 12px)');
         }
     });
 }

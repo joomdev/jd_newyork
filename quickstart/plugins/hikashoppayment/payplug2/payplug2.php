@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	4.2.2
+ * @version	4.3.0
  * @author	hikashop.com
- * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2020 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -17,7 +17,7 @@ class plgHikashoppaymentPayplug2 extends hikashopPaymentPlugin
 	var $multiple = true;
 	var $name = 'payplug2';
 	var $pluginConfig = array(
-		'token' => array('HIKA_TOKEN', 'input'),
+		'token' => array('SECRET_KEY', 'input'),
 		'debug' => array('DEBUG', 'boolean', '0'),
 		'delivery_type' => array('PAYPLUG_DELIVERY_TYPE', 'list',array(
 			'NEW' => 'PAYPLUG_SHIP_TO_SHIPPING_ADDRESS',

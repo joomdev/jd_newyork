@@ -3,7 +3,7 @@
  * @version    2.10.x
  * @package    K2
  * @author     JoomlaWorks https://www.joomlaworks.net
- * @copyright  Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.
+ * @copyright  Copyright (c) 2006 - 2020 JoomlaWorks Ltd. All rights reserved.
  * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
  */
 
@@ -104,7 +104,7 @@ defined('_JEXEC') or die;
                     <label id="imagemsg" for="image"><?php echo JText::_( 'K2_USER_IMAGE_AVATAR' ); ?></label>
                 </td>
                 <td>
-                    <input type="file" id="image" name="image" />
+                    <input type="file" id="image" name="image" accept="image/*" />
                     <?php if ($this->K2User->image): ?>
                     <img class="k2AccountPageImage" src="<?php echo JURI::root(true).'/media/k2/users/'.$this->K2User->image; ?>" alt="<?php echo $this->user->name; ?>" />
                     <input type="checkbox" name="del_image" id="del_image" />

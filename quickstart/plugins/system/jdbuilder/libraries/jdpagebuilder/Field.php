@@ -3,7 +3,7 @@
 /**
  * @package    JD Builder
  * @author     Team Joomdev <info@joomdev.com>
- * @copyright  2019 www.joomdev.com
+ * @copyright  2020 www.joomdev.com
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -25,9 +25,10 @@ class Field
    public $responsive;
    public $ordering = 0;
    public $description;
+   public $required;
    protected static $fonts = null;
 
-   public function __construct($xml, $prefix = '', $defaults = [], $parentShowon = null)
+   public function __construct($xml, $prefix = '', $defaults = [], $parentShowon = null, $invisible = false)
    {
       $this->xml = $xml;
       $this->prefix = $prefix;
@@ -53,7 +54,14 @@ class Field
          $this->label = $this->name;
       }
       $description = (string) $this->xml->attributes()->description;
-      $this->description = \JText::_($description);
+      if ($description == 'JDB_PHP_MAX_UPLOAD_SIZE') {
+         $this->description = \JText::sprintf('JDB_PHP_MAX_UPLOAD_SIZE', '<strong>' . \JFilesystemHelper::fileUploadMaxSize() . '</strong>');
+      } else {
+         $this->description = \JText::_($description);
+      }
+
+      $required = (string) $this->xml->attributes()->required;
+      $this->required = $required == 'true' ? true : false;
 
       $ordering = (string) $this->xml->attributes()->ordering;
       $this->ordering = empty($ordering) ? 1 : (int) $ordering;
@@ -74,6 +82,13 @@ class Field
 
       $responsive = (string) $this->xml->attributes()->responsive;
       $this->responsive = strtolower($responsive) == "true" ? true : false;
+      $this->invisible = $invisible;
+
+      $showInfo = (string) $this->xml->attributes()->showInfo;
+      $this->showInfo = ($showInfo == 'true' ? true : false);
+
+      $taggable = (string) $this->xml->attributes()->taggable;
+      $this->taggable = ($taggable == 'true' ? true : false);
 
       $this->setValue($defaults);
    }
@@ -101,6 +116,7 @@ class Field
          $default = $defaults[$this->name];
       } else {
          $default = (string) $this->xml->attributes()->default;
+         $default = \JText::_($default);
       }
       switch ($this->type) {
          case 'typography':
@@ -129,6 +145,22 @@ class Field
                $this->value = [];
             }
             break;
+         case 'list':
+            $multiple = (string) $this->xml->attributes()->multiple;
+            $multiple = strtolower($multiple) == 'true' ? true : false;
+            if ($multiple) {
+               if ($default == "") {
+                  $default = "[]";
+               }
+               if (Helper::isValidJSON($default)) {
+                  $this->value = Helper::jsonDecode($default);
+               } else {
+                  $this->value = [];
+               }
+            } else {
+               $this->value = $default;
+            }
+            break;
          default:
             $this->value = $default;
             break;
@@ -145,6 +177,7 @@ class Field
       $return['type'] = $this->type;
       $return['label'] = $this->label;
       $return['description'] = $this->description;
+      $return['required'] = $this->required;
       $return['responsive'] = $this->responsive;
       $return['ordering'] = $this->ordering;
 
@@ -191,6 +224,12 @@ class Field
          case 'text':
             $placeholder = (string) $this->xml->attributes()->placeholder;
             $return['placeholder'] = \JText::_($placeholder);
+
+            $alphanumeric = (string) $this->xml->attributes()->alphanumeric;
+            $return['alphanumeric'] = ($alphanumeric === 'true' ? true : false);
+
+            $slug = isset($this->xml->attributes()->slug) ? (string) $this->xml->attributes()->slug : false;
+            $return['slug'] = ($slug === false ? false : $slug);
             break;
          case 'jcategory':
             $extension = (string) $this->xml->attributes()->{'extension'};
@@ -246,6 +285,16 @@ class Field
             if (!empty($itemtitle)) {
                $return['itemtitle'] = \JText::_($itemtitle);
             }
+            if ($this->taggable) {
+               $tagkey = (string) $this->xml->attributes()->{'tag-key'};
+               $tagExclude = (string) $this->xml->attributes()->{'tag-exclude'};
+               if (!empty($tagkey)) {
+                  $return['tagkey'] = $tagkey;
+                  $return['tagExclude'] = empty($tagExclude) ? [] : \json_decode($tagExclude);
+               } else {
+                  $this->taggable = false;
+               }
+            }
             $itemicon = (string) $this->xml->attributes()->{'item-icon'};
             if (!empty($itemicon)) {
                $return['itemicon'] = \JText::_($itemicon);
@@ -266,6 +315,9 @@ class Field
             $slider = (string) $this->xml->attributes()->slider;
             $return['slider'] = strtolower($slider) == 'false' ? false : true;
 
+            $changeOnSlide = (string) $this->xml->attributes()->changeOnSlide;
+            $return['changeOnSlide'] = strtolower($changeOnSlide) == 'false' ? false : true;
+
             $min = (string) $this->xml->attributes()->min;
             $return['min'] = empty($min) ? 0 : ($min + 0);
 
@@ -276,7 +328,7 @@ class Field
             $return['step'] = empty($step) ? 1 : ($step + 0);
 
             $unit = (string) $this->xml->attributes()->unit;
-            $unit = empty($unit) ? '#' : $unit;
+            $return['unit'] = $unit;
 
             $units = (string) $this->xml->attributes()->units;
             if (empty($units)) {
@@ -295,13 +347,15 @@ class Field
                $value->unit = $unit;
                $this->value = $value;
             }
-            $return['units'] = empty($units) ? [$unit] : explode(',', $units);
+            $return['units'] = empty($units) ? (empty($unit) ? [] : [$unit]) : explode(',', $units);
             break;
          case 'color':
             $small = (string) $this->xml->attributes()->small;
             $alpha = (string) $this->xml->attributes()->alpha;
+            $rgba = (string) $this->xml->attributes()->rgba;
             $return['small'] = strtolower($small) == 'true' ? true : false;
             $return['alpha'] = strtolower($alpha) == 'false' ? false : true;
+            $return['rgba'] = strtolower($rgba) == 'false' ? false : true;
             break;
          case 'code-editor':
             $language = (string) $this->xml->attributes()->language;
@@ -316,12 +370,14 @@ class Field
             $multiple = (string) $this->xml->attributes()->multiple;
             $search = (string) $this->xml->attributes()->search;
             $return['multiple'] = strtolower($multiple) == 'true' ? true : false;
-            if ($return['multiple']) {
-               $this->value = empty($this->value) ? [] : Helper::jsonDecode($this->value);
-            }
-            $return['search'] = strtolower($search) == 'true' ? true : false;
+            $return['search'] = strtolower($search) == 'false' ? false : true;
             $return['options'] = $this->getOptions();
             $return['groups'] = $this->getOptionGroup();
+            break;
+         case 'tab':
+            $return['options'] = $this->getOptions();
+            $tab = (string) $this->xml->attributes()->tab;
+            $return['tab'] = $tab;
             break;
          case 'jposition':
             $return['type'] = 'list';
@@ -344,12 +400,28 @@ class Field
             $return['options'] = $this->getShapeDividers();
             $return['groups'] = [];
             break;
+         case 'particlespresets':
+            $return['type'] = 'list';
+            $return['multiple'] = false;
+            $return['search'] = true;
+            $return['options'] = $this->getParticlesPresets();
+            $return['groups'] = [];
+            break;
          case 'accesslevel':
             $return['type'] = 'list';
-            $return['multiple'] = true;
-            $this->value = empty($this->value) ? [] : Helper::jsonDecode($this->value);
-            $return['search'] = true;
+            $return['multiple'] = false;
+            $this->value = (empty($this->value) || !is_numeric($this->value)) ? '' : $this->value;
+            $return['search'] = false;
             $return['options'] = $this->getAccessLevels();
+            $return['groups'] = [];
+            break;
+         case 'ajax':
+            $return['type'] = 'ajax';
+            $multiple = (string) $this->xml->attributes()->multiple;
+            $return['multiple'] = strtolower($multiple) == 'true' ? true : false;
+            $this->value = (empty($this->value) || !is_numeric($this->value)) ? '' : $this->value;
+            $return['search'] = true;
+            $return['options'] = [];
             $return['groups'] = [];
             break;
          case 'category':
@@ -385,13 +457,6 @@ class Field
             $return['options'] = $this->getContentLanguageOptions();
             $return['groups'] = [];
             break;
-         case 'animations':
-            $return['type'] = 'list';
-            $return['multiple'] = false;
-            $return['search'] = true;
-            $return['options'] = [['label' => \JText::_('JDB_NONE'), 'value' => '']];
-            $return['groups'] = $this->getAnimations();
-            break;
          case 'typetag':
             $return['type'] = 'list';
             $return['multiple'] = false;
@@ -421,6 +486,14 @@ class Field
             $return['options'] = [];
             $return['groups'] = [];
             break;
+         case 'menuitems':
+            $return['type'] = 'list';
+            $return['menuitems'] = true;
+            $return['multiple'] = false;
+            $return['search'] = true;
+            $return['options'] = [];
+            $return['groups'] = [];
+            break;
          case 'chromestyle':
             $return['type'] = 'list';
             $return['multiple'] = false;
@@ -435,11 +508,22 @@ class Field
             $return['type'] = 'boxshadow';
             $return['textshadow'] = true;
             break;
+         case 'acymailing-list':
+            $return['type'] = 'list';
+            $return['multiple'] = true;
+            $return['search'] = true;
+            $return['options'] = $this->getACYLists();
+            $return['groups'] = [];
+            break;
       }
 
       if (!in_array($this->type, Form::$fields_without_value)) {
          if ($this->responsive) {
             $value = [];
+
+            if (is_string($this->value) && Helper::isValidJSON($this->value)) {
+               $this->value = \json_decode($this->value);
+            }
 
             if (isset($this->value->md) || isset($this->value->sm) || isset($this->value->xs)) {
                foreach (Helper::$devices as $deviceKey => $device) {
@@ -463,7 +547,15 @@ class Field
          } else {
             $return['value'] = $this->value;
          }
+
          // $return['default'] = $this->value;
+      }
+      $return['invisible'] = $this->invisible;
+      if ($this->showInfo) {
+         $return['showInfo'] = true;
+      }
+      if ($this->taggable) {
+         $return['taggable'] = true;
       }
       return $return;
    }
@@ -559,7 +651,7 @@ class Field
       $options = [];
       $options[] = ['label' => \JText::_('JDB_NONE'), 'value' => ''];
 
-      $path = JPATH_SITE . '/media/jdbuilder/data/shape-dividers';
+      $path = JDBPATH_MEDIA . '/data/shape-dividers';
       $dividers = glob($path . "/*.svg");
       foreach ($dividers as $divider) {
          $name = basename($divider);
@@ -569,6 +661,29 @@ class Field
          $item['label'] = \JText::_($label);
          $item['value'] = $value;
          $options[] = $item;
+      }
+
+      return $options;
+   }
+
+   public static function getParticlesPresets()
+   {
+      $options = [];
+
+      $path = JDBPATH_MEDIA . '/data/particles-presets';
+      $presets = glob($path . "/*.json");
+      foreach ($presets as $preset) {
+         $name = basename($preset);
+         $value = str_replace('.json', '', $name);
+         $label = 'JDB_PARTICLESPRESETS_' . str_replace('-', '_', strtoupper($value));
+         $item = [];
+         $item['label'] = \JText::_($label);
+         $item['value'] = $value;
+         if ($value == 'default') {
+            array_unshift($options, $item);
+         } else {
+            $options[] = $item;
+         }
       }
 
       return $options;
@@ -588,6 +703,7 @@ class Field
       // Get the options.
       $db->setQuery($query);
       $options = $db->loadObjectList();
+      $default = [['label' => \JText::_('JDB_DEFAULT'), 'value' => '']];
       return (array) $options;
    }
 
@@ -621,26 +737,6 @@ class Field
       }
       $group = $formgroup->get();
       return $group['fields'];
-   }
-
-   public function getAnimations()
-   {
-      $allAnimations = Constants::ANIMATIONS;
-      $options = [];
-      foreach ($allAnimations as $animationGroup => $animations) {
-         $group = [];
-         $group['label'] = \JText::_($animationGroup);
-         $group['options'] = [];
-         foreach ($animations as $value => $animation) {
-            $item = [];
-            $item['label'] = \JText::_($animation);
-            $item['value'] = $value;
-            $group['options'][] = $item;
-         }
-         $options[] = $group;
-      }
-
-      return $options;
    }
 
    public function getHoverAnimations()
@@ -912,10 +1008,9 @@ class Field
 
       $templates = array($this->getSystemTemplate());
       $templates = array_merge($templates, $this->getTemplates());
-      $path = JPATH_SITE;
 
       foreach ($templates as $template) {
-         $modulesFilePath = $path . '/templates/' . $template->element . '/html/modules.php';
+         $modulesFilePath = JPATH_SITE . '/templates/' . $template->element . '/html/modules.php';
          if (file_exists($modulesFilePath)) {
             $modulesFileData = file_get_contents($modulesFilePath);
 
@@ -965,8 +1060,29 @@ class Field
    {
       $options = [['label' => \JText::_('JDB_DEFAULT'), 'value' => '']];
       foreach (['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'small'] as $tag) {
-         $options[] = ['label' => ucfirst($tag), 'value' => $tag];
+         $options[] = ['label' => \JText::_('JDB_' . ucfirst($tag)), 'value' => $tag];
       }
       return $options;
+   }
+
+   public function getACYLists()
+   {
+      $version = Helper::getACYVersion();
+      if ($version === null)  return [];
+
+      $db = \JFactory::getDbo();
+      $query = $db->getQuery(true);
+      if ($version < 6) {
+         $query->select('name as label, listid as value')
+            ->from('#__acymailing_list')
+            ->where('published = 1');
+      } else {
+         $query->select('name as label, id as value')
+            ->from('#__acym_list')
+            ->where('active = 1');
+      }
+      $db->setQuery($query);
+
+      return $db->loadObjectList();
    }
 }

@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 10197 2019-11-18 10:27:38Z Milbo $
+ * @version $Id: view.html.php 10297 2020-04-07 22:19:33Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -98,6 +98,8 @@ class VirtuemartViewCategory extends VmView {
 		ShopFunctionsF::setLastVisitedItemId($itemId);
 		$this->Itemid = $itemId;
 
+		$this->productModel = VmModel::getModel('product');
+		$this->keyword = $this->productModel->keyword;
 
 		$this->virtuemart_manufacturer_id = vRequest::getInt('virtuemart_manufacturer_id', -1 );
 		if($this->virtuemart_manufacturer_id ===-1 and !empty($menu->query['virtuemart_manufacturer_id'])){
@@ -109,7 +111,7 @@ class VirtuemartViewCategory extends VmView {
 		if($this->categoryId === -1 and !empty($menu->query['virtuemart_category_id'])){
 			$this->categoryId = $menu->query['virtuemart_category_id'];
 			vRequest::setVar('virtuemart_category_id',$this->categoryId);
-		} else if ( $this->categoryId === -1 and $this->virtuemart_manufacturer_id === -1){
+		} else if ( $this->categoryId === -1 and $this->virtuemart_manufacturer_id === -1 and empty($this->keyword)){
 
 			$this->categoryId = ShopFunctionsF::getLastVisitedCategoryId();
 		}
@@ -133,8 +135,7 @@ class VirtuemartViewCategory extends VmView {
 
 		$prefix = '';
 
-		$this->productModel = VmModel::getModel('product');
-		$this->keyword = $this->productModel->keyword;
+
 
 		if(empty($this->keyword)) $this->keyword = false;
 
@@ -179,10 +180,10 @@ class VirtuemartViewCategory extends VmView {
 		$this->assignRef('category', $category);
 
 		foreach($paramNames as $k => $v){
-			if(!isset($category->$k) or $category->$k==''){
-				$this->$k = $menu->params->get($prefix.$k,$v);
-			} else if(isset($category->$k)){
-				$this->$k = $category->$k;
+			if(!isset($category->{$k}) or $category->{$k}==''){
+				$this->{$k} = $menu->params->get($prefix.$k,$v);
+			} else if(isset($category->{$k})){
+				$this->{$k} = $category->{$k};
 			}
 		}
 
@@ -191,7 +192,7 @@ class VirtuemartViewCategory extends VmView {
 		$this->perRow = $this->products_per_row = empty($category->products_per_row)? $menu->params->get($prefix.'products_per_row',$paramNames['products_per_row']):$category->products_per_row;
 
 		$vendorId = $category->virtuemart_vendor_id;
-
+		if(empty($vendorId)) $vendorId = 1; //If we are in the root category, the id is empty
 
 		//No redirect here, for category id = 0 means show ALL categories! note by Max Milbers
 		if ((!empty($this->categoryId) and $this->categoryId!==-1 ) and (empty($category->slug) or !$category->published)) {
@@ -227,13 +228,10 @@ class VirtuemartViewCategory extends VmView {
 
 
 		if(!empty($this->keyword) or $this->showsearch){
-			vmSetStartTime('getSearchCustom');
-			//$customfields = vRequest::getString('customfields');
+			//vmSetStartTime('getSearchCustom');
 
-
-			vmTime('getSearchCustom after setUserState','getSearchCustom');
 			$this->getSearchCustom();
-			vmTime('getSearchCustom End','getSearchCustom');
+			//vmTime('getSearchCustom End','getSearchCustom');
 			$this->searchAllCats = $app->getUserStateFromRequest('com_virtuemart.customfields.searchAllCats','searchAllCats',false);
 			//$app->setUserState('com_virtuemart.customfields.searchAllCats',$f);
 		}
@@ -387,7 +385,7 @@ class VirtuemartViewCategory extends VmView {
 		}
 
 
-		shopFunctionsF::setVmTemplate($this,$category->category_template,0,$category->category_layout);
+		VmTemplate::setVmTemplate($this,$category->category_template,0,$category->category_layout);
 
 
 		$customtitle = '';

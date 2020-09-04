@@ -18,6 +18,8 @@ if(!empty($items[0]->address)) $location[] = $items[0]->address;
 if(!empty($items[0]->city_name)) $location[] = $items[0]->city_name;
 if(!empty($items[0]->post_code)) $location[] = $items[0]->post_code;
 $location = implode(', ', $location);
+
+if(!empty($items[0]->online_event)) $location = JText::_('COM_DJEVENTS_ONLINE_EVENT');
 ?>
 
 <div class="djev_map_items">

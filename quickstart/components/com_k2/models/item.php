@@ -3,7 +3,7 @@
  * @version    2.10.x
  * @package    K2
  * @author     JoomlaWorks https://www.joomlaworks.net
- * @copyright  Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.
+ * @copyright  Copyright (c) 2006 - 2020 JoomlaWorks Ltd. All rights reserved.
  * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
  */
 
@@ -192,25 +192,21 @@ class K2ModelItem extends K2Model
         $item->image_caption = htmlspecialchars($item->image_caption, ENT_QUOTES);
 
         // Author
-        $metaAuthor = K2_JVERSION != '15' && $app->getCfg('MetaAuthor');
-        if ($metaAuthor || ($view == 'item' && ($item->params->get('itemAuthorBlock') || $item->params->get('itemAuthor'))) ||  ($view == 'itemlist' && ($task == '' || $task == 'category') && ($item->params->get('catItemAuthorBlock') || $item->params->get('catItemAuthor'))) || ($view == 'itemlist' && $task == 'user') || ($view == 'relatedByTag')) {
-            if (!empty($item->created_by_alias)) {
-                $item->author = new stdClass;
-                $item->author->name = $item->created_by_alias;
-                $item->author->avatar = K2HelperUtilities::getAvatar('alias');
-                $item->author->link = JURI::root();
-            } else {
-                $author = JFactory::getUser($item->created_by);
-                $item->author = $author;
-                $item->author->link = JRoute::_(K2HelperRoute::getUserRoute($item->created_by));
-                $item->author->profile = $this->getUserProfile($item->created_by);
-                $item->author->avatar = K2HelperUtilities::getAvatar($author->id, $author->email, $params->get('userImageWidth'));
-            }
-
-            if (!isset($item->author->profile) || is_null($item->author->profile)) {
-                $item->author->profile = new JObject;
-                $item->author->profile->gender = null;
-            }
+        if (!empty($item->created_by_alias)) {
+            $item->author = new stdClass;
+            $item->author->name = $item->created_by_alias;
+            $item->author->link = JURI::root();
+            $item->author->avatar = K2HelperUtilities::getAvatar('alias');
+        } else {
+            $author = JFactory::getUser($item->created_by);
+            $item->author = $author;
+            $item->author->link = JRoute::_(K2HelperRoute::getUserRoute($item->created_by));
+            $item->author->avatar = K2HelperUtilities::getAvatar($author->id, $author->email, $params->get('userImageWidth'));
+            $item->author->profile = $this->getUserProfile($item->created_by);
+        }
+        if (empty($item->author->profile)) {
+            $item->author->profile = new JObject;
+            $item->author->profile->gender = null;
         }
 
         // Num of comments
@@ -1268,7 +1264,7 @@ class K2ModelItem extends K2Model
                         }
                         $value = '';
                         foreach ($labels as $label) {
-                            $label = JString::trim($label);
+                            $label = trim($label);
                             if ($label != '') {
                                 $label = str_replace('-', ' ', $label);
                                 $value .= '<a href="'.JRoute::_('index.php?option=com_k2&view=itemlist&task=search&searchword=' . urlencode($label)) . '">'.$label.'</a>';
@@ -1331,8 +1327,8 @@ class K2ModelItem extends K2Model
                                 }
                                 break;
                         }
-                        $object->value[0] = JString::trim($object->value[0]);
-                        $object->value[1] = JString::trim($object->value[1]);
+                        $object->value[0] = trim($object->value[0]);
+                        $object->value[1] = trim($object->value[1]);
 
                         if ($object->value[1] && $object->value[1] != 'http://' && $object->value[1] != 'https://') {
                             if ($object->value[0] == '') {
@@ -1342,6 +1338,7 @@ class K2ModelItem extends K2Model
                             $rows[$i]->text = $object->value[0];
                             $rows[$i]->attributes = $attributes;
                             $value = '<a href="'.$object->value[1].'" '.$attributes.'>'.$object->value[0].'</a>';
+                            $rawValue = $object->value[1];
                         } else {
                             $value = false;
                         }
@@ -1370,8 +1367,8 @@ class K2ModelItem extends K2Model
                 }
             }
 
-            if (JString::trim($value) != '') {
-                if (JString::trim($rawValue) != '') {
+            if (trim($value) != '') {
+                if (trim($rawValue) != '') {
                     $rows[$i]->rawValue = $rawValue;
                 }
                 $rows[$i]->value = $value;

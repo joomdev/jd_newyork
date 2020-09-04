@@ -92,6 +92,46 @@ class TZ_Portfolio_PlusModelTemplate extends TZ_Portfolio_PlusModelAddon
         }
         return true;
     }
+    public function afterInstall($manifest)
+    {
+//        $result = parent::install();
+
+        $style_name = (string) $manifest -> name;
+        $style_path = COM_TZ_PORTFOLIO_PLUS_TEMPLATE_PATH.'/'.(string) $manifest -> name.'/config/default.json';
+        if(file_exists($style_path)){
+            $style  = $this -> getTemplateStyle($style_name);
+            if(!isset($style -> layout) || (isset($style -> layout) && !$style -> layout)){
+                $config = file_get_contents($style_path);
+                $config = json_decode($config);
+                if($config){
+                    if(isset($config -> params) && $config -> params){
+                        $defParams  = json_decode($config -> params);
+                        $defParams  = array_intersect_key((array) $defParams, (array) $style -> params);
+                        $itemParams = array_merge((array) $style -> params, $defParams);
+                        $style -> params = (object) $itemParams;
+                    }
+                    if(isset($config -> layout) && $config -> layout) {
+                        // Store layout
+                        $db     = $this -> getDbo();
+                        $query  = $db -> getQuery(true);
+                        $query -> update('#__tz_portfolio_plus_templates');
+                        $query -> set('layout='.$db -> quote($config->layout));
+                        $query -> set('params='.$db -> quote(json_encode($style -> params)));
+                        if(isset($style -> presets) && $style -> presets){
+                            if(is_object($style -> presets)){
+                                $query -> set('preset='.$db -> quote(json_encode($style -> presets)));
+                            }else{
+                                $query -> set('preset='.$db -> quote($style -> presets));
+                            }
+                        }
+                        $query -> where('id='.$style -> id);
+                        $db -> setQuery($query);
+                        $db -> execute();
+                    }
+                }
+            }
+        }
+    }
 
     public function getTemplateStyle($template){
         $db     = $this -> getDbo();

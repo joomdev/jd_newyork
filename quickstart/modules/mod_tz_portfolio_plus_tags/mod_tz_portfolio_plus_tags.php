@@ -40,6 +40,10 @@ if($params -> get('enable_bootstrap', 0)  && $params -> get('enable_bootstrap_js
 }
 
 $list               = modTzPortfolioTagsHelper::getList($params);
+$articleCount       = modTzPortfolioTagsHelper::getArticleTotal();
+$menuActive         = $params -> get('menu_active', 'auto');
+$tagAllLink         = JRoute::_('index.php?option=com_tz_portfolio_plus&view=portfolio'
+    .(($menuActive != 'auto')?'&Itemid='.$menuActive:''));
 $moduleclass_sfx    = htmlspecialchars($params->get('moduleclass_sfx'));
 
 require TZ_Portfolio_PlusModuleHelper::getTZLayoutPath($module, $params->get('layout', 'default'));

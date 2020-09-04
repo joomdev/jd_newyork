@@ -21,7 +21,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 //JHtml::_('dropdown.init');
-//JHtml::_('behavior.tooltip');
+//JHtml::_('bootstrap.tooltip');
 //
 //if(!COM_TZ_PORTFOLIO_PLUS_JVERSION_4_COMPARE) {
 //    JHtml::_('formbehavior.chosen', 'select');

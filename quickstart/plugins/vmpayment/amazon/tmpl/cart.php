@@ -19,7 +19,7 @@
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
 
-JHtml::_('behavior.formvalidation');
+JHtml::_('behavior.formvalidator');
 
 ?>
 	<div id="amazonShipmentNotFoundDiv">

@@ -3,7 +3,7 @@
  * @version    2.10.x
  * @package    K2
  * @author     JoomlaWorks https://www.joomlaworks.net
- * @copyright  Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.
+ * @copyright  Copyright (c) 2006 - 2020 JoomlaWorks Ltd. All rights reserved.
  * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
  */
 
@@ -430,7 +430,7 @@ class K2ModelItem extends K2Model
                     $attachmentToSave->itemID = $row->id;
                     $attachmentToSave->filename = $filename;
                     $attachmentToSave->title = (empty($attachment['title'])) ? $filename : $attachment['title'];
-                    $attachmentToSave->titleAttribute = (empty($attachment['title_attibute'])) ? $filename : $attachment['title_attibute'];
+                    $attachmentToSave->titleAttribute = (empty($attachment['title_attribute'])) ? $filename : $attachment['title_attribute'];
                     $attachmentToSave->store();
                 } else {
                     $handle = new Upload($attFiles['tmp_name'][$key]['upload']);
@@ -448,7 +448,7 @@ class K2ModelItem extends K2Model
                         $attachmentToSave->itemID = $row->id;
                         $attachmentToSave->filename = $dstName;
                         $attachmentToSave->title = (empty($attachment['title'])) ? $filename : $attachment['title'];
-                        $attachmentToSave->titleAttribute = (empty($attachment['title_attibute'])) ? $filename : $attachment['title_attibute'];
+                        $attachmentToSave->titleAttribute = (empty($attachment['title_attribute'])) ? $filename : $attachment['title_attribute'];
                         $attachmentToSave->store();
                     } else {
                         $app->enqueueMessage($handle->error, 'error');
@@ -650,15 +650,20 @@ class K2ModelItem extends K2Model
         }
 
         // Tags
+        if ($params->get('taggingSystem') === '0' || $params->get('taggingSystem') === '1') {
+            // B/C - Convert old options
+            $whichTaggingSystem = ($params->get('taggingSystem')) ? 'free' : 'selection';
+            $params->set('taggingSystem', $whichTaggingSystem);
+        }
         if ($user->gid < 24 && $params->get('lockTags')) {
-            $params->set('taggingSystem', 0);
+            $params->set('taggingSystem', 'selection');
         }
         $db = JFactory::getDbo();
         $query = "DELETE FROM #__k2_tags_xref WHERE itemID={intval($row->id)}";
         $db->setQuery($query);
         $db->query();
 
-        if ($params->get('taggingSystem')) {
+        if ($params->get('taggingSystem') == 'free') {
             if ($user->gid < 24 && $params->get('lockTags')) {
                 JError::raiseError(403, JText::_('K2_ALERTNOTAUTH'));
             }
@@ -672,14 +677,14 @@ class K2ModelItem extends K2Model
                         $tagID = false;
                         $K2Tag = JTable::getInstance('K2Tag', 'Table');
                         $K2Tag->name = $tag;
-                        // Tag has been filtred and does not exist
+                        // Tag has been filtered and does not exist
                         if ($K2Tag->check()) {
                             $K2Tag->published = 1;
                             if ($K2Tag->store()) {
                                 $tagID = $K2Tag->id;
                             }
                         }
-                        // Tag has been filtred and exists so try to find it's id
+                        // Tag has been filtered and it exists so try to find its ID
                         elseif ($K2Tag->name) {
                             $query = "SELECT id FROM #__k2_tags WHERE name=".$db->Quote($K2Tag->name);
                             $db->setQuery($query);

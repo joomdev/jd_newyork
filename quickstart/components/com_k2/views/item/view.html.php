@@ -3,7 +3,7 @@
  * @version    2.10.x
  * @package    K2
  * @author     JoomlaWorks https://www.joomlaworks.net
- * @copyright  Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.
+ * @copyright  Copyright (c) 2006 - 2020 JoomlaWorks Ltd. All rights reserved.
  * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
  */
 
@@ -23,6 +23,8 @@ class K2ViewItem extends K2View
         $limitstart = JRequest::getInt('limitstart', 0);
         $view = JRequest::getWord('view');
         $task = JRequest::getWord('task');
+
+        $config = JFactory::getConfig();
 
         $db = JFactory::getDbo();
         $jnow = JFactory::getDate();
@@ -435,12 +437,11 @@ class K2ViewItem extends K2View
 
             // Site
             $response->site = new stdClass();
+
             $uri = JURI::getInstance();
+
             $response->site->url = $uri->toString(array('scheme', 'host', 'port'));
-
-            $config = JFactory::getConfig();
-            $response->site->name = K2_JVERSION == '30' ? $config->get('sitename') : $config->getValue('config.sitename');
-
+            $response->site->name = (K2_JVERSION == '30') ? $config->get('sitename') : $config->getValue('config.sitename');
             $response->item = $row;
 
             $json = json_encode($response);
@@ -456,6 +457,30 @@ class K2ViewItem extends K2View
         }
         // --- JSON Output [finish] ---
 
+        // --- Insert additional HTTP headers [start] ---
+        JResponse::allowCache(true);
+
+        $itemCreatedOrModifiedDate = ((int) $item->modified) ? $item->modified : $item->created;
+        $itemCreatedOrModifiedDate = strftime("%a, %d %b %Y %H:%M:%S GMT", strtotime($itemCreatedOrModifiedDate));
+
+        // Last-Modified HTTP header
+        JResponse::setHeader('Last-Modified', $itemCreatedOrModifiedDate);
+
+        // Etag HTTP header
+        JResponse::setHeader('ETag', md5($item->alias.'_'.$itemCreatedOrModifiedDate));
+
+        // Append as custom script tag to bypass Joomla cache shortcomings
+        if (K2_JVERSION == '15') {
+            $caching = $config->getValue('config.caching');
+        } else {
+            $caching = $config->get('caching');
+        }
+        if ($caching) {
+            $document->addScriptDeclaration('{"Last-Modified": "'.$itemCreatedOrModifiedDate.'", "ETag": "'.md5($item->alias.'_'.$itemCreatedOrModifiedDate).'"}', 'application/x-k2-headers');
+        }
+
+        // --- Insert additional HTTP headers [finish] ---
+
         // Head Stuff
         if (!in_array($document->getType(), ['json', 'raw'])) {
             $menuItemMatch = $this->menuItemMatchesK2Entity('item', null, $item->id);
@@ -465,7 +490,8 @@ class K2ViewItem extends K2View
 
             // Set <title>
             if ($menuItemMatch) {
-                if (empty($params->get('page_title'))) {
+                $page_title = $params->get('page_title');
+                if (empty($page_title)) {
                     $params->set('page_title', $item->rawTitle);
                 }
             } else {
@@ -630,7 +656,7 @@ class K2ViewItem extends K2View
                 $allowedTags = '<script>';
 
                 // Prepare content snippets
-                $itemSD_SiteName = (version_compare(JVERSION, '2.5', 'ge')) ? JFactory::getConfig()->get('sitename') : JFactory::getConfig()->getValue('config.sitename');
+                $itemSD_SiteName = (version_compare(JVERSION, '2.5', 'ge')) ? $config->get('sitename') : $config->getValue('config.sitename');
                 $itemSD_SiteName = ($params->get('k2SeoGsdOrgName')) ? $params->get('k2SeoGsdOrgName') : $itemSD_SiteName;
                 $itemSD_SiteLogo = JURI::root().trim($params->get('k2SeoGsdOrgLogo'));
 
@@ -758,10 +784,12 @@ class K2ViewItem extends K2View
         $document = JFactory::getDocument();
         $params = K2HelperUtilities::getParams('com_k2');
         $canonicalURL = $params->get('canonicalURL', 'relative');
-        if ($canonicalURL == 'absolute') {
-            $url = substr(str_replace(JUri::root(true), '', JUri::root(false)), 0, -1).$url;
+        if ($canonicalURL) {
+            if ($canonicalURL == 'absolute') {
+                $url = substr(str_replace(JUri::root(true), '', JUri::root(false)), 0, -1).$url;
+            }
+            $document->addHeadLink($url, 'canonical', 'rel');
         }
-        $document->addHeadLink($url, 'canonical', 'rel');
     }
 
     private function menuItemMatchesK2Entity($view, $task, $identifier)

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension version="2.5" type="plugin" group="vmpayment" method="upgrade">
     <name>VM Payment - eway</name>
-    <creationDate>November 22 2019</creationDate>
+    <creationDate>June 18 2020</creationDate>
     <author>The VirtueMart Development Team</author>
     <authorUrl>https://virtuemart.net</authorUrl>
     <copyright>Copyright (C) 2018 - 2019 Virtuemart Team. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-    <!--version>3.6.10</version-->
-    <version>3.6.10</version>
+    <!--version>3.8.4</version-->
+    <version>3.8.4</version>
     <description><![CDATA[<a href="https://www.eway.com.au/" target="_blank">eway</a> ]]>
     </description>
 

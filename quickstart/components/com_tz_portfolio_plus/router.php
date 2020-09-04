@@ -991,13 +991,13 @@ class TZ_Portfolio_PlusRouter extends RouterBase
         // we test it first to see if it is a category.  If the id and alias match a category
         // then we assume it is a category.  If they don't we assume it is an article
         if ($count == 1) {
-            if (strlen($segments[0]) == 1) {
-                $vars['view'] = $item->query["view"];
-                if (isset($item->query['id'])) {
-                    $vars['id'] = $item->query["id"];
-                }
-                return $vars;
-            }
+//            if (strlen($segments[0]) == 1) {
+//                $vars['view'] = $item->query["view"];
+//                if (isset($item->query['id'])) {
+//                    $vars['id'] = $item->query["id"];
+//                }
+//                return $vars;
+//            }
 
             if($segments[0] == 'search'){
                 $vars['view']   = 'search';

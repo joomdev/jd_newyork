@@ -142,8 +142,8 @@ class com_virtuemart_allinoneInstallerScript {
 		$this->installPlugin ('VM Payment - 2Checkout', 'plugin', 'tco', 'vmpayment');
 		$this->installPlugin ('VM Payment - eWay', 'plugin', 'eway', 'vmpayment');
 
-		//$this->installPlugin ('VM Payment - Pay with Amazon', 'plugin', 'amazon', 'vmpayment');
-		//$this->installPlugin ('System - Pay with Amazon', 'plugin', 'amazon', 'system');
+		$this->installPlugin ('VM Payment - Pay with Amazon', 'plugin', 'amazon', 'vmpayment');
+		$this->installPlugin ('System - Pay with Amazon', 'plugin', 'amazon', 'system');
 
 		$this->installPlugin ('VM Payment - Realex HPP & API', 'plugin', 'realex_hpp_api', 'vmpayment');
 		$this->installPlugin ('VM UserField - Realex HPP & API', 'plugin', 'realex_hpp_api', 'vmuserfield');

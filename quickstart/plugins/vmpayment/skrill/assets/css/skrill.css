@@ -1,0 +1,194 @@
+.skrill-header-group {
+    margin-top: 10px;
+    display: flex;
+}
+
+.skrill-content-wrapper {
+    padding-bottom: 40px;
+    display: flex;
+}
+
+.skrill-header-text {
+    font-family: "Ubuntu Condensed",Helvetica,Arial,sans-serif;
+    font-size: 21px;
+    float: right;
+}
+
+.skrill-header-logo {
+    float: left;
+    width: 25%;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 25px;
+    text-align: center;
+}
+
+img.skrill-logo {
+    height: 50px !important;
+}
+
+.skrill-content {
+    padding-top: 25px;
+}
+
+.skrill-content-img {
+    width: 25%;
+    text-align: center;
+    float: left;
+}
+
+.skrill-about-image {
+    width: 100%;
+    max-width: 400px;
+}
+
+.skrill-content-text {
+    float: right;
+    width: 50%;
+    min-height: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+    position: relative;
+    color: #555;
+    font: 400 12px/1.42857 Open Sans,Helvetica,Arial,sans-serif;
+}
+
+.clear {
+    clear: both;
+}
+
+.skrill-title {
+    font-family: "Ubuntu Condensed",Helvetica,Arial,sans-serif;
+    font-size: 21px;
+    font-weight: bold;
+    color: #811e68;
+}
+
+.skrill-content-wrapper p {
+    padding: 15px 0 0;
+    font-size: 13px !important;
+    line-height: 24px;
+}
+
+.skrill-btn-signup {
+    width: auto;
+    height: 40px;
+    margin-top: 20px;
+    padding: 12px 40px 12px 40px;
+    background-color: #811e68;
+    font-size: 16px !important;
+    font-weight: bold;
+    color: #fff !important;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.skrill-btn-signup:hover {
+    background-color: #53bcc2;
+    color: #fff !important;
+    text-decoration: none !important;
+    transition: all 0.3s;
+}
+
+.skrill-signup {
+    color: #00aff0;
+    text-decoration: none;
+}
+
+.skrill-signup:hover {
+    color: #811e68 !important;
+    text-decoration: none !important;
+}
+
+.skrill-header-text, .skrill-content-text {
+    margin-left: 8%;
+}
+
+.step-wrapper {
+    width: 33.333%;
+}
+
+.step-title {
+    font-family: "Ubuntu Condensed",Helvetica,Arial,sans-serif;
+    font-size: 21px;
+    font-weight: bold;
+    color: #811e68;
+    text-align: center;
+    cursor: pointer;
+    padding-top: 40px;
+    height: 100px;
+}
+
+.step-title a:hover {
+    text-decoration: none;
+}
+
+.skrill-firt-uppercase {
+    display: block;
+    text-transform: uppercase;
+}
+
+.skrill-circle {
+    width: 130px;
+    height: 130px;
+    margin: 0 auto;
+    margin-top: 5px;
+    font-size: 61px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.skrill-content-bottom {
+    border-top: 1px solid #eee;
+}
+
+.skrill-content-wrapper p {
+    padding: 0px;
+    font-size: 13px !important;
+    line-height: 24px;
+    margin: 0px;
+}
+
+.step-text {
+    display: none;
+    text-align: center;
+    padding-top: 40px !important;
+    opacity: 0;
+    -webkit-transition: opacity 5s ease-in;
+    -moz-transition: opacity 5s ease-in;
+    -o-transition: opacity 5s ease-in;
+    -ms-transition: opacity 5s ease-in;
+    transition: opacity 5s ease-in;
+}
+
+.step-title:hover ~ .step-text,
+.skrill-circle:hover ~ .step-text  {
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+    opacity: 0.9;
+}
+
+.skrill-countries {
+    float: left;
+    clear: both;
+    margin-left: 255px;
+    width: 50%;
+}
+
+.control-field {
+    margin-left: 10px;
+}
+
+.skrill-label {
+    cursor: default;
+}
+
+.skrill-footer-btn {
+    margin-top: 50px;
+    margin-left: 75px;
+}
+
+.skrill-title-container {
+    margin-bottom: 20px;
+}

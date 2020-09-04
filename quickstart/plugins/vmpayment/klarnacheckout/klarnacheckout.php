@@ -7,7 +7,7 @@ defined('_JEXEC') or die('Restricted access');
  * @version $Id: klarnacheckout.php 8886 2015-06-24 16:31:58Z alatak $
  * @package VirtueMart
  * @subpackage payment
- * @copyright Copyright (C) 2004-Copyright (C) 2004 - 2019 Virtuemart Team. All rights reserved.   - All rights reserved.
+ * @copyright Copyright (C) 2004-Copyright (C) 2004 - 2020 Virtuemart Team. All rights reserved.   - All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * VirtueMart is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -37,7 +37,7 @@ if (!class_exists('Klarna')) {
 
 
 class plgVmPaymentKlarnaCheckout extends vmPSPlugin {
-	const RELEASE = 'VM 3.6.10';
+	const RELEASE = 'VM 3.8.4';
 	protected $currency_code_3;
 	protected $currency_id;
 	protected $country_code_2;
@@ -1544,9 +1544,7 @@ jQuery().ready(function($) {
 	 *
 	 */
 	function plgVmOnCheckAutomaticSelectedPayment(VirtueMartCart $cart, array $cart_prices = array(), &$paymentCounter) {
-
 		return $this->onCheckAutomaticSelected($cart, $cart_prices, $paymentCounter);
-
 	}
 
 	/**
@@ -1558,7 +1556,6 @@ jQuery().ready(function($) {
 	 * @author Valerie Isaksen
 	 */
 	public function plgVmOnShowOrderFEPayment($virtuemart_order_id, $virtuemart_paymentmethod_id, &$payment_name) {
-
 		$this->onShowOrderFE($virtuemart_order_id, $virtuemart_paymentmethod_id, $payment_name);
 	}
 

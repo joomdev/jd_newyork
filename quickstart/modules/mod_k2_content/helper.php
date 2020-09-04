@@ -3,7 +3,7 @@
  * @version    2.10.x
  * @package    K2
  * @author     JoomlaWorks https://www.joomlaworks.net
- * @copyright  Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.
+ * @copyright  Copyright (c) 2006 - 2020 JoomlaWorks Ltd. All rights reserved.
  * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
  */
 
@@ -214,7 +214,12 @@ class modK2ContentHelper
 
                 case 'hits':
                     if ($params->get('popularityRange')) {
-                        $query .= " AND i.created > DATE_SUB('{$now}', INTERVAL ".$params->get('popularityRange')." DAY)";
+                        if ($params->get('popularityRange') == 'today') {
+                            $date = $jnow->toFormat('%Y-%m-%d').' 00:00:00';
+                            $query .= " AND i.publish_up > '{$date}'";
+                        } else {
+                            $query .= " AND i.created > DATE_SUB('{$now}', INTERVAL ".$params->get('popularityRange')." DAY)";
+                        }
                     }
                     $orderby = 'i.hits DESC';
                     break;

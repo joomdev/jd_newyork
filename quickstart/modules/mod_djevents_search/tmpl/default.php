@@ -19,13 +19,13 @@ $input = JFactory::getApplication()->input;
 		
 		<?php if($params->get('show_input', 1)) { ?>
 			<div class="djev_search_el djev_search_field">
-				<input type="text" name="search" class="input-large form-control" value="<?php echo $input->getString('search'); ?>" placeholder="<?php echo JText::_('COM_DJEVENTS_SEARCH_PLACEHOLDER') ?>" />
+				<input type="text" name="search" class="input-medium form-control" value="<?php echo $input->getString('search'); ?>" placeholder="<?php echo JText::_('COM_DJEVENTS_SEARCH_PLACEHOLDER') ?>" />
 			</div>
 		<?php } ?>
 		
 		<?php if($params->get('show_category', 1)) { ?>
 			<div class="djev_search_el djev_search_category">
-				<select name="cid" class="input-large form-control" onchange="this.form.submit()">
+				<select name="cid" class="input-medium form-control" onchange="this.form.submit()">
 					<option value=""><?php echo JText::_('COM_DJEVENTS_SELECT_CATEGORY');?></option>
 					<?php 
 						echo JHtml::_('select.options', $options['categories'], 'value', 'text', $input->get('cid'), true);
@@ -36,8 +36,9 @@ $input = JFactory::getApplication()->input;
 		
 		<?php if($params->get('show_city', 1)) { ?>
 			<div class="djev_search_el djev_search_city">
-				<select name="city" class="input-large form-control" onchange="this.form.submit()">
+				<select name="city" class="input-medium form-control" onchange="this.form.submit()">
 					<option value=""><?php echo JText::_('COM_DJEVENTS_SELECT_CITY');?></option>
+					<option value="-1"<?php echo $input->get('city') == '-1' ? ' selected' : ''; ?>><?php echo JText::_('MOD_DJEVENTS_SEARCH_ONLINE_EVENT');?></option>
 					<?php 
 						echo JHtml::_('select.options', $options['cities'], 'value', 'text', $input->get('city'), true);
 					?>

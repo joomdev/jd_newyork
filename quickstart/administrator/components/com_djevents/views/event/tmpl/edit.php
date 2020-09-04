@@ -23,7 +23,7 @@ JHtml::_('formbehavior.chosen', 'select');
 			Joomla.submitform(task, form);
 		} else if(document.formvalidator.isValid(form)) {
 			
-			if(!form.jform_city_id.value && !form.jform_city_id_new.value) {
+			if(!form.jform_city_id.value && !form.jform_city_id_new.value && jQuery('[name="jform[online_event]"]:checked').val() == '0') {
 				alert('<?php echo $this->escape(JText::_('COM_DJEVENTS_CITY_VALIDATION_FAILD'));?>');
 				return false;
 			}
@@ -90,6 +90,22 @@ JHtml::_('formbehavior.chosen', 'select');
 			<legend><?php echo JText::_('COM_DJEVENTS_LOCATION') ?></legend>
 				<div class="<?php echo $this->classes->row ?>">
 					<div class="<?php echo $this->classes->col ?>6">
+					<?php echo $this->form->getField('online_event')->renderField(); ?>
+					<script>
+						jQuery(function($){
+							handleMapVisibility();
+							$('[name="jform[online_event]"]').change(function(){
+								handleMapVisibility();
+							});
+							function handleMapVisibility(){
+								if($('[name="jform[online_event]"]:checked').val() == '1'){
+									$('#gmap').parent().hide('fast');
+								}else{
+									$('#gmap').parent().show('fast');
+								}
+							}
+						});
+					</script>
 					<?php echo $this->form->getField('location')->renderField(); ?>
 					<?php echo $this->form->getField('address')->renderField(); ?>
 					<?php echo $this->form->getField('city_id')->renderField(); ?>

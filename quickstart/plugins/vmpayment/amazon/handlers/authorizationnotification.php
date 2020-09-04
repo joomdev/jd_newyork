@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Direct Access to ' . basename(__FILE__) . 'is not allo
  * @version $Id: authorizationnotification.php 8685 2015-02-05 18:40:30Z alatak $
  * @author Valérie Isaksen
  * @link https://virtuemart.net
- * @copyright Copyright (c) 2013 - April 05 2018 VirtueMart Team. All rights reserved.
+ * @copyright Copyright (c) 2004 - June 18 2020 VirtueMart Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  *
  */
@@ -63,32 +63,26 @@ class amazonHelperAuthorizationNotification extends amazonHelper {
 
 		$order_history['customer_notified'] = 0;
 		if ($amazonState != $previousAmazonState) {
-
 			if ($amazonState == 'Open') {
 				$order_history['order_status'] = $this->_currentMethod->status_authorization;
 				$order_history['comments'] = vmText::_('VMPAYMENT_AMAZON_COMMENT_STATUS_AUTHORIZATION_OPEN');
 			} elseif ($amazonState == 'Declined') {
 				$order_history['customer_notified'] = 1;
-				$this->clearAmazonOrderReferenceIdFromSession($this->_currentMethod->virtuemart_paymentmethod_id);
 				if ($reasonCode == 'InvalidPaymentMethod') {
 					/*if ($this->_currentMethod->soft_decline == 'soft_decline_enabled') {
 						$order_history['comments'] = $this->getSoftDeclinedComment();
 						$order_history['order_status'] = $this->_currentMethod->status_orderconfirmed;
 					} else {*/
-					//The ORO should get here Suspending state
-					$amazonState = 'Open';
 						$order_history['comments'] = vmText::sprintf('VMPAYMENT_AMAZON_COMMENT_STATUS_AUTHORIZATION_INVALIDPAYMENTMETHOD', $reasonCode);
-						$order_history['order_status'] = $this->_currentMethod->status_orderconfirmed;
-
+						$order_history['order_status'] = $this->_currentMethod->status_cancel;
 					//}
 				} elseif ($reasonCode == 'AmazonRejected') {
-					$amazonState = 'Closed';
 					$order_history['customer_notified'] = 1;
 					$order_history['order_status'] = $this->_currentMethod->status_cancel;
 					$order_history['comments'] = vmText::sprintf('VMPAYMENT_AMAZON_COMMENT_STATUS_AUTHORIZATION_DECLINED', $reasonCode);
 				} elseif ($reasonCode == 'TransactionTimedOut') {
 // TODO  retry the authorization again
-					$amazonState = 'Open';
+					//$amazonState = 'open';
 					$order_history['order_status'] = $this->_currentMethod->status_authorization;
 					$order_history['comments'] = vmText::sprintf('VMPAYMENT_AMAZON_COMMENT_STATUS_TRANSACTION_TIMEDOUT', $reasonCode);
 				}
@@ -110,29 +104,11 @@ class amazonHelperAuthorizationNotification extends amazonHelper {
 
 			}
 
-
 			$orderModel = VmModel::getModel('orders');
 			$orderModel->updateStatusForOneOrder($order['details']['BT']->virtuemart_order_id, $order_history, false);
 		}
 
 		return $amazonState;
-	}
-
-	public function clearAmazonOrderReferenceIdFromSession($paymId) {
-		$session = JFactory::getSession();
-		$sessionAmazon = $session->get('amazon', 0, 'vm');
-
-		if($sessionAmazon) {
-			$sessionAmazonData = json_decode($sessionAmazon, true);
-			if(isset($sessionAmazonData[$paymId])) {
-				unset($sessionAmazonData[$paymId]['_amazonOrderReferenceId']);
-				$session->set('amazon', json_encode($sessionAmazonData), 'vm');
-				//return $sessionAmazonData[$paymId]['_amazonOrderReferenceId'];
-			}
-		}
-
-		return NULL;
-
 	}
 
 	private function getSoftDeclinedComment() {
@@ -202,7 +178,6 @@ class amazonHelperAuthorizationNotification extends amazonHelper {
 	public function onNotificationNextOperation($order, $payments, $amazonState) {
 		$getAuthorizationDetailsState = array('Pending', 'Open', 'Closed');
 		$cancelPaymentState = array('Declined');
-		$amazonState = ucfirst(strtolower($amazonState));
 		if (in_array($amazonState, $getAuthorizationDetailsState)) {
 			return 'onNotificationGetAuthorizationDetails';
 		} elseif (in_array($amazonState, $cancelPaymentState)) {

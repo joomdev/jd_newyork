@@ -59,24 +59,27 @@ if($params -> get('enable_resize_image', 0)){
     ');
     }
 }
-$doc->addScriptDeclaration('
+
+if(!TZ_Portfolio_PlusFrontHelper::scriptExists('/\$\("#portfolio' . $module->id . '"\)\.tzPortfolioPlusIsotope/i')) {
+    $doc->addScriptDeclaration('
 jQuery(function($){
     $(document).ready(function(){
         $("#portfolio' . $module->id . '").tzPortfolioPlusIsotope({
             "mainElementSelector"       : "#TzContent' . $module->id . '",
             "containerElementSelector"  : "#portfolio' . $module->id . '",
-            "sortParentTag"             : "filter'.$module->id.'",
+            "sortParentTag"             : "filter' . $module->id . '",
             isotope_options             : {
-                "filterSelector"            : "#tz_options'.$module -> id.' .option-set"
+                "filterSelector"            : "#tz_options' . $module->id . ' .option-set"
             },
             "params"                    : {
-                "orderby_sec"           : "'.$params -> get('orderby_sec', 'rdate').'",
+                "orderby_sec"           : "' . $params->get('orderby_sec', 'rdate') . '",
                 "tz_column_width"       : ' . $params->get('width_element') . ',
                 "tz_show_filter"        : ' . $params->get('show_filter', 1) . ',
-                "tz_filter_type"        : "'.$params -> get('tz_filter_type', 'categories').'"
+                "tz_filter_type"        : "' . $params->get('tz_filter_type', 'categories') . '",
+                "enable_lazyload"        : "' . $params->get('enable_lazyload', 0) . '"
             },
             "afterColumnWidth" : function(newColCount,newColWidth){
-                '.($params -> get('enable_resize_image', 0)?'TzPortfolioPlusArticlesResizeImage($("#portfolio' . $module->id . ' > .element .tzpp_media"));':'').'
+                ' . ($params->get('enable_resize_image', 0) ? 'TzPortfolioPlusArticlesResizeImage($("#portfolio' . $module->id . ' > .element .tzpp_media"));' : '') . '
             }
         });
     });
@@ -90,6 +93,7 @@ jQuery(function($){
     });
 });
 ');
+}
 
 if ($list):
     ?>

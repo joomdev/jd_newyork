@@ -137,6 +137,15 @@ class modTZ_Portfolio_PlusPortfolioHelper
             case 'order':
                 $orderby = 'c.ordering ASC';
                 break;
+            case 'rorder':
+                $orderby = 'c.ordering DESC';
+                break;
+            case 'priority' :
+                $orderby = 'c.priority ASC';
+                break;
+            case 'rpriority' :
+                $orderby = 'c.priority DESC';
+                break;
         }
 
         if ($params->get('random_article', 0)) {

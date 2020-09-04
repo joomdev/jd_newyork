@@ -173,7 +173,8 @@ class plgVmPaymentStandard extends vmPSPlugin {
 			'order_pass' =>$order['details']['BT']->order_pass,
 			'payment_name' => $dbValues['payment_name'],
 			'displayTotalInPaymentCurrency' => $totalInPaymentCurrency['display'],
-			'orderlink' =>$orderlink
+			'orderlink' =>$orderlink,
+			'method' => $method
 		));
 
 		//We delete the old stuff
@@ -376,7 +377,6 @@ class plgVmPaymentStandard extends vmPSPlugin {
 	 *
 	 */
 	function plgVmOnCheckAutomaticSelectedPayment (VirtueMartCart $cart, array $cart_prices = array(), &$paymentCounter) {
-
 		return $this->onCheckAutomaticSelected ($cart, $cart_prices, $paymentCounter);
 	}
 
@@ -393,6 +393,7 @@ class plgVmPaymentStandard extends vmPSPlugin {
 
 		$this->onShowOrderFE ($virtuemart_order_id, $virtuemart_paymentmethod_id, $payment_name);
 	}
+
 	/**
 	 * @param $orderDetails
 	 * @param $data

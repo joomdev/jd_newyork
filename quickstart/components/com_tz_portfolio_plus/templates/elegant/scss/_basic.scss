@@ -80,6 +80,9 @@
       display: flex;
       text-align: center;
       justify-content: center;
+      flex-wrap: wrap;
+      -ms-flex-wrap: wrap;
+      -webkit-flex-wrap: wrap;
     }
   }
   .element {

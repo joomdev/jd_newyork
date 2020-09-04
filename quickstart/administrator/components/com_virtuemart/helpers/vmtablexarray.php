@@ -42,7 +42,7 @@ class VmTableXarray extends VmTable {
 
 	function setSecondaryKey($key,$keyForm=0){
 		$this->_skey 		= $key;
-		$this->$key			= array();
+		$this->{$key}			= array();
 		$this->_skeyForm	= empty($keyForm)? $key:$keyForm;
 
     }
@@ -56,7 +56,7 @@ class VmTableXarray extends VmTable {
 	* swap the ordering of a record in the Xref tables
 	* @param  $direction , 1/-1 The increment to reorder by
 	*/
-	function move($direction, $where='', $orderingkey=0) {
+/*	function move($direction, $where='', $orderingkey=0) {
 
     	if(empty($this->_skey) ) {
     		vmError( 'No secondary keys defined in VmTableXarray '.$this->_tbl );
@@ -92,7 +92,8 @@ class VmTableXarray extends VmTable {
 				vmError( get_class( $this ).':: move '. $err, get_class( $this ).':: move error' );
 			}
 		}
-	}
+	}*/
+
     /**
      * Records in this table are arrays. Therefore we need to overload the load() function.
      * TODO, this function is giving back the array, not the table, it is not working like the other table, so we should change that
@@ -119,7 +120,7 @@ class VmTableXarray extends VmTable {
 		$skey = $this->_skey;
 		$this->{$pkey} = $oid;
 
-		$hash = md5((int)$oid. $skey . $this->_tbl . $pkey . $orderby);
+		$hash = crc32((int)$oid. $skey . $this->_tbl . $pkey . $orderby);
 
 		if (!isset (self::$_cache['ar'][$hash])) {
 			$q = 'SELECT `'.$skey.'` FROM `'.$this->_tbl.'` WHERE `'.$pkey.'` = "'.(int)$oid.'" '.$orderby;
@@ -160,7 +161,7 @@ class VmTableXarray extends VmTable {
 		if($this->_orderable){
 			$orderingKey = $this->_orderingKey;
 			if(!empty($data[$orderingKey])){
-				$this->$orderingKey = $data[$this->_orderingKey];
+				$this->{$orderingKey} = $data[$this->_orderingKey];
 			}
 		}
 
@@ -196,7 +197,7 @@ class VmTableXarray extends VmTable {
         $oldArray = null;
         if($objList) {
             foreach($objList as $obj){
-                $oldArray[] = array($pkey=>$obj->$pkey, $skey=>$obj->$skey);
+                $oldArray[] = array($pkey=>$obj->{$pkey}, $skey=>$obj->{$skey});
             }
         }
 
@@ -217,12 +218,12 @@ class VmTableXarray extends VmTable {
 
                 // We start creating the row we will insert or update
                 $obj = new stdClass;
-                $obj->$pkey = $newValue[$pkey];
-                $obj->$skey = $newValue[$skey];
+                $obj->{$pkey} = $newValue[$pkey];
+                $obj->{$skey} = $newValue[$skey];
 
                 if($this->_autoOrdering){
                     $oKey = $this->_orderingKey;
-                    $obj->$oKey = $myOrdering++;
+                    $obj->{$oKey} = $myOrdering++;
                 }
 
                 // If the new row does not exist in the old rows, we will insert it
@@ -231,7 +232,7 @@ class VmTableXarray extends VmTable {
                 }
                 else {
                     // If the new row exists in the old rows, we will update it
-                    $obj->$tblkey = $objList[$result]->$tblkey;
+                    $obj->{$tblkey} = $objList[$result]->{$tblkey};
                     $returnCode = $db->updateObject($this->_tbl, $obj, $tblkey);
                 }
             }
@@ -256,7 +257,7 @@ class VmTableXarray extends VmTable {
                 // If no new row exists in the old rows, we will delete the old rows
                 if( $result === false ) {
                     // If the old row does not exist in the new rows, we will delete it
-                    $q  = 'DELETE FROM `'.$this->_tbl.'` WHERE `' . $tblkey.'` = "'. $objList[$i]->$tblkey .'" ';
+                    $q  = 'DELETE FROM `'.$this->_tbl.'` WHERE `' . $tblkey.'` = "'. $objList[$i]->{$tblkey} .'" ';
                     $db->setQuery($q);
                     if(!$db->execute()){
                         $returnCode = false;
@@ -266,7 +267,7 @@ class VmTableXarray extends VmTable {
              }
         }
 
- 	return $returnCode;
+ 	return $this->_svalue;
 
     }
 

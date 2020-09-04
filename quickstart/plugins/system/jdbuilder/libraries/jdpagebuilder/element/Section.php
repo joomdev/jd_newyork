@@ -3,7 +3,7 @@
 /**
  * @package    JD Builder
  * @author     Team Joomdev <info@joomdev.com>
- * @copyright  2019 www.joomdev.com
+ * @copyright  2020 www.joomdev.com
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Restricted access');
 class Section extends BaseElement
 {
 
-   protected $rows = [];
+   public $rows = [];
    protected $tag = 'section';
 
    public function __construct($object, $parent = null)
@@ -69,9 +69,6 @@ class Section extends BaseElement
       // Bottom Shape Divider
       $content[] = $this->getShapeDivider('bottom');
 
-      if ($this->livepreview) {
-         //$content[] = '<div onclick="editJDBElement(\'' . $this->id . '\')" class="jdb-settings"></div>';
-      }
       return implode("", $content);
    }
 
@@ -145,9 +142,9 @@ class Section extends BaseElement
 
    public function sectionLayoutOptions()
    {
-      $stretchSection = $this->params->get('stretchSection', true);
+      $stretchSection = $this->params->get('stretchSection', false);
       if ($stretchSection) {
-         $this->addAttribute('jdb-section');
+         $this->addAttribute('jdb-section', 'stretch:' . ($stretchSection ? 'true' : 'false'));
       }
 
       // content width

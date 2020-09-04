@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: cart.php 10200 2019-11-18 10:50:52Z Milbo $
+ * @version $Id: cart.php 10318 2020-05-07 10:28:09Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -92,7 +92,6 @@ class VirtueMartControllerCart extends JControllerLegacy {
 		} else {
 			//$cart->_inCheckOut = false;
 			$redirect = (isset($request['checkout']) or $task=='checkout' );
-
 			if( VmConfig::get('directCheckout',false) and !$redirect and !$cart->getInCheckOut() and !vRequest::getInt('dynamic',0) and !$cart->_dataValidated) {
 				$redirect = true;
 				vmdebug('directCheckout');
@@ -109,7 +108,11 @@ class VirtueMartControllerCart extends JControllerLegacy {
 		return $this;
 	}
 
-	public function updatecart($html=true,$force = null){
+	public function updateCartNoMethods($html=true,$force = null){
+		return $this->updatecart($html, $force, false);
+	}
+
+	public function updatecart($html=true,$force = null, $methods = true){
 
 		$cart = VirtueMartCart::getCart();
 		$cart->_fromCart = true;
@@ -163,8 +166,10 @@ class VirtueMartControllerCart extends JControllerLegacy {
 
 		if(!isset($force))$force = VmConfig::get('oncheckout_opc',true);
 
-		$cart->setShipmentMethod($force, !$html);
-		$cart->setPaymentMethod($force, !$html);
+		if($methods){
+			$cart->setShipmentMethod($force, !$html);
+			$cart->setPaymentMethod($force, !$html);
+		}
 
 		VmConfig::importVMPlugins('vmcustom');
 

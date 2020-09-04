@@ -3,7 +3,7 @@
  * @version    2.10.x
  * @package    K2
  * @author     JoomlaWorks https://www.joomlaworks.net
- * @copyright  Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.
+ * @copyright  Copyright (c) 2006 - 2020 JoomlaWorks Ltd. All rights reserved.
  * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
  */
 
@@ -53,7 +53,7 @@ defined('_JEXEC') or die;
                     <label><?php echo JText::_('K2_USER_IMAGE_AVATAR'); ?></label>
                 </div>
                 <div class="paramValue">
-                    <input type="file" name="image" />
+                    <input type="file" name="image" accept="image/*" />
                     <?php if ($this->row->image): ?>
                     <div class="k2ImagePreview">
                         <img class="k2AdminImage" src="<?php echo JURI::root().'media/k2/users/'.$this->row->image; ?>" alt="<?php echo $this->row->name; ?>" />

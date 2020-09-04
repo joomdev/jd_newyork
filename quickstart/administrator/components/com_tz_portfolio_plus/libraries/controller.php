@@ -109,7 +109,8 @@ class TZ_Portfolio_PlusControllerLegacy  extends JControllerLegacy{
                         if((TZ_Portfolio_PlusTemplate::getSassDirByStyle($template -> template)
                                 || (!TZ_Portfolio_PlusTemplate::getSassDirByStyle($template -> template) && TZ_Portfolio_PlusTemplate::getSassDirCore()))
                             && !JFile::exists($legacyPath)
-                            && $cssRelativePath = TZ_Portfolio_PlusTemplate::getCssStyleName($template -> template, $params, $docOptions['params'] -> get('colors', array()))){
+                            && $cssRelativePath = TZ_Portfolio_PlusTemplate::getCssStyleName($template -> template,
+                                $params, $docOptions['params'] -> get('colors', array()), $view -> document)){
                             $view->document->addStyleSheet(TZ_Portfolio_PlusUri::base(true)
                                 . '/css/'.$cssRelativePath, array('version' => 'auto'));
                         }elseif (\JFile::exists($legacyPath)) {

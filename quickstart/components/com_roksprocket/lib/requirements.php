@@ -2,7 +2,7 @@
  /**
  * @version   $Id: requirements.php 20029 2014-03-30 21:24:28Z jakub $
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2019 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2020 RocketTheme, LLC
  * @license   http://www.gnu.org/licenses/gpl-2.0.htmlk, i' GNU/GPLv2 only
  */
 $errors = array();

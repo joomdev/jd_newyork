@@ -379,6 +379,10 @@ class TZ_Portfolio_PlusModelAddon extends JModelAdmin
                 $this -> setError($msg);
             }
 
+            if(method_exists($this, 'afterInstall')) {
+                $this -> afterInstall($manifest);
+            }
+
             // This event allows a custom a post-flight:
             $app->triggerEvent('onInstallerAfterInstaller', array($this, &$package, $installer, &$result, &$msg));
         }
@@ -387,6 +391,8 @@ class TZ_Portfolio_PlusModelAddon extends JModelAdmin
 
         return $result;
     }
+
+    protected function afterInstall($manifest){}
 
     public function uninstall($eid = array())
     {

@@ -3,7 +3,7 @@
  * @version    2.10.x
  * @package    K2
  * @author     JoomlaWorks https://www.joomlaworks.net
- * @copyright  Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.
+ * @copyright  Copyright (c) 2006 - 2020 JoomlaWorks Ltd. All rights reserved.
  * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
  */
 
@@ -65,7 +65,7 @@ class K2ViewExtraField extends K2View
         if (!$extraField->id) {
             $extraField->published = 1;
             $extraField->alias = '';
-            $extraField->required = 1;
+            $extraField->required = 0;
             $extraField->showNull = 0;
             $extraField->displayInFrontEnd = 1;
         } else {
@@ -105,6 +105,8 @@ class K2ViewExtraField extends K2View
 
         $extraFieldModel = K2Model::getInstance('ExtraFields', 'K2Model');
         $uniqueGroups = $extraFieldModel->getGroups(true);
+
+        $groups[] = JHTML::_('select.option', '', '- '.JText::_('K2_PLEASE_SELECT_A_GROUP_OR_CREATE_A_NEW_ONE').' -');
         foreach ($uniqueGroups as $group) {
             $groups[] = JHTML::_('select.option', $group->id, $group->name);
         }

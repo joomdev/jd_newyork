@@ -152,7 +152,7 @@ class plgVmpaymentKlikandpay extends vmPSPlugin {
 			"RETOURVOK" => $retourParams,
 			"RETOURVHS" => $retourParams,
 			"MODULE" => 'VirtueMart',
-			"MODULE_VERSION" => '3.6.10',
+			"MODULE_VERSION" => '3.8.4',
 		);
 
 		$subscribe = array();
@@ -715,9 +715,9 @@ class plgVmpaymentKlikandpay extends vmPSPlugin {
 	 * @return null if no plugin was found, 0 if more then one plugin was found,  virtuemart_xxx_id if only one plugin is found
 	 *
 	 */
-	function plgVmOnCheckAutomaticSelectedPayment(VirtueMartCart $cart, array $cart_prices = array()) {
+	function plgVmOnCheckAutomaticSelectedPayment (VirtueMartCart $cart, array $cart_prices = array(), &$paymentCounter) {
 
-		return $this->onCheckAutomaticSelected($cart, $cart_prices);
+		return $this->onCheckAutomaticSelected ($cart, $cart_prices, $paymentCounter);
 	}
 
 	/**

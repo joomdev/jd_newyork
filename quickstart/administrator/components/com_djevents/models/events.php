@@ -147,7 +147,11 @@ class DJEventsModelEvents extends JModelList
 				ArrayHelper::toInteger($city);
 				$query->where('a.city_id IN ('.implode(',', $city).')');
 			} else {
-				$query->where('a.city_id='.(int)$city);
+				if($city == '-1') { // online event
+					$query->where('a.online_event=1');
+				} else {
+					$query->where('a.city_id='.(int)$city);
+				}
 			}
 		}
 		
@@ -156,20 +160,20 @@ class DJEventsModelEvents extends JModelList
 		
 		$from = $this->getState('filter.from');
 		if(!$this->validateDate($from)) $from = 'now';
-		$date = JFactory::getDate($from);
-		//$date->setTimezone($timezone);
-		//$app->enqueueMessage("<pre>from: ".print_r($date->toSql(), true)."</pre>");
 		if($from) {
+			$date = JFactory::getDate($from);
+			//$date->setTimezone($timezone);
+			//$app->enqueueMessage("<pre>from: ".print_r($date->toSql(), true)."</pre>");
 			$query->where('t.end >= '.$db->quote($date->toSql()));
 		}
 		
 		$to = $this->getState('filter.to');
-		if(!$this->validateDate($to)) $to = '+1 year';
+		if(!$this->validateDate($to)) $to = false; //show all future events
 		else $to.=' +1 day';
-		$date = JFactory::getDate($to);
-		//$date->setTimezone($timezone);
-		//$app->enqueueMessage("<pre>to: ".print_r($date->toSql(), true)."</pre>");
 		if($to) {
+			$date = JFactory::getDate($to);
+			//$date->setTimezone($timezone);
+			//$app->enqueueMessage("<pre>to: ".print_r($date->toSql(), true)."</pre>");
 			$query->where('t.start < '.$db->quote($date->toSql()));
 		}
 		

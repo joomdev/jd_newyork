@@ -2,12 +2,9 @@
  * @version    2.10.x
  * @package    K2
  * @author     JoomlaWorks https://www.joomlaworks.net
- * @copyright  Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.
+ * @copyright  Copyright (c) 2006 - 2020 JoomlaWorks Ltd. All rights reserved.
  * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
  */
-
-/* Import Open Sans */
-@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i&amp;subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext,vietnamese");
 
 /* Common */
 a:active,a:focus {outline:0;}
@@ -160,9 +157,10 @@ div.controls label.radio {display:inline-block;}
 .k2ui-table-publishing-meta {display:grid;grid-template-columns:3fr 2fr 2fr;grid-gap:20px;margin-bottom:20px;}
 
 .k2ui-field-label {}
-.k2ui-field-label label {display:block;text-align:right;margin:0;padding:0;}
+.k2ui-field-label label {display:block;text-align:right;margin:0;padding:0;font-size:13px;}
 .k2ui-field-label label[for="title"],
 .k2ui-field-label label[for="name"] {font-size:18px;}
+.k2ui-field-label label .k2ui-notice {margin-top:5px;cursor:pointer;font-size:12px;font-weight:400;color:#999;}
 
 .k2ui-field-value {}
     .k2ui-field-value input[type="text"],
@@ -173,7 +171,6 @@ div.controls label.radio {display:inline-block;}
     .k2ui-field-value.k2ui-title input {width:90%;height:40px;line-height:40px;font-size:20px;}
     .k2ui-field-value.k2ui-title-alias input {width:60%;}
     .k2ui-field-value.k2ui-category .chzn-container {width:30% !important;}
-    .k2ui-field-value .k2ui-notice {margin-top:5px;cursor:pointer;font-size:12px;font-weight:600;}
 
 .k2ui-column {}
     .k2ui-table-details {border-radius:3px;margin:0;padding:0;list-style:none;}
@@ -253,18 +250,29 @@ div.paramValueSpacer {background:#f6f6f6;border-bottom:1px solid #e9e9e9;border-
 /* Extra fields */
 #groupContainer {display:block;}
 #groupContainer input {margin-top:10px;}
+.isJ15 #groupContainer input,
+.isJ25 #groupContainer input {min-width:200px;}
 
 #k2app-ef-type-data {}
-#k2app-ef-type-data input,
-#k2app-ef-type-data button,
-#k2app-ef-type-data select {margin-right:10px;}
-#k2app-ef-type-data #select_radio_fields > div {padding:5px 0 0 0;}
-#k2app-ef-type-data .k2ui-ef-notice {color:#999;}
-.k2ui-ef-row {padding:4px 0;}
-    .k2ui-ef-label {min-width:90px;display:inline-block;text-align:right;padding-right:10px;}
-    .k2ui-ef-row input[type="text"] {padding:5px 10px;}
-    .k2ui-ef-row input[type="checkbox"] {box-shadow:none;margin:0;padding:0;}
-    .k2app-ef-image-button {margin-right:10px;}
+    #k2app-ef-type-data input,
+    #k2app-ef-type-data button,
+    #k2app-ef-type-data select {margin-right:5px;}
+    #k2app-ef-type-data #select_radio_fields > div {padding:5px 0 0 0;}
+    #k2app-ef-type-data .k2ui-ef-notice {color:#999;}
+    .k2ui-ef-row {padding:4px 0;}
+        .k2ui-ef-label {min-width:90px;display:inline-block;text-align:right;padding-right:10px;}
+        .k2ui-ef-row input[type="text"] {padding:5px 10px;}
+        .k2ui-ef-row input[type="checkbox"] {box-shadow:none;margin:0 5px 0 0;padding:0;vertical-align:baseline;}
+        .isJ15 .k2ui-ef-row input[type="text"],
+        .isJ25 .k2ui-ef-row input[type="text"] {vertical-align:middle;}
+        .k2ui-ef-row label {display:inline;margin:0;}
+        .k2app-ef-remove-option.k2Button,
+        .k2app-ef-image-button.k2Button {padding:5px 8px;}
+        .k2ui-ef-csv {display:block;width:420px;height:600px;margin:10px 0;overflow:auto;resize:both;}
+            .k2ui-ef-csv tr th {border:1px solid #d4d7d9;padding:5px;background:#fff;font-weight:bold;text-align:left;}
+            .k2ui-ef-csv tr td {border:1px solid #d4d7d9;padding:5px;text-align:left;}
+            .k2ui-ef-csv tr:nth-child(odd) > td {background:#f9f9f9;}
+            .k2ui-ef-csv tr:nth-child(even) > td {background:#f0f2f2;}
 
 
 
@@ -348,12 +356,14 @@ p.k2TagsNotice {display:block;font-size:11px;font-weight:bold;font-weight:600;ma
 .ui-autocomplete {position:absolute;margin:0;padding:0;list-style:none;border:1px solid #eee;background-color:white;border-right-color:#ddd;border-bottom-color:#ddd;text-align:left;z-index:50;}
 
 .ui-menu {list-style:none;padding:2px;margin:0;margin-top:-3px;display:block;float:left;}
-.ui-menu .ui-menu-item {margin:0;padding:0;zoom:0;float:left;clear:left;width:99%;}
-.ui-menu .ui-menu-item a {text-decoration:none;display:block;padding:.2em .4em;line-height:1.5;zoom:1;font-weight:bold;}
+.ui-menu .ui-menu-item {margin:0;padding:0;float:left;clear:left;width:99%;}
+.ui-menu .ui-menu-item a {text-decoration:none;display:block;padding:.2em .4em;line-height:1.5;font-weight:bold;}
 .ui-menu .ui-menu-item a.ui-state-hover,
 .ui-menu .ui-menu-item a.ui-state-active {margin:-1px;background-color:#444;color:#fff;}
 
 /* Item - Selection based tagging */
+#newTagButton {height:30px;padding:4px 12px;}
+
 #tagsLog {display:inline-block;margin-left:10px;font-weight:600;color:#999;}
 #tagsLog.tagsLoading {background:url(../images/backend/loader.gif) no-repeat 50% 50%;width:16px;height:16px;}
 
@@ -363,7 +373,7 @@ table#tagLists tr td span {display:block;font-weight:600;padding-bottom:4px;}
 table#tagLists tr td#tagListsLeft {width:40%;}
 table#tagLists tr td#tagListsLeft select {width:99%;height:106px;}
 table#tagLists tr td#tagListsButtons {vertical-align:middle;width:20%;}
-table#tagLists tr td#tagListsButtons input {width:99%;}
+table#tagLists tr td#tagListsButtons input {width:99%;height:30px;}
 table#tagLists tr td#tagListsRight {width:40%;}
 table#tagLists tr td#tagListsRight select {width:99%;height:106px;}
 
@@ -377,7 +387,8 @@ ul#k2ExtraFieldsMissing li {font-weight:normal;}
 
 /* Item - Image, Extrafields & Attachments */
 .itemAdditionalField {display:grid;grid-template-columns:180px auto;margin:0 0 1px 0;padding:0;}
-.itemAdditionalField.fieldIsHeader > h4 {font-size:16px;color:#68696b;font-weight:300;display:block;margin:0;padding:0;}
+.itemAdditionalField.fieldIsHeader {display:block;}
+.itemAdditionalField.fieldIsHeader > h4 {font-size:24px;line-height:130%;font-weight:600;padding:20px 0 10px 4px;margin:0 auto 20px auto;border-bottom:2px solid #dddedf;color:#183867;width:100%;text-align:left;}
 .itemAdditionalField .itemAdditionalValue {background:#f0f2f2;padding:10px;display:flex;align-items:center;}
 .itemAdditionalField .itemAdditionalValue label {font-size:13px;color:#68696b;font-weight:600;display:block;text-align:right;width:100%;padding:0;margin:0;}
 .itemAdditionalField .itemAdditionalData {padding:10px;font-size:13px;}
@@ -398,8 +409,14 @@ ul#k2ExtraFieldsMissing li {font-weight:normal;}
 #extraFields .itemAdditionalField .itemAdditionalData .k2Calendar + .btn {padding:10px 12px;}
 #extraFields .itemAdditionalField .itemAdditionalData .icon-calendar {margin-right:0;}
 #extraFields .itemAdditionalField .itemAdditionalData .nicEdit-main {outline:0;}
+#extraFields .itemAdditionalField .itemAdditionalData input {padding:5px 8px;}
+#extraFields .itemAdditionalField .itemAdditionalData > textarea {width:90%;}
+#extraFields .itemAdditionalField .itemAdditionalData .k2app-ef-image-button.k2Button {margin-left:5px;}
 #extraFields .itemAdditionalField.fieldIsLink .itemAdditionalData {display:grid;grid-template-columns:auto 5fr auto 8fr auto 3fr;grid-gap:10px;}
 #extraFields .itemAdditionalField.fieldIsLink .itemAdditionalData > label {text-align:right;line-height:30px;}
+
+#extraFields .itemAdditionalField .itemAdditionalData .controls label.radio {margin:0;padding:10px;display:inline-block;min-height:inherit;height:auto;line-height:inherit;white-space:nowrap;}
+#extraFields .itemAdditionalField .itemAdditionalData .controls label.radio input[type="radio"] {margin:2px 5px 0 0;padding:0;width:auto;}
 
 #itemAttachments {margin-top:15px;padding-top:10px;}
 
@@ -494,12 +511,11 @@ table.adminFormK2 {width:100%;margin-bottom:16px;}
 
 /* Lists - Items */
 #k2AdminContainer .adminlist {margin-bottom:0;}
-#k2AdminContainer .adminlist input[type="checkbox"] {margin-top:0;}
-#k2AdminContainer .adminlist thead tr th {background:#fff;border-bottom:1px solid #dbdcdc;vertical-align:middle;}
-#k2AdminContainer .adminlist tbody tr td {padding-top:10px;padding-bottom:10px;color:#666;vertical-align:middle;}
-#k2AdminContainer .adminlist tfoot tr td {background:#fff;border-bottom:0;border-top:1px solid #dbdcdc;padding-bottom:24px;}
-
-#k2AdminContainer .adminlist thead tr th a {font-size:12px;}
+    #k2AdminContainer .adminlist input[type="checkbox"] {margin-top:0;}
+    #k2AdminContainer .adminlist thead tr th {background:#fff;border:0;border-bottom:1px solid #dbdcdc;vertical-align:middle;}
+        #k2AdminContainer .adminlist thead tr th a {font-size:12px;}
+    #k2AdminContainer .adminlist tbody tr td {padding-top:10px;padding-bottom:10px;color:#666;vertical-align:middle;}
+    #k2AdminContainer .adminlist tfoot tr td {background:#fff;border-bottom:0;border-top:1px solid #dbdcdc;padding-bottom:24px;}
 
 #k2AdminContainer .adminlist a {text-decoration:none;color:#040707;}
 #k2AdminContainer .adminlist a.editComment {color:#46afff;}
@@ -562,10 +578,6 @@ table.adminFormK2 {width:100%;margin-bottom:16px;}
 /* ====================================================================================================== */
 /* ====================================================================================================== */
 
-/* Joomla 1.5 */
-html.isJ15 div#element-box div.m div#k2AdminContainer #k2FormTopNav ul.k2NavTabs {border-top:1px solid #d4d7d9;}
-html.isJ15 div#element-box div.m div#k2AdminContainer #k2FormTopNav ul.k2NavTabs li.ui-tabs-selected a:before {content:"\f0d8";font-family:"FontAwesome";font-style:normal;font-weight:normal;text-decoration:inherit;color:#fff;font-size:32px;position:absolute;bottom:-12px;left:50%;margin-left:-16px;width:32px;text-shadow:0 -1px 1px #ccc;}
-
 /* Joomla 3.x specific */
 html.isJ30 {}
 body#com_k2 {}
@@ -591,8 +603,8 @@ div.isJ25 div.current {background:#fff;}
 .ui-autocomplete {position:absolute;margin:0;padding:0;list-style:none;border:1px solid #eee;background-color:white;border-right-color:#ddd;border-bottom-color:#ddd;text-align:left;z-index:50;}
 
 .ui-menu {list-style:none;padding:2px;margin:0; margin-top:-3px;display:block;float:left;}
-.ui-menu .ui-menu-item {margin:0;padding:0;zoom:0;float:left;clear:left;width:99%;}
-.ui-menu .ui-menu-item a {text-decoration:none;display:block;padding:.2em .4em;line-height:1.5;zoom:1;font-weight:bold;}
+.ui-menu .ui-menu-item {margin:0;padding:0;float:left;clear:left;width:99%;}
+.ui-menu .ui-menu-item a {text-decoration:none;display:block;padding:.2em .4em;line-height:1.5;font-weight:bold;}
 .ui-menu .ui-menu-item a.ui-state-hover,
 .ui-menu .ui-menu-item a.ui-state-active {margin:-1px;background-color:#444;color:#fff;}
 
@@ -810,7 +822,7 @@ div#k2Modal div#editor-xtd-buttons .button2-left {display:inline;} /* Joomla 1.5
         #k2ContentView > form {margin:0;padding:0;position:relative;}
 
         /* Filters */
-        #k2ContentView > form .k2AdminTableFilters {position:fixed;left:10%;right:0;z-index:99;background:rgba(255, 255, 255, 0.8);margin-bottom:0;border-collapse:collapse;border:0;border-bottom:1px solid #dbdcdc;width:90%;box-sizing:border-box;}
+        #k2ContentView > form .k2AdminTableFilters {position:fixed;left:10%;right:0;z-index:99;background:rgba(255, 255, 255, 0.9);margin-bottom:0;border-collapse:collapse;border:0;border-bottom:1px solid #dbdcdc;width:90%;box-sizing:border-box;}
         #k2ContentView > form .k2AdminTableFilters tr td {background:none;vertical-align:middle;border:0;}
             #k2ContentView .k2AdminTableFiltersSearch {white-space:nowrap;padding:10px;}
                 #k2ContentView .k2AdminTableFiltersSearch .input-append,
@@ -920,12 +932,12 @@ div#k2Modal div#editor-xtd-buttons .button2-left {display:inline;} /* Joomla 1.5
 .isJ30 #k2AdminContainer table.admintable td.paramlist_value[colspan="2"] .jwHeaderContainer {padding:20px;font-size:16px;font-weight:400;border-top:10px solid #fff;border-bottom:4px solid #96b0cb;float:none;}
 
 /* Parameters rendered from XML (lists) */
-.isJ30 #k2ContentView > form .xmlParamsFields.limitWidth {min-width:640px;max-width:60%;padding:0 20px 40px 20px;margin:0 auto;}
+.isJ30 #k2ContentView > form .xmlParamsFields.limitWidth {min-width:640px;max-width:60%;padding:20px 30px 40px 30px;margin:0 auto;}
 .isJ30 #k2ContentView > form .xmlParamsFields h3.paramHeader,
 .isJ30 #k2ContentView > form .xmlParamsFields .k2ScrollingContent > h3 {font-size:24px;}
 .isJ30 #k2ContentView > form .xmlParamsFields fieldset {padding:0 0 1px 0;margin:0 auto 20px auto;border:0;border-bottom:2px solid #dddedf;}
-.isJ30 #k2ContentView > form .xmlParamsFields ul {padding:0;margin:0;}
-.isJ30 #k2ContentView > form .xmlParamsFields ul li {display:table;width:100%;box-sizing:border-box;}
+.isJ30 #k2ContentView > form .xmlParamsFields > ul {padding:0;margin:0;}
+.isJ30 #k2ContentView > form .xmlParamsFields > ul > li {display:table;width:100%;box-sizing:border-box;}
 .isJ30 #k2ContentView > form .xmlParamsFields ul.chzn-choices {padding:5px;}
 .isJ30 #k2ContentView > form .xmlParamsFields ul.chzn-choices li {display:inherit;width:auto;box-sizing:content-box;}
 .isJ30 #k2ContentView > form .xmlParamsFields ul li .paramLabel {border-top:1px solid #fff;border-right:1px solid #e9e9e9;border-bottom:1px solid #e9e9e9;padding:10px;text-align:right;background:#f6f6f6;display:table-cell;width:30%;min-width:200px;box-sizing:border-box;vertical-align:middle;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:600;}
@@ -1047,7 +1059,7 @@ div#k2Modal div#editor-xtd-buttons .button2-left {display:inline;} /* Joomla 1.5
 .isJ25 #system-message-container #system-message {position:fixed;z-index:9999;top:56px;right:56px;background:#fff;margin:0;padding:0;border-radius:4px;box-shadow:0 1px 4px 0 #999;min-width:280px;max-width:400px;text-align:left;border:0;}
 .isJ25 #system-message-container #system-message dd {padding:10px;margin:0;border-left:4px solid #5fca4a;text-indent:0;}
 .isJ25 #system-message-container #system-message dd.message {padding:10px;margin:0;border-left:4px solid #5fca4a;}
-.isJ25 #system-message-container #system-message dd.notice {padding:10px;margin:0;border-left:4px solid f0c33c;}
+.isJ25 #system-message-container #system-message dd.notice {padding:10px;margin:0;border-left:4px solid #f0c33c;}
 .isJ25 #system-message-container #system-message dd > ul {padding:0;margin:0;background:none;border:0;}
 .isJ25 #system-message-container #system-message dd > ul li {padding:5px;margin:0;background:none;border:0;color:#333;display:block;width:100%;box-sizing:border-box;font-size:13px;line-height:150%;text-align:left;}
 
@@ -1180,14 +1192,16 @@ button.fancybox-button:hover {background:none;border:0;}
 .isJ25 #k2AdminContainer table.admintable td.paramlist_value[colspan="2"] .jwHeaderContainer15 {padding:20px;font-size:16px;font-weight:400;border-top:10px solid #fff;border-bottom:4px solid #96b0cb;float:none;}
 
 /* Parameters rendered from XML (lists) */
-.isJ25 #k2ContentView > form .xmlParamsFields.limitWidth {min-width:640px;max-width:60%;padding:0 20px 40px 20px;margin:0 auto;}
+.isJ25 #k2ContentView > form .xmlParamsFields.limitWidth {min-width:640px;max-width:60%;padding:20px 30px 40px 30px;margin:0 auto;}
 .isJ25 #k2ContentView > form .xmlParamsFields h3.paramHeader,
 .isJ25 #k2ContentView > form .xmlParamsFields .k2ScrollingContent > h3 {font-size:24px;}
 .isJ25 #k2ContentView > form .xmlParamsFields fieldset {padding:0;margin:0 auto;border:0;border-bottom:0;}
 .isJ25 #k2ContentView > form .xmlParamsFields fieldset label {float:none;clear:none;}
 
-.isJ25 #k2ContentView > form .xmlParamsFields ul {padding:0;margin:0;}
-.isJ25 #k2ContentView > form .xmlParamsFields ul li {display:table;width:100%;box-sizing:border-box;}
+.isJ25 #k2ContentView > form .xmlParamsFields > ul,
+.isJ25 #k2ContentView > form .xmlParamsFields fieldset > ul {padding:0;margin:0;}
+.isJ25 #k2ContentView > form .xmlParamsFields > ul > li,
+.isJ25 #k2ContentView > form .xmlParamsFields fieldset > ul > li {display:table;width:100%;box-sizing:border-box;}
 .isJ25 #k2ContentView > form .xmlParamsFields ul li .paramLabel {border-top:1px solid #fff;border-right:1px solid #e9e9e9;border-bottom:1px solid #e9e9e9;padding:10px;text-align:right;background:#f6f6f6;display:table-cell;width:30%;min-width:200px;box-sizing:border-box;vertical-align:middle;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:600;}
 .isJ25 #k2ContentView > form .xmlParamsFields ul li .paramLabel label {font-family:'Open Sans',sans-serif;font-size:13px;font-weight:600;min-width:inherit;max-width:inherit;width:100%;text-align:right;}
 .isJ25 #k2ContentView > form .xmlParamsFields ul li .paramValue {background:#fbfbfb;border-top:1px solid #fff;border-bottom:1px solid #fbfbfb;font-size:13px;padding:10px;display:table-cell;width:70%;box-sizing:border-box;vertical-align:middle;}
@@ -1280,7 +1294,9 @@ button.fancybox-button:hover {background:none;border:0;}
 .isJ15 #footer .copyright::after {content:" — Joomla! 1.5";}
 .isJ15 #footer .copyright a {color:#333;}
 
-.isJ15 #k2ContentView {padding:0;}
+.isJ15 #k2ContentView {padding:0;background:#f0f0f0;}
+.isJ15 .inModalSelector #k2ContentView {background:#fff;}
+.isJ15 #k2ContentView > form .k2ui-field-value select:not([multiple]) {height:30px;}
 
 /* Joomla System Messages */
 .isJ15 #system-message {}
@@ -1291,6 +1307,12 @@ button.fancybox-button:hover {background:none;border:0;}
 .isJ15 #system-message dd ul li {padding:5px;margin:0;background:none;border:0;color:#333;display:block;width:100%;box-sizing:border-box;font-size:13px;line-height:150%;}
 
 /* Edit Forms */
+.isJ15 #k2ContentView > form #k2FormTopNav .k2NavTabsWrapper {margin-top:-4px;}
+.isJ15 #k2ContentView > form #k2FormTopNav ul.k2NavTabs {border-top:0;}
+.isJ15 #k2ContentView > form #k2FormTopNav ul.k2NavTabs li.ui-tabs-selected a:before {content:"\f0d8";font-family:"FontAwesome";font-style:normal;font-weight:normal;text-decoration:inherit;color:#fff;font-size:32px;position:absolute;bottom:-12px;left:50%;margin-left:-16px;width:32px;text-shadow:0 -1px 1px #ccc;}
+
+.isJ15 ul.tags li span.tagRemove {padding:5px 0 6px 0;}
+
 .isJ15 #k2ContentView > form input,
 .isJ15 #k2ContentView > form select,
 .isJ15 #k2ContentView > form textarea {border-radius:3px;padding:5px 10px;font-size:13px;}
@@ -1317,7 +1339,7 @@ button.fancybox-button:hover {background:none;border:0;}
 .isJ15 #k2ContentView > form .k2AdminTableFilters tr td.k2AdminTableFiltersSelects {padding-right:16px;}
 .isJ15 #k2ContentView > form .k2AdminTableFilters tr td.k2AdminTableFiltersSelects select {max-width:160px;height:30px;font-size:13px;margin:0;}
 
-.isJ15 #k2ContentView > form .k2AdminTableData {padding:50px 0 4px 0;}
+.isJ15 #k2ContentView > form .k2AdminTableData {padding:46px 0 4px 0;}
 
 .isJ15 #k2AdminContainer .adminlist {border-collapse:collapse;}
 .isJ15 #k2AdminContainer .adminlist tr th,
@@ -1381,7 +1403,7 @@ button.fancybox-button:hover {background:none;border:0;}
 .isJ15 #k2AdminContainer.K2AdminViewInfo #k2ContentView table tr td {font-size:13px;color:#333;padding:10px;}
 
 /* Scrollspy Menu */
-.isJ15 #k2AdminContainer #k2ContentView ul.k2ScrollSpyMenu {display:block;position:fixed;list-style:none;margin:0;padding:0;width:320px;height:100%;z-index:1;top:188px;}
+.isJ15 #k2AdminContainer #k2ContentView ul.k2ScrollSpyMenu {display:block;position:fixed;list-style:none;margin:0;padding:0;width:320px;height:100%;z-index:1;top:182px;}
 .isJ15 #k2AdminContainer.K2AdminViewInfo #k2ContentView ul.k2ScrollSpyMenu {top:120px;}
 .isJ15 #k2AdminContainer #k2ContentView ul.k2ScrollSpyMenu li {border-bottom:1px solid #e3e4e4;}
 .isJ15 #k2AdminContainer #k2ContentView ul.k2ScrollSpyMenu > li:first-child {border-top:1px solid #e3e4e4;}
@@ -1427,12 +1449,14 @@ button.fancybox-button:hover {background:none;border:0;}
 .isJ15 #k2AdminContainer table.admintable td.paramlist_value[colspan="2"] .jwHeaderContainer15 {background:#e5f7fd;color:#346b93;font-size:20px;margin:0;padding:24px 16px;border:0;font-weight:normal;float:left;width:100%;clear:both;box-sizing:border-box;}
 
 /* Parameters rendered from XML (lists) */
-.isJ15 #k2ContentView > form .xmlParamsFields.limitWidth {min-width:640px;max-width:60%;padding:0 20px 40px 20px;margin:0 auto;}
+.isJ15 #k2ContentView > form .xmlParamsFields.limitWidth {min-width:640px;max-width:60%;padding:20px 30px 40px 30px;margin:0 auto;}
 .isJ15 #k2ContentView > form .xmlParamsFields h3.paramHeader,
 .isJ15 #k2ContentView > form .xmlParamsFields .k2ScrollingContent > h3 {font-size:24px;}
 .isJ15 #k2ContentView > form .xmlParamsFields fieldset {padding:0 0 1px 0;margin:0 auto 20px auto;border:0;}
-.isJ15 #k2ContentView > form .xmlParamsFields ul {padding:0;margin:0;}
-.isJ15 #k2ContentView > form .xmlParamsFields ul li {display:table;width:100%;box-sizing:border-box;}
+.isJ15 #k2ContentView > form .xmlParamsFields > ul,
+.isJ15 #k2ContentView > form .xmlParamsFields fieldset > ul {padding:0;margin:0;}
+.isJ15 #k2ContentView > form .xmlParamsFields > ul > li,
+.isJ15 #k2ContentView > form .xmlParamsFields fieldset > ul > li {display:table;width:100%;box-sizing:border-box;}
 .isJ15 #k2ContentView > form .xmlParamsFields ul li .paramLabel {border-top:1px solid #fff;border-right:1px solid #e9e9e9;border-bottom:1px solid #e9e9e9;padding:10px;text-align:right;background:#f6f6f6;display:table-cell;width:30%;min-width:200px;box-sizing:border-box;vertical-align:middle;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:600;}
 .isJ15 #k2ContentView > form .xmlParamsFields ul li .paramLabel label {font-family:'Open Sans',sans-serif;font-size:13px;font-weight:600;}
 .isJ15 #k2ContentView > form .xmlParamsFields ul li .paramValue {background:#fbfbfb;border-top:1px solid #fff;border-bottom:1px solid #fbfbfb;font-size:13px;padding:10px;display:table-cell;width:70%;box-sizing:border-box;vertical-align:middle;}
@@ -1511,7 +1535,6 @@ button.fancybox-button:hover {background:none;border:0;}
         .k2ui-field-value input[type="text"],
         .k2ui-field-value ul.tags {width:calc(100% - 22px);}
         .k2ui-field-value select {width:100%;}
-        .k2ui-field-value .k2ui-notice {text-align:right;}
 
     /* Grid */
     #k2AdminContainer {display:block;position:relative;}
@@ -1573,23 +1596,23 @@ button.fancybox-button:hover {background:none;border:0;}
             .itemNewAttachment button {position:absolute;top:30px;right:2px;float:none;}
             .itemNewAttachment .itemAdditionalField input[type="text"].existing_file {margin:0;padding:0;visibility:hidden;}
 
-            .isJ30 #k2ContentView > form .xmlParamsFields ul li .paramLabel {display:block;width:auto;text-align:left;border-right:0;padding:0;}
-            .isJ30 #k2ContentView > form .xmlParamsFields ul li .paramValue {display:block;width:auto;text-align:left;margin-bottom:10px;}
+            #k2ContentView > form .xmlParamsFields ul li .paramLabel {display:block;width:auto;text-align:left;border-right:0;padding:0;}
+            #k2ContentView > form .xmlParamsFields ul li .paramValue {display:block;width:auto;text-align:left;margin-bottom:10px;}
 
-            .isJ30 #k2ContentView > form .xmlParamsFields ul li .paramValue > input:not([type="checkbox"]),
-            .isJ30 #k2ContentView > form .xmlParamsFields ul li .paramValue > textarea {min-width:inherit;width:calc(100% - 22px);}
-            .isJ30 #k2ContentView > form .xmlParamsFields ul li .paramValue > select {min-width:inherit;width:100%;}
-            .isJ30 #k2ContentView > form .xmlParamsFields ul li .paramValue .js-editor-tinymce {margin-left:-10px;min-width:inherit;width:calc(100% - 10px);}
+            #k2ContentView > form .xmlParamsFields ul li .paramValue > input:not([type="checkbox"]),
+            #k2ContentView > form .xmlParamsFields ul li .paramValue > textarea {min-width:inherit;width:calc(100% - 22px);}
+            #k2ContentView > form .xmlParamsFields ul li .paramValue > select {min-width:inherit;width:100%;}
+            #k2ContentView > form .xmlParamsFields ul li .paramValue .js-editor-tinymce {margin-left:-10px;min-width:inherit;width:calc(100% - 10px);}
 
-            .isJ30 #k2ContentView > form .xmlParamsFields ul li .paramValue input[type="radio"] + label,
-            .isJ30 #k2ContentView > form .xmlParamsFields ul li .paramValue .controls > label.radio,
-            .isJ30 #k2ContentView > form .xmlParamsFields ul li .paramValue .controls > label.isChecked {min-width:60px;}
+            #k2ContentView > form .xmlParamsFields ul li .paramValue input[type="radio"] + label,
+            #k2ContentView > form .xmlParamsFields ul li .paramValue .controls > label.radio,
+            #k2ContentView > form .xmlParamsFields ul li .paramValue .controls > label.isChecked {min-width:60px;}
 
-            .isJ30 #k2ContentView > form .xmlParamsFields ul li .paramValue.k2DateTimePickerControl {}
-            .isJ30 #k2ContentView > form .xmlParamsFields ul li .paramValue.k2DateTimePickerControl i.fa-calendar {display:none;}
+            #k2ContentView > form .xmlParamsFields ul li .paramValue.k2DateTimePickerControl {}
+            #k2ContentView > form .xmlParamsFields ul li .paramValue.k2DateTimePickerControl i.fa-calendar {display:none;}
 
-            .isJ30 #k2ContentView > form .xmlParamsFields ul li .paramValue fieldset.radio,
-            .isJ30 #k2ContentView > form .xmlParamsFields ul li > fieldset.adminform {text-align:center;}
+            #k2ContentView > form .xmlParamsFields ul li .paramValue fieldset.radio,
+            #k2ContentView > form .xmlParamsFields ul li > fieldset.adminform {text-align:center;}
 
             .itemAdditionalField {grid-template-columns:1fr;}
             .itemAdditionalField .itemAdditionalValue {border-top:1px solid #fff;border-bottom:1px solid #e9e9e9;}
@@ -1608,9 +1631,9 @@ button.fancybox-button:hover {background:none;border:0;}
             .itemAdditionalField.separator .itemAdditionalValue {width:auto;background:none;border:0;margin:0;padding:0;}
             .itemAdditionalField.separator .itemAdditionalData {visibility:hidden;}
 
-            .isJ30 #k2AdminContainer #k2ContentView ul.k2ScrollSpyMenu {display:none;}
-            .isJ30 #k2AdminContainer #k2ContentView div.k2ScrollingContent {width:auto;margin:0;padding:0 10px 20px 10px;border:0;}
-            .isJ30 #k2ContentView > form .xmlParamsFields.limitWidth {min-width:inherit;max-width:none;width:auto;margin:0;padding:0 10px 20px 10px;}
+            #k2AdminContainer #k2ContentView ul.k2ScrollSpyMenu {display:none;}
+            #k2AdminContainer #k2ContentView div.k2ScrollingContent {width:auto;margin:0;padding:0 10px 20px 10px;border:0;}
+            #k2ContentView > form .xmlParamsFields.limitWidth {min-width:inherit;max-width:none;width:auto;margin:0;padding:0 10px 20px 10px;}
 
             #k2app-ef-add-option {width:calc(100% - 16px);height:28px;line-height:28px;}
             #k2app-ef-type-data input,

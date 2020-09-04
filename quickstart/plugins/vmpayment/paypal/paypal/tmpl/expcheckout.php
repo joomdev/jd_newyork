@@ -24,7 +24,9 @@ $paypalInterface = $viewData['paypalInterface'];
 
 vmJsApi::css(  'paypal','plugins/vmpayment/paypal/paypal/assets/css/');
 
-
+header('Access-Control-Allow-Origin: https://www.paypalobjects.com');
+header('Access-Control-Allow-Origin: https://www.paypal.com');
+header('Access-Control-Allow-Origin: https://www.sandbox.paypal.com');
 ?>
 
 <div class="pp-wrap">

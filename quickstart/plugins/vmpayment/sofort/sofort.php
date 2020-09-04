@@ -3,7 +3,7 @@ defined('_JEXEC') or die('Restricted access');
 
 /**
  * @author Valérie Isaksen
- * @version $Id: sofort.php 10185 2019-10-23 12:58:26Z Milbo $
+ * @version $Id: sofort.php 10313 2020-05-04 13:21:09Z Milbo $
  * @package VirtueMart
  * @subpackage payment
  * @copyright Copyright (C) 2004 - 2019 Virtuemart Team. All rights reserved.   - All rights reserved.
@@ -21,7 +21,7 @@ if (!class_exists('vmPSPlugin')) {
 }
 
 class plgVmPaymentSofort extends vmPSPlugin {
-	const RELEASE = 'VM 3.6.10';
+	const RELEASE = 'VM 3.8.4';
 	const SU_SOFORTBANKING = 'su';
 
 
@@ -651,7 +651,7 @@ class plgVmPaymentSofort extends vmPSPlugin {
 			}
 		}
 		$htmla = array();
-		$html = '';
+
 		vmLanguage::loadJLang('com_virtuemart');
 		$currency = CurrencyDisplay::getInstance();
 		foreach ($this->methods as $this->_currentMethod) {
@@ -669,7 +669,7 @@ class plgVmPaymentSofort extends vmPSPlugin {
 				} else {
 					$checked = '';
 				}
-				$html .= $this->renderByLayout('display_payment', array(
+				$html = $this->renderByLayout('display_payment', array(
 				                                                       'plugin' => $this->_currentMethod,
 				                                                       'checked' => $checked,
 				                                                       'payment_logo' => $logo,
@@ -743,7 +743,6 @@ class plgVmPaymentSofort extends vmPSPlugin {
 	 *
 	 */
 	function plgVmOnCheckAutomaticSelectedPayment (VirtueMartCart $cart, array $cart_prices = array(), &$paymentCounter) {
-
 		return $this->onCheckAutomaticSelected($cart, $cart_prices, $paymentCounter);
 	}
 

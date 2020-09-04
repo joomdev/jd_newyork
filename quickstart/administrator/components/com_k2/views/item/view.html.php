@@ -3,7 +3,7 @@
  * @version    2.10.x
  * @package    K2
  * @author     JoomlaWorks https://www.joomlaworks.net
- * @copyright  Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.
+ * @copyright  Copyright (c) 2006 - 2020 JoomlaWorks Ltd. All rights reserved.
  * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
  */
 
@@ -357,8 +357,13 @@ class K2ViewItem extends K2View
         }
 
         // Tags
+        if ($params->get('taggingSystem') === '0' || $params->get('taggingSystem') === '1') {
+            // B/C - Convert old options
+            $whichTaggingSystem = ($params->get('taggingSystem')) ? 'free' : 'selection';
+            $params->set('taggingSystem', $whichTaggingSystem);
+        }
         if ($user->gid < 24 && $params->get('lockTags')) {
-            $params->set('taggingSystem', 0);
+            $params->set('taggingSystem', 'selection');
         }
 
         $tags = $model->getAvailableTags($item->id);

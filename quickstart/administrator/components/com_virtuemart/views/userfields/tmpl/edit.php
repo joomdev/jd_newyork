@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: edit.php 10206 2019-11-18 11:40:12Z Milbo $
+* @version $Id: edit.php 10258 2020-02-17 20:25:48Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -228,7 +228,7 @@ function toggleType( sType ) {
 		default:
 			//pluginistraxx_euvatchecker
 <?php if(!$this->userField->virtuemart_userfield_id) : ?>
-			jQuery('#fieldPluginBody').load( 'index.php?option=com_virtuemart&view=userfields&task=viewJson&format=json&field='+sType , function() { jQuery(this).find("[title]").vm2admin('tips',tip_image) });
+			jQuery('#fieldPluginBody').load( 'index.php?option=com_virtuemart&view=userfields&format=json&field='+sType , function() { jQuery(this).find("[title]").vm2admin('tips',tip_image) });
 <?php endif; ?>
 			if (sType.substring(0,6) == "plugin") jQuery('#divPlugin').slideDown();
 		break;

@@ -2,11 +2,11 @@
 <extension type="module" client="site" version="2.5" method="upgrade">
     <name>K2 Content</name>
     <author>JoomlaWorks</author>
-    <creationDate>December 12th, 2019</creationDate>
-    <copyright>Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.</copyright>
+    <creationDate>April 27th, 2020</creationDate>
+    <copyright>Copyright (c) 2006 - 2020 JoomlaWorks Ltd. All rights reserved.</copyright>
     <authorEmail>please-use-the-contact-form@joomlaworks.net</authorEmail>
     <authorUrl>www.joomlaworks.net</authorUrl>
-    <version>2.10.2</version>
+    <version>2.10.3</version>
     <license>https://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <description>K2_MOD_K2_CONTENT_DESCRIPTION</description>
     <files>
@@ -56,8 +56,9 @@
                     <option value="1">K2_SHOW</option>
                     <option value="2">K2_SHOW_ONLY_FEATURED_ITEMS</option>
                 </field>
-                <field name="popularityRange" type="list" default="" label="K2_TIME_RANGE_IF_ORDERING_IS_SET_TO_MOST_POPULAR_OR_MOST_COMMENTED" description="">
+                <field name="popularityRange" type="list" default="" label="K2_TIME_RANGE_IF_ORDERING_IS_SET_TO_MOST_POPULAR_OR_MOST_COMMENTED" description="K2_TIME_RANGE_IF_ORDERING_IS_SET_TO_MOST_POPULAR_OR_MOST_COMMENTED_DESC">
                     <option value="">K2_ALL_TIME</option>
+                    <option value="today">K2_TODAY</option>
                     <option value="1">K2_1_DAY</option>
                     <option value="3">K2_3_DAYS</option>
                     <option value="7">K2_1_WEEK</option>
@@ -98,7 +99,7 @@
                     <option value="0">K2_HIDE</option>
                     <option value="1">K2_SHOW</option>
                 </field>
-                <field name="itemIntroTextWordLimit" type="text" size="4" default="" label="K2_INTROTEXT_WORD_LIMIT" description="K2_LEAVE_BLANK_TO_DIASBLE_IF_YOU_ENABLE_THIS_OPTION_ALL_HTML_TAGS_FROM_THE_TEXT_WILL_BE_CLEANED_UP_TO_MAKE_SURE_THE_HTML_STRUCTURE_OF_THE_SITE_DOES_NOT_BRAKE"/>
+                <field name="itemIntroTextWordLimit" type="text" size="4" default="" label="K2_INTROTEXT_WORD_LIMIT" description="K2_LEAVE_BLANK_TO_DISABLE_IF_YOU_ENABLE_THIS_OPTION_ALL_HTML_TAGS_FROM_THE_TEXT_WILL_BE_CLEANED_UP_TO_MAKE_SURE_THE_HTML_STRUCTURE_OF_THE_SITE_DOES_NOT_BRAKE"/>
                 <field name="itemImage" type="radio" default="1" label="K2_IMAGE" description="" class="btn-group btn-group-yesno">
                     <option value="0">K2_HIDE</option>
                     <option value="1">K2_SHOW</option>

@@ -20,8 +20,10 @@
 // no direct access
 defined('_JEXEC') or die;
 
+$j4Compare  = COM_TZ_PORTFOLIO_PLUS_JVERSION_4_COMPARE;
 JHtml::addIncludePath(JPATH_COMPONENT.'/helpers/html');
-JHtml::_('behavior.tooltip');
+
+JHtml::_('bootstrap.tooltip');
 JHtml::_('behavior.multiselect');
 
 JHtml::_('formbehavior.chosen', '.multipleMediaType', null,
@@ -35,7 +37,6 @@ JHtml::_('formbehavior.chosen', '.multipleCategories', null,
 JHtml::_('formbehavior.chosen', '#filter_category_id_sec', null,
     array('placeholder_text_multiple' => JText::_('COM_TZ_PORTFOLIO_PLUS_OPTION_SELECT_SECONDARY_CATEGORY')));
 
-$j4Compare  = COM_TZ_PORTFOLIO_PLUS_JVERSION_4_COMPARE;
 if(!$j4Compare) {
     JHtml::_('dropdown.init');
     JHtml::_('formbehavior.chosen', 'select');

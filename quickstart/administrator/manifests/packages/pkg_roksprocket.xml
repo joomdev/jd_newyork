@@ -3,12 +3,12 @@
     <name>pkg_roksprocket</name>
     <packagename>roksprocket</packagename>
     <author>RocketTheme, LLC</author>
-    <creationDate>February 11, 2019</creationDate>
-    <copyright>(C) 2005 - 2019 RocketTheme, LLC. All rights reserved.</copyright>
+    <creationDate>April 23, 2020</creationDate>
+    <copyright>(C) 2005 - 2020 RocketTheme, LLC. All rights reserved.</copyright>
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <authorEmail>support@rockettheme.com</authorEmail>
     <authorUrl>http://www.rockettheme.com</authorUrl>
-    <version>2.1.26</version>
+    <version>2.1.28</version>
     <description>RokSprocket</description>
 
     <scriptfile>install.php</scriptfile>
@@ -16,13 +16,13 @@
     <blockChildUninstall>true</blockChildUninstall>
     <files folder="packages">
         <!-- System plugins -->
-        <file type="plugin"    group="system"     id="roksprocket"          enabled="1">plg_system_roksprocket-2.1.26.zip</file>
+        <file type="plugin"    group="system"     id="roksprocket"          enabled="1">plg_system_roksprocket-2.1.28.zip</file>
         <!-- Content plugins -->
-        <file type="plugin"    group="content"    id="rokinjectmodule"      enabled="1">plg_content_rokinjectmodule-2.1.26.zip</file>
+        <file type="plugin"    group="content"    id="rokinjectmodule"      enabled="1">plg_content_rokinjectmodule-2.1.28.zip</file>
         <!-- Modules -->
-        <file type="module"    client="site"      id="mod_roksprocket"      enabled="1">mod_roksprocket-2.1.26.zip</file>
+        <file type="module"    client="site"      id="mod_roksprocket"      enabled="1">mod_roksprocket-2.1.28.zip</file>
         <!-- Administration component -->
-        <file type="component"                    id="com_roksprocket"      enabled="1">com_roksprocket-2.1.26.zip</file>
+        <file type="component"                    id="com_roksprocket"      enabled="1">com_roksprocket-2.1.28.zip</file>
     </files>
 
     <languages folder="language">

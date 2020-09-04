@@ -328,6 +328,11 @@ class plgVmPaymentPaypal extends vmPSPlugin {
 
 		if (empty($selectedMethod->enable_smart_buttons) and !$this->isExpToken($selectedMethod, $cart))  {
 			$payment_advertise[] = $this->getExpressCheckoutHtml($cart, true);
+		} else if (empty($selectedMethod->itemise_in_cart)){
+			$user = JFactory::getUser();
+			if(!empty($user->id)){
+				$payment_advertise[] = $this->getExpressCheckoutHtml($cart, true);
+			}
 		}
 
 		return;
@@ -1329,7 +1334,7 @@ class plgVmPaymentPaypal extends vmPSPlugin {
 
 		$pluginmethod_id = $this->_idName;
 		$pluginName = $this->_psType . '_name';
-		if ($selectedPlugin == $plugin->$pluginmethod_id) {
+		if ($selectedPlugin == $plugin->{$pluginmethod_id}) {
 			$checked = 'checked="checked"';
 		} else {
 			$checked = '';
@@ -1400,7 +1405,7 @@ class plgVmPaymentPaypal extends vmPSPlugin {
 			return true;
 		}
 
-		$withMsg = $cart->_redirect or $cart->inConfirm;
+		$withMsg = $cart->_redirect or $cart->_inConfirm;
 		if (!$paypalInterface->validate($withMsg)) {
 			return false;
 		}

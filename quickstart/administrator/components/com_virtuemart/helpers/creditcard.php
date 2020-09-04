@@ -15,7 +15,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: creditcard.php 10167 2019-10-09 07:51:46Z Milbo $
+ * @version $Id: creditcard.php 10289 2020-03-12 10:36:52Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -81,9 +81,9 @@ class Creditcard {
 	static function _strtonum($string) {
 		$nstr = "";
 		for ($i = 0; $i < strlen($string); $i++) {
-			if (!is_numeric($string{$i}))
+			if (!is_numeric($string[$i]))
 				continue;
-			$nstr = "$nstr" . $string{$i};
+			$nstr = "$nstr" . $string[$i];
 		}
 		return $nstr;
 	}

@@ -54,6 +54,17 @@ class plgSystemVmLoaderPluginUpdate extends JPlugin {
 		}
 	}
 
+	function onUserAfterDelete($user, $dummy, $err) {
+
+		if(!class_exists('VmConfig')) require(JPATH_ROOT .'/administrator/components/com_virtuemart/helpers/config.php');
+		if(class_exists('VmConfig'))VmConfig::loadConfig(false,false, true, false);
+
+		if(!empty($user['id'])){
+			$uM = VmModel::getModel('user');
+			$uM ->remove($user['id'], false);
+		}
+
+	}
 
 	function onAfterRoute() {
 

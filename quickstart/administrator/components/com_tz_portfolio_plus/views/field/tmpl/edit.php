@@ -24,7 +24,7 @@ $form   = $this -> form;
 $doc    = JFactory::getDocument();
 
 JHtml::_('behavior.formvalidator');
-JHtml::_('behavior.tooltip');
+JHtml::_('bootstrap.tooltip');
 if(!COM_TZ_PORTFOLIO_PLUS_JVERSION_4_COMPARE) {
     JHtml::_('formbehavior.chosen', 'select');
 }else{

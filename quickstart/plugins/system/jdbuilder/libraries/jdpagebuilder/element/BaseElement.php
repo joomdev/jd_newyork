@@ -3,13 +3,15 @@
 /**
  * @package    JD Builder
  * @author     Team Joomdev <info@joomdev.com>
- * @copyright  2019 www.joomdev.com
+ * @copyright  2020 www.joomdev.com
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 namespace JDPageBuilder\Element;
 
 use JDPageBuilder\Builder;
+use JDPageBuilder\Helper;
+
 // No direct access
 defined('_JEXEC') or die('Restricted access');
 
@@ -26,16 +28,13 @@ class BaseElement
    public $parent;
    public $authorised = false;
    public $style;
-   public $livepreview = false;
    public $childStyles = [];
+   public $indexMode = false;
 
-   public function __construct($object, $parent = null)
+   public function __construct($object, $parent = null, $indexMode = false)
    {
-      $request = \JDPageBuilder\Builder::request();
-      if ($request->get('jdb-preview', 0) || $request->get('task', '') == 'livePreview') {
-         $this->livepreview = true;
-      }
       $this->id = isset($object->id) ? $object->id : null;
+      $this->indexMode = $parent !== null ? $parent->indexMode : $indexMode;
       $this->parent = $parent;
       if (isset($object->type)) {
          $this->type = $object->type;
@@ -49,6 +48,11 @@ class BaseElement
       }
       $this->params = $params;
       if (!empty($this->id)) {
+         // custom id
+         $custom_id = $this->params->get('custom_id', '');
+         if (!empty($custom_id)) {
+            $this->id = $custom_id;
+         }
          $this->style = new ElementStyle('#' . $this->id);
       }
       // Design Options
@@ -97,6 +101,7 @@ class BaseElement
       $return[] = $end;
 
       $return = implode("", $return);
+      $return = Helper::renderHTML($return, $this->indexMode);
       $this->afterRender();
       if ($output) {
          echo $return;
@@ -174,10 +179,14 @@ class BaseElement
             if (substr($childselector, 0, 2) === '::') {
                $glue = "";
             }
-            if (substr($childselector, 0, 7) === '::hover' || substr($childselector, 0, 7) === '::active' || substr($childselector, 0, 7) === '::focus') {
-               $childselector = substr($childselector, 1);
+            if (substr($childselector, 0, 1) == '<') {
+               $selector[] = substr($childselector, 1);
+            } else {
+               if (substr($childselector, 0, 7) === '::hover' || substr($childselector, 0, 7) === '::active' || substr($childselector, 0, 7) === '::focus') {
+                  $childselector = substr($childselector, 1);
+               }
+               $selector[] = $this->style->selector . $glue . $childselector;
             }
-            $selector[] = $this->style->selector . $glue . $childselector;
          }
          $childStyle->selector = implode(',', $selector);
       } else {
@@ -186,11 +195,15 @@ class BaseElement
             $glue = "";
          }
 
-         if (substr($childStyle->selector, 0, 7) === '::hover' || substr($childStyle->selector, 0, 7) === '::active' || substr($childStyle->selector, 0, 7) === '::focus') {
+         if (substr($childStyle->selector, 0, 1) == '<') {
             $childStyle->selector = substr($childStyle->selector, 1);
-         }
+         } else {
+            if (substr($childStyle->selector, 0, 7) === '::hover' || substr($childStyle->selector, 0, 7) === '::active' || substr($childStyle->selector, 0, 7) === '::focus') {
+               $childStyle->selector = substr($childStyle->selector, 1);
+            }
 
-         $childStyle->selector = $this->style->selector . $glue . $childStyle->selector;
+            $childStyle->selector = $this->style->selector . $glue . $childStyle->selector;
+         }
       }
       $this->childStyles[] = $childStyle;
    }
@@ -220,44 +233,134 @@ class BaseElement
    public function getBackgroundVideo()
    {
       $background = $this->params->get('background', 'none');
-      $return = [];
-
+      $html = '';
       if ($background == "video") {
-         $this->addClass('jdb-has-video-background');
-         $return[] = '<div class="jdb-video-background" jdb-video="url:' . \JDPageBuilder\Helper::mediaValue($this->params->get('backgroundVideoMedia', '')) . ';autoplay:true;muted:true;loop:true;">';
-         $return[] = '</div>';
+         $link = $this->params->get('backgroundVideoMedia', '');
+         if (!empty($link)) {
+            $this->addClass('jdb-has-video-background');
+            $html = '<div jdb-video-background data-src="' . \JDPageBuilder\Helper::mediaValue($link) . '"></div>';
+         }
       }
-
-      return implode("", $return);
+      return $html;
    }
 
    public function getParticlesBackground()
    {
-      $background = $this->params->get('enableParticlesBackground', false);
+      $background = $this->params->get('particlesBackground', false);
       $return = [];
 
       if ($background) {
-         $this->addClass('jdb-has-particle-bg');
 
-         // options
-         $count = $this->params->get('particlesBackgroundCount', \json_decode('{value:80}', false));
-         $color = $this->params->get('particlesBackgroundColor', '#ffffff');
-         $shape = $this->params->get('particlesBackgroundShape', 'circle');
-         $size = $this->params->get('particlesBackgroundSize', \json_decode('{value:10}', false));
+         $type = $this->params->get('particlesType', 'presets');
+         $color = $this->params->get('particlesColor', '');
+         $backgroundColor = $this->params->get('backgroundColor', '');
+         $background = $this->params->get('background', 'none');
+         $particlesShape = $this->params->get('particlesShape', '');
 
-         $options = [];
-         $options[] = 'count:' . $count->value;
-         if ($color != '') {
-            $options[] = 'color:' . $color;
+         if ($type == 'presets' && $color == '' && ($background == 'none' || ($background == 'color' && $backgroundColor == '')) && $particlesShape != 'image') {
+            $this->addCss('background-color', '#073366');
          }
-         $options[] = 'shape:' . $shape;
-         $options[] = 'size:' . $size->value;
 
-         // end options
+         if ($type == 'presets') {
+            $preset = $this->params->get('particlesPreset', '');
 
-         $return[] = '<div jdb-particles data-id="' . $this->id . '" data-options="' . implode(';', $options) . '"></div>';
+            if (file_exists(JPATH_SITE . '/media/jdbuilder/data/particles-presets/' . $preset . '.json')) {
+               $params = file_get_contents(JPATH_SITE . '/media/jdbuilder/data/particles-presets/' . $preset . '.json');
+            } else {
+               $params = file_get_contents(JPATH_SITE . '/media/jdbuilder/data/particles-presets/default.json');
+            }
 
-         Builder::loadParticleJS();
+            $params = \json_decode($params, true);
+
+            $size = $this->params->get('particlesSize', null);
+            if (\JDPageBuilder\Helper::checkSliderValue($size)) {
+               $params['particles']['size']['value'] = $size->value;
+            }
+
+            $count = $this->params->get('particlesCount', null);
+            if (\JDPageBuilder\Helper::checkSliderValue($count)) {
+               $params['particles']['number']['value'] = $count->value;
+            }
+
+            $speed = $this->params->get('particlesSpeed', null);
+            if (\JDPageBuilder\Helper::checkSliderValue($speed)) {
+               $params['particles']['move']['speed'] = $speed->value;
+            }
+
+            $direction = $this->params->get('particlesDirection', '');
+            if ($direction != '') {
+               $params['particles']['move']['direction'] = $direction;
+            }
+
+            $opacity = $this->params->get('particlesOpacity', null);
+            if (\JDPageBuilder\Helper::checkSliderValue($opacity)) {
+               $params['particles']['opacity']['value'] = ($opacity->value / 100);
+            }
+
+            if ($color != '') {
+               $params['particles']['color']['value'] = $color;
+            }
+
+            $link = $this->params->get('particlesLink', '');
+            if ($link == 'custom') {
+               $params['particles']['line_linked']['enable'] = true;
+               $linkOpacity = $this->params->get('particlesLinkOpacity', null);
+               if (\JDPageBuilder\Helper::checkSliderValue($linkOpacity)) {
+                  $params['particles']['line_linked']['opacity'] = ($linkOpacity->value / 100);
+               }
+               $linkDistance = $this->params->get('particlesLinkDistance', null);
+               if (\JDPageBuilder\Helper::checkSliderValue($linkDistance)) {
+                  $params['particles']['line_linked']['distance'] = $linkDistance->value;
+               }
+               $linkColor = $this->params->get('particlesLinkColor', '');
+               if ($linkColor != '') {
+                  $params['particles']['line_linked']['color'] = $linkColor;
+               }
+               $params['particles']['line_linked']['width'] = 1;
+            } else if ($link == 'none') {
+               $params['particles']['line_linked']['enable'] = false;
+            }
+
+            $particlesImage = $this->params->get('particlesImage', '');
+            if ($particlesShape != '') {
+               $params['particles']['shape']['type'] = $particlesShape;
+               if ($particlesShape == 'image' && $particlesImage != '') {
+                  $params['particles']['shape']['image'] = [
+                     'src' => \JDPageBuilder\Helper::mediaValue($particlesImage),
+                     'width' => $params['particles']['size']['value'],
+                     'height' => $params['particles']['size']['value']
+                  ];
+               } else if ($particlesShape == 'image') {
+                  $params['particles']['shape']['image'] = [
+                     'src' => ''
+                  ];
+               }
+            }
+
+            $params['interactivity'] = [
+               'events' => [
+                  'onhover' => [
+                     'enable' => false
+                  ],
+                  'onclick' => [
+                     'enable' => false
+                  ],
+                  'resize' => true
+               ]
+            ];
+         } else {
+            $particlesCustom = $this->params->get('particlesCustom', '');
+            if ($particlesCustom != '' && \JDPageBuilder\Helper::isValidJSON($particlesCustom)) {
+               $params = \json_decode($particlesCustom, true);
+            } else {
+               return '';
+            }
+         }
+
+         $this->addClass('jdb-has-particles-background');
+         $return[] = '<div class="jdb-particles-background"><div id="jdb-particles-' . $this->id . '"></div></div>';
+
+         Builder::loadParticleJS('jdb-particles-' . $this->id, $params);
       }
 
       return implode("", $return);
@@ -288,12 +391,6 @@ class BaseElement
       $custom_class = $this->params->get('custom_class', '');
       if (!empty($custom_class)) {
          $this->addClass($custom_class);
-      }
-
-      // custom id
-      $custom_id = $this->params->get('custom_id', '');
-      if (!empty($custom_id)) {
-         $this->id = $custom_id;
       }
    }
 
@@ -554,13 +651,6 @@ class BaseElement
 
    public function responsiveOptions()
    {
-
-      $request = \JDPageBuilder\Builder::request();
-
-      if ($request->get('task', '') == 'livePreview') {
-         return;
-      }
-
       $hideDesktop = $this->params->get('hideDesktop', false);
       if ($hideDesktop) {
          $this->addClass('jdb-hide-desktop');
@@ -605,128 +695,21 @@ class BaseElement
          $this->addAttribute('jdb-animation', implode(';', $options));
          Builder::loadAnimateCSS();
       } else {
-         $this->addAttribute('jdb-animation', 'type:none');
+         // $this->addAttribute('jdb-animation', 'type:none');
       }
    }
 
    public function aclOptions()
    {
-      $access = $this->params->get('access', []);
+      $access = $this->params->get('access', 1);
       $authorised = false;
-      $auh = \JDPageBuilder\Builder::authorised();
-      if (!empty($access)) {
-         foreach ($access as $acl) {
-            if (\in_array($acl, \JDPageBuilder\Builder::authorised())) {
-               $authorised = true;
-            }
-         }
-      } else {
+
+      $access = is_array($access) ? 1 : $access;
+      if (\in_array($access, \JDPageBuilder\Builder::authorised())) {
          $authorised = true;
+      } else {
+         $authorised = false;
       }
       $this->authorised = $authorised;
-   }
-}
-
-class ElementStyle
-{
-
-   protected $styles = ['desktop' => [], 'mobile' => [], 'tablet' => []];
-   protected $css = ['desktop' => [], 'mobile' => [], 'tablet' => []];
-   public $selector;
-
-   public function __construct($selector)
-   {
-      $this->selector = $selector;
-   }
-
-   public function addCss($property, $value, $device = "desktop")
-   {
-      if ($value === null || $value === "") {
-         return;
-      }
-      if (is_string($value)) {
-         $value = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
-         $this->styles[$device][$property] = $value;
-      }
-   }
-
-   public function addStyle($css, $device = "desktop")
-   {
-      if (empty($css)) {
-         return;
-      }
-      $this->css[$device][] = $css;
-   }
-
-   public function render($output = false)
-   {
-      $scss = [];
-
-      foreach (\JDPageBuilder\Helper::$devices as $deviceKey => $device) {
-         $scss[$device] = "";
-      }
-
-      foreach ($this->styles as $device => $styles) {
-         if (!empty($styles)) {
-            foreach ($styles as $property => $value) {
-               $scss[$device] .= "{$property}:{$value};";
-            }
-         }
-      }
-
-      foreach ($this->css as $device => $cssScripts) {
-         if (!empty($cssScripts)) {
-            $cssscript = "";
-            foreach ($cssScripts as $css) {
-               if (is_string($css)) {
-                  $cssscript .= $css;
-                  if (substr($cssscript, -1) != ";") {
-                     $cssscript .= ';';
-                  }
-               }
-            }
-            if (!empty($cssscript)) {
-               $scss[$device] .= $cssscript;
-            }
-         }
-      }
-
-      $inlineScss = [];
-      foreach ($scss as $device => $script) {
-         if ($script != '') {
-            $inlineScss[$device] = $this->selector . ' {' . $script . '}';
-         }
-      }
-
-      \JDPageBuilder\Builder::addStyle($inlineScss);
-
-      /*
-      foreach ($scss as $device => $cssscript) {
-         if (!empty($cssscript)) {
-            if ($device != "desktop") {
-               if ($device == "tablet") {
-                  $inlineScss .= '@media (min-width: 768px) and (max-width: 991.98px) {';
-               } else {
-                  $inlineScss .= '@media (max-width: 767.98px) {';
-               }
-            }
-            $inlineScss .= $cssscript;
-            if ($device != "desktop") {
-               $inlineScss .= '}';
-            }
-         }
-      }
-
-      if (empty($inlineScss)) {
-         return '';
-      }
-
-      $scss = $this->selector . " {" . $inlineScss . "}";
-      if (!$output) {
-         \JDPageBuilder\Builder::addStyle($scss);
-      } else {
-         return $scss;
-      }
-      */
    }
 }

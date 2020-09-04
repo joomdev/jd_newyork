@@ -2,7 +2,7 @@
 /**
  * @version   $Id: RokSprocket_Layout_Lists.php 28636 2015-07-09 15:40:49Z james $
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2019 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2020 RocketTheme, LLC
  * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only
  */
 

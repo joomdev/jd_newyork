@@ -54,7 +54,25 @@ $document->addScriptDeclaration($js);?>
 				<li <?php echo $active_child_menu; ?>>
 					<div ><?php echo JHTML::link($caturl, $cattext); ?></div>
 				</li>
-			<?php
+				<?php
+				if(!empty($child->childs)){ ?>
+					<ul class="menu<?php echo $class_sfx; ?>">
+						<?php
+						foreach ($child->childs as $child1) {
+							$active_child_menu = 'class="VmClose"';
+							$caturl = JRoute::_('index.php?option=com_virtuemart&view=category&virtuemart_category_id='.$child1->virtuemart_category_id);
+							$cattext = vmText::_($child1->category_name);
+							if ($child1->virtuemart_category_id == $active_category_id) {
+								$active_child_menu = 'class="VmOpen"';
+							} ?>
+							<li <?php echo $active_child_menu; ?>>
+								<div ><?php echo JHTML::link($caturl, $cattext); ?></div>
+							</li>
+							<?php
+						} ?>
+					</ul>
+					<?php
+				}
 			} ?>
 		</ul>
 		<?php } ?>

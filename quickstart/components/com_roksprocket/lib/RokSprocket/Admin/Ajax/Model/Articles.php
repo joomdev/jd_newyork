@@ -2,7 +2,7 @@
 /**
  * @version   $Id: Articles.php 30359 2016-07-01 09:07:33Z matias $
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2019 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2020 RocketTheme, LLC
  * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only
  */
 
@@ -90,6 +90,8 @@ class RokSprocketAdminAjaxModelArticles extends RokCommon_Ajax_AbstractModel
 			$sort_type    = $sort_params->get('type');
 
 			$extras = array();
+			$sort_extras = new RokCommon_Registry($extras);
+
 			if (isset($params->extras)) {
 				$extras = $params->extras;
 			}
@@ -97,7 +99,7 @@ class RokSprocketAdminAjaxModelArticles extends RokCommon_Ajax_AbstractModel
 			{
 				$params->module_id = $params->uuid;
 			}
-			$items = RokSprocket::getItemsWithFilters($params->module_id, $params->provider, $provider_filters, $provider_articles, $sort_filters, $sort_type, $sort_append, new RokCommon_Registry($extras), false, true);
+			$items = RokSprocket::getItemsWithFilters($params->module_id, $params->provider, $provider_filters, $provider_articles, $sort_filters, $sort_type, $sort_append, $sort_extras, false, true);
 
 			$container           = RokCommon_Service::getContainer();
 			$template_path_param = sprintf('roksprocket.providers.registered.%s.templatepath', strtolower($params->provider));

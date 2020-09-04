@@ -1,8 +1,21 @@
 <?php
-/**
- * @copyright	Copyright (c) 2017 TemPlaza.com (http://tzportfolio.com). All rights reserved.
- * @license		http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
- */
+/*------------------------------------------------------------------------
+
+# TZ Portfolio Plus Extension
+
+# ------------------------------------------------------------------------
+
+# author    DuongTVTemPlaza
+
+# copyright Copyright (C) 2015 templaza.com. All Rights Reserved.
+
+# @license - http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
+
+# Websites: http://www.templaza.com
+
+# Technical Support:  Forum - http://templaza.com/Forum
+
+-------------------------------------------------------------------------*/
 
 // No direct access.
 defined('_JEXEC') or die;
@@ -73,23 +86,43 @@ $this -> document -> addScriptDeclaration('
             }
             return false;
         };
-        $.ajax({url: "https://raw.githubusercontent.com/templaza/tz_portfolio_plus/master/tz_portfolio_plus.xml",
-            dataType: "xml",
+        $.ajax({
+            url: "index.php?option=com_tz_portfolio_plus",
+            type: "POST",
+            dataType: "json",
+            data: {
+                task: "dashboard.checkupdate"
+            },
             success: function(result){
-                var latestVersion = result.getElementsByTagName("version")[0].childNodes[0].nodeValue;
-                var currentVersion = $(".local-version span").attr("data-local-version");
-                $(".latest-version span").attr("data-online-version",latestVersion).html(latestVersion);
-                $(".checking").css("display", "none");
-                if (compareVersion(currentVersion, latestVersion)) {
-                    $(".requires-updating").css("display","block");
-                    $(".local-version span").addClass("oldversion");
-                } else {
-                    $(".latest").css("display","block");
+                if(result && result.success == true && result.data){
+                    var latestVersion = result.data;
+                    var currentVersion = $(".local-version span").attr("data-local-version");
+                    $(".latest-version span").attr("data-online-version",latestVersion).html(latestVersion);
+                    $(".checking").css("display", "none");
+                    if (compareVersion(currentVersion, latestVersion)) {
+                        $(".requires-updating").css("display","block");
+                        $(".local-version span").addClass("oldversion");
+                    } else {
+                        $(".latest").css("display","block");
+                    }
                 }
             },
             beforeSend: function() {
                 $(".checking").css("display", "block");
             }
+        });
+        $.ajax({
+            url: "index.php?option=com_tz_portfolio_plus",
+            type: "POST",
+            dataType: "json",
+            data: {
+                task: "dashboard.feedblog"
+            },
+            success: function(result){
+                if(result.data){
+                    $(".tpDashboard .tpInfo").after(result.data);
+                }
+            }            
         });
     });
 })(jQuery);
@@ -113,6 +146,11 @@ $this -> document -> addScriptDeclaration('
             </div>
             <?php echo JHtml::_('tzbootstrap.addrow');?>
                 <div class="span7 col-md-7">
+                    <div class="tp-widget free-license">
+                        <span><?php echo JText::_('COM_TZ_PORTFOLIO_PLUS_GET_FREE_PERSONAL_LICENSE'); ?></span>
+                        <a href="<?php echo $xml -> freelicenseUrl; ?>" class="btn btn-danger" target="_blank"><?php
+                            echo JText::_('COM_TZ_PORTFOLIO_PLUS_GET_NOW'); ?></a>
+                    </div>
                     <div class="tpQuicklink">
                         <?php
                         $this->_quickIcon('index.php?option=com_tz_portfolio_plus&view=articles', 'icon-64-articles.png', 'COM_TZ_PORTFOLIO_PLUS_ARTICLES');
@@ -160,7 +198,6 @@ $this -> document -> addScriptDeclaration('
                             </ul>
                         </div>
                     </div>
-                    <?php echo $this -> loadTemplate('feed');?>
                 </div>
             <?php echo JHtml::_('tzbootstrap.endrow');?>
         </div>

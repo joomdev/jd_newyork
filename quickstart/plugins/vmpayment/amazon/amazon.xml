@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension version="2.5" type="plugin" group="vmpayment" method="upgrade">
     <name>AMAZON</name>
-    <creationDate>April 05 2018</creationDate>
+    <creationDate>June 18 2020</creationDate>
     <author>The VirtueMart Development Team</author>
     <authorUrl>https://virtuemart.net</authorUrl>
-    <copyright>Copyright (C) 2004 - 2018 Virtuemart Team. All rights reserved.</copyright>
+    <copyright>Copyright (C) 2004 - 2020 Virtuemart Team. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-    <version>3.2.14</version>
+    <version>3.8.4</version>
     <description>AMAZON PAY plugin</description>
     <languages>
         <language tag="en-GB">en-GB.plg_vmpayment_amazon.ini</language>
@@ -19,7 +19,7 @@
         <fields addpath="/administrator/components/com_virtuemart/fields"/>
         <fields name="params">
             <fieldset name="amazon" addfieldpath="/plugins/vmpayment/amazon/fields">
-
+                <field name="checkConditionsCore" value="1" default="1" type="hidden"/>
                 <field type="getamazon" default=""/>
                 <field class="level1" type="vmtitle" default="VMPAYMENT_AMAZON_CONF_ACCOUNT_PARAMS"/>
 

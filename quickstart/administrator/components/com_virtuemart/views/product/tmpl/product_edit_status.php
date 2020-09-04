@@ -13,7 +13,7 @@
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
-* @version $Id: product_edit_status.php 10165 2019-10-09 07:18:53Z Milbo $
+* @version $Id: product_edit_status.php 10317 2020-05-07 10:03:46Z Milbo $
 */
 
 // Check to ensure this file is included in Joomla!
@@ -29,8 +29,9 @@ defined('_JEXEC') or die('Restricted access'); ?>
 			<input  type="text" class="inputbox js-change-stock"  name="product_in_stock" value="<?php echo $this->product->product_in_stock; ?>" size="10" />
 
             <?php if($this->product->product_parent_id!=0 and !$this->product_childs){
+                echo '<span class="hasTooltip" title="'.vmText::_('COM_VM_PRODUCT_FORM_STOCK_SHARED_TIP').'">';
 				echo VmHtml::checkbox('shared_stock',$this->product->shared_stock);
-				echo vmText::_('COM_VIRTUEMART_PRODUCT_FORM_STOCK_SHARED');
+				echo vmText::_('COM_VM_PRODUCT_FORM_STOCK_SHARED').'</span>';
             } ?>
 
         </td>

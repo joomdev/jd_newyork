@@ -22,33 +22,6 @@ if (!class_exists( 'VmConfig' )) require(JPATH_ROOT .'/administrator/components/
 VmConfig::loadConfig();
 vmLanguage::loadJLang('mod_virtuemart_product', true);
 
-if(!class_exists('mod_virtuemart_product_helper')){
-	class mod_virtuemart_product_helper{
-
-		public static function getProductsListing ($group = FALSE, $nbrReturnProducts = FALSE, $withCalc = TRUE, $onlyPublished = TRUE, $single = FALSE, $filterCategory = TRUE, $category_id = 0, $filterManufacturer = TRUE, $manufacturer_id = 0, $omit = 0) {
-			$productModel = VmModel::getModel('Product');
-			VirtueMartModelProduct::$omitLoaded = $omit;
-			$products = $productModel->getProductListing($group, $nbrReturnProducts, $withCalc, $onlyPublished, $single, $filterCategory, $category_id, $filterManufacturer, $manufacturer_id);
-
-			$cproducts = array();
-			foreach($products as $product){
-				$tmp = get_object_vars($product);
-				$t = new stdClass();
-				foreach ($tmp as $k => $v){
-					// Do not process internal variables
-					if (strpos ($k, '_') !== 0 and property_exists($product, $k)){
-						$t->$k = $v;
-					}
-				}
-				$cproducts[] = $t;
-			}
-			return $cproducts;
-
-		}
-	}
-}
-
-
 // Setting
 $max_items = 		$params->get( 'max_items', 2 ); //maximum number of items to display
 $layout = $params->get('layout','default');
@@ -84,11 +57,10 @@ if($cache and $Product_group!='recent'){
 	$cache	= VmConfig::getCache('mod_virtuemart_product');
 	$cache->setCaching(1);
 	$cache->setLifeTime($cachetime);
-	$products = $cache->call( array( 'mod_virtuemart_product_helper', 'getProductsListing' ),$Product_group, $max_items, $show_price, true, false,$filter_category, $category_id, $filter_manufacturer, $manufacturer_id, $params->get( 'omitLoaded', 0));
+	$products = $cache->call( array( 'VirtueMartModelProduct', 'getProductsListing' ),$Product_group, $max_items, $show_price, true, false,$filter_category, $category_id, $filter_manufacturer, $manufacturer_id, $params->get( 'omitLoaded', 0));
 	if ($products) {
 		vmdebug('Use cached mod products');
 	}
-
 }
 
 if(!$products){
@@ -96,8 +68,9 @@ if(!$products){
 
 	if ($filter_category ) $filter_category = TRUE;
 	VirtueMartModelProduct::$omitLoaded = $params->get( 'omitLoaded', 0);
-	$products = $productModel->getProductListing($Product_group, $max_items, $show_price, true, false,$filter_category, $category_id, $filter_manufacturer, $manufacturer_id);
+	$products = $productModel->getProductListing($Product_group, $max_items, $show_price, true, false,$filter_category, $category_id, $filter_manufacturer, $manufacturer_id, $params->get( 'omitLoaded', 0));
 }
+
 if(empty($products)) return false;
 
 $productModel->addImages($products);

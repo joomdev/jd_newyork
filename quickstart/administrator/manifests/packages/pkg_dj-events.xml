@@ -2,13 +2,13 @@
 <extension type="package" version="2.5.5" method="upgrade">
 	<name>DJ-Events Package</name>
 	<packagename>dj-events</packagename>
-	<creationDate>May 2019</creationDate>
+	<creationDate>23.06.2020</creationDate>
 	<author>DJ-Extensions.com</author>
-	<copyright>Copyright (C) 2019 DJ-Extensions.com, All rights reserved.</copyright>
+	<copyright>Copyright (C) 2020 DJ-Extensions.com, All rights reserved.</copyright>
 	<license>http://www.gnu.org/licenses GNU/GPL</license>
 	<authorEmail>contact@dj-extensions.com</authorEmail>
 	<authorUrl>http://dj-extensions.com</authorUrl>
-	<version>1.1.1</version>
+	<version>1.2.1</version>
 	<url>http://dj-extensions.com</url>
 	<packager></packager>
 	<packagerurl></packagerurl>

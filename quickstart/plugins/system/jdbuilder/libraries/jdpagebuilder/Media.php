@@ -3,7 +3,7 @@
 /**
  * @package    JD Builder
  * @author     Team Joomdev <info@joomdev.com>
- * @copyright  2019 www.joomdev.com
+ * @copyright  2020 www.joomdev.com
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -84,14 +84,18 @@ class Media
                   case 'ico':
                   case 'tiff':
                      $info = @getimagesize($tmp->path);
+                     /* if (!is_array($info)) {
+                        $images[] = $tmp;
+                        break;
+                     } */
                      $tmp->width = @$info[0];
                      $tmp->height = @$info[1];
                      $tmp->type = @$info[2];
                      $tmp->mime = @$info['mime'];
                      $tmp->media_type = 'image';
 
-                     if (($info[0] > 60) || ($info[1] > 60)) {
-                        $dimensions = $this->imageResize($info[0], $info[1], 60);
+                     if ((@$info[0] > 60) || (@$info[1] > 60)) {
+                        $dimensions = $this->imageResize(@$info[0], @$info[1], 60);
                         $tmp->width_60 = $dimensions[0];
                         $tmp->height_60 = $dimensions[1];
                      } else {
@@ -99,8 +103,8 @@ class Media
                         $tmp->height_60 = $tmp->height;
                      }
 
-                     if (($info[0] > 16) || ($info[1] > 16)) {
-                        $dimensions = $this->imageResize($info[0], $info[1], 16);
+                     if ((@$info[0] > 16) || (@$info[1] > 16)) {
+                        $dimensions = $this->imageResize(@$info[0], @$info[1], 16);
                         $tmp->width_16 = $dimensions[0];
                         $tmp->height_16 = $dimensions[1];
                      } else {
@@ -547,18 +551,18 @@ class Media
 
             $validFileExts = [];
             if ($media == 'image') {
-               $validFileExts = explode(',', 'jpeg,jpg,png,gif,ico,odg,xcf,bmp,tiff,webp');
+               $validFileExts = explode(',', 'jpeg,jpg,png,gif,ico,odg,xcf,bmp,tiff,webp,svg');
             }
             if ($media == 'video') {
                $validFileExts = explode(',', 'mp4,mpeg,mpg');
             }
             if (!in_array($uploadedFileExtension, $validFileExts)) {
-               throw new \Exception(\JText::_('JDB_ERROR_INVALID_EXTENSION'));
+               throw new \Exception(\JText::sprintf('JDB_ERROR_INVALID_EXTENSION', implode(', ', $validFileExts)));
             }
 
             $fileTemp = $_FILES[$fieldName]['tmp_name'][$i];
 
-            if ($media == 'image') {
+            if ($media == 'image' && $uploadedFileExtension != 'svg') {
                $imageinfo = getimagesize($fileTemp);
                $okMIMETypes = 'image/jpeg,image/pjpeg,image/png,image/x-png,image/gif,image/x-icon,image/vnd.microsoft.icon';
                $validFileTypes = explode(",", $okMIMETypes);

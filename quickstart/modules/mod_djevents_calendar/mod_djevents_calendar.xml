@@ -7,7 +7,7 @@
 	<license> http://www.gnu.org/licenses GNU/GPL</license>
 	<authorEmail>contact@dj-extensions.com</authorEmail>
 	<authorUrl>http://dj-extensions.com</authorUrl>
-	<version>1.0.0</version>
+	<version>1.2.1</version>
 	<description>MOD_DJEVENTS_CALENDAR</description>
 	<files>
 		<filename module="mod_djevents_calendar">mod_djevents_calendar.php</filename>

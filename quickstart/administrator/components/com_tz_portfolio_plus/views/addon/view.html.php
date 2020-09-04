@@ -37,6 +37,7 @@ class TZ_Portfolio_PlusViewAddon extends JViewLegacy
 
     public function display($tpl = null)
     {
+
         $this->state                = $this->get('State');
         $this->item                 = $this->get('Item');
         $this -> return_link        = $this -> get('ReturnLink');
@@ -57,8 +58,8 @@ class TZ_Portfolio_PlusViewAddon extends JViewLegacy
         }
 
         if($this -> getLayout() == 'upload') {
-            $this -> itemsServer       = $this -> get('ItemsFromServer');
-            $this -> paginationServer   = $this -> get('PaginationFromServer');
+            $this -> document -> addScript(TZ_Portfolio_PlusUri::base(true, true).'/js/libs.min.js',
+                array('version' => 'auto'));
             $this -> filterForm   = $this -> get('FilterForm');
 			
             TZ_Portfolio_PlusHelper::addSubmenu('addons');

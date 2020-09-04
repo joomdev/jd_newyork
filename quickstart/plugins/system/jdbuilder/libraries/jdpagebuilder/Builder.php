@@ -3,13 +3,18 @@
 /**
  * @package    JD Builder
  * @author     Team Joomdev <info@joomdev.com>
- * @copyright  2019 www.joomdev.com
+ * @copyright  2020 www.joomdev.com
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 namespace JDPageBuilder;
 
 use JDPageBuilder\Element\ElementStyle;
+use JDPageBuilder\Helpers\AuditHelper;
+use JDPageBuilder\Helpers\Debugger;
+use JDPageBuilder\Helpers\Document;
+use JDPageBuilder\Helpers\LayoutHelper;
+use Joomla\CMS\Table\Table;
 
 // No direct access
 defined('_JEXEC') or die('Restricted access');
@@ -18,11 +23,13 @@ jimport('joomla.application.component.helper');
 
 abstract class Builder
 {
-
+   protected static $document = null;
+   protected static $globalSettings = null;
+   protected static $debugger = null;
    protected static $request = null;
    protected static $requestMethod = 'GET';
    protected static $styles = [];
-   protected static $scripts = [];
+   protected static $scripts = ['body' => [], 'head' => []];
    protected static $stylesheets = [];
    protected static $customCSS = [];
    protected static $javascripts = [];
@@ -38,6 +45,99 @@ abstract class Builder
       'tablet' => [],
       'mobile' => []
    ];
+
+   public static function init($app = null)
+   {
+      global $jdlid;
+      self::constants($app);
+      self::$debugger = new Debugger(); // Debuuger
+      self::$document = new Document(); // Document
+      self::$globalSettings = Helper::globalSettings(); // Global Settings
+
+      $option = $app->input->get('option', '');
+      if (JDB_ADMIN && ($option == 'com_modules' || $option == 'com_advancedmodules')) {
+         AuditHelper::auditModules();
+      }
+      if (JDB_ADMIN && $option == 'com_content') {
+         AuditHelper::auditArticles();
+      }
+   }
+
+   public static function getSettings()
+   {
+      return self::$globalSettings;
+   }
+
+   public static function getDocument(): Document
+   {
+      return self::$document;
+   }
+
+   public static function constants($app)
+   {
+      if (defined('JDBPATH_PLUGIN')) {
+         return;
+      }
+      define('JDBPATH_PLUGIN', JPATH_PLUGINS . '/system/jdbuilder');
+      define('JDBPATH_COMPONENT', JPATH_SITE . '/components/com_jdbuilder');
+      define('JDBPATH_ELEMENTS', JDBPATH_PLUGIN . '/elements');
+      define('JDBPATH_OPTIONS', JDBPATH_PLUGIN . '/options');
+      define('JDBPATH_MEDIA', JPATH_SITE . '/media/jdbuilder');
+      define('JDBURL_MEDIA', \JURI::root() . 'media/jdbuilder');
+
+      $client = $app->isClient('administrator') ? 'administrator' : 'site';
+      $childWindow = self::isChildWindow();
+
+      define('JDB_CLIENT', $client);
+      define('JDB_ADMIN', $client === 'administrator');
+      define('JDB_SITE', $client === 'site');
+
+      define('JDB_LIVE_PREVIEW', JDB_SITE && $app->input->get('jdb-live-preview', 0) && $childWindow);
+      define('JDB_PREVIEW', JDB_SITE && $childWindow);
+      define('JDB_FORM_TOKEN', \JSession::getFormToken());
+
+      $config = \JFactory::getConfig();
+      $dev = $config->get('jdbuilder_dev', 0);
+      define('JDB_DEV', $dev);
+
+      if (JDB_LIVE_PREVIEW || JDB_PREVIEW) {
+         $config->set('offline', 0);
+      }
+   }
+
+   public static function isChildWindow()
+   {
+      if (!isset($_SERVER['HTTP_REFERER'])) {
+         return false;
+      }
+
+      $uri = \JUri::getInstance($_SERVER['HTTP_REFERER']);
+      $query = $uri->getQuery(true);
+      $path = $uri->getPath();
+      $id = \JFactory::getApplication()->input->get('id', 0, 'INT');
+
+      if (substr($path, -24) !== '/administrator/index.php') {
+         return false;
+      }
+
+      if (!(isset($query['option']) && $query['option'] == 'com_jdbuilder')) {
+         return false;
+      }
+
+      if (!(isset($query['view']) && $query['view'] == 'page')) {
+         return false;
+      }
+
+      if (!(isset($query['layout']) && $query['layout'] == 'edit')) {
+         return false;
+      }
+
+      if (!(isset($query['id']) && $query['id'] == $id)) {
+         return false;
+      }
+
+      return true;
+   }
 
    public static function request()
    {
@@ -114,8 +214,9 @@ abstract class Builder
       $document = \JFactory::getDocument();
       foreach ($stylesheets as $stylesheet) {
          $document->addStylesheet($stylesheet);
-         // $inlineScss .= '@import "' . $stylesheet . '";';
       }
+
+      Builder::getDocument()->loadPlugins();
 
       foreach (self::$css as $device => $script) {
          if (!empty($script)) {
@@ -137,9 +238,9 @@ abstract class Builder
       return $inlineScss;
    }
 
-   public static function addScript($js = '')
+   public static function addScript($js = '', $position = 'body')
    {
-      static::$scripts[] = $js;
+      static::$scripts[$position][] = $js;
    }
 
    public static function addStylesheet($file)
@@ -159,26 +260,26 @@ abstract class Builder
 
    public static function builderArticleToggle($enabled = false, $id = 0, $lid = 0)
    {
-      $layout = new \JLayoutFile('article', JPATH_PLUGINS . '/system/jdbuilder/layouts');
+      $layout = new \JLayoutFile('article', JDBPATH_PLUGIN . '/layouts');
       return $layout->render(['enabled' => $enabled, 'id' => $id, 'lid' => $lid]);
    }
 
    public static function builderArea($enabled = false, $type = 'page', $id = 0)
    {
-      $layout = new \JLayoutFile('builder', JPATH_PLUGINS . '/system/jdbuilder/layouts');
+      $layout = new \JLayoutFile('builder' . (JDB_JOOMLA_VERSION == 4 ? '' : '-j3'), JDBPATH_PLUGIN . '/layouts');
       return $layout->render(['enabled' => $enabled, 'type' => $type, 'id' => $id]);
    }
 
    public static function JDBBanner()
    {
-      $layout = new \JLayoutFile('banner', JPATH_PLUGINS . '/system/jdbuilder/layouts');
+      $layout = new \JLayoutFile('banner', JDBPATH_PLUGIN . '/layouts');
       return $layout->render();
    }
 
    public static function getElements()
    {
       $paths = [
-         JPATH_PLUGINS . '/system/jdbuilder/elements'
+         JDBPATH_ELEMENTS
       ];
 
       $elements = [];
@@ -207,7 +308,7 @@ abstract class Builder
          if (file_exists($manifest)) {
             $element = self::getElementDataByManifest($manifest);
             if ($element !== false) {
-               $elements[] = self::getElementDataByManifest($manifest);
+               $elements[] = $element;
             }
          }
       }
@@ -226,11 +327,12 @@ abstract class Builder
 
    public static function getElementDataByManifest($manifest)
    {
-      $xml = \JFactory::getXml($manifest);
+      $xml = Helper::getXml($manifest);
       $element = new \stdClass();
       $element->type = (string) $xml->attributes()->type;
       $element->title = (string) $xml->title;
       $element->icon = (string) $xml->icon;
+      $element->documentation = (string) $xml->documentation;
       $element->iconType = "icon";
 
       $ext = substr($element->icon, -4);
@@ -291,16 +393,58 @@ abstract class Builder
 
    public static function getPageForm()
    {
-      $xml = JPATH_PLUGINS . '/system/jdbuilder/options/page.xml';
+      $xml = JDBPATH_OPTIONS . '/page.xml';
       $form = new Form("page");
       $form->load($xml);
       $formJSON = $form->get();
       return $formJSON;
    }
 
+   public static function getGlobalParams()
+   {
+      return Helper::globalSettings()->toArray();
+   }
+
+   public static function getGlobalForm()
+   {
+      $xml = JDBPATH_OPTIONS . '/global.xml';
+      $form = new Form("global");
+      $form->load($xml);
+      if (file_exists(JDBPATH_OPTIONS . '/global-pro.xml')) {
+         $form->load(JDBPATH_OPTIONS . '/global-pro.xml');
+      }
+      $formJSON = $form->get();
+      return $formJSON;
+   }
+
+   public static function saveGlobalOptions()
+   {
+      $db = \JFactory::getDbo();
+      $query = "SELECT * FROM `#__jdbuilder_configs` WHERE `type`='global'";
+      $db->setQuery($query);
+      $result = $db->loadObject();
+      $request = self::request();
+      if (empty($result)) {
+         $object = new \stdClass();
+         $object->id = NULL;
+         $object->type = 'global';
+         $object->item_id = 0;
+         $object->config = \json_encode($request->get('config', [], 'ARRAY'));
+         $object->created_on = time();
+         $object->modified_on = time();
+         $db->insertObject('#__jdbuilder_configs', $object);
+      } else {
+         $object = new \stdClass();
+         $object->id = $result->id;
+         $object->config = \json_encode($request->get('config', [], 'ARRAY'));
+         $object->modified_on = time();
+         $db->updateObject('#__jdbuilder_configs', $object, 'id');
+      }
+   }
+
    public static function getArticleForm()
    {
-      $xml = JPATH_PLUGINS . '/system/jdbuilder/options/article.xml';
+      $xml = JDBPATH_OPTIONS . '/article.xml';
       $form = new Form("article");
       $form->load($xml);
       $formJSON = $form->get();
@@ -399,30 +543,32 @@ abstract class Builder
          throw new \Exception(\JText::_('JERROR_CORE_CREATE_NOT_PERMITTED'));
       }
 
-
-      $dispatcher = \JEventDispatcher::getInstance();
       $context = 'com_jdbuilder.page';
       // Include the plugins for the save events.
       \JPluginHelper::importPlugin("content");
 
       $request = self::request();
       $jform = $request->get('jform', [], 'ARRAY');
-      \JTable::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_jdbuilder/tables');
-      $table = \JTable::getInstance("Page", "JdbuilderTable", []);
+      if (JDB_JOOMLA_VERSION == 3) {
+         \JTable::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_jdbuilder/tables');
+         $table = \JTable::getInstance("Page", "JdbuilderTable", []);
+      } else {
+         $table = Table::getInstance('PageTable', 'Joomdev\\Component\\JDBuilder\\Administrator\\Table\\');
+      }
 
       if ($table->load($jform['id'], true)) {
          if (!$table->check()) {
             throw new \Exception($table->getError());
          }
          // Trigger the before save event.
-         $result = $dispatcher->trigger("onContentBeforeSave", array($context, &$table, true));
+         $result = \JFactory::getApplication()->triggerEvent('onContentBeforeSave', array($context, &$table, false, $jform['id']));
 
          $table->title = $jform['title'];
-         $table->checked_out = $jform['checked_out'];
-         $table->checked_out_time = $jform['checked_out_time'];
+         $table->checked_out = \JFactory::getUser()->get('id');
+         $table->checked_out_time = date('Y-m-d H:i:s');
          $table->params = $jform['params'];
          $table->layout_id = $jform['layout_id'];
-         $table->ordering = $jform['ordering'];
+         $table->ordering = @$jform['ordering'];
          $table->modified_by = $jform['modified_by'];
          $table->rules = $jform['rules'];
 
@@ -432,6 +578,7 @@ abstract class Builder
             $table->category_id = $params['category_id'];
             $table->language = $params['language'];
             $table->state = $params['state'];
+            $table->access = $params['access'];
          }
 
          $jdbform = $request->get('_jdbform', [], 'ARRAY');
@@ -453,6 +600,7 @@ abstract class Builder
                $jform['layout_id'] = $layoutid;
             } else {
                $object->id = $jform['layout_id'];
+               $layoutid = $jform['layout_id'];
                $object->layout = $layout;
                $object->updated = time();
                $db->updateObject('#__jdbuilder_layouts', $object, 'id');
@@ -464,7 +612,7 @@ abstract class Builder
          }
 
          // Trigger the after save event.
-         $dispatcher->trigger("onContentAfterSave", array($context, &$table, true));
+         \JFactory::getApplication()->triggerEvent('onContentAfterSave', array($context, &$table, false, $jform['id']));
       } else {
          throw new \Exception($table->getError());
       }
@@ -475,13 +623,13 @@ abstract class Builder
    {
       $type = strtolower($type);
       //$type = ($type == 'inner-row') ? 'row' : $type;
-      $form_dir = JPATH_PLUGINS . '/system/jdbuilder/options/';
-      $plugin_element_dir = JPATH_PLUGINS . '/system/jdbuilder/elements/' . $type;
+      $form_dir = JDBPATH_OPTIONS . '/';
+      $plugin_element_dir = JDBPATH_ELEMENTS . '/' . $type;
 
       $lang = \JFactory::getLanguage();
       $lang->load();
       if (in_array($type, ['section', 'row', 'column'])) {
-         $lang->load("jdbuilder", JPATH_PLUGINS . '/system/jdbuilder');
+         $lang->load("jdbuilder", JDBPATH_PLUGIN);
          $return = [];
          $return[] = $form_dir . 'default.xml';
          $return[] = $form_dir . $type . '.xml';
@@ -547,15 +695,17 @@ abstract class Builder
 
    public static function renderPage($item, $type = "page", $output = true)
    {
-      $request = \JDPageBuilder\Builder::request();
       $document = \JFactory::getDocument();
       $buiderConfig = \JComponentHelper::getParams('com_jdbuilder');
-      if ($request->get('jdb-preview', 0)) {
+      if (JDB_LIVE_PREVIEW) {
          $document->addCustomTag('<link rel="stylesheet" id="jdb-preview-css" />');
          $date = new \DateTime(date('Y-m-d'), new \DateTimeZone(\JFactory::getConfig()->get('offset')));
-         $document->addScriptDeclaration('var JDBRenderer = null; var jdPageBaseUrl = "' . \JURI::root() . '"; var _JDBTIMEZONE="' . $date->format('O') . '";');
+         $document->addScriptDeclaration('var JDB_FORM_TOKEN = "' . JDB_FORM_TOKEN . '"; var JDB_RECAPTCHA_SITE_KEY = "' . $buiderConfig->get('recaptchaSiteKey', '') . '"; var JDBRenderer = null; var _JDBDATA = new Map(); var jdPageBaseUrl = "' . \JURI::root() . '"; var _JDBTIMEZONE="' . $date->format('O') . '";');
          // add shapedividers
          $fbAppId = 'var _JDBFBAPPID = "' . $buiderConfig->get('fbAppId',  '') . '";';
+         $document->addScriptDeclaration($fbAppId);
+
+         // Shape Dividers
          $dividersSVGs = 'var _JDBDIVIDERS = new Map([';
          $dividersSVGArr = [];
          $dividers = Field::getShapeDividers();
@@ -567,11 +717,28 @@ abstract class Builder
             }
          }
          $dividersSVGs .= implode(',', $dividersSVGArr) . ']);';
-         $document->addScriptDeclaration($fbAppId);
          $document->addScriptDeclaration($dividersSVGs);
 
-         if (file_exists(JPATH_PLUGINS . '/system/jdbuilder/fonts/fonts.json')) {
-            $customFonts = \json_decode(file_get_contents(JPATH_PLUGINS . '/system/jdbuilder/fonts/fonts.json'), true);
+         // Particles background presets
+         $particlesPresets = 'var _JDBPARTICLESPRESETS = {';
+         $presetsArr = [];
+         $presets = Field::getParticlesPresets();
+         foreach ($presets as $preset) {
+            $file = JPATH_SITE . '/media/jdbuilder/data/particles-presets/' . $preset['value'] . '.json';
+            if (file_exists($file)) {
+               $json = file_get_contents($file);
+               $presetsArr[] = $preset['value'] . ": '" . \json_encode(\json_decode($json)) . "'";
+            }
+         }
+         $particlesPresets .= implode(',', $presetsArr) . '};';
+         $document->addScriptDeclaration($particlesPresets);
+
+         $document->addScriptDeclaration('var _JDB_ITEM_TYPE = "page";');
+         $document->addScriptDeclaration('var _JDBGLOBALSETTINGS = ' . Helper::globalSettings()->toString() . ';');
+         $document->addScriptDeclaration('var _JDB_ITEM_ID = ' . $item->id . ';');
+
+         if (file_exists(JDBPATH_PLUGIN . '/fonts/fonts.json')) {
+            $customFonts = \json_decode(file_get_contents(JDBPATH_PLUGIN . '/fonts/fonts.json'), true);
          } else {
             $customFonts = [];
          }
@@ -588,6 +755,11 @@ abstract class Builder
 
 
          $document->addScript(\JURI::root() . 'media/jdbuilder/js/jdb.min.js', ['version' => JDB_MEDIA_VERSION]);
+
+         // async defer
+         if (!empty($buiderConfig->get('gmapkey', ''))) {
+            $document->addCustomTag('<script src="https://maps.googleapis.com/maps/api/js?key=' . $buiderConfig->get('gmapkey', '') . '" async defer></script>');
+         }
 
          /*
          $document->addScriptDeclaration('
@@ -607,11 +779,16 @@ abstract class Builder
 
          Helper::renderGlobalScss();
 
-         $document->addStylesheet('//use.fontawesome.com/releases/v5.11.2/css/all.css');
-         $document->addStylesheet('//cdnjs.cloudflare.com/ajax/libs/foundicons/3.0.0/foundation-icons.min.css');
-         $document->addStylesheet('//cdnjs.cloudflare.com/ajax/libs/typicons/2.0.9/typicons.min.css');
-         $document->addStylesheet('//cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css');
+         $document->addStylesheet(JDBURL_MEDIA . '/css/preview.css');
+         $document->addStylesheet('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap');
+         Builder::getDocument()->materialIcons = true;
+         Builder::getDocument()->faIcons = true;
+         Builder::getDocument()->foundationIcons = true;
+         Builder::getDocument()->typeIcons = true;
+         Builder::getDocument()->animateCss = true;
+         $document->addCustomTag('<script src="https://www.google.com/recaptcha/api.js" async defer></script>');
 
+         Helper::renderGlobalTypography();
          $css = self::renderStyle();
          $document->addStyleDeclaration($css);
 
@@ -668,9 +845,10 @@ abstract class Builder
          return '';
       }
 
-      $layout = new Element\Layout($layout);
+      $layout = new Element\Layout($layout, 'page', $item->id);
       $rendered = $layout->render();
       \JDPageBuilder\Builder::renderPageStyle($params);
+      \JDPageBuilder\Helper::renderGlobalTypography();
       \JDPageBuilder\Builder::renderHead();
       echo $rendered;
    }
@@ -740,24 +918,31 @@ abstract class Builder
 
    public static function onBeforeBodyClose()
    {
-      $document = \JFactory::getDocument();
-      $request = \JDPageBuilder\Builder::request();
-      $buiderConfig = \JComponentHelper::getParams('com_jdbuilder');
-
-      if ($request->get('jdb-preview', 0)) {
-         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/jquery-3.4.1.min.js?v=' . JDB_MEDIA_VERSION . '"></script>';
-         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/jdb.noconflict.js?v=' . JDB_MEDIA_VERSION . '"></script>';
-         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/preview.js?v=' . JDB_MEDIA_VERSION . '"></script>';
-         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/particles.min.js?v=' . JDB_MEDIA_VERSION . '"></script>';
-         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/animatedheading.js?v=' . JDB_MEDIA_VERSION . '"></script>';
-         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/isotope.pkgd.min.js?v=' . JDB_MEDIA_VERSION . '"></script>';
-         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/jquery.justifiedGallery.min.js?v=' . JDB_MEDIA_VERSION . '"></script>';
-         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/jquery.event.move.js?v=' . JDB_MEDIA_VERSION . '"></script>';
-         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/jdbfrontend.js?v=' . JDB_MEDIA_VERSION . '"></script>';
+      if (JDB_LIVE_PREVIEW) {
+         $version = Helper::getMediaVersion();
+         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/jquery-3.4.1.min.js?v=' . $version . '"></script>';
+         echo '<script>var $JDB = jQuery.noConflict();</script>';
+         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/preview.js?v=' . $version . '"></script>';
+         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/particles.min.js?v=' . $version . '"></script>';
+         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/animatedheading.js?v=' . $version . '"></script>';
+         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/isotope.pkgd.min.js?v=' . $version . '"></script>';
+         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/parsley.min.js?v=' . $version . '"></script>';
+         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/imask.min.js?v=' . $version . '"></script>';
+         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/jdvideo.min.js?v=' . $version . '"></script>';
+         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/jdytsubscriber.min.js?v=' . $version . '"></script>';
+         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/selectr.min.js?v=' . $version . '"></script>';
+         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/parsley.custom.js?v=' . $version . '"></script>';
+         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/jquery.justifiedGallery.min.js?v=' . $version . '"></script>';
+         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/jdlightbox.min.js?v=' . $version . '"></script>';
+         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/jquery.event.move.js?v=' . $version . '"></script>';
+         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/moment.min.js?v=' . $version . '"></script>';
+         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/pikaday.min.js?v=' . $version . '"></script>';
+         echo '<script src="' . \JURI::root() . 'media/jdbuilder/js/jdbfrontend.js?v=' . $version . '"></script>';
+         echo '<script>jQuery.noConflict(true);</script>';
       }
 
-      if (!empty($buiderConfig->get('gmapkey', ''))) {
-         echo '<script async defer src="https://maps.googleapis.com/maps/api/js?key=' . $buiderConfig->get('gmapkey', '') . '" type="text/javascript"></script>';
+      if (!empty(self::$scripts['body'])) {
+         echo '<script>' . implode("\n", self::$scripts['body']) . '</script>';
       }
    }
 
@@ -771,14 +956,15 @@ abstract class Builder
 
       // Add Rendered JS Files in Head
       foreach (self::$javascripts as $javascript) {
-         $document->addScript($javascript);
+         $document->addScript($javascript, ['version' => 'auto']);
       }
 
       // Add Rendered Javascript in Head
-      foreach (self::$scripts as $script) {
+      foreach (self::$scripts['head'] as $script) {
          $document->addScriptDeclaration($script);
       }
 
+      $document->addScript(\JURI::root() . 'media/jdbuilder/js/jdb.noconflict.end.js', ['version' => JDB_MEDIA_VERSION]);
       Helper::renderGlobalScss();
 
 
@@ -804,28 +990,42 @@ abstract class Builder
       if (!in_array($prefix, ['fa', 'fi', 'ty'])) {
          return;
       }
-
       switch ($prefix) {
          case 'fa':
-            self::addStylesheet('//use.fontawesome.com/releases/v5.11.2/css/all.css');
+            Builder::getDocument()->faIcons = true;
             break;
          case 'fi':
-            self::addStylesheet('//cdnjs.cloudflare.com/ajax/libs/foundicons/3.0.0/foundation-icons.min.css');
+            Builder::getDocument()->foundationIcons = true;
             break;
          case 'ty':
-            self::addStylesheet('//cdnjs.cloudflare.com/ajax/libs/typicons/2.0.9/typicons.min.css');
+            Builder::getDocument()->typeIcons = true;
             break;
+      }
+   }
+
+   public static function loadGoogleMap($callback)
+   {
+      Builder::getDocument()->googleMap = true;
+      if (!in_array($callback, Builder::getDocument()->googleMapCallbacks)) {
+         Builder::getDocument()->googleMapCallbacks[] = $callback;
       }
    }
 
    public static function loadAnimateCSS()
    {
-      self::addStylesheet('//cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css');
+      Builder::getDocument()->animateCss = true;
    }
 
-   public static function loadParticleJS()
+   public static function loadLightBox()
+   {
+      Builder::getDocument()->lightBox = true;
+   }
+
+   public static function loadParticleJS($id, $params)
    {
       self::addJavascript(\JURI::root() . 'media/jdbuilder/js/particles.min.js');
+      $script = 'particlesJS(\'' . $id . '\', ' . \json_encode($params) . ')';
+      self::addScript($script);
    }
 
    public static function loadAnimatedHeadingJS()
@@ -1049,9 +1249,10 @@ abstract class Builder
    public static function getAdminElements()
    {
       $document = \JFactory::getDocument();
-      $path = JPATH_PLUGINS . '/system/jdbuilder/elements';
+      $path = JDBPATH_ELEMENTS;
       $dirs = array_filter(glob($path . '/*'), 'is_dir');
       $files = [];
+      $templates = '<!-- JD Builder Element\'s Templates -->';
       foreach ($dirs as $dir) {
 
          if (in_array(strtolower(basename($dir)), self::$reserved_elements)) {
@@ -1060,25 +1261,32 @@ abstract class Builder
 
          $javascript = file_exists($dir . '/' . 'tmpl/default.js') ? basename($dir) . '/' . 'tmpl/default.js' : basename($dir) . '/' . 'tmpl/' . basename($dir) . '.js';
 
+
          if (file_exists($path . '/' . $javascript)) {
             $files[] = $path . '/' . $javascript;
          }
+
+         $helper = basename($dir) . '/' . 'helper.js';
+         if (file_exists($path . '/' . $helper)) {
+            $files[] = $path . '/' . $helper;
+         }
+
+         $templates .= Helper::getElementPartials($dir);
       }
+
+      $templates .= '<!-- End Templates -->';
 
 
       $script = Helper::minifyJS($files);
+      $document->addScript(\JURI::root() . 'media/jdbuilder/js/mustache.min.js');
       $document->addScriptDeclaration($script);
+      $document->addCustomTag($templates);
       //JDPageBuilder\Helper::minifyJS
    }
 
    public static function downloadExternalMedia()
    {
       return Media::download();
-   }
-
-   public static function getArticles()
-   {
-      return Helper::getArticles([9], 10, 'random', 'show');
    }
 
    public static function getCategories()
@@ -1098,9 +1306,114 @@ abstract class Builder
       return $return;
    }
 
+   public static function getArticles()
+   {
+      $db = \JFactory::getDbo();
+      $query = "SELECT `id`,`title` FROM `#__content` WHERE `state`='1'";
+      $db->setQuery($query);
+      return $db->loadObjectList();
+   }
+
+   public static function getMenuitems()
+   {
+      require_once realpath(JPATH_ADMINISTRATOR . '/components/com_menus/helpers/menus.php');
+      $return = [];
+      $groups = [];
+      $items = \MenusHelper::getMenuLinks('', 0, 0, [], [], 0);
+      // Build the groups arrays.
+      foreach ($items as $menu) {
+         // Initialize the group.
+         $groups[$menu->title] = [];
+
+         // Build the options array.
+         foreach ($menu->links as $link) {
+            $levelPrefix = str_repeat('- ', max(0, $link->level - 1));
+
+            // Displays language code if not set to All
+            if ($link->language !== '*') {
+               $lang = ' (' . $link->language . ')';
+            } else {
+               $lang = '';
+            }
+
+            $groups[$menu->title][] = \JHtml::_(
+               'select.option',
+               $link->value,
+               $levelPrefix . $link->text . $lang,
+               'value',
+               'text',
+               false
+            );
+         }
+      }
+
+      $return = ['options' => [['label' => 'None', 'value' => '']], 'groups' => []];
+      foreach ($groups as $groupTitle => $group) {
+         $options = [];
+         foreach ($group as $option) {
+            $options[] = ['label' => $option->text, 'value' => $option->value];
+         }
+         $return['groups'][] = ['label' => $groupTitle, 'options' => $options];
+      }
+
+      return $return;
+   }
+
    public static function jdApi()
    {
       $request = self::request();
       return Helper::jdApiRequest($request->get('method', 'post'), $request->get('hook', '', 'RAW'), $request->get('data', [], 'ARRAY'));
+   }
+
+   public static function getData()
+   {
+      $request = self::request();
+      $task = $request->get('data', '');
+      $task = \JDPageBuilder\Helper::classify($task);
+      if (!method_exists(\JDPageBuilder\Helpers\DataHelper::class, $task)) {
+         throw new \Exception('Bad Data Request', 400);
+      } else {
+         $methodName = $task;
+      }
+      return \JDPageBuilder\Helpers\DataHelper::$methodName();
+   }
+
+   public static function getAjax()
+   {
+      $request = self::request();
+      $element = $request->get('element', '');
+      $q = $request->get('q', '', 'RAW');
+      $_type = $request->get('_type', 'query');
+      $key = $request->get('key', '');
+      if (empty($element) || empty($key)) {
+         throw new \Exception('Bad Ajax Request', 400);
+      }
+      if ($_type === 'init') {
+         $result = self::getAjaxOptions($element, $key, $q, true);
+      } else {
+         $result = self::getAjaxOptions($element, $key, $q);
+      }
+      $result = empty($result) ? [] : $result;
+      return $result;
+   }
+
+   public static function getAjaxOptions($element, $key, $value, $init = false)
+   {
+      if (!file_exists(JDBPATH_ELEMENTS . '/' . $element . '/helper.php')) {
+         throw new \Exception('Bad Ajax Request', 400);
+      }
+
+      require_once(JDBPATH_ELEMENTS . '/' . $element . '/helper.php');
+
+      $class = 'JDBuilder' . \JDPageBuilder\Helper::classify($element) . 'ElementHelper';
+
+      $func = \JDPageBuilder\Helper::classify(($init ? 'init' : 'query') . 'Ajax_' . $key);
+
+      if (!method_exists($class, $func)) {
+         throw new \Exception('Bad Ajax Request', 400);
+      } else {
+         $namespace = new $class();
+         return $namespace->$func($value);
+      }
    }
 }

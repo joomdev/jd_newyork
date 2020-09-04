@@ -40,7 +40,9 @@ $width = intval(12 / $cols);
 				<?php } ?>
 				
 				<div class="djev_info djev_clearfix">
-					<?php if($params->get('city', 1) && (!empty($item->city_name) || $item->location)) { ?>
+					<?php if(!empty($item->online_event)) { ?>
+						<span class="djev_city online-event"><?php echo JText::_('COM_DJEVENTS_ONLINE_EVENT'); ?></span>
+					<?php }elseif($params->get('city', 1) && (!empty($item->city_name) || $item->location)) { ?>
 						<a href="<?php echo JRoute::_(DJEventsHelperRoute::getEventsListRoute(0, $item->city_id))?>" class="djev_city">
 							<i class="fa fa-map-marker"></i> <?php echo (!empty($item->city_name) ? $item->city_name : $item->location) ?>
 						</a>

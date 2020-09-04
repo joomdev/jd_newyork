@@ -29,6 +29,8 @@ JLoader::register('TZ_Portfolio_PlusHelperCategories', JPATH_ADMINISTRATOR.'/com
 class TZ_Portfolio_PlusTemplate {
 
     protected static $cache             = array();
+    protected static $loaded            = array();
+    protected static $imported          = array();
     protected static $languageLoaded    = array();
 
     public static function getTemplate($params = false)
@@ -223,6 +225,10 @@ class TZ_Portfolio_PlusTemplate {
                 }
             }
 
+            if(isset($template -> layout) && is_string($template -> layout)){
+                $template -> layout = json_decode($template -> layout);
+            }
+
             if ($params)
             {
                 self::$cache[$storeId]  = $template;
@@ -361,7 +367,7 @@ class TZ_Portfolio_PlusTemplate {
         return $load;
     }
 
-    public static function getCssStyleName($styleName, $params = null, $variables = array()){
+    public static function getCssStyleName($styleName, $params = null, $variables = array(), &$document = null){
 
         if(!$styleName){
             return false;
@@ -374,15 +380,15 @@ class TZ_Portfolio_PlusTemplate {
         $variables  = (array) $variables;
 
         $storeId    = __METHOD__;
-        $storeId   .= '::'.$styleName;
-        $storeId   .= '::'.$params -> get('enable_bootstrap', 1);
-        $storeId   .= '::'.$params -> get('bootstrapversion', 4);
-        $storeId   .= '::'.serialize($variables);
+//        $storeId   .= '::'.$styleName;
+//        $storeId   .= '::'.$params -> get('enable_bootstrap', 1);
+//        $storeId   .= '::'.$params -> get('bootstrapversion', 4);
+//        $storeId   .= '::'.serialize($variables);
         $storeId    = md5($storeId);
 
-        if(isset(self::$cache[$storeId])){
-            return self::$cache[$storeId];
-        }
+//        if(!isset(self::$cache[$storeId])) {
+//            self::$cache[$storeId] = array();
+//        }
 
         $cssname    = '';
         $scss_files = array();
@@ -424,6 +430,17 @@ class TZ_Portfolio_PlusTemplate {
             $bootverPrefix  = $params -> get('enable_bootstrap', 1);
             $bootverPrefix .= $bootverPrefix?'-'.$params -> get('bootstrapversion', 4):'';
             $bootverPrefix .= ':'.serialize($variables);
+
+            if($params -> get('enable_bootstrap', 1) && $params -> get('bootstrapversion', 4)
+                && !isset(self::$loaded[$styleName]['import_bootstrap'])) {
+                unset(self::$imported['import_fontawesome']);
+            }elseif(isset(self::$loaded[$styleName]['loaded'])){
+                unset(self::$imported['import_fontawesome']);
+            }
+            if(!isset(self::$imported['import_fontawesome'])){
+                $bootverPrefix  .= ':fontawesome';
+            }
+
             $bootverPrefix  = md5($bootverPrefix);
             $bootverPrefix  = substr($bootverPrefix, 0, 4);
             $cssname        = 'style-'.$bootverPrefix.'-'. md5($name);
@@ -453,9 +470,11 @@ class TZ_Portfolio_PlusTemplate {
                     if($styleName && file_exists($sass_path.'/'.$styleName.'/scss/variables_override.scss')) {
                         $compileCode .= '@import "variables_override.scss";';
                     }
-                    if($params -> get('bootstrapversion', 4) == 4){
+                    if($params -> get('bootstrapversion', 4) == 4
+                        && !isset(self::$imported['import_bootstrap'])){
                         if(file_exists(COM_TZ_PORTFOLIO_PLUS_PATH_SITE.'/scss/vendor/bootstrap/bootstrap.scss')) {
                             $compileCode .= '@import "vendor/bootstrap/bootstrap.scss";';
+                            self::$imported['import_bootstrap'] = true;
                         }
                         if(file_exists(COM_TZ_PORTFOLIO_PLUS_PATH_SITE.'/scss/_basic.scss')) {
                             $compileCode .= '@import "basic.scss";';
@@ -467,7 +486,21 @@ class TZ_Portfolio_PlusTemplate {
 //                    }
                 }
 
+                // Import basic
+                if(file_exists(COM_TZ_PORTFOLIO_PLUS_PATH_SITE.'/scss/_basic.scss')
+                    && !isset(self::$imported['import_basic'])) {
+                    $compileCode .= '@import "basic.scss";';
+                    self::$imported['import_basic'] = true;
+                }
+
                 $compileCode .= '@import "' . $sass_prefix_path . '/style.scss";';
+
+                // Import Font Awesome
+                if(file_exists(COM_TZ_PORTFOLIO_PLUS_PATH_SITE.'/scss/vendor/fontawesome/all.scss')
+                    && !isset(self::$imported['import_fontawesome'])) {
+                    $compileCode .= '@import "vendor/fontawesome/all.scss";';
+                    self::$imported['import_fontawesome'] = true;
+                }
 
                 if(count($variables)) {
                     $scss->setVariables($variables);
@@ -485,8 +518,31 @@ class TZ_Portfolio_PlusTemplate {
                     file_put_contents($css_path . '/' . $cssname . '.css', $content);
                 }
             }
+
             if(file_exists($css_path . '/' . $cssname . '.css')) {
-                return 'style/'.($styleName ? $styleName . '/' . $cssname . '.css' : $cssname . '.css');
+                $result = 'style/'.($styleName ? $styleName . '/' . $cssname . '.css' : $cssname . '.css');
+
+                if($params -> get('enable_bootstrap', 1) && $params -> get('bootstrapversion', 4)
+                    && !isset(self::$loaded[$styleName]['import_bootstrap'])) {
+                    $styleSheets    = $document -> _styleSheets;
+                    $styleKeys      = array_keys($styleSheets);
+
+                    $grepKeys   = preg_grep('#components/com_tz_portfolio_plus/css/style/'.$styleName.'/style-#', $styleKeys);
+                    if(count($grepKeys)) {
+                        $grepKey    = array_shift($grepKeys);
+                        if(isset($styleSheets[$grepKey])) {
+                            unset($document -> _styleSheets[$grepKey]);
+                        }
+                    }
+                    self::$loaded[$styleName]['import_bootstrap']   = true;
+                }elseif(isset(self::$loaded[$styleName]['loaded'])){
+                    return false;
+                }
+
+                self::$loaded[$styleName]['loaded']     = true;
+                self::$imported['import_fontawesome']   = true;
+
+                return $result;
             }
         }
 

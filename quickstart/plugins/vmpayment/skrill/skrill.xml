@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<extension version="2.5" type="plugin" group="vmpayment">
+<extension version="3.4.5" type="plugin" group="vmpayment">
     <name>Skrill</name>
-    <creationDate>November 22 2019</creationDate>
-    <author>Skrill Holdings Limited</author>
-    <authorUrl>http://www.skrill.com</authorUrl>
-    <copyright>Copyright (C) 2004 - 2019 Virtuemart Team. All rights reserved.</copyright>
+    <creationDate>June 18 2020</creationDate>
+    <author>VirtueMart Development Team, Skrill Holdings Limited</author>
+    <authorUrl>https://virtuemart.net</authorUrl>
+    <copyright>Copyright (C) 2004 - 2020 Virtuemart Team. All rights reserved., Copyright (C) 2019 Skrill.</copyright>
     <license>http://www.gnu.org/licenses/gpl-3.0.html GNU/GPL</license>
-    <version>3.6.10</version>
+    <version>3.8.4</version>
     <description><![CDATA[<a href="http://www.skrill.com" target="_blank">skrill</a> is a popular
-	payment provider authorised by the Financial Services Authority of the United Kingdom (FSA). ]]>
+  payment provider authorised by the Financial Services Authority of the United Kingdom (FSA). ]]>
     </description>
 
     <files>
         <filename plugin="skrill">skrill.php</filename>
+        <folder>language</folder>
+        <folder>assets</folder>
+        <folder>fields</folder>
+        <folder>helpers</folder>
     </files>
-    <languages>
-        <language tag="en-GB">en-GB.plg_vmpayment_skrill.ini</language>
-    </languages>
     <vmconfig>
         <fields name="params">
-            <fieldset name="basic" addfieldpath="/administrator/components/com_virtuemart/fields">
+            <fieldset name="basic" addfieldpath="/plugins/vmpayment/skrill/fields">
+              <!-- Account Credentials -->
                 <field name="checkConditionsCore" value="1" default="1" type="hidden"/>
+                <field type="getskrill" default=""/>
                 <field type="vmtitle" default="VMPAYMENT_SKRILL_ACCOUNT_PARAMS"/>
-
-                <field type="list" name="product" label="VMPAYMENT_SKRILL_PRODUCT"
-                       default="" description="VMPAYMENT_SKRILL_PRODUCT_TIP">
-                    <option value="acc">VMPAYMENT_SKRILL_PRODUCT_ACC</option>
-                    <option value="did">VMPAYMENT_SKRILL_PRODUCT_DID</option>
-                    <option value="gir">VMPAYMENT_SKRILL_PRODUCT_GIR</option>
-                    <option value="idl">VMPAYMENT_SKRILL_PRODUCT_IDL</option>
-                    <option value="obt">VMPAYMENT_SKRILL_PRODUCT_OBT</option>
-                    <option value="pwt">VMPAYMENT_SKRILL_PRODUCT_PWY</option>
-                    <option value="sft">VMPAYMENT_SKRILL_PRODUCT_SFT</option>
-                    <option value="wlt">VMPAYMENT_SKRILL_PRODUCT_WLT</option>
-                </field>
+                <field type="text" required="true" name="skrill_general_merchant_id" size="50" label="SKRILL_BACKEND_MID"
+                       default="" description="SKRILL_BACKEND_MID_TIP"/>
                 <field type="text" required="true" name="pay_to_email" size="50" label="VMPAYMENT_SKRILL_PAY_TO_EMAIL"
                        default="" description="VMPAYMENT_SKRILL_PAY_TO_EMAIL_TIP"/>
+                <field type="password" required="true" name="skrill_general_api_password" size="50" label="SKRILL_BACKEND_APIPASS"
+                       default="" description="SKRILL_BACKEND_TT_APIPW_TIP"/>
                 <field type="password" required="true" name="secret_word" size="50" label="VMPAYMENT_SKRILL_SECRET_WORD"
                        default="" description="VMPAYMENT_SKRILL_SECRET_WORD_TIP"/>
+                <field name="skrill_general_display" type="list" default="IFRAME" label="SKRILL_BACKEND_DISPLAY" description="SKRILL_BACKEND_DISPLAY_TIP">
+                    <option value="IFRAME">SKRILL_BACKEND_IFRAME</option>
+                    <option value="REDIRECT">SKRILL_BACKEND_REDIRECT</option>
+                </field>
 
+                <!-- Order Status -->
                 <field type="vmtitle" default="VMPAYMENT_SKRILL_ORDER_STATUS_SECTION"
                        description=""/>
                 <field name="status_pending" type="vmorderstate" scope="com_virtuemart" default="U"
@@ -47,6 +47,8 @@
                        label="VMPAYMENT_SKRILL_STATUS_SUCCESS" description="VMPAYMENT_SKRILL_STATUS_SUCCESS_TIP"/>
                 <field name="status_canceled" type="vmorderstate" scope="com_virtuemart" default="X"
                        label="VMPAYMENT_SKRILL_STATUS_FAILED" description="VMPAYMENT_SKRILL_STATUS_FAILED_TIP"/>
+                <field name="status_refunded" type="vmorderstate" scope="com_virtuemart" default="R"
+                       label="VMPAYMENT_SKRILL_STATUS_REFUNDED" description="VMPAYMENT_SKRILL_STATUS_REFUNDED_TIP"/>
 
                 <!-- Currencies -->
                 <!-- ============ -->
@@ -60,6 +62,7 @@
                     <option value="payment">VMPAYMENT_SKRILL_EMAIL_CURRENCY_PAYMENT</option>
                 </field-->
 
+                <!-- Template -->
                 <field   type="vmtitle" default="VMPAYMENT_SKRILL_TEMPLATE_SECTION"
                        description=""/>
                 <field name="payment_logos" type="imagelist" label="VMPAYMENT_SKRILL_LOGOS" multiple="true"
@@ -71,9 +74,10 @@
                     <field type="text" name="logo_url" size="50" label="VMPAYMENT_SKRILL_LOGOURL"
                            default="" description="VMPAYMENT_SKRILL_LOGOURL_TIP"/>
 
-
+                <!-- Restriction -->
                 <field  type="vmtitle" default="VMPAYMENT_SKRILL_RESTRICTIONS_SECTION"
                        description=""/>
+                <!-- Discount and Fees -->
                 <field name="countries" multiple="true" type="vmcountries" scope="com_virtuemart" default=""
                            label="VMPAYMENT_SKRILL_COUNTRIES" description="VMPAYMENT_SKRILL_COUNTRIES_TIP"/>
                     <field name="min_amount" type="text" label="VMPAYMENT_SKRILL_MIN_AMOUNT"
@@ -89,7 +93,7 @@
                            description="VMPAYMENT_SKRILL_COST_PERCENT_TOTAL_TIP"/>
                     <field name="tax_id" type="vmtaxes" scope="com_virtuemart" label="VMPAYMENT_SKRILL_TAX"
                            description="VMPAYMENT_SKRILL_TAX_TIP"/>
-
+                <!-- Debugging -->
                 <field  type="vmtitle" default="VMPAYMENT_SKRILL_DEBUG_SECTION"
                        description=""/>
                 <field name="debug" type="list" default="0" label="VMPAYMENT_SKRILL_DEBUG_SECTION" >
@@ -101,8 +105,260 @@
                     <option value="0">COM_VIRTUEMART_NO</option>
                     <option value="1">COM_VIRTUEMART_YES</option>
                 </field>
+
+                <!-- PAYMENT METHOD -->
+                <!-- SKRILL FLEXIBLE -->
+                <field  type="vmtitle" default="SKRILL_BACKEND_PM_SETTING"
+                       description=""/>
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_FLEXIBLE"
+                       description=""/>
+                <field name="skrill_apm_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_APM_COUNTRIES"/>
+                <field type="text"  name="skrill_apm_sort_order" size="2" default="0" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL WALLET -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_WLT"
+                       description=""/>
+                <field name="skrill_wlt_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_WLT_COUNTRIES"/>
+                <field type="text"  name="skrill_wlt_sort_order" size="2" default="1" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL PAYSAFECARD -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_PSC"
+                       description=""/>
+                <field name="skrill_psc_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_PSC_COUNTRIES"/>
+                <field type="text"  name="skrill_psc_sort_order" size="2" default="2" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL PAYSAFECASH -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_PCH"
+                       description=""/>
+                <field name="skrill_pch_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_PCH_COUNTRIES"/>
+                <field type="text"  name="skrill_pch_sort_order" size="2" default="3" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL CREDIT CARD -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_ACC"
+                       description=""/>
+                <field name="skrill_acc_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_ACC_COUNTRIES"/>
+                <field name="skrill_acc_separately" type="list" default="1" label="SKRILL_BACKEND_PM_MODE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="text"  name="skrill_acc_sort_order" size="2" default="4" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL VISA -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_VSA"
+                       description=""/>
+                <field name="skrill_vsa_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_VSA_COUNTRIES"/>
+                <field type="text"  name="skrill_vsa_sort_order" size="2" default="5" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL MASTERCARD -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_MSC"
+                       description=""/>
+                <field name="skrill_msc_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_MSC_COUNTRIES"/>
+                <field type="text"  name="skrill_msc_sort_order" size="2" default="6" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL MAESTRO -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_MAE"
+                       description=""/>
+                <field name="skrill_mae_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_MAE_COUNTRIES"/>
+                <field type="text"  name="skrill_mae_sort_order" size="2" default="7" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL Rapid Trasnfer -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_OBT"
+                       description=""/>
+                <field name="skrill_obt_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_OBT_COUNTRIES"/>
+                <field type="text"  name="skrill_obt_sort_order" size="2" default="13" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL Giropay -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_GIR"
+                       description=""/>
+                <field name="skrill_gir_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_GIR_COUNTRIES"/>
+                <field type="text"  name="skrill_gir_sort_order" size="2" default="14" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL Klarna -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_SFT"
+                       description=""/>
+                <field name="skrill_sft_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_SFT_COUNTRIES"/>
+                <field type="text"  name="skrill_sft_sort_order" size="2" default="16" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL Nordea Solo -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_EBT"
+                       description=""/>
+                <field name="skrill_ebt_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_EBT_COUNTRIES"/>
+                <field type="text"  name="skrill_ebt_sort_order" size="2" default="17" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL EPS (Netpay) -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_NPY"
+                       description=""/>
+                <field name="skrill_npy_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_NPY_COUNTRIES"/>
+                <field type="text"  name="skrill_npy_sort_order" size="2" default="19" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL POLi -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_PLI"
+                       description=""/>
+                <field name="skrill_pli_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_PLI_COUNTRIES"/>
+                <field type="text"  name="skrill_pli_sort_order" size="2" default="20" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL Przelewy24 -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_PWY"
+                       description=""/>
+                <field name="skrill_pwy_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_PWY_COUNTRIES"/>
+                <field type="text"  name="skrill_pwy_sort_order" size="2" default="21" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL ePay.bg -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_EPY"
+                       description=""/>
+                <field name="skrill_epy_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_EPY_COUNTRIES"/>
+                <field type="text"  name="skrill_epy_sort_order" size="2" default="22" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL Neteller -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_NTL"
+                       description=""/>
+                <field name="skrill_ntl_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_NTL_COUNTRIES"/>
+                <field type="text"  name="skrill_ntl_sort_order" size="2" default="24" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL Alipay -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_ALI"
+                       description=""/>
+                <field name="skrill_ali_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_ALI_COUNTRIES"/>
+                <field type="text"  name="skrill_ali_sort_order" size="2" default="25" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL Direct Bank Transfer -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_ADB"
+                       description=""/>
+                <field name="skrill_adb_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_ADB_COUNTRIES"/>
+                <field type="text"  name="skrill_adb_sort_order" size="2" default="26" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL Manual Bank Transfer -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_AOB"
+                       description=""/>
+                <field name="skrill_aob_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_AOB_COUNTRIES"/>
+                <field type="text"  name="skrill_aob_sort_order" size="2" default="27" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL Cash/Invoice -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_ACI"
+                       description=""/>
+                <field name="skrill_aci_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_ACI_COUNTRIES"/>
+                <field type="text"  name="skrill_aci_sort_order" size="2" default="28" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL Unionpay -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_AUP"
+                       description=""/>
+                <field name="skrill_aup_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_AUP_COUNTRIES"/>
+                <field type="text"  name="skrill_aup_sort_order" size="2" default="29" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL Bitcoin -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_BTC"
+                       description=""/>
+                <field name="skrill_btc_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_BTC_COUNTRIES"/>
+                <field type="text"  name="skrill_btc_sort_order" size="2" default="30" label="BACKEND_CH_ORDER"/>
+
+                <!-- SKRILL iDEAL -->
+                <field type="vmtitle" default="SKRILL_BACKEND_PM_IDL"
+                       description=""/>
+                <field name="skrill_idl_active" type="list" default="1" label="BACKEND_CH_ACTIVE">
+                    <option value="0">COM_VIRTUEMART_NO</option>
+                    <option value="1">COM_VIRTUEMART_YES</option>
+                </field>
+                <field type="vmtitle" class="skrill-countries" default="" description="SKRILL_IDL_COUNTRIES"/>
+                <field type="text"  name="skrill_idl_sort_order" size="2" default="2" label="BACKEND_CH_ORDER"/>
             </fieldset>
         </fields>
+    </vmconfig>
+    <vmconfig>
+      <fieldset>
+        
+      </fieldset>
     </vmconfig>
     <updateservers>
         <!-- Note: No spaces or linebreaks allowed between the server tags -->

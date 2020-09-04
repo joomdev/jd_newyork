@@ -3,7 +3,7 @@
  * @version    2.10.x
  * @package    K2
  * @author     JoomlaWorks https://www.joomlaworks.net
- * @copyright  Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.
+ * @copyright  Copyright (c) 2006 - 2020 JoomlaWorks Ltd. All rights reserved.
  * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
  */
 
@@ -37,10 +37,15 @@ if ($itemCustomLinkURL && $itemCustomLinkURL!='http://' && $itemCustomLinkURL!='
 } elseif ($itemCustomLinkMenuItem) {
     $menu = JMenu::getInstance('site');
     $menuLink = $menu->getItem($itemCustomLinkMenuItem);
-    if (!$itemCustomLinkTitle) {
-        $itemCustomLinkTitle = (K2_JVERSION != '15') ? $menuLink->title : $menuLink->name;
+    if (!empty($menuLink)) {
+        if (!$itemCustomLinkTitle) {
+            $itemCustomLinkTitle = (K2_JVERSION != '15') ? $menuLink->title : $menuLink->name;
+        }
+        $itemCustomLinkURL = JRoute::_('index.php?&Itemid='.$menuLink->id);
+    } else {
+        $itemCustomLinkTitle = '';
+        $itemCustomLinkURL = '';
     }
-    $itemCustomLinkURL = JRoute::_('index.php?&Itemid='.$menuLink->id);
 }
 
 // Make params backwards compatible

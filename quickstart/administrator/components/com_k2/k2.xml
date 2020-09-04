@@ -2,11 +2,11 @@
 <extension type="component" version="2.5" method="upgrade">
     <name>COM_K2</name>
     <author>JoomlaWorks</author>
-    <creationDate>December 12th, 2019</creationDate>
-    <copyright>Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.</copyright>
+    <creationDate>April 27th, 2020</creationDate>
+    <copyright>Copyright (c) 2006 - 2020 JoomlaWorks Ltd. All rights reserved.</copyright>
     <authorEmail>please-use-the-contact-form@joomlaworks.net</authorEmail>
     <authorUrl>www.joomlaworks.net</authorUrl>
-    <version>2.10.2</version>
+    <version>2.10.3</version>
     <license>https://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <description>Thank you for installing K2 by JoomlaWorks, the powerful content extension for Joomla</description>
     <installfile>install.k2.php</installfile>
@@ -178,12 +178,12 @@
                 <field name="jQueryHandling" default="1.9.1" />
                 <field name="k2Sef" default="0" />
                 <field name="k2SefCatIdTitleAliasSep" default="dash" />
-                <field name="k2SefInsertCatId" default="1" />
-                <field name="k2SefInsertItemId" default="1" />
+                <field name="k2SefInsertCatId" default="0" />
+                <field name="k2SefInsertItemId" default="0" />
                 <field name="k2SefItemIdTitleAliasSep" default="dash" />
-                <field name="k2SefLabelCat" default="content" />
+                <field name="k2SefLabelCat" default="" />
                 <field name="k2SefLabelDate" default="date" />
-                <field name="k2SefLabelItem" default="0" />
+                <field name="k2SefLabelItem" default="1" />
                 <field name="k2SefLabelItemCustomPrefix" default="" />
                 <field name="k2SefLabelSearch" default="search" />
                 <field name="k2SefLabelTag" default="tag" />
@@ -219,12 +219,13 @@
                 <field name="showTagFilter" default="0" />
                 <field name="showVideoTab" default="1" />
                 <field name="siteItemHits" default="1" />
+                <field name="siteItemlistLimit" default="100" />
                 <field name="socialButtonCode" default="" />
                 <field name="stopForumSpam" default="0" />
                 <field name="stopForumSpamApiKey" default="" />
                 <field name="tagFeedIcon" default="1" />
                 <field name="tagFeedLink" default="1" />
-                <field name="taggingSystem" default="1" />
+                <field name="taggingSystem" default="free" />
                 <field name="tagItemCategory" default="1" />
                 <field name="tagItemCount" default="10" />
                 <field name="tagItemDateCreated" default="1" />

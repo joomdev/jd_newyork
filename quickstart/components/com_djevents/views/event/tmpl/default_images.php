@@ -17,7 +17,7 @@ if($this->params->get('event_gallery',1)) { ?>
 	<div class="djev_poster">
 		<?php if(!empty($image->video)) { ?> 
 			<a class="djev_media_link mfp-iframe" href="<?php echo $image->video; ?>">
-				<img alt="<?php echo $image->title; ?>" src="<?php echo $image->thumb; ?>" />
+				<img alt="<?php echo $image->title; ?>" src="<?php echo $this->item->thumb; ?>" />
 				<i class="fa fa-play"></i>
 			</a>
 		<?php } else if(!empty($this->item->thumb)) { ?>

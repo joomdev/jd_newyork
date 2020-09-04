@@ -15,7 +15,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 10198 2019-11-18 10:42:19Z Milbo $
+ * @version $Id: view.html.php 10273 2020-03-02 15:46:41Z Milbo $
  */
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die('Restricted access');
@@ -213,13 +213,23 @@ class VirtuemartViewUser extends VmView {
 
 		$this->add_product_link="";
 		$this->manage_link="";
-		if(ShopFunctionsF::isFEmanager('manage'/*,'category','product','inventory','ratings','custom','calc','manufacturer','orders','report','user'*/) ){
-			$mlnk = JURI::root() . 'index.php?option=com_virtuemart&tmpl=component&manage=1' ;
-			$this->manage_link = $this->linkIcon($mlnk, 'JACTION_MANAGE', 'new', false, false, true, true);
+		if (empty(VmConfig::get('bootstrap', ''))) {
+			$vmbtn = "vm-btn";
+			$vmbtnpri ="vm-btn-primary";
+			$vmbtnsec = "vm-btn-secondary";
+		} else {
+			$vmbtn = "btn";
+			$vmbtnpri = "btn-primary";
+			$vmbtnsec = "btn-secondary";
 		}
-		if(ShopFunctionsF::isFEmanager('product.edit')){
+
+		if(ShopFunctionsF::isFEmanager() ){
+			$mlnk = JURI::root() . 'index.php?option=com_virtuemart&tmpl=component&manage=1' ;
+			$this->manage_link = $this->linkIcon($mlnk, 'JACTION_MANAGE', 'new', false, false, true, true, 'class="'.$vmbtn.' '.$vmbtnpri.'"');
+		}
+		if(ShopFunctionsF::isFEmanager(array('product.add','product.edit'))){
 			$aplnk = JURI::root() . 'index.php?option=com_virtuemart&tmpl=component&view=product&view=product&task=edit&virtuemart_product_id=0&manage=1' ;
-			$this->add_product_link = $this->linkIcon($aplnk, 'COM_VIRTUEMART_PRODUCT_ADD_PRODUCT', 'new', false, false, true, true);
+			$this->add_product_link = $this->linkIcon($aplnk, 'COM_VIRTUEMART_PRODUCT_ADD_PRODUCT', 'new', false, false, true, true, 'class="'.$vmbtn.' '.$vmbtnpri.'"');
 		}
 
 		$document = JFactory::getDocument();
@@ -230,7 +240,7 @@ class VirtuemartViewUser extends VmView {
 		$this->assignRef('corefield_title', $corefield_title);
 		$this->assignRef('vmfield_title', $vmfield_title);
 
-		shopFunctionsF::setVmTemplate($this, 0, 0, $layoutName);
+		VmTemplate::setVmTemplate($this, 0, 0, $layoutName);
 
 		$this->captcha = shopFunctionsF::renderCaptcha();
 
@@ -278,8 +288,12 @@ class VirtuemartViewUser extends VmView {
 
 			$this->_lists['shoppergroups'] = ShopFunctions::renderShopperGroupList($shoppergrps);
 		} else {
+			$showUserShopperGrp = true;
 			$this->getMenuParams();
-			$showUserShopperGrp = $this->params->get('showUserShopperGrp',1);
+			if(!empty($this->params)){
+				$showUserShopperGrp = $this->params->get('showUserShopperGrp',1);
+			}
+
 			if($showUserShopperGrp){
 				foreach($_shoppergroup as $group){
 					$this->_lists['shoppergroups'] .= vmText::_($group['shopper_group_name']).', ';
@@ -355,8 +369,10 @@ class VirtuemartViewUser extends VmView {
 			$vendorModel->addImages($this->vendor);
 		} else {
 			$this->getMenuParams();
-			$this->allowRegisterVendor = $this->params->get('allowRegisterVendor',0);
-
+			$this->allowRegisterVendor = 0;
+			if(!empty($this->params)){
+				$this->allowRegisterVendor = $this->params->get('allowRegisterVendor',0);
+			}
 		}
     }
 

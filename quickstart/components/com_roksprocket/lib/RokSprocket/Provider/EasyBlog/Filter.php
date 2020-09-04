@@ -75,9 +75,11 @@ class RokSprocket_Provider_EasyBlog_Filter extends RokSprocket_Provider_Abstract
 	//			WHEN c.private = 1 THEN "private"
 	//			END AS category_access');
 			$this->query->select('CONCAT_WS(",", ca.content_id) AS category_access');
-			$this->query->join('LEFT', '#__easyblog_category_acl AS ca ON (ca.category_id = c.id AND ca.type = "group")');
+			// $this->query->join('LEFT', '#__easyblog_category_acl AS ca ON (ca.category_id = c.id AND ca.type = "group")');
 
-			$this->query->join('LEFT', '#__easyblog_category_acl_item AS cai ON (cai.id = ca.acl_id AND cai.action = "view")');
+			// $this->query->join('LEFT', '#__easyblog_category_acl_item AS cai ON (cai.id = ca.acl_id AND cai.action = "view")');
+
+			$this->query->join('LEFT', '#__easyblog_category_acl AS ca ON (ca.category_id = c.id AND ca.type = "group" AND ca.acl_type="view")');
 
 			$this->query->group('a.id');
 	}

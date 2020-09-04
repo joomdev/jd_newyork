@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: view.html.php 10205 2019-11-18 11:26:57Z Milbo $
+ * @version $Id: view.html.php 10284 2020-03-11 10:39:29Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -264,7 +264,7 @@ class VirtuemartViewProduct extends VmViewAdmin {
 					if($product->canonCatId) $canonLink = '&virtuemart_category_id='.$product->canonCatId;
 
 					$text = '<a href="'.juri::root().'index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id='.$product->virtuemart_product_id.$canonLink.'&Itemid='. $menuItemID .'" target="_blank" >'. $product->product_name.$sku.'<span class="vm2-modallink"></span></a>';
-					if($app->isSite()){
+					if(VmConfig::isSiteByApp()){
 						$manEx = '';
 						if(VmConfig::get('previewProductLeaveManager', false)){
 							$manEx = '&manage=0';
@@ -304,7 +304,7 @@ class VirtuemartViewProduct extends VmViewAdmin {
 					$limit = 0;
 					$session->set('reset_pag', false,'vm');
 				}
-				$this->categories = $catmodel->getCategoryTree(0,0,false,$this->lists['search'],$limit);
+				$this->categories = $catmodel->getCategoryTree(0,0,true,$this->lists['search'],$limit);
 				foreach($this->categories as $i=>$c){
 					$this->categories[$i]->productcount = $catmodel->countProducts($this->categories[$i]->virtuemart_category_id);
 				}
@@ -358,7 +358,7 @@ class VirtuemartViewProduct extends VmViewAdmin {
 			$customsList = $customModel->getCustomsList ();
 			$emptyOption = JHtml::_ ('select.option', '', vmText::_ ('COM_VM_SELECT_CUSTOM'), 'value', 'text');
 			array_unshift ($customsList, $emptyOption);
-			$attribs='style= "width: 300px;"';
+			$attribs='class="changeSendForm" style= "width: 300px;"';
 			$selected = '';
 			if(!empty($model->virtuemart_custom_id[0])){
 				$selected = $model->virtuemart_custom_id[0];

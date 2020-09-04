@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="plugin" group="system" version="2.5" method="upgrade">
     <name>System - RokCommon</name>
-    <creationDate>September 26, 2019</creationDate>
+    <creationDate>April  1, 2020</creationDate>
     <author>RocketTheme, LLC</author>
     <authorEmail>support@rockettheme.com</authorEmail>
     <authorUrl>http://www.rockettheme.com</authorUrl>
-    <copyright>(C) 2005 - 2019 RocketTheme, LLC. All rights reserved.</copyright>
+    <copyright>(C) 2005 - 2020 RocketTheme, LLC. All rights reserved.</copyright>
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
-    <version>3.2.8</version>
+    <version>3.2.9</version>
     <description>RokCommon System Plugin</description>
     <files>
         <filename plugin="rokcommon">rokcommon.php</filename>

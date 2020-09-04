@@ -30,7 +30,7 @@ $end = JFactory::getDate($item->end); ?>
 	<?php echo $end->format($params->get('date_format','l, d F Y')); ?>
 	<?php if($item->end_time) echo JText::_('COM_DJEVENTS_AT') .' '. $end->format($params->get('time_format', 'h:i a')); ?>
 </span>
-<?php } else if($start->format('Hi')!=$end->format('Hi')) { ?>
+<?php } else if($item->end_time && $start->format('Hi')!=$end->format('Hi')) { ?>
 <span class="djev_time_to">
 	<span class="djev_time_sep">-</span>
 	<?php if($item->end_time) echo $end->format($params->get('time_format', 'h:i a')); ?>

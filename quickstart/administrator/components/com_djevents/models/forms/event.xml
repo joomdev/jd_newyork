@@ -46,13 +46,17 @@
 		<field name="price" type="textarea" label="COM_DJEVENTS_PRICE" />
 		<field name="external_url" type="text" class="input-xxlarge" label="COM_DJEVENTS_EXTERNAL_URL" />
 		
-		<field name="location" type="text" class="input-xlarge" label="COM_DJEVENTS_LOCATION_NAME" />
-		<field name="address" type="text" class="input-xlarge" label="COM_DJEVENTS_ADDRESS" />
-		<field name="city_id" type="djeventscity" class="form-control" label="COM_DJEVENTS_CITY" />
-		<field name="post_code" type="text" class="input-medium" label="COM_DJEVENTS_POST_CODE" />
-		<field name="latitude" type="text" class="input-xlarge" label="COM_DJEVENTS_LATITUDE" />
-		<field name="longitude" type="text" class="input-xlarge" label="COM_DJEVENTS_LONGITUDE" />
-		<field name="zoom" type="text" class="input-mini" label="COM_DJEVENTS_ZOOM" default="15" />
+		<field name="online_event" type="radio" label="COM_DJEVENTS_ONLINE_EVENT" class="btn-group" default="0">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field showon="online_event:0" name="location" type="text" class="input-xlarge" label="COM_DJEVENTS_LOCATION_NAME" />
+		<field showon="online_event:0" name="address" type="text" class="input-xlarge" label="COM_DJEVENTS_ADDRESS" />
+		<field showon="online_event:0" name="city_id" type="djeventscity" class="form-control" label="COM_DJEVENTS_CITY" />
+		<field showon="online_event:0" name="post_code" type="text" class="input-medium" label="COM_DJEVENTS_POST_CODE" />
+		<field showon="online_event:0" name="latitude" type="text" class="input-xlarge" label="COM_DJEVENTS_LATITUDE" />
+		<field showon="online_event:0" name="longitude" type="text" class="input-xlarge" label="COM_DJEVENTS_LONGITUDE" />
+		<field showon="online_event:0" name="zoom" type="text" class="input-mini" label="COM_DJEVENTS_ZOOM" default="15" />
 	</fieldset>
 	
 	<fields name="time" label="COM_DJEVENTS_EVENT_TIME">

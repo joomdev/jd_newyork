@@ -11,7 +11,7 @@ die('Direct Access to ' . basename(__FILE__) . ' is not allowed.');
  * {@link AddressServiceSoap} and {@link TaxServiceSoap} read this file during initialization.
  *
  * @author    Avalara
- * @copyright © 2004 - 2011 Avalara, Inc.  All rights reserved.
+ * @copyright ï¿½ 2004 - 2011 Avalara, Inc.  All rights reserved.
  * @package   Base
  */
 
@@ -31,7 +31,7 @@ class ATConfig
     
     public function __get($n) 
     {
-        if($n == '_ivars') { return parent::__get($n); }
+        //if($n == '_ivars') { return parent::__get($n); }
         if(isset($this->_ivars[$n])) 
         {
             return $this->_ivars[$n]; 

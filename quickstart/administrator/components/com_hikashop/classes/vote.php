@@ -1,9 +1,9 @@
 <?php
 /**
  * @package	HikaShop for Joomla!
- * @version	4.2.2
+ * @version	4.3.0
  * @author	hikashop.com
- * @copyright	(C) 2010-2019 HIKARI SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2020 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -440,11 +440,12 @@ function hikashop_send_vote(rating, from){ return hikaVote.vote(rating, from); }
 		$doc->addScriptDeclaration($js);
 	}
 
-	function sendNotifComment($vote_id, $comment, $vote_ref_id, $user_id, $pseudo, $email, $vote_type){
+	function sendNotifComment($vote_id, $comment, $vote_ref_id, $user_id, $pseudo, $email, $vote_type) {
+		$config =& hikashop_config();
+
 		if($pseudo != '0'){
 			$username = $pseudo;
 			$email = $email;
-			$config =& hikashop_config();
 			$email_enabled = $config->get('email_comment');
 			if($email_enabled == 0){
 				$email = "Not required";
@@ -478,9 +479,10 @@ function hikashop_send_vote(rating, from){ return hikaVote.vote(rating, from); }
 		$infos->result =& $result;
 		$mail = $mailClass->get('new_comment',$infos);
 		$mail->subject = JText::sprintf($mail->subject,HIKASHOP_LIVE);
-		$config =& hikashop_config();
 
-		$mail->dst_email = $config->get('email_each_comment');
+		if(empty($mail->dst_email))
+			$mail->dst_email = $config->get('email_each_comment');
+
 		$mailClass->sendMail($mail);
 		return ;
 	}

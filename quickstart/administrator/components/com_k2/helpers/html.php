@@ -3,7 +3,7 @@
  * @version    2.10.x
  * @package    K2
  * @author     JoomlaWorks https://www.joomlaworks.net
- * @copyright  Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.
+ * @copyright  Copyright (c) 2006 - 2020 JoomlaWorks Ltd. All rights reserved.
  * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
  */
 
@@ -122,6 +122,25 @@ class K2HelperHTML
                 <li'.self::activeMenu('info').'>
                     <a href="index.php?option=com_k2&amp;view=info">'.JText::_('K2_INFORMATION').'</a>
                 </li>
+            ';
+            if ($user->gid > 23) {
+                if (K2_JVERSION == '15') {
+                    $settingsURL = 'index.php?option=com_k2&view=settings';
+                    $settingsURLAttributes = ' class="modal" rel="{handler: \'iframe\', size: {x: (window.innerWidth) * 0.7, y: (window.innerHeight) * 0.9}}"';
+                } elseif (K2_JVERSION == '25') {
+                    $settingsURL = 'index.php?option=com_config&view=component&component=com_k2&path=&tmpl=component';
+                    $settingsURLAttributes = ' class="modal" rel="{handler: \'iframe\', size: {x: (window.innerWidth) * 0.7, y: (window.innerHeight) * 0.9}}"';
+                } else {
+                    $settingsURL = 'index.php?option=com_config&view=component&component=com_k2&path=&return='.urlencode(base64_encode(JFactory::getURI()->toString()));
+                    $settingsURLAttributes = '';
+                }
+                $sidebarMenu .= '
+                <li>
+                    <a href="'.$settingsURL.'"'.$settingsURLAttributes.'>'.JText::_('K2_SETTINGS').'</a>
+                </li>
+                ';
+            }
+            $sidebarMenu .= '
             </ul>
             ';
         }
@@ -140,7 +159,7 @@ class K2HelperHTML
 
         $mobileMenu = '';
 
-        if (!in_array($view, $editForms) && $context != 'modalselector') {
+        if (!in_array($view, $editForms) && $context != 'modalselector' && $view != 'settings') {
             $mobileMenu = '
             <div id="k2AdminMobileMenu">
                 <ul>
@@ -338,7 +357,12 @@ class K2HelperHTML
                 } else {
                     JHTML::_('behavior.tooltip');
                     if (version_compare(JVERSION, '3.0.0', 'ge')) {
-                        if ($view == 'item' && !$params->get('taggingSystem')) {
+                        if ($params->get('taggingSystem') === '0' || $params->get('taggingSystem') === '1') {
+                            // B/C - Convert old options
+                            $whichTaggingSystem = ($params->get('taggingSystem')) ? 'free' : 'selection';
+                            $params->set('taggingSystem', $whichTaggingSystem);
+                        }
+                        if ($view == 'item' && $params->get('taggingSystem') == 'selection') {
                             JHtml::_('formbehavior.chosen', 'select:not(#selectedTags, #tags)');
                         } else {
                             JHtml::_('formbehavior.chosen', 'select');
@@ -384,6 +408,7 @@ class K2HelperHTML
                     $document->addStyleSheet('https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css');
                 }
                 if ($option == 'com_k2') {
+                    $document->addStyleSheet('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&display=swap');
                     $document->addStyleSheet(JURI::root(true).'/media/k2/assets/css/k2.backend.css?v='.K2_CURRENT_VERSION.'&b='.K2_BUILD_ID);
                 }
                 if ($adminModuleIncludes) {

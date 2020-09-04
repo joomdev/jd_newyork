@@ -172,7 +172,7 @@ echo DJEventsHelper::getModules('djevents-top');
 						
 						<?php if ($user->authorise('core.delete', 'com_djevents') || $user->authorise('event.delete.own', 'com_djevents')) { ?>
 						<a class="btn btn-small" href="<?php echo JRoute::_('index.php?option=com_djevents&task=myevents.delete&id='.$item->id.'&'.JSession::getFormToken().'=1'); ?>" 
-								onclick="return confirm('<?php echo $this->escape(JText::_('COM_DJEVENTS_DELETE_CONFIRM_MSG')); ?>');">
+								onclick="return confirm('<?php echo $this->escape(addslashes(JText::_('COM_DJEVENTS_DELETE_CONFIRM_MSG'))); ?>');">
 							<span class="icon-remove hasTip" aria-hidden="true" title="<?php echo JText::_('COM_DJEVENTS_DELETE_EVENT') ?>"></span>
 						</a>
 						<?php } ?>

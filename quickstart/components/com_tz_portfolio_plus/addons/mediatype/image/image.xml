@@ -7,7 +7,7 @@
     <license>GNU/GPL v2 or later http://www.gnu.org/licenses/gpl-2.0.html</license>
     <authorEmail>support@templaza.com</authorEmail>
     <authorUrl>www.templaza.com/</authorUrl>
-    <version>2.3.8</version>
+    <version>2.4.2</version>
     <description>PLG_MEDIATYPE_IMAGE_XML_DESCRIPTION</description>
 
     <files>
@@ -269,6 +269,33 @@
                        label="PLG_MEDIATYPE_IMAGE_SIZE_LABEL"
                        description="PLG_MEDIATYPE_IMAGE_SIZE_DESC">
                     <option value="o">PLG_MEDIATYPE_IMAGE_ORIGINAL</option>
+                </field>
+                <field name="image_lightbox_enable" type="radio"
+                       class="switch btn-group" default="1"
+                       label="PLG_MEDIATYP_IMAGE_LIGHTBOX_ENABLE_LABEL">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field name="image_lightbox_option" type="List"
+                       label="PLG_MEDIATYPE_IMAGE_LIGHTBOX_LABEL"
+                       description="PLG_MEDIATYPE_GRID_GALLERY_LIGHTBOX_LABEL"
+                       multiple="true"
+                       showon="image_lightbox_enable:1"
+                       default="[&quot;zoom&quot;, &quot;slideShow&quot;, &quot;fullScreen&quot;, &quot;thumbs&quot;, &quot;close&quot;]">
+                    <option value="zoom">zoom</option>
+                    <option value="share">share</option>
+                    <option value="slideShow">slideShow</option>
+                    <option value="fullScreen">fullScreen</option>
+                    <option value="download">download</option>
+                    <option value="thumbs">thumbs</option>
+                    <option value="close">close</option>
+                </field>
+                <field name="image_lightbox_caption_enable" type="radio"
+                       class="switch btn-group" default="1"
+                       showon="image_lightbox_enable:1"
+                       label="PLG_MEDIATYP_IMAGE_LIGHTBOX_ENABLE_CAPTION_LABEL">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
                 </field>
 
                 <!-- Start related options -->

@@ -1,12 +1,15 @@
 $menu-divider: #ddd;
 
 .astroid-header-section {
-   header.astroid-header {
+   header.astroid-header:not(.astroid-header-sticky) {
       padding: 0;
    }
-   .astroid-header-sticky > div {
-      padding-top: 0;
-      padding-bottom: 0;
+   .astroid-header-sticky {
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, .075);
+      > div {
+         padding-top: 0;
+         padding-bottom: 0;
+      }
    }
 }
 

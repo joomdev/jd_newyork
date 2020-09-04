@@ -21,7 +21,7 @@ if (!class_exists('vmPSPlugin')) {
 }
 
 class plgVmPaymentSofort_Ideal extends vmPSPlugin {
-	const RELEASE = 'VM 3.6.10';
+	const RELEASE = 'VM 3.8.4';
 	const PAYMENT_CURRENCY_CODE_3 = 'EUR';
 
 	function __construct(& $subject, $config) {

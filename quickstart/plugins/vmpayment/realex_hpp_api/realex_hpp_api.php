@@ -7,7 +7,7 @@ defined('_JEXEC') or die();
  * Realex payment plugin
  *
  * @author Valerie Isaksen
- * @version $Id: realex_hpp_api.php 10132 2019-09-11 08:50:38Z Milbo $
+ * @version $Id: realex_hpp_api.php 10298 2020-04-08 09:41:47Z Milbo $
  * @package VirtueMart
  * @subpackage payment
  * Copyright (C) 2004 - 2019 Virtuemart Team. All rights reserved.
@@ -918,12 +918,6 @@ class plgVmPaymentRealex_hpp_api extends vmPSPlugin {
 			}
 		}
 
-		JLoader::import('joomla.plugin.helper');
-		JPluginHelper::importPlugin('vmuserfield');
-		JFactory::getApplication()->triggerEvent('plgVmOnStoreInstallPluginTable', array(
-		                                                          'userfield',
-		                                                          'realex_hpp_api'
-		                                                     ));
 	}
 
 	/**

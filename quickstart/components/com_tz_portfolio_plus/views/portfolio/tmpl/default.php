@@ -21,12 +21,14 @@
 defined('_JEXEC') or die();
 
 $doc    = JFactory::getDocument();
-$app        = JFactory::getApplication('site');
-$input      = $app -> input;
+$app    = JFactory::getApplication('site');
+$input  = $app -> input;
 $params = &$this -> params;
+
 $doc -> addScriptDeclaration('
 jQuery(document).ready(function(){
     jQuery("#portfolio").tzPortfolioPlusIsotope({
+        "rtl": '.(JFactory::getLanguage() -> isRtl()?'true':'false').',
         "params": '.$this -> params .'
     });
 });

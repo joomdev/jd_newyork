@@ -57,10 +57,15 @@ class vmPPButton {
 			$text = vmText::_('VMPAYMENT_PAYPAL_EXPCHECKOUT_BUTTON');
         }
 
+		header('Access-Control-Allow-Origin: https://www.paypalobjects.com');
+		header('Access-Control-Allow-Origin: https://www.paypal.com');
+		header('Access-Control-Allow-Origin: https://www.sandbox.paypal.com');
+
 		//vmdebug('renderCheckoutButton',$method);
 		$locale = str_replace('-','_',VmLanguage::$jSelLangTag);
 
 		if(!empty($method->enable_smart_buttons)){
+
 
 			$colorOption = 'color: \''.$method->smbt_color.'\'';
 			$fundingIco= '';

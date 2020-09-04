@@ -14,7 +14,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: userfields.php 10206 2019-11-18 11:40:12Z Milbo $
+ * @version $Id: userfields.php 10333 2020-06-16 16:24:03Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -551,7 +551,7 @@ class VirtueMartModelUserfields extends VmModel {
 		} else {
 			$sec = $_sec;
 		}
-		$cache_hash = md5($sec.json_encode($_switches).json_encode($_skip).$this->_selectedOrdering.$this->_selectedOrderingDir);
+		$cache_hash = crc32($sec.json_encode($_switches).json_encode($_skip).$this->_selectedOrdering.$this->_selectedOrderingDir);
 		if (isset(self::$_cache_ordered[$cache_hash])) return self::$_cache_ordered[$cache_hash];
 
 		$_q = 'SELECT * FROM `#__virtuemart_userfields` WHERE 1 = 1 ';
@@ -844,6 +844,7 @@ class VirtueMartModelUserfields extends VmModel {
 					// 					break;
 					case 'virtuemart_country_id':
 
+						VmLanguage::loadJLang('com_virtuemart_countries');
 						$attrib = array();
 						if ($_fld->size) {
 							$attrib = array('style'=>"width: ".$_fld->size."px");
@@ -974,7 +975,8 @@ class VirtueMartModelUserfields extends VmModel {
 							$maxmin = '';
 							break;
 						case 'emailaddress':
-							if( JFactory::getApplication()->isSite()) {
+
+							if( VmConfig::isSite()) {
 								if(empty($_return['fields'][$_fld->name]['value']) && $_fld->required) {
 									$_return['fields'][$_fld->name]['value'] = JFactory::getUser()->email;
 								}

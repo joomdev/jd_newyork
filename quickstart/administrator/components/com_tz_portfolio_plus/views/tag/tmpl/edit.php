@@ -21,9 +21,9 @@
 defined('_JEXEC') or die('Restricted access');
 
 JHtml::_('behavior.formvalidator');
-JHtml::_('behavior.tooltip');
-JHtml::_('behavior.tabstate');
+JHtml::_('bootstrap.tooltip');
 if(!COM_TZ_PORTFOLIO_PLUS_JVERSION_4_COMPARE) {
+    JHtml::_('behavior.tabstate');
     JHtml::_('formbehavior.chosen', 'select');
 }
 else{

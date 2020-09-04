@@ -114,7 +114,8 @@ class TZ_Portfolio_PlusModuleHelper extends JModuleHelper{
                 if((TZ_Portfolio_PlusTemplate::getSassDirByStyle($tpTemplate -> template)
                         || (!TZ_Portfolio_PlusTemplate::getSassDirByStyle($tpTemplate -> template) && TZ_Portfolio_PlusTemplate::getSassDirCore()))
                     && !JFile::exists($legacyPath) &&
-                    $cssRelativePath = TZ_Portfolio_PlusTemplate::getCssStyleName($tpTemplate -> template, $modParams, $docOptions['params'] -> get('colors', array()))){
+                    $cssRelativePath = TZ_Portfolio_PlusTemplate::getCssStyleName($tpTemplate -> template,
+                        $modParams, $docOptions['params'] -> get('colors', array()), $docClone)){
                     $docClone->addStyleSheet(TZ_Portfolio_PlusUri::base(true)
                         . '/css/'.$cssRelativePath, array('version' => 'auto'));
                 }else
@@ -125,6 +126,9 @@ class TZ_Portfolio_PlusModuleHelper extends JModuleHelper{
 //                $docClone -> addStyleSheet(TZ_Portfolio_PlusUri::base(true) . '/templates/'
 //                    . $tpTemplate -> template . '/css/template.css', array('version' => 'auto'));
 
+//                var_dump($cssRelativePath);
+//                unset($docClone -> _styleSheets[TZ_Portfolio_PlusUri::base(true)
+//                    . '/css/style/elegant/style-fc36-f8ec2f40b743846bc9e1dd5edaf9e0ca.css']);
                 $docClone -> parse($docOptions);
                 $doc -> setHeadData($docClone -> getHeadData());
 

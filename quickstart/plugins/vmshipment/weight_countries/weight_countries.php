@@ -5,7 +5,7 @@ defined ('_JEXEC') or die('Restricted access');
 /**
  * Shipment plugin for weight_countries shipments, like regular postal services
  *
- * @version $Id: weight_countries.php 10149 2019-09-16 12:20:25Z Milbo $
+ * @version $Id: weight_countries.php 10313 2020-05-04 13:21:09Z Milbo $
  * @package VirtueMart
  * @subpackage Plugins - shipment
  * @copyright Copyright (C) 2004-2012 VirtueMart Team - All rights reserved.
@@ -466,7 +466,6 @@ class plgVmShipmentWeight_countries extends vmPSPlugin {
 	 *
 	 */
 	function plgVmOnCheckAutomaticSelectedShipment (VirtueMartCart $cart, array $cart_prices, &$shipCounter) {
-
 		return $this->onCheckAutomaticSelected ($cart, $cart_prices, $shipCounter);
 	}
 
@@ -474,8 +473,7 @@ class plgVmShipmentWeight_countries extends vmPSPlugin {
 
 		if(empty($cart->virtuemart_shipmentmethod_id)) return false;
 
-		$virtuemart_vendor_id = 1; //At the moment one, could make sense to use the cart vendor id
-		if ($this->getPluginMethods($virtuemart_vendor_id) === 0) {
+		if ($this->getPluginMethods($cart->vendorId) === 0) {
 			return NULL;
 		}
 

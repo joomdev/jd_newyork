@@ -21,7 +21,7 @@
 defined('_JEXEC') or die;
 
 JHtml::addIncludePath(JPATH_COMPONENT.'/helpers/html');
-JHtml::_('behavior.tooltip');
+JHtml::_('bootstrap.tooltip');
 JHtml::_('behavior.multiselect');
 
 $j4Compare  = COM_TZ_PORTFOLIO_PLUS_JVERSION_4_COMPARE;

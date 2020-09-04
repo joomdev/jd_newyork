@@ -69,40 +69,56 @@ class TZ_Portfolio_PlusControllerLicense extends JControllerForm
     }
 
     public function activePro(){
+        $uri        = JUri::getInstance();
         $license    = $this -> input -> get('license');
+        $lang       = JFactory::getApplication('administrator') -> getLanguage();
 
         $response = \JHttpFactory::getHttp()->post(COM_TZ_PORTFOLIO_PLUS_ACTIVE_LICENSE,
-            array('license' => $license, 'produce' => 'tz-portfolio-plus'));
+            array(
+                'license'   => $license,
+                'language'  => ($lang -> getTag()),
+                'domain'    => ($uri -> getHost()),
+                'produce'   => 'tz-portfolio-plus'
+            )
+        );
 
         if (!$response) {
             return false;
         }
 
         $_result    = new stdClass();
-        $result = json_decode($response -> body);
-        if($result && $result -> state == 200 && $result -> license){
+        $result     = json_decode($response -> body);
+        if($result){
+            if($result -> state == 200 && $result -> license){
 
-            $lic    = $result -> license;
-            $data   = '<?php die("Access Denied"); ?>#x#' . serialize($lic);
+                $lic    = $result -> license;
+                $data   = '<?php die("Access Denied"); ?>#x#' . serialize($lic);
 
-            $licPath    = COM_TZ_PORTFOLIO_PLUS_ADMIN_PATH.'/includes/license.php';
+                $licPath    = COM_TZ_PORTFOLIO_PLUS_ADMIN_PATH.'/includes/license.php';
 
-            if(JFile::exists($licPath)){
-                JFile::delete($licPath);
+                if(JFile::exists($licPath)){
+                    JFile::delete($licPath);
+                }
+
+                JFile::write($licPath, $data);
+
+                $_result -> state   = 200;
+                $_result -> success   = true;
+                $_result -> message = JText::_('COM_TZ_PORTFOLIO_PLUS_SETUP_ACTIVE_PRO_VERSION_SUCCESS');
+                $_result -> license = $license;
+
+                $app    = JFactory::getApplication();
+                $app -> enqueueMessage(JText::_('COM_TZ_PORTFOLIO_PLUS_SETUP_ACTIVE_PRO_VERSION_SUCCESS'));
+                $app->getSession()->set('application.queue', $app->getMessageQueue());
+
+                return $this -> output($_result);
+            }else{
+                $_result -> state   = 400;
+                $_result -> success = false;
+                $_result -> message = $result -> message;
+
+                return $this -> output($_result);
             }
-
-            JFile::write($licPath, $data);
-
-            $_result -> state   = 200;
-            $_result -> success   = true;
-            $_result -> message = JText::_('COM_TZ_PORTFOLIO_PLUS_SETUP_ACTIVE_PRO_VERSION_SUCCESS');
-            $_result -> license = $license;
-
-            $app    = JFactory::getApplication();
-            $app -> enqueueMessage(JText::_('COM_TZ_PORTFOLIO_PLUS_SETUP_ACTIVE_PRO_VERSION_SUCCESS'));
-            $app->getSession()->set('application.queue', $app->getMessageQueue());
-
-            return $this -> output($_result);
         }
 
         return false;
@@ -111,10 +127,14 @@ class TZ_Portfolio_PlusControllerLicense extends JControllerForm
     public function verifyLicense($key){
         $post       = array('token_key' => $key, 'produce' => 'tz-portfolio-plus');
 
-        if($response = JHttpFactory::getHttp() -> post(COM_TZ_PORTFOLIO_PLUS_VERIFY_LICENSE, $post)){
-            if($response -> code == 200) {
-                return json_decode($response->body);
+        try{
+            if($response = JHttpFactory::getHttp() -> post(COM_TZ_PORTFOLIO_PLUS_VERIFY_LICENSE, $post)){
+                if($response -> code == 200) {
+                    return json_decode($response->body);
+                }
             }
+        }catch (Exception $exception){
+        var_dump($exception); die();
         }
 
         return false;

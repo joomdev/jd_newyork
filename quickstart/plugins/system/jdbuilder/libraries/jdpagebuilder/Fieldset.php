@@ -3,7 +3,7 @@
 /**
  * @package    JD Builder
  * @author     Team Joomdev <info@joomdev.com>
- * @copyright  2019 www.joomdev.com
+ * @copyright  2020 www.joomdev.com
  * @license    GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -66,17 +66,25 @@ class Fieldset
                }
                $sfields = Helper::getFieldsGroup($filename, $this->type);
                $defaults = [];
+               $invisibles = [];
                foreach ($field->property as $property) {
                   $pName =  (string) $property->attributes()->name;
                   $pDefault =  (string) $property->attributes()->default;
                   $defaults[$name . ucfirst($pName)] = $pDefault;
+
+                  $invisible =  (string) $property->attributes()->invisible;
+                  $invisible = ($invisible === 'true') ? true : false;
+                  if ($invisible) {
+                     $invisibles[] = $pName;
+                  }
                }
                foreach ($sfields as $sfield) {
                   $type = (string) $sfield->attributes()->type;
                   if ($type == "group" && $type == "fieldsgroup") {
                      continue;
                   }
-                  $this->groups[$gname]->addField($sfield, $name, $defaults, $showon);
+                  $sfName =  (string) $sfield->attributes()->name;
+                  $this->groups[$gname]->addField($sfield, $name, $defaults, $showon, in_array($sfName, $invisibles));
                }
             } else {
                $this->groups[$gname]->addField($field);
@@ -130,17 +138,25 @@ class Fieldset
                $showon = empty($showon) ? null : $showon;
                $sfields = Helper::getFieldsGroup($filename, $this->type);
                $defaults = [];
+               $invisibles = [];
                foreach ($field->property as $property) {
                   $pName =  (string) $property->attributes()->name;
                   $pDefault =  (string) $property->attributes()->default;
                   $defaults[$name . ucfirst($pName)] = $pDefault;
+
+                  $invisible =  (string) $property->attributes()->invisible;
+                  $invisible = ($invisible === 'true') ? true : false;
+                  if ($invisible) {
+                     $invisibles[] = $pName;
+                  }
                }
                foreach ($sfields as $sfield) {
                   $type = (string) $sfield->attributes()->type;
                   if ($type == "group" && $type == "fieldsgroup") {
                      continue;
                   }
-                  $this->groups[$gname]->addField($sfield, $name, $defaults, $showon);
+                  $sfName =  (string) $sfield->attributes()->name;
+                  $this->groups[$gname]->addField($sfield, $name, $defaults, $showon, in_array($sfName, $invisibles));
                }
             } else {
                $this->groups[$gname]->addField($field);

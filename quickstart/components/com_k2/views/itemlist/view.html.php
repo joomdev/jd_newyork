@@ -3,7 +3,7 @@
  * @version    2.10.x
  * @package    K2
  * @author     JoomlaWorks https://www.joomlaworks.net
- * @copyright  Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.
+ * @copyright  Copyright (c) 2006 - 2020 JoomlaWorks Ltd. All rights reserved.
  * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
  */
 
@@ -282,8 +282,22 @@ class K2ViewItemlist extends K2View
                     $db->setQuery('SELECT id, name FROM #__k2_tags WHERE name = '.$db->quote($tag));
                     $tag = $db->loadObject();
                     if (!$tag || !$tag->id) {
-                        JError::raiseError(404, JText::_('K2_NOT_FOUND'));
-                        return false;
+                        jimport('joomla.filesystem.file');
+
+                        if (JFile::exists(JPATH_ADMINISTRATOR.'/components/com_joomfish/joomfish.php')) {
+                            $db->setQuery('SELECT id, value FROM #__jf_content WHERE value = '.$db->quote($tag));
+                            $tag = $db->loadObject();
+                        }
+
+                        if (JFile::exists(JPATH_ADMINISTRATOR.'/components/com_falang/falang.php')) {
+                            $db->setQuery('SELECT id, value FROM #__falang_content WHERE value = '.$db->quote($tag));
+                            $tag = $db->loadObject();
+                        }
+
+                        if (!$tag || !$tag->id) {
+                            JError::raiseError(404, JText::_('K2_NOT_FOUND'));
+                            return false;
+                        }
                     }
 
                     // Set layout
@@ -297,13 +311,15 @@ class K2ViewItemlist extends K2View
 
                     // Set title
                     $title = $tag->name;
-                    if ($this->menuItemMatchesK2Entity('itemlist', 'tag', $tag->name) && !empty($params->get('page_title'))) {
+                    $page_title = $params->get('page_title');
+                    if ($this->menuItemMatchesK2Entity('itemlist', 'tag', $tag->name) && !empty($page_title)) {
                         $title = $params->get('page_title');
                     }
                     $this->assignRef('title', $title);
 
                     // Link
                     $link = K2HelperRoute::getTagRoute($tag->name);
+                    $link = JRoute::_($link);
                     $this->assignRef('link', $link);
 
                     // Set head feed link
@@ -364,6 +380,7 @@ class K2ViewItemlist extends K2View
 
                     // Link
                     $link = K2HelperRoute::getUserRoute($id);
+                    $link = JRoute::_($link);
                     $this->assignRef('link', $link);
 
                     // Set head feed link
@@ -528,8 +545,9 @@ class K2ViewItemlist extends K2View
                 $limit = JRequest::getInt('limit');
             }
             // Protect from large limit requests
-            if ($limit > 100) {
-                $limit = 100;
+            $siteItemlistLimit = (int) $params->get('siteItemlistLimit', 100);
+            if ($siteItemlistLimit && $limit > $siteItemlistLimit) {
+                $limit = $siteItemlistLimit;
             }
             JRequest::setVar('limit', $limit);
 
@@ -773,10 +791,12 @@ class K2ViewItemlist extends K2View
 
                     // Set canonical link
                     $this->setCanonicalUrl($category->link);
+                    $link = $category->link;
 
                     // Set <title>
                     if ($menuItemMatch) {
-                        if (empty($params->get('page_title'))) {
+                        $page_title = $params->get('page_title');
+                        if (empty($page_title)) {
                             $params->set('page_title', $title);
                         }
                     } else {
@@ -909,7 +929,8 @@ class K2ViewItemlist extends K2View
 
                     // Set <title>
                     if ($menuItemMatch) {
-                        if (empty($params->get('page_title'))) {
+                        $page_title = $params->get('page_title');
+                        if (empty($page_title)) {
                             $params->set('page_title', $tag->name);
                         }
                     } else {
@@ -1000,7 +1021,8 @@ class K2ViewItemlist extends K2View
 
                     // Set <title>
                     if ($menuItemMatch) {
-                        if (empty($params->get('page_title'))) {
+                        $page_title = $params->get('page_title');
+                        if (empty($page_title)) {
                             $params->set('page_title', $userObject->name);
                         }
                     } else {
@@ -1120,7 +1142,8 @@ class K2ViewItemlist extends K2View
                     break;
                 case 'date':
                     // Set canonical link
-                    $this->setCanonicalUrl($currentAbsoluteUrl);
+                    $this->setCanonicalUrl($currentRelativeUrl);
+                    $link = $currentRelativeUrl;
 
                     // Set <title>
                     $params->set('page_title', $title);
@@ -1171,7 +1194,8 @@ class K2ViewItemlist extends K2View
                     break;
                 case 'search':
                     // Set canonical link
-                    $this->setCanonicalUrl($currentAbsoluteUrl);
+                    $this->setCanonicalUrl($currentRelativeUrl);
+                    $link = $currentRelativeUrl;
 
                     // Set <title>
                     $params->set('page_title', $title);
@@ -1222,7 +1246,8 @@ class K2ViewItemlist extends K2View
                     break;
                 default:
                     // Set canonical link
-                    $this->setCanonicalUrl($currentAbsoluteUrl);
+                    $this->setCanonicalUrl($currentRelativeUrl);
+                    $link = $currentRelativeUrl;
 
                     // Set <title>
                     if (K2_JVERSION != '15') {
@@ -1295,33 +1320,42 @@ class K2ViewItemlist extends K2View
                     break;
             }
 
-            // Feed URLs
-            if ($task != 'tag') {
-                $link = JURI::getInstance()->toString();
+            // Feed URLs (use the $link variable set previously)
+            $feedLink = $link;
+            $joiner = '?';
+            if (strpos($feedLink, '?') !== false) {
+                $joiner = '&';
             }
+            $feedLink .= $joiner.'format=feed';
 
+            /*
             if (!is_null($menuActive) && isset($menuActive->id)) {
-                $link .= '&format=feed&Itemid='.$menuActive->id;
+                $feedLink .= $joiner.'format=feed&Itemid='.$menuActive->id;
             } else {
-                $link .= '&format=feed';
+                $feedLink .= $joiner.'format=feed';
             }
+            */
 
             if ($addHeadFeedLink) {
                 if ($metaTitle) {
                     $metaTitle = $metaTitle.' | ';
                 }
-                $document->addHeadLink(JRoute::_($link.'&type=rss'), 'alternate', 'rel', array(
+                $document->addHeadLink(JRoute::_($feedLink), 'alternate', 'rel', array(
+                    'type' => 'application/rss+xml',
+                    'title' => $metaTitle.''.JText::_('K2_FEED')
+                ));
+                $document->addHeadLink(JRoute::_($feedLink.'&type=rss'), 'alternate', 'rel', array(
                     'type' => 'application/rss+xml',
                     'title' => $metaTitle.'RSS 2.0'
                 ));
-                $document->addHeadLink(JRoute::_($link.'&type=atom'), 'alternate', 'rel', array(
+                $document->addHeadLink(JRoute::_($feedLink.'&type=atom'), 'alternate', 'rel', array(
                     'type' => 'application/atom+xml',
                     'title' => $metaTitle.'Atom 1.0'
                 ));
             }
 
-            $feed = JRoute::_($link);
-            $this->assignRef('feed', $feed);
+            $feedLink = JRoute::_($feedLink);
+            $this->assignRef('feed', $feedLink);
         }
 
         if (!in_array($document->getType(), ['feed', 'json'])) {
@@ -1443,12 +1477,22 @@ class K2ViewItemlist extends K2View
     private function setCanonicalUrl($url)
     {
         $document = JFactory::getDocument();
+        $limitstart = JRequest::getInt('limitstart', 0);
         $params = K2HelperUtilities::getParams('com_k2');
         $canonicalURL = $params->get('canonicalURL', 'relative');
-        if ($canonicalURL == 'absolute') {
-            $url = substr(str_replace(JUri::root(true), '', JUri::root(false)), 0, -1).$url;
+        if ($canonicalURL) {
+            if ($limitstart) {
+                $joiner = '?';
+                if (strpos($url, '?') !== false) {
+                    $joiner = '&';
+                }
+                $url = $url.''.$joiner.'start='.$limitstart;
+            }
+            if ($canonicalURL == 'absolute') {
+                $url = substr(str_replace(JUri::root(true), '', JUri::root(false)), 0, -1).$url;
+            }
+            $document->addHeadLink($url, 'canonical', 'rel');
         }
-        $document->addHeadLink($url, 'canonical', 'rel');
     }
 
     private function menuItemMatchesK2Entity($view, $task, $identifier)

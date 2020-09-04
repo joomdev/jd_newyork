@@ -14,7 +14,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: orderstatus.php 10176 2019-10-14 13:08:12Z Milbo $
+ * @version $Id: orderstatus.php 10216 2019-12-03 20:03:55Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -108,7 +108,7 @@ class VirtueMartModelOrderstatus extends VmModel {
 			$hashValue = $value;
 		}
 
-		$hash = md5($hashValue.$name.$attrs);
+		$hash = crc32($hashValue.$name.$attrs);
 		if (!isset($this->_renderStatusList[$hash])) {
 			$orderStates = $this->getOrderStatusNames();
 			if($empty){

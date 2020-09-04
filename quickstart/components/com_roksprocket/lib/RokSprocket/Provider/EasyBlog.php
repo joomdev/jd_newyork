@@ -92,7 +92,8 @@ class RokSprocket_Provider_EasyBlog extends RokSprocket_Provider_AbstarctJoomlaB
 
 
 		//suppress easyblog code errors
-		$cfg = @EasyBlogHelper::getConfig();
+		// $cfg = @EasyBlogHelper::getConfig();
+		$cfg = @EB::getConfig();
 
 		$item = new RokSprocket_Item();
 
@@ -263,12 +264,8 @@ class RokSprocket_Provider_EasyBlog extends RokSprocket_Provider_AbstarctJoomlaB
 		$texts['text_metadesc'] = $raw_item->metadesc;
 		$texts                  = $this->processPlugins($texts);
 		$item->setTextFields($texts);
-		if ($provider_version < "5.0.0") {
-			$item->setText($texts['text_intro']);
-		}
-		elseif ($provider_version >= "5.0.0") {
-			$item->setText($texts['text_content']);
-		}
+		$item->setText($texts['text_intro'] . $texts['text_content']);
+
 
 		$item->setDbOrder($dborder);
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @author    RocketTheme http://www.rockettheme.com
- * @copyright Copyright (C) 2007 - 2019 RocketTheme, LLC
+ * @copyright Copyright (C) 2007 - 2020 RocketTheme, LLC
  * @license   http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 only
  */
 
@@ -27,7 +27,7 @@ class plgSystemRokCommon extends JPlugin
      */
     const ROKCOMMON_CONFIG_TYPE_METACONFIG = 'metaconfig';
 
-    const ROKCOMMON_PLUGIN_VERSION = '3.2.8';
+    const ROKCOMMON_PLUGIN_VERSION = '3.2.9';
 
 
     /**

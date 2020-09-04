@@ -13,7 +13,7 @@
  * to the GNU General Public License, and as distributed it includes or
  * is derivative of works licensed under the GNU General Public License or
  * other free or open source software licenses.
- * @version $Id: product.php 10205 2019-11-18 11:26:57Z Milbo $
+ * @version $Id: product.php 10305 2020-04-29 08:28:18Z Milbo $
  */
 
 // Check to ensure this file is included in Joomla!
@@ -55,7 +55,7 @@ class VirtuemartControllerProduct extends VmController {
 
 		if($data===0)$data = vRequest::getRequest();
 
-		$this->getStrByAcl(array('product_name','product_desc','product_s_desc','customtitle'),$data);
+		$this->getStrByAcl(array('product_name','product_desc','product_s_desc','customtitle', 'customfield_params'),$data);
 
 		if(isset($data['field'])){
 			$data['field'] = vRequest::getHtml('field');
@@ -131,7 +131,6 @@ class VirtuemartControllerProduct extends VmController {
 
 
 				if($target=='parent'){
-					vmdebug('toParent');
 					$redirect = 'index.php?option=com_virtuemart&view=product&task=edit&virtuemart_product_id='.$cid;
 				} else {
 					$redirect = 'index.php?option=com_virtuemart&view=product&task=edit&virtuemart_product_id='.$id;

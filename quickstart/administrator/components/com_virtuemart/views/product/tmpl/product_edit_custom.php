@@ -64,10 +64,10 @@ defined('_JEXEC') or die('Restricted access');
 
 					if(!empty($title)){
 						$tip = 'COM_VIRTUEMART_CUSTOMFLD_DIS_DER_TIP';
-						$text = '<span style="white-space: nowrap;" class="hasTip" title="'.htmlentities(vmText::_($tip)).'">d:'.VmHtml::checkbox('field[' . $i . '][disabler]',$customfield->disabler,$checkValue).'</span>';
+						$text = '<span style="white-space: nowrap;" class="hasTooltip" title="'.htmlentities(vmText::_($tip)).'">d:'.VmHtml::checkbox('field[' . $i . '][disabler]',$customfield->disabler,$checkValue).'</span>';
 					} else {
 						$tip = 'COM_VIRTUEMART_CUSTOMFLD_DIS_INH_TIP';
-						$text = '<span style="white-space: nowrap;" class="hasTip" title="'.htmlentities(vmText::_($tip)).'">disinh:'.VmHtml::checkbox('field[' . $i . '][noninheritable]',$customfield->noninheritable,$checkValue).'</span>';
+						$text = '<span style="white-space: nowrap;" class="hasTooltip" title="'.htmlentities(vmText::_($tip)).'">disinh:'.VmHtml::checkbox('field[' . $i . '][noninheritable]',$customfield->noninheritable,$checkValue).'</span>';
 					}
 
 
@@ -109,7 +109,7 @@ defined('_JEXEC') or die('Restricted access');
 						}
 
 						if(!empty($title)){
-							$text .= '<span style="white-space: nowrap;" class="hasTip" title="'.htmlentities(vmText::_('COM_VIRTUEMART_DIS_DER_CUSTOMFLD_OVERR_DER_TIP')).'">o:'.VmHtml::checkbox('field['.$i.'][override]',$customfield->override,$checkValue).'</span>';
+							$text .= '<span style="white-space: nowrap;" class="hasTooltip" title="'.htmlentities(vmText::_('COM_VIRTUEMART_DIS_DER_CUSTOMFLD_OVERR_DER_TIP')).'">o:'.VmHtml::checkbox('field['.$i.'][override]',$customfield->override,$checkValue).'</span>';
 						}
 
 						$tables['fields'] .= '<tr class="removable">
@@ -117,7 +117,7 @@ defined('_JEXEC') or die('Restricted access');
 							<b>'.vmText::_($type).'</b> '.vmText::_($customfield->custom_title).'</span><br/>
 								'.$title.' '.$text.'
 								<span class="vmicon vmicon-16-'.$cartIcone.'"></span>';
-						if($customfield->virtuemart_product_id==$this->product->virtuemart_product_id or $customfield->override!=0){
+						if(($customfield->virtuemart_product_id==$this->product->virtuemart_product_id or $customfield->override!=0) and $customfield->disabler==0){
 							$tables['fields'] .= '<span class="vmicon vmicon-16-move"></span>
 							<span class="vmicon vmicon-16-remove 4remove"></span>';
 						}

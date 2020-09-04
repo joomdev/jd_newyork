@@ -3,7 +3,7 @@
  * @version    2.10.x
  * @package    K2
  * @author     JoomlaWorks https://www.joomlaworks.net
- * @copyright  Copyright (c) 2006 - 2019 JoomlaWorks Ltd. All rights reserved.
+ * @copyright  Copyright (c) 2006 - 2020 JoomlaWorks Ltd. All rights reserved.
  * @license    GNU/GPL license: https://www.gnu.org/copyleft/gpl.html
  */
 
@@ -85,7 +85,7 @@ $app = JFactory::getApplication();
                         <label for="tags"><?php echo JText::_('K2_TAGS'); ?></label>
                     </div>
                     <div class="k2ui-field-value">
-                        <?php if($this->params->get('taggingSystem')): ?>
+                        <?php if($this->params->get('taggingSystem') == 'free'): ?>
                         <!-- Free tagging -->
                         <ul class="tags">
                             <?php if(isset($this->row->tags) && count($this->row->tags)): ?>
@@ -267,7 +267,7 @@ $app = JFactory::getApplication();
                                 <label><?php echo JText::_('K2_ITEM_IMAGE'); ?></label>
                             </div>
                             <div class="itemAdditionalData">
-                                <input type="file" name="image" class="fileUpload k2Selector" />
+                                <input type="file" name="image" class="fileUpload k2Selector" accept="image/*" />
                                 <i>(<?php echo JText::_('K2_MAX_UPLOAD_SIZE'); ?>: <?php echo ini_get('upload_max_filesize'); ?>)</i>
 
                                 <span class="sep"><?php echo JText::_('K2_OR'); ?></span>
@@ -356,7 +356,7 @@ $app = JFactory::getApplication();
                                 <label><?php echo JText::_('K2_UPLOAD_A_ZIP_FILE_WITH_IMAGES'); ?></label>
                             </div>
                             <div class="itemAdditionalData">
-                                <input type="file" name="gallery" class="fileUpload k2Selector" />
+                                <input type="file" name="gallery" class="fileUpload k2Selector" accept=".zip" />
                                 <span class="hasTip k2GalleryNotice" title="<?php echo JText::_('K2_UPLOAD_A_ZIP_FILE_HELP_HEADER'); ?>::<?php echo JText::_('K2_UPLOAD_A_ZIP_FILE_HELP_TEXT'); ?>">
                                     <i class="fa fa-question-circle" aria-hidden="true"></i>
                                 </span>
@@ -438,7 +438,7 @@ $app = JFactory::getApplication();
                                         </ul>
                                         <div id="k2MediaTab1" class="k2TabsContent">
                                             <div class="panel" id="Upload_video">
-                                                <input type="file" name="video" class="fileUpload k2Selector" />
+                                                <input type="file" name="video" class="fileUpload k2Selector" accept="video/*,audio/*" />
                                                 <i>(<?php echo JText::_('K2_MAX_UPLOAD_SIZE'); ?>: <?php echo ini_get('upload_max_filesize'); ?>)</i>
                                             </div>
                                         </div>

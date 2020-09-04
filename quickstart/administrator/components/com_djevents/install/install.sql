@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS `#__djev_events` (
   `checked_out_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` int(11) NOT NULL,
+  `online_event` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `cat_id` (`cat_id`),
   KEY `city_id` (`city_id`),
